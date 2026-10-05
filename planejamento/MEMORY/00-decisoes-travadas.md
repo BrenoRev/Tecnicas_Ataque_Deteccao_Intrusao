@@ -127,6 +127,9 @@ Origem: **U** = respondida pelo usuário no intake; **R** = recomendação técn
 41. **[R] Seeds derivadas: o SMOTE do subconjunto `i` usa `seed * 100 + i`; os Random Forests e o meta-classificador usam `seed`.** Declarado em `config.py`.
     Sem colisão entre seeds 0 a 9 e 42, e sem valor escolhido pelo implementador. (afeta: 02, 07)
 
+42. **[U] A execução com dados reais (N2 das tarefas 08 a 16 e a execução limpa final) pode ser feita na máquina local ou no cluster Apuana do CIn; o importante é treinar e gerar a evidência.** A evidência é a mesma nos dois casos: resultados em `results/`, `run.json` com máquina, núcleos, versões, hash dos dados e commit, saída colada no pull request e commit `exp` de quem rodou, com a árvore limpa. Desenvolvimento e testes N1 são locais. Cada tarefa de experimento tem dois fechamentos: "pronta" (código, N1 e revisão) e "executada" (rodada com os dados reais). A seguinte pode começar com a anterior "pronta", salvo quando depende de resultado real (05, 11, 15, 17). Atualiza D3 de `docs/07-pendencias.md`.
+    Pedido do usuário em 07/10/2026. O Apuana usa Slurm, com acesso por formulário e `/home` compartilhado (página do Helpdesk do CIn, 07/10/2026); acesso de graduação, partições, limites e versão do Python não foram verificados. Os modelos treinam em minutos na máquina local, então o cluster é opção, não requisito. Resultados versionados e execução limpa saem do mesmo ambiente, porque máquinas diferentes podem divergir em casas decimais. (afeta: 01, 02, 03, 08 a 16, 19, 23; `.claude/rules/fluxo-implementacao.md`)
+
 ## Pendentes da equipe (valores que o implementador não pode escolher)
 
 Cada item tem uma proposta; a equipe confirma ou troca antes da tarefa indicada, e o valor vai para `config.py` ou para o arquivo citado. Enquanto não decidido, a tarefa para nesse ponto.
@@ -144,6 +147,10 @@ Cada item tem uma proposta; a equipe confirma ou troca antes da tarefa indicada,
 | Grade de M2 | profundidade {5, 10, sem limite} × árvores {10, 100} com `max_features` `sqrt`, mais a combinação do artigo (10 árvores, profundidade 5, 28): sete combinações | 15 | tarefa 15 |
 | Fração da subamostra para a seleção, se o tempo exigir | 25% do treino, estratificada | 15 | tarefa 15 |
 | Fatores de fragmentação | 2, 4, 8 e 16 | 16 | tarefa 16 |
+| Acesso ao Apuana, só se a equipe for usá-lo: formulário do Helpdesk do CIn | `[Preencher: quem pediu, data, situação]` | 08 | tarefa 08 |
+| Python 3.12 e uv no cluster; partição e recursos a pedir (só se for usar o Apuana) | `[Preencher: conferir no cluster ou com cluster.apuana-l@cin.ufpe.br]` | 01, 08 | tarefa 08 |
+| Quem desenvolve e quem executa cada tarefa | `[Preencher]` na tabela de ondas de `plan/00-README.md` | todas | tarefa 01 |
+| `N_JOBS` de `config.py`, igual ao `--cpus-per-task` dos jobs quando houver | `[Decidir: valor]` | 02 | tarefa 08 |
 
 ## Pendentes de terceiros (não são decisões nossas)
 

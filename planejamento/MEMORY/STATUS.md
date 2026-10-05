@@ -28,6 +28,7 @@ plano revisado em 07/10/2026 (segunda revisão independente, cobertura dos requi
 - [x] Perguntas enviadas ao professor em 07/10/2026 (cópia em `docs/07-pendencias.md`)
 - [ ] Respostas do professor a Q1–Q6 e Q9, Q10 e a parte em aberto de Q7 (`docs/07-pendencias.md`); Q7 resolvida em 07/10/2026 (uso de IA aprovado)
 - [ ] Itens de "Pendentes da equipe" em `MEMORY/00-decisoes-travadas.md`: licença, visibilidade, dono por tarefa, drive e `.git` da raiz antes da tarefa 01; Tabela II (literatura) antes da 06; prevalências, amostra do SHAP, grade de M2, fração e fatores antes das tarefas 11, 12, 15 e 16
+- [x] Decisão 42 (07/10/2026): execução com dados reais local ou no Apuana, as duas valem; o importante é treinar e gerar a evidência. Acesso ao cluster só é pedido se a equipe for usá-lo
 - [ ] Template Overleaf lido (tarefa 18, passo 1): o formato das tabelas da tarefa 17 depende dele
 
 ## Mudança de 07/10/2026

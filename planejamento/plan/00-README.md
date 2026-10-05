@@ -95,6 +95,10 @@ Dentro de uma onda as tarefas são independentes e podem ser divididas entre int
 
 As janelas são proposta; as datas em negrito são fixas ou marcos de corte. A janela mais apertada é a de 10/11 a 17/11: é ali que P3 e o relatório competem, e por isso a decisão de 09/11 existe.
 
+## Onde roda (decisão 42)
+
+Desenvolvimento e testes N1: máquina de cada integrante e CI. Execução com dados reais das tarefas 08 a 16 e execução limpa da 19: máquina local ou cluster Apuana, as duas valem; o importante é treinar e gerar a evidência (`results/`, `run.json` com a máquina, saída no pull request). Cada tarefa de experimento tem dois fechamentos, "pronta" e "executada" `[Preencher: quem desenvolve e quem executa, por tarefa]`.
+
 ## O que cortar, e em que ordem, se o prazo apertar
 
 1. Parte B da tarefa 16; depois a 16 inteira.

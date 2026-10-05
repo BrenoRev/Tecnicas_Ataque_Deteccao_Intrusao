@@ -20,6 +20,7 @@ Caminhos relativos a `project/`, o repositório Git.
 | `src/doh_ids/models.py` | 08 | 09, 10, 11, 15 | decisões 09, 13, 15; A8, A9, A10, A14 |
 | `src/doh_ids/explain.py` | 12 | 15, 16 | decisão 19; A15 |
 | `src/doh_ids/robustness.py` | 16 | — | decisão 02; `docs/05-plano-experimental.md`, M3 |
+| `jobs/*.sh` | 08 a 16 | 19 | decisão 42 |
 | `scripts/e0_dados.py` | 04 | 05 | `docs/05-plano-experimental.md`, E0 |
 | `scripts/e1_reproducao.py` | 08 | — | E1 |
 | `scripts/e2_baselines.py` | 09 | — | E2 |

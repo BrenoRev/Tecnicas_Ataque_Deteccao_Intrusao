@@ -15,6 +15,7 @@
 - Sem `[build-system]` no `pyproject.toml`, o uv trata o projeto como virtual e não instala `doh_ids`: `import doh_ids` falha e o teste T01-1 não passa (verificado em 07/10/2026). O bloco do passo 2 é obrigatório.
 - Versões resolvidas por `uv lock` em 07/10/2026 para o que o plano não fixava: matplotlib 3.11.2 e scipy 1.18.1. O scipy é usado no intervalo de confiança binomial da tarefa 06 e no teste de Wilcoxon da 11; fica declarado para o `pyproject.toml` ser o conjunto fechado.
 - Itens que só uma pessoa faz, porque o agente implementador não faz `push`: criar o repositório no GitHub e ligar o remoto, dar acesso aos quatro integrantes, proteger a `main`, abrir e integrar o pull request de prova. O relato do agente lista o que ficou para a pessoa.
+- Cluster, opcional (decisão 42): se a equipe for usar o Apuana, conferir nele se há Python 3.12 e uv. Se não houver uv, o caminho é ambiente virtual com `pip install -r requirements.txt` e `pip install -e .`; o README descreve os dois caminhos. Não verificado em 07/10/2026: versão do Python, partições e limites do cluster.
 
 ## Arquivos
 

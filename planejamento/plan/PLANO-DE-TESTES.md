@@ -14,6 +14,8 @@ Diz, para cada tarefa, o que precisa estar verde antes de passar para a seguinte
 
 O CI não tem os datasets: eles ficam fora do Git e o download do CIRA é manual. Por isso nenhum teste N1 lê `data/`, e tudo o que depende de contagem ou métrica real é N2.
 
+O N2 das tarefas 08 a 16 roda na máquina de quem tem os dados ou no cluster Apuana (decisão 42); nos dois casos a saída vai para o pull request e o `run.json` registra a máquina.
+
 **Regra de passagem:** a tarefa só fecha com N1 verde no CI, N2 executado (quando a tarefa tem) e N3 sem achado bloqueante. A cada tarefa roda a suíte inteira.
 
 ## Base comum dos testes
@@ -58,7 +60,7 @@ Workflow único, criado na tarefa 01, em `push` na `main` e em todo pull request
 | ID | Nível | Teste | Garante |
 | --- | --- | --- | --- |
 | T02-1 | N1 | `config` tem 29 atributos e 5 identificadores, sem repetição e sem interseção | Base do invariante I4 |
-| T02-2 | N1 | `save_run` cria `metrics.json` e `run.json` com trilha, seed, versões, hash dos dados e commit | I6 |
+| T02-2 | N1 | `save_run` cria `metrics.json` e `run.json` com trilha, seed, versões, hash dos dados, commit, nome da máquina e número de núcleos | I6 |
 | T02-3 | N1 | Trilha fora de `fiel`, `corrigida`, `variante`, `dados` levanta erro | As trilhas não se misturam |
 | T02-4 | N1 | Duas chamadas com as mesmas métricas geram `metrics.json` idêntico byte a byte; tempo e data só aparecem no `run.json` | Base do gate G6 |
 | T02-5 | N1 | Fora de um repositório Git, o commit é gravado como nulo e a função não falha | Execução limpa em diretório sem Git |

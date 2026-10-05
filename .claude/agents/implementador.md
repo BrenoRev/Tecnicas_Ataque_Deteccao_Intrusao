@@ -76,6 +76,8 @@ Depois leia o código que já existe em `src/doh_ids/` e `tests/`, para reutiliz
 
 Os datasets ficam fora do Git e são baixados à mão. Se a tarefa precisa deles e eles não estão em `data/raw/` ou `data/processed/`, implemente e teste com os dados sintéticos, deixe as asserções no script e relate que a verificação local ficou pendente para quem tem os dados. Não declare essa parte como verificada.
 
+O N2 das tarefas 08 a 16 pode rodar na máquina local ou no cluster Apuana (decisão 42). Se os dados estão na máquina, rode o script e registre o resultado. Você não submete job ao cluster: se a execução for lá, relate "pronta, aguardando execução".
+
 ## Quando parar
 
 Pare e devolva o relato, sem insistir, quando: a dependência não está concluída; há bloqueio externo sem resposta; falta informação que a tarefa não traz; o critério de aceite não pode ser cumprido como escrito; o gate continua vermelho depois de três correções.

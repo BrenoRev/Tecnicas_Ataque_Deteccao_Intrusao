@@ -59,6 +59,10 @@ A explicabilidade é a contribuição que dá nome ao artigo; P1 não fecha sem 
 - [ ] A limitação do passo 8 está escrita em `results/e5/fiel/RESUMO.md`.
 - [ ] Painel: construído, ou dispensado com referência à resposta de Q6.
 
+## Execução com dados reais: local ou Apuana (decisão 42)
+
+O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e5.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+
 ## Testes
 
 Seção "Tarefa 12" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes listados ali são escritos junto com o código e precisam estar verdes antes da tarefa seguinte.
