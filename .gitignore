@@ -1,0 +1,40 @@
+# Dados: só scripts de download e hashes vão para o Git
+data/raw/
+data/processed/
+*.pcap
+*.pcapng
+
+# Modelos e explainers serializados
+*.pkl
+*.joblib
+
+# Manuscrito do artigo: uso pessoal, não redistribuir
+docs/referencias/*.pdf
+
+# Ambiente e caches
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.ruff_cache/
+.pytest_cache/
+
+# Sistema e editor
+.DS_Store
+.vscode/
+.idea/
+
+# Credenciais e configuração local
+.env
+.claude/settings.local.json
+
+# LaTeX
+report/*.aux
+report/*.log
+report/*.out
+report/*.bbl
+report/*.blg
+report/*.synctex.gz
+
+# Zips
+*.zip
