@@ -30,6 +30,7 @@ A central de conhecimento fica em [docs/](docs/README.md). Leia o arquivo pertin
 | Testes de cada tarefa e o que roda no CI | [planejamento/plan/PLANO-DE-TESTES.md](planejamento/plan/PLANO-DE-TESTES.md) |
 | Requisito do professor → tarefa → artefato demonstrável, e o que mostrar em cada marco | [planejamento/plan/ENTREGAS-DEMONSTRAVEIS.md](planejamento/plan/ENTREGAS-DEMONSTRAVEIS.md) |
 | Regras de código, commit, teste e fluxo de implementação | [.claude/rules/](.claude/rules/) |
+| O que fazer, documentar e evidenciar depois que o código estiver pronto | [POS-IMPLEMENTACAO.md](POS-IMPLEMENTACAO.md) |
 | Material do seminário | [seminario_doh_xai_cin0114.md](docs/referencias/seminario_doh_xai_cin0114.md) |
 | Especificação oficial (fonte de verdade) | `docs/referencias/CIN0114 - 2026.2 - Especificação do seminário e do projeto.md` |
 

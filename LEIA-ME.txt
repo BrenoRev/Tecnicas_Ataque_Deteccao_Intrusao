@@ -221,6 +221,9 @@ novembro não deixa tempo para trocar de dataset, por isso a pressa.
     referencias/               especificação oficial do professor e PDF
                                do artigo
 
+  POS-IMPLEMENTACAO.md         o que fazer, documentar e evidenciar depois
+                               que o código estiver pronto, até a entrega
+
   planejamento/                plano de implementação
     plan/00-README             índice das 23 tarefas, ordem e cortes
     plan/01 a 23               uma tarefa por arquivo
