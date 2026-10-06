@@ -36,3 +36,7 @@ report/*.synctex.gz
 
 # Zips
 *.zip
+# Dados: ficam fora do Git; o link de download está no README
+project/data/raw/
+project/data/processed/
+*.parquet
