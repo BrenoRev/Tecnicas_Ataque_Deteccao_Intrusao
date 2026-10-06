@@ -1,0 +1,7 @@
+#!/bin/sh
+# Barra o commit quando o lint ou a formatação falham.
+# O código e o ambiente ficam em project/; o Git roda o hook na raiz.
+set -e
+cd project
+uv run --locked ruff check .
+uv run --locked ruff format --check .
