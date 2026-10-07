@@ -481,14 +481,13 @@ def explain_test_sample(
     return dependence, local, measures
 
 
-def run_experiment(
-    table: pd.DataFrame, data_sha256: str, results_dir: Path, reading: dict
-) -> tuple[Path, dict]:
-    """Ajusta o sistema, calcula os valores SHAP e grava o resultado em `results_dir`.
+def explain_system(table: pd.DataFrame, reading: dict) -> tuple[dict, dict, dict, tuple]:
+    """Ajusta o sistema sobre `table` e calcula os valores SHAP, sem gravar nada.
 
     `table` tem os atributos do modelo e `label`; `reading` é uma das entradas
-    de `READINGS`. Devolve o diretório da execução e o dicionário gravado em
-    metrics.json.
+    de `READINGS`. Devolve as métricas, a configuração, os tempos e os dados
+    das figuras: a tabela de importância, os dados de dependência e as
+    explicações locais.
     """
     start = time.perf_counter()
     # O teste é separado antes de qualquer ajuste. Ele só é lido aqui para ser
@@ -529,31 +528,46 @@ def run_experiment(
         },
         "stability_top_features": SHAP_TOP_FEATURES,
         "stability": ranking_stability(importance),
-        "fig5_comparison": article_comparison(importance),
         "local": local,
         "stacked_explainer_error": stacked_explainer_error(stacked),
         **measures,
     }
+    config = {
+        "max_depth": stacked.clfs_[0].max_depth,
+        "shap_sample_per_class": SHAP_SAMPLE_PER_CLASS,
+        "shap_sample_seed": SEED_FIEL,
+        "explained_base": EXPLAINED_BASE_NUMBER,
+        "explainer": "shap.TreeExplainer, sem dados de referência, saída em probabilidade",
+        "base_depth": reading["base_depth"],
+    }
     timings["total_seconds"] = round(time.perf_counter() - start, 1)
+    return metrics, config, timings, (importance, dependence, local)
+
+
+def run_experiment(
+    table: pd.DataFrame, data_sha256: str, results_dir: Path, reading: dict
+) -> tuple[Path, dict]:
+    """Ajusta o sistema, calcula os valores SHAP e grava o resultado em `results_dir`.
+
+    `table` tem os atributos do modelo e `label`; `reading` é uma das entradas
+    de `READINGS`. Devolve o diretório da execução e o dicionário gravado em
+    metrics.json.
+    """
+    metrics, config, timings, artifacts = explain_system(table, reading)
+    # A Fig. 5 é do dataset do artigo: a comparação com ela só entra aqui.
+    metrics["fig5_comparison"] = article_comparison(artifacts[0])
     run_dir = save_run(
         experiment="e5",
         track=reading["track"],
         slice_name=reading["slice_name"],
         seed=SEED_FIEL,
         metrics=metrics,
-        config={
-            "max_depth": stacked.clfs_[0].max_depth,
-            "shap_sample_per_class": SHAP_SAMPLE_PER_CLASS,
-            "shap_sample_seed": SEED_FIEL,
-            "explained_base": EXPLAINED_BASE_NUMBER,
-            "explainer": "shap.TreeExplainer, sem dados de referência, saída em probabilidade",
-            "base_depth": reading["base_depth"],
-        },
+        config=config,
         data_sha256=data_sha256,
         timings=timings,
         results_dir=results_dir,
     )
-    write_artifacts(run_dir, importance, dependence, local)
+    write_artifacts(run_dir, *artifacts)
     return run_dir, metrics
 
 
