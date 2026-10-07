@@ -415,6 +415,13 @@ LOCAL_TABLE_FEATURES = 10
 DASHBOARD_HOST = "127.0.0.1"
 DASHBOARD_PORT = 8050
 
+# Fluxos por classe na amostra do teste que o painel explica. A versão 0.5.8 do
+# explainerdashboard só monta o painel sem um módulo que as versões atuais do
+# setuptools não trazem (pkg_resources) quando há no máximo 1.000 linhas: 333
+# por classe é o maior valor igual nas três classes que cabe nesse limite. As
+# figuras estáticas usam a amostra maior, de SHAP_SAMPLE_PER_CLASS.
+DASHBOARD_SAMPLE_PER_CLASS = 333
+
 # Leitura adotada na trilha fiel em cada ponto que o artigo deixa em aberto.
 # O dicionário é gravado no registro de cada execução, para o resultado dizer
 # sozinho que sistema foi treinado.
