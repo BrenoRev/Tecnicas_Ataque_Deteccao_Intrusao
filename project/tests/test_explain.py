@@ -12,6 +12,7 @@ from doh_ids.explain import (
     global_importance,
     original_units,
     rank_agreement,
+    stratified_sample,
 )
 from doh_ids.splits import fit_scaler
 
@@ -84,6 +85,23 @@ def test_rank_agreement_is_one_for_equal_rankings_and_lower_when_swapped():
     # A escala não importa, só a ordem.
     assert rank_agreement(importance, 2 * importance, top=10) == pytest.approx(1.0)
     assert rank_agreement(importance, swapped, top=10) < 1.0
+
+
+def test_stratified_sample_takes_the_requested_rows_of_each_class_and_follows_the_seed(
+    synthetic_flows,
+):
+    # A menor classe da tabela sintética tem 60 fluxos: menos que os 100 pedidos.
+    per_class = 100
+
+    sample = stratified_sample(synthetic_flows, per_class, SEED)
+
+    # A classe com menos fluxos que o pedido entra inteira; as outras, com o pedido.
+    assert sample["label"].value_counts().sort_index().tolist() == [per_class, 60, per_class]
+    assert sample.index.is_unique
+    assert sample.equals(synthetic_flows.loc[sample.index])
+    # A mesma seed sorteia as mesmas linhas; outra seed, linhas diferentes.
+    assert stratified_sample(synthetic_flows, per_class, SEED).index.equals(sample.index)
+    assert not stratified_sample(synthetic_flows, per_class, SEED + 1).index.equals(sample.index)
 
 
 def test_dashboard_is_built_in_memory_without_writing_any_file(
