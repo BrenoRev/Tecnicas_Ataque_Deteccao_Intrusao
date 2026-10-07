@@ -7,7 +7,11 @@ por classe, o período de captura e as estatísticas descritivas vão para
 results/e0/dados/cira/seed42/, e a leitura dos números para
 results/e0/dados/RESUMO.md.
 
-Nenhum modelo é treinado e nada é sorteado: a seed só dá nome à pasta.
+Depois separa treino e teste com a seed 42 e grava em split_counts.json, na
+mesma pasta, as amostras por classe no treino, em cada fold de validação e no
+teste, ao lado das contagens da Fig. 4 do artigo.
+
+Nenhum modelo é treinado. A seed só entra no sorteio do teste e dos folds.
 
 Uso: uv run python scripts/e0_dados.py
 """
@@ -19,6 +23,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import StratifiedKFold
 
 from doh_ids.config import (
     CIRA_PARQUET_PATH,
@@ -33,9 +38,11 @@ from doh_ids.config import (
     SKEW_COLUMNS,
     SKEW_SENTINEL,
     TABLE_I_COUNTS,
+    TEST_SIZE,
 )
 from doh_ids.data import class_counts, clean_flows, feature_matrix, load_cira
 from doh_ids.runlog import save_run
+from doh_ids.splits import fit_scaler, seen_in_train, stratified_split
 
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifest.json"
 
@@ -62,6 +69,15 @@ CLEANING_RULES = [
     ("NaN, infinito e duplicatas nos 29 atributos", True, True, FEATURE_COLUMNS),
 ]
 ADOPTED_RULE = "NaN"
+
+# Amostras por classe no treino e no teste do artigo, na ordem de CLASS_NAMES:
+# soma de cada linha das matrizes de confusão da Fig. 4a (treino) e 4b (teste).
+FIG4_TRAIN_COUNTS = [800829, 17771, 224598]
+FIG4_TEST_COUNTS = [88980, 1975, 24955]
+
+# Validação cruzada de 10 folds sobre o treino, como diz a legenda da Fig. 4a.
+# O artigo não tem conjunto de validação separado.
+CV_FOLDS = 10
 
 
 def sha256_of(path: Path) -> str:
@@ -154,6 +170,81 @@ def descriptive_statistics(flows: pd.DataFrame) -> pd.DataFrame:
     described.index = described.index.set_levels(CLASS_NAMES, level=0)
     described.index.names = ["classe", "atributo"]
     return described
+
+
+def outside_unit_interval(train: pd.DataFrame, test: pd.DataFrame) -> dict:
+    """Conta os valores do teste normalizado que caem fora do intervalo de 0 a 1."""
+    # O scaler conhece só o treino: no teste, o valor abaixo do mínimo ou acima
+    # do máximo do treino sai do intervalo.
+    X_test = fit_scaler(train).transform(feature_matrix(test))
+    outside = pd.DataFrame((X_test < 0) | (X_test > 1), columns=FEATURE_COLUMNS)
+    by_column = outside.sum()
+    return {
+        "values": int(by_column.sum()),
+        "rows": int(outside.any(axis=1).sum()),
+        "by_column": by_column[by_column > 0].to_dict(),
+    }
+
+
+def validation_fold_rows(train: pd.DataFrame) -> list[list[int]]:
+    """Conta as amostras por classe do fold de validação de cada uma das 10 rodadas."""
+    # Os folds são sorteados só dentro do treino; o teste não participa.
+    folds = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED_FIEL)
+    return [
+        class_counts(train.iloc[validation]) for _, validation in folds.split(train, train["label"])
+    ]
+
+
+def split_counts(table: pd.DataFrame) -> dict:
+    """Separa treino e teste e conta as amostras por classe em cada conjunto.
+
+    Devolve o conteúdo de split_counts.json: treino e teste ao lado da Fig. 4,
+    os folds de validação, os valores do teste normalizado fora do intervalo de
+    0 a 1 e as linhas do teste cujo vetor de atributos existe no treino.
+    """
+    train, test = stratified_split(table, SEED_FIEL)
+    assert train.index.intersection(test.index).empty, "Linha no treino e no teste."
+    assert len(train) + len(test) == len(table), "Linha fora do treino e do teste."
+    train_rows, test_rows = class_counts(train), class_counts(test)
+    train_difference = np.subtract(train_rows, FIG4_TRAIN_COUNTS).tolist()
+    test_difference = np.subtract(test_rows, FIG4_TEST_COUNTS).tolist()
+    # A Fig. 4b soma 115.910 fluxos no teste. Com fração de 10% a biblioteca
+    # arredonda o teste para cima, 115.911, e o fluxo a mais é Non-DoH. O
+    # tamanho não é forçado; qualquer outra diferença interrompe o script.
+    assert train_difference == [-1, 0, 0], f"Treino {train_rows} difere da Fig. 4a."
+    assert test_difference == [1, 0, 0], f"Teste {test_rows} difere da Fig. 4b."
+
+    validation_rows = validation_fold_rows(train)
+    seen_rows = class_counts(test[seen_in_train(train, test)])
+    return {
+        "classes": CLASS_NAMES,
+        "seed": SEED_FIEL,
+        "test_size": TEST_SIZE,
+        "train": {
+            "rows": train_rows,
+            "total": len(train),
+            "fig4a": FIG4_TRAIN_COUNTS,
+            "difference": train_difference,
+        },
+        "test": {
+            "rows": test_rows,
+            "total": len(test),
+            "fig4b": FIG4_TEST_COUNTS,
+            "difference": test_difference,
+        },
+        "validation_folds": {
+            "n_folds": CV_FOLDS,
+            "validation_rows": validation_rows,
+            "train_rows": np.subtract(train_rows, validation_rows).tolist(),
+        },
+        "test_outside_unit_interval": outside_unit_interval(train, test),
+        "test_seen_in_train": {
+            "rows": seen_rows,
+            "total": sum(seen_rows),
+            "fraction": np.divide(seen_rows, test_rows).tolist(),
+            "fraction_total": sum(seen_rows) / len(test),
+        },
+    }
 
 
 def markdown_table(frame: pd.DataFrame) -> str:
@@ -287,13 +378,19 @@ def main() -> None:
         "parquet_columns": TABLE_COLUMNS,
         "parquet_sha256": sha256_of(CIRA_PARQUET_PATH),
     }
+    counts = split_counts(table)
     run_dir = save_run(
         experiment="e0",
         track="dados",
         slice_name="cira",
         seed=SEED_FIEL,
         metrics=metrics,
-        config={"zip_members": CIRA_ZIP_MEMBERS, "adopted_rule": ADOPTED_RULE},
+        config={
+            "zip_members": CIRA_ZIP_MEMBERS,
+            "adopted_rule": ADOPTED_RULE,
+            "test_size": TEST_SIZE,
+            "cv_folds": CV_FOLDS,
+        },
         data_sha256=manifest_entry["sha256"],
         timings={"total_seconds": round(time.perf_counter() - start, 1)},
     )
@@ -301,6 +398,8 @@ def main() -> None:
     machines.to_csv(run_dir / "maquina_por_classe.csv")
     period.to_csv(run_dir / "periodo_por_classe.csv")
     descriptive_statistics(table).to_csv(run_dir / "estatisticas_descritivas.csv")
+    counts_text = json.dumps(counts, indent=2, sort_keys=True, ensure_ascii=False)
+    (run_dir / "split_counts.json").write_text(counts_text + "\n", encoding="utf-8")
     summary = summary_text(rules, machines, period, metrics)
     (run_dir.parents[1] / "RESUMO.md").write_text(summary, encoding="utf-8")
 
@@ -310,6 +409,11 @@ def main() -> None:
     print(
         f"Parquet: {CIRA_PARQUET_PATH.relative_to(PROJECT_ROOT)} sha256 {metrics['parquet_sha256']}"
     )
+    print(f"Treino por classe: {counts['train']['rows']}, Fig. 4a {FIG4_TRAIN_COUNTS}")
+    print(f"Teste por classe: {counts['test']['rows']}, Fig. 4b {FIG4_TEST_COUNTS}")
+    print(f"Validação por classe em cada fold: {counts['validation_folds']['validation_rows']}")
+    print(f"Teste normalizado fora de 0 a 1: {counts['test_outside_unit_interval']}")
+    print(f"Teste com vetor de atributos presente no treino: {counts['test_seen_in_train']}")
     print(f"Resultados em {run_dir.relative_to(PROJECT_ROOT)}")
 
 
