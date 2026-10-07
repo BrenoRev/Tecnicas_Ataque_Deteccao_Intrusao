@@ -8,11 +8,17 @@ do HKD. Aplica a mesma limpeza usada no CIRA e grava três tabelas em
 data/processed/: hkd.parquet, combinado.parquet (como publicado) e
 combinado_sem_replicas.parquet (cada fluxo do HKD uma única vez).
 
+Compara os fluxos do HKD com os do CIRA: faixa e mediana de cada atributo,
+distribuição de PacketLengthMode por classe e origem, com a regra de um só
+atributo tirada dela, e, no combinado sem réplicas, a distância de cada fluxo
+do HKD do teste ao fluxo de treino mais próximo.
+
 As contagens de cada tabela vão para results/e6/dados/<tabela>/seed42/, e a
 leitura dos números, com a justificativa da escolha do dataset, para
 results/e6/dados/RESUMO.md.
 
-Nenhum modelo é treinado e nada é sorteado: a seed só dá nome à pasta.
+Nenhum modelo de classificação é treinado. A seed entra só na medida de
+distância, que refaz o split de treino e teste do retreino do sistema.
 
 Uso: uv run python scripts/e6_dados.py
 """
@@ -24,6 +30,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.neighbors import NearestNeighbors
 
 from doh_ids.config import (
     CLASS_NAMES,
@@ -42,10 +49,14 @@ from doh_ids.config import (
     PROJECT_ROOT,
     README_CLASS_ROWS,
     README_TOOL_ROWS,
+    RULE_MAX_LEGITIMATE_FRACTION,
+    RULE_MIN_MALICIOUS_FRACTION,
     SECOND_DATASET_COLUMNS,
     SEED_FIEL,
     TABLE_I_COUNTS,
+    TEST_SIZE,
     TOOL_ORIGIN,
+    TOP_VALUES_SHOWN,
 )
 from doh_ids.data import (
     CSV_COLUMNS,
@@ -61,7 +72,8 @@ from doh_ids.data import (
     without_replicas,
 )
 from doh_ids.runlog import save_run
-from doh_ids.summary import frame_markdown_table
+from doh_ids.splits import fit_scaler, stratified_split
+from doh_ids.summary import frame_markdown_table, markdown_table, one_feature_rule_text
 
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifest.json"
 
@@ -71,6 +83,13 @@ MANIFEST_PATH = PROJECT_ROOT / "data" / "manifest.json"
 CLEANING = {"drop_nan": True, "drop_inf": False, "duplicate_columns": None}
 
 HKD_TOOLS = [tool for tool, origin in TOOL_ORIGIN.items() if origin == "HKD"]
+MALICIOUS = CLASS_NAMES.index("Malicious-DoH")
+HKD_GROUP = "HKD, Malicious-DoH"
+
+# Atributo cuja distribuição é comparada entre o CIRA e o HKD: a moda do
+# comprimento dos pacotes do fluxo, o segundo atributo mais importante na
+# Fig. 5 do artigo.
+MODE_COLUMN = "PacketLengthMode"
 
 # Tabelas gravadas: nome, que é também o da pasta de resultados, pasta dos
 # arquivos de origem em data/raw/ e caminho do Parquet.
@@ -228,6 +247,213 @@ def median_table(cira_malicious: pd.DataFrame, hkd: pd.DataFrame) -> pd.DataFram
     return table
 
 
+def top_values(values: pd.Series) -> list[dict]:
+    """Lista os valores mais frequentes de um atributo, com os fluxos e a fração de cada um."""
+    counts = values.value_counts().head(TOP_VALUES_SHOWN)
+    return [
+        {"value": float(value), "rows": int(rows), "fraction": rows / len(values)}
+        for value, rows in counts.items()
+    ]
+
+
+def rule_values(malicious: pd.Series, legitimate: pd.Series) -> list[float]:
+    """Escolhe os valores do atributo que entram na regra de um só atributo.
+
+    `malicious` são os valores do atributo nos fluxos Malicious-DoH do CIRA e
+    `legitimate`, nos fluxos Non-DoH e Benign-DoH.
+    """
+    # O critério é escrito aqui, e não uma lista de valores: fica na regra o
+    # valor frequente no tráfego malicioso e quase ausente do legítimo.
+    in_malicious = malicious.value_counts(normalize=True)
+    in_legitimate = legitimate.value_counts(normalize=True)
+    in_legitimate = in_legitimate.reindex(in_malicious.index, fill_value=0.0)
+    chosen = (in_malicious >= RULE_MIN_MALICIOUS_FRACTION) & (
+        in_legitimate <= RULE_MAX_LEGITIMATE_FRACTION
+    )
+    return sorted(float(value) for value in in_malicious.index[chosen])
+
+
+def one_feature_rule(cira: pd.DataFrame, hkd: pd.DataFrame, column: str) -> dict:
+    """Compara a distribuição de um atributo no CIRA e no HKD e mede a regra de um só atributo.
+
+    `cira` são os fluxos limpos do CIRA, das três classes, e `hkd`, os do HKD.
+    A regra chama de malicioso o fluxo cujo valor do atributo está entre os
+    escolhidos por `rule_values`. Os valores são tirados do CIRA inteiro, sem
+    separar treino e teste: o recall e os falsos positivos no CIRA descrevem os
+    dados, não estimam o desempenho em fluxo novo.
+    """
+    is_malicious = cira["label"] == MALICIOUS
+    malicious, legitimate = cira.loc[is_malicious, column], cira.loc[~is_malicious, column]
+    groups = {
+        f"CIRA, {name}": cira.loc[cira["label"] == code, column]
+        for code, name in enumerate(CLASS_NAMES)
+    }
+    groups[HKD_GROUP] = hkd[column]
+    values = rule_values(malicious, legitimate)
+    detected, false_positives = malicious.isin(values).sum(), legitimate.isin(values).sum()
+    hkd_detected = hkd[column].isin(values).sum()
+    hkd_frequent = hkd[column].value_counts().index[0]
+    return {
+        "column": column,
+        "rows": {name: len(group) for name, group in groups.items()},
+        "distinct_values": {name: int(group.nunique()) for name, group in groups.items()},
+        "top_values": {name: top_values(group) for name, group in groups.items()},
+        "hkd_most_frequent_value": {
+            "value": float(hkd_frequent),
+            "fraction_by_group": {
+                name: float((group == hkd_frequent).mean()) for name, group in groups.items()
+            },
+        },
+        "hkd_fraction_with_cira_malicious_value": float(
+            hkd[column].isin(malicious.unique()).mean()
+        ),
+        "rule": {
+            "min_malicious_fraction": RULE_MIN_MALICIOUS_FRACTION,
+            "max_legitimate_fraction": RULE_MAX_LEGITIMATE_FRACTION,
+            "values": values,
+            "cira_malicious": {
+                "n": len(malicious),
+                "detected": int(detected),
+                "recall": detected / len(malicious),
+            },
+            "cira_legitimate": {
+                "n": len(legitimate),
+                "false_positives": int(false_positives),
+                "fpr": false_positives / len(legitimate),
+            },
+            "hkd": {
+                "n": len(hkd),
+                "detected": int(hkd_detected),
+                "recall": hkd_detected / len(hkd),
+            },
+        },
+    }
+
+
+def distance_quartiles(distances: np.ndarray) -> dict:
+    """Resume um vetor de distâncias no mínimo, nos quartis e no máximo."""
+    names = ["min", "q1", "median", "q3", "max"]
+    return dict(zip(names, np.quantile(distances, [0, 0.25, 0.5, 0.75, 1]).tolist(), strict=True))
+
+
+def hkd_test_proximity(table: pd.DataFrame) -> dict:
+    """Mede a distância de cada fluxo do HKD no teste ao fluxo malicioso de treino mais próximo.
+
+    `table` é o combinado sem réplicas, limpo. O treino e o teste são os do
+    retreino do sistema: mesmo sorteio, com a mesma seed. A distância é a
+    euclidiana nos 29 atributos normalizados pelo scaler do treino, medida até
+    o fluxo do HKD mais próximo no treino e até o fluxo Malicious-DoH do CIRA
+    mais próximo no treino.
+    """
+    train, test = stratified_split(table, SEED_FIEL)
+    # O scaler e os índices de vizinhos conhecem só o treino; os fluxos do
+    # teste são apenas consultados.
+    scaler = fit_scaler(train)
+    test_hkd = test[test["origin"] == "HKD"]
+    X_test = scaler.transform(feature_matrix(test_hkd))
+    malicious_train = train[train["label"] == MALICIOUS]
+    distances, train_rows = {}, {}
+    for origin in ORIGINS:
+        neighbors = malicious_train[malicious_train["origin"] == origin]
+        # Busca exata em árvore: o modo de força bruta da biblioteca calcula a
+        # distância por uma expansão que perde precisão quando ela é pequena.
+        index = NearestNeighbors(n_neighbors=1, algorithm="kd_tree")
+        index.fit(scaler.transform(feature_matrix(neighbors)))
+        distances[origin] = index.kneighbors(X_test)[0][:, 0]
+        train_rows[origin] = len(neighbors)
+    closer = distances["HKD"] < distances["CIRA"]
+    tool = test_hkd["tool"].to_numpy()
+    return {
+        "seed": SEED_FIEL,
+        "test_size": TEST_SIZE,
+        "hkd_test_rows": len(test_hkd),
+        "hkd_train_rows": train_rows["HKD"],
+        "cira_malicious_train_rows": train_rows["CIRA"],
+        "nearest_hkd_train": distance_quartiles(distances["HKD"]),
+        "nearest_cira_malicious_train": distance_quartiles(distances["CIRA"]),
+        "rows_closer_to_hkd_train": int(closer.sum()),
+        "fraction_closer_to_hkd_train": float(closer.mean()),
+        "by_tool": {
+            name: {
+                "n": int((tool == name).sum()),
+                "median_nearest_hkd_train": float(np.median(distances["HKD"][tool == name])),
+                "median_nearest_cira_malicious_train": float(
+                    np.median(distances["CIRA"][tool == name])
+                ),
+            }
+            for name in HKD_TOOLS
+        },
+    }
+
+
+def mode_table(measure: dict) -> str:
+    """Escreve os valores mais frequentes do atributo comparado, por classe e origem."""
+    rows = [
+        [
+            group,
+            measure["rows"][group],
+            measure["distinct_values"][group],
+            ", ".join(f"{entry['value']:g} ({entry['fraction']:.2%})" for entry in top),
+        ]
+        for group, top in measure["top_values"].items()
+    ]
+    columns = ["origem e classe", "fluxos", "valores distintos"]
+    columns.append(f"os {TOP_VALUES_SHOWN} valores mais frequentes (fração dos fluxos)")
+    return markdown_table(columns, rows)
+
+
+def proximity_text(proximity: dict) -> str:
+    """Escreve a distância dos fluxos do HKD no teste ao treino do combinado sem réplicas."""
+    near, far = proximity["nearest_hkd_train"], proximity["nearest_cira_malicious_train"]
+    rows = [
+        [
+            title,
+            *[f"{entry[key]:.6f}" for key in ("min", "q1", "median", "q3", "max")],
+        ]
+        for title, entry in [
+            ("ao fluxo do HKD mais próximo no treino", near),
+            ("ao fluxo Malicious-DoH do CIRA mais próximo no treino", far),
+        ]
+    ]
+    by_tool = [
+        [
+            name,
+            entry["n"],
+            f"{entry['median_nearest_hkd_train']:.6f}",
+            f"{entry['median_nearest_cira_malicious_train']:.6f}",
+        ]
+        for name, entry in proximity["by_tool"].items()
+    ]
+    return f"""Split do retreino do sistema: seed {proximity["seed"]}, fração de teste
+{proximity["test_size"]}. Para cada um dos {proximity["hkd_test_rows"]} fluxos do HKD no teste, a
+distância euclidiana, nos 29 atributos normalizados pelo scaler do treino, até
+o mais próximo dos {proximity["hkd_train_rows"]} fluxos do HKD no treino e até o mais próximo dos
+{proximity["cira_malicious_train_rows"]} fluxos Malicious-DoH do CIRA no treino. Cada atributo
+normalizado vai de 0 a 1 no treino.
+
+{markdown_table(["distância", "mínimo", "1º quartil", "mediana", "3º quartil", "máximo"], rows)}
+
+{
+        markdown_table(
+            [
+                "ferramenta",
+                "fluxos no teste",
+                "mediana ao HKD do treino",
+                "mediana ao malicioso do CIRA do treino",
+            ],
+            by_tool,
+        )
+    }
+
+Em {proximity["rows_closer_to_hkd_train"]} dos {proximity["hkd_test_rows"]} fluxos
+({proximity["fraction_closer_to_hkd_train"]:.2%}), o fluxo do HKD mais próximo no treino está
+mais perto que qualquer fluxo malicioso do CIRA. A mediana da distância ao HKD do
+treino é {near["median"] / far["median"]:.2%} da mediana da distância ao malicioso do CIRA.
+Nenhum fluxo do HKD no teste é cópia exata de um do treino; a medida diz o
+quanto os que não são cópia ficam perto. Ela não separa fluxos da mesma sessão
+de túnel, porque as tabelas não trazem a sessão."""
+
+
 def count_tables(metrics: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Monta as tabelas de fluxos por classe e por ferramenta das três tabelas gravadas."""
     by_class, by_tool = {}, {"README do combinado": README_TOOL_ROWS}
@@ -259,6 +485,7 @@ def summary_text(metrics: dict, headers: dict, medians: pd.DataFrame, ranges: pd
     outside = outside[outside.sum(axis=1) > 0]
     outside_text = frame_markdown_table(outside) if len(outside) else "Nenhum."
     shown = ["Duration", "FlowBytesSent", "FlowBytesReceived", "PacketLengthMean"]
+    mode, rule = hkd["packet_length_mode"], hkd["packet_length_mode"]["rule"]
     return f"""# E6, dados: segundo dataset
 
 Gerado por `scripts/e6_dados.py`. Os números vêm dos arquivos `metrics.json` de
@@ -350,6 +577,33 @@ nenhum modelo é ajustado aqui. Os fluxos do CIRA são os do combinado limpo.
 
 {outside_text}
 
+## `{mode["column"]}` no CIRA e no HKD
+
+Moda do comprimento dos pacotes de cada fluxo, nos conjuntos limpos inteiros,
+sem separar treino e teste e sem normalizar. Os fluxos do CIRA são os do
+combinado limpo e os do HKD, os de `Total-48h.csv`.
+
+{mode_table(mode)}
+
+{one_feature_rule_text(mode)}
+
+- **Critério da regra.** Entram os valores que cobrem ao menos
+  {rule["min_malicious_fraction"]:.0%} dos fluxos Malicious-DoH do CIRA e no máximo
+  {rule["max_legitimate_fraction"]:.2%} dos fluxos legítimos. Os dois limites são escolha
+  nossa; os valores saem dos dados.
+- **O que isso mede.** A regra é tirada do CIRA inteiro e medida nele mesmo:
+  descreve os dados, não é um modelo avaliado em teste. Ela mostra que, no
+  CIRA, um só atributo separa quase todo o tráfego malicioso do legítimo, e
+  que essa separação não vale para os fluxos do HKD.
+- **O que não foi medido.** A causa da diferença. Hipótese, não medida: a moda
+  do comprimento do pacote depende de como cada captura gravou os pacotes (por
+  exemplo, o cabeçalho de enlace ou as opções do TCP), e não só da ferramenta
+  de túnel. Nenhum arquivo de captura foi examinado.
+
+## Fluxos do HKD no teste do combinado sem réplicas ao lado do treino
+
+{proximity_text(unique["hkd_test_proximity"])}
+
 ## Justificativa da escolha do segundo dataset
 
 **Quais dados.** O segundo dataset é o combinado CIRA-CIC-DoHBrw-2020 +
@@ -363,7 +617,10 @@ classe ({", ".join(CLASS_NAMES)}). Ao lado dele ficam o combinado como publicado
 artigo: os cinco arquivos lidos têm as {len(CSV_COLUMNS)} colunas do
 CIRA-CIC-DoHBrw-2020, com os mesmos nomes e na mesma ordem, e o `README.txt` do
 HKD informa que os atributos foram extraídos das capturas com o DoHLyzer. O
-sistema é aplicado sem mudar a entrada. Segundo, o HKD traz tráfego de túnel de
+sistema recebe as mesmas {len(FEATURE_COLUMNS)} colunas. Colunas iguais não garantem valores
+comparáveis entre as duas capturas: em `{mode["column"]}`,
+{mode["hkd_fraction_with_cira_malicious_value"]:.2%} dos fluxos do HKD têm um valor que ocorre no
+tráfego malicioso do CIRA (seção `{mode["column"]}` acima). Segundo, o HKD traz tráfego de túnel de
 três ferramentas que o CIRA não tem ({", ".join(HKD_TOOLS)}), capturado em
 outras máquinas, de {capture["first_day"]} a {capture["last_day"]}; as máquinas e
 o período do CIRA estão em `results/e0/dados/RESUMO.md`. Terceiro, o
@@ -481,13 +738,18 @@ def main() -> None:
         "augmented_file": replicas["augmented"],
         "capture": hkd_capture(HKD_CSV_PATH),
         "flows_outside_cira_range": ranges[ranges.columns[-2:]].sum(axis=1).to_dict(),
+        "packet_length_mode": one_feature_rule(cira, tables["hkd"], MODE_COLUMN),
     }
     metrics["combinado"] |= readme | {
         "hkd_replicas": replicas["combined"],
         "table_i": TABLE_I_COUNTS,
     }
+    proximity = hkd_test_proximity(tables["combinado_sem_replicas"])
+    # Todo fluxo do HKD está no treino ou no teste, uma única vez.
+    assert proximity["hkd_train_rows"] + proximity["hkd_test_rows"] == len(tables["hkd"])
     metrics["combinado_sem_replicas"] |= readme | {
-        "replicas_removed": len(raw["combinado"]) - len(raw["combinado_sem_replicas"])
+        "replicas_removed": len(raw["combinado"]) - len(raw["combinado_sem_replicas"]),
+        "hkd_test_proximity": proximity,
     }
 
     results_dir = save_slices(metrics, headers, sha256, start)
@@ -502,6 +764,9 @@ def main() -> None:
     print(f"Valores ausentes no combinado, por coluna: {metrics['combinado']['nan_by_column']}")
     print(f"Fluxos do HKD fora da faixa do CIRA: {metrics['hkd']['flows_outside_cira_range']}")
     print(medians.to_string())
+    print(mode_table(metrics["hkd"]["packet_length_mode"]))
+    print(f"Regra de um atributo: {metrics['hkd']['packet_length_mode']['rule']}")
+    print(f"Proximidade dos fluxos do HKD no teste: {proximity}")
 
 
 if __name__ == "__main__":
