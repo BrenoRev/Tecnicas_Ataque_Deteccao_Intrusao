@@ -1,0 +1,149 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "clean_rows": [
+    889809,
+    19746,
+    354713
+  ],
+  "clean_rows_by_origin": {
+    "CIRA": [
+      889809,
+      19746,
+      249553
+    ],
+    "HKD": [
+      0,
+      0,
+      105160
+    ]
+  },
+  "clean_rows_by_tool": {
+    "dns2tcp": 167287,
+    "dnscat2": 35742,
+    "dnstt": 46080,
+    "iodine": 46524,
+    "tcp-over-dns": 30040,
+    "tuns": 29040
+  },
+  "hkd_replicas": {
+    "copies_per_flow": 20,
+    "distinct_flows": 5258,
+    "max_difference_to_total_48h": 5.0000000000001215e-08,
+    "rows": 105160
+  },
+  "infinite_values": 0,
+  "nan_by_column": {
+    "ResponseTimeTimeMedian": 8028,
+    "ResponseTimeTimeSkewFromMedian": 8028
+  },
+  "parquet_columns": [
+    "Duration",
+    "FlowBytesSent",
+    "FlowSentRate",
+    "FlowBytesReceived",
+    "FlowReceivedRate",
+    "PacketLengthVariance",
+    "PacketLengthStandardDeviation",
+    "PacketLengthMean",
+    "PacketLengthMedian",
+    "PacketLengthMode",
+    "PacketLengthSkewFromMedian",
+    "PacketLengthSkewFromMode",
+    "PacketLengthCoefficientofVariation",
+    "PacketTimeVariance",
+    "PacketTimeStandardDeviation",
+    "PacketTimeMean",
+    "PacketTimeMedian",
+    "PacketTimeMode",
+    "PacketTimeSkewFromMedian",
+    "PacketTimeSkewFromMode",
+    "PacketTimeCoefficientofVariation",
+    "ResponseTimeTimeVariance",
+    "ResponseTimeTimeStandardDeviation",
+    "ResponseTimeTimeMean",
+    "ResponseTimeTimeMedian",
+    "ResponseTimeTimeMode",
+    "ResponseTimeTimeSkewFromMedian",
+    "ResponseTimeTimeSkewFromMode",
+    "ResponseTimeTimeCoefficientofVariation",
+    "label",
+    "origin",
+    "tool"
+  ],
+  "parquet_sha256": "fe3acba6240f9a35fa7c8ed4ebf91b9fa1dcea6f62a9c4b4e3d02ebec676754c",
+  "raw_rows": [
+    897493,
+    19807,
+    354996
+  ],
+  "raw_rows_by_origin": {
+    "CIRA": [
+      897493,
+      19807,
+      249836
+    ],
+    "HKD": [
+      0,
+      0,
+      105160
+    ]
+  },
+  "raw_rows_by_tool": {
+    "dns2tcp": 167486,
+    "dnscat2": 35770,
+    "dnstt": 46080,
+    "iodine": 46580,
+    "tcp-over-dns": 30040,
+    "tuns": 29040
+  },
+  "readme_class_rows": [
+    897493,
+    19807,
+    354996
+  ],
+  "readme_tool_rows": {
+    "dns2tcp": 167486,
+    "dnscat2": 35770,
+    "dnstt": 46080,
+    "iodine": 46580,
+    "tcp-over-dns": 30040,
+    "tuns": 29040
+  },
+  "removed_rows": [
+    7684,
+    61,
+    283
+  ],
+  "source_files": {
+    "combinado/l1-total-add.csv": {
+      "bom": false,
+      "columns": 35,
+      "missing": [],
+      "same_order": true,
+      "unexpected": []
+    },
+    "combinado/l2-total-add.csv": {
+      "bom": false,
+      "columns": 35,
+      "missing": [],
+      "same_order": true,
+      "unexpected": []
+    },
+    "combinado/l3-total-add.csv": {
+      "bom": true,
+      "columns": 35,
+      "missing": [],
+      "same_order": true,
+      "unexpected": []
+    }
+  },
+  "table_i": [
+    889809,
+    19746,
+    249553
+  ]
+}
