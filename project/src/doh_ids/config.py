@@ -328,6 +328,93 @@ TABLE_II_FOREST_TREES = 10
 # resultado, porque cada árvore recebe a própria seed; muda só o tempo.
 N_JOBS = -1
 
+# Explicabilidade (Seção VI do artigo).
+
+# O artigo não diz quantos fluxos entram no cálculo dos valores SHAP: a Fig. 5
+# fala em "training data" e a Fig. 6 em "all the observations of the test set".
+# Usamos uma amostra de até 2.000 fluxos por classe, uma do treino e uma do
+# teste: escolha nossa, para o cálculo sobre árvores sem limite de profundidade
+# caber em minutos. A amostra tem as três classes em partes iguais, e a
+# importância média pesa cada classe por igual, não na proporção do tráfego.
+SHAP_SAMPLE_PER_CLASS = 2000
+
+# Atributos do topo de cada ranking comparados entre os três submodelos.
+SHAP_TOP_FEATURES = 10
+
+# O artigo não diz qual modelo o TreeExplainer explica (linha 8 do Algoritmo
+# 1), e o SHAP não aceita o modelo empilhado. As figuras e o painel explicam o
+# Random Forest do primeiro subconjunto; a tabela de importância traz os três.
+EXPLAINED_BASE = 0
+
+# Limiar de duração, em segundos, que a legenda da Fig. 6 do artigo atribui ao
+# modelo para o tráfego malicioso.
+ARTICLE_DURATION_THRESHOLD_SECONDS = 40
+
+# Ordem dos 29 atributos na Fig. 5 do artigo, do mais para o menos importante,
+# lida dos rótulos do eixo vertical da figura.
+FIG5_RANKING = [
+    "Duration",
+    "PacketLengthMode",
+    "PacketTimeVariance",
+    "PacketLengthCoefficientofVariation",
+    "PacketLengthVariance",
+    "PacketLengthMean",
+    "FlowBytesSent",
+    "PacketTimeMean",
+    "ResponseTimeTimeMedian",
+    "FlowBytesReceived",
+    "PacketLengthStandardDeviation",
+    "PacketLengthMedian",
+    "PacketTimeMedian",
+    "PacketLengthSkewFromMode",
+    "PacketTimeCoefficientofVariation",
+    "PacketLengthSkewFromMedian",
+    "PacketTimeSkewFromMode",
+    "FlowReceivedRate",
+    "PacketTimeSkewFromMedian",
+    "PacketTimeStandardDeviation",
+    "PacketTimeMode",
+    "FlowSentRate",
+    "ResponseTimeTimeCoefficientofVariation",
+    "ResponseTimeTimeVariance",
+    "ResponseTimeTimeSkewFromMedian",
+    "ResponseTimeTimeMean",
+    "ResponseTimeTimeMode",
+    "ResponseTimeTimeSkewFromMode",
+    "ResponseTimeTimeStandardDeviation",
+]
+
+# Figs. 7 e 8 do artigo, lidas das telas do painel: a classe explicada, a
+# probabilidade predita, a média da população e o atributo de maior
+# contribuição, com o valor dele no fluxo e o efeito. Probabilidade, média e
+# efeito em pontos percentuais. A legenda da Fig. 8 fala em 86,1% de confiança; a
+# tela mostra 88,85%, que é o valor registrado aqui.
+FIG7_MALICIOUS = {
+    "class_name": "Malicious-DoH",
+    "prediction": 76.4,
+    "population_average": 33.31,
+    "top_feature": "Duration",
+    "top_value": 120.817079,
+    "top_effect": 14.68,
+}
+FIG8_NON_DOH = {
+    "class_name": "Non-DoH",
+    "prediction": 88.85,
+    "population_average": 33.33,
+    "top_feature": "PacketLengthVariance",
+    "top_value": 468846.35165895056,
+    "top_effect": 19.15,
+}
+
+# A tabela de contribuição das Figs. 7 e 8 do artigo lista dez atributos e
+# soma os demais em "Other features combined".
+LOCAL_TABLE_FEATURES = 10
+
+# Endereço do painel interativo: só a própria máquina, na porta padrão da
+# biblioteca explainerdashboard.
+DASHBOARD_HOST = "127.0.0.1"
+DASHBOARD_PORT = 8050
+
 # Leitura adotada na trilha fiel em cada ponto que o artigo deixa em aberto.
 # O dicionário é gravado no registro de cada execução, para o resultado dizer
 # sozinho que sistema foi treinado.
