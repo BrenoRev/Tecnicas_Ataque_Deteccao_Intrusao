@@ -1,0 +1,281 @@
+# E6: o sistema do artigo no segundo dataset, fiel (profundidade 5)
+
+Gerado por `scripts/e6_dataset2.py`. Os números vêm dos arquivos `metrics.json`
+de `transferencia/seed42/`, `retreino_sem_replicas/seed42/` e
+`retreino_publicado/seed42/`; os tempos estão nos `run.json`.
+Random Forests base: profundidade máxima 5 nos submodelos (Seção IV-B). Os cenários das duas leituras
+estão lado a lado, com o CIRA, em `../RESUMO.md`; a hipótese escrita antes da
+execução, em `../fiel/HIPOTESE.md`.
+Uma única execução de cada cenário, com a seed 42: não há média nem desvio
+padrão. Classes na ordem dos códigos: Non-DoH, Benign-DoH, Malicious-DoH.
+
+## O que cada cenário usa
+
+- O DoH-Tunnel-Traffic-HKD sozinho só tem a classe maliciosa (dnstt,
+  tcp-over-dns e tuns): não permite treinar o sistema de três classes. Ele
+  entra de duas formas: como teste, na transferência, e dentro do dataset
+  combinado CIRA + HKD, nos retreinos.
+- No combinado, Non-DoH e Benign-DoH são os fluxos do CIRA. O "outro dataset"
+  só é novo na classe maliciosa: métricas gerais perto das do CIRA são
+  esperadas e não medem generalização.
+- No combinado como publicado, cada fluxo do HKD aparece 20 vezes. O dataset
+  principal desta etapa é o combinado sem réplicas, com cada fluxo do HKD uma
+  única vez; o publicado vai ao lado.
+
+## Transferência: treino no CIRA, avaliação no HKD
+
+O sistema é ajustado só com o treino do CIRA (1043197 fluxos) e
+prediz os 5258 fluxos do HKD, normalizados com o scaler do treino do
+CIRA. O HKD só tem a classe maliciosa e não permite treinar o sistema: neste
+cenário tudo é teste, não há treino nem validação com fluxos do HKD.
+
+Sem fluxo legítimo no conjunto não há falso positivo: precisão, FPR e acurácia
+não são calculados. A medida é o recall de Malicious-DoH.
+
+| fluxos de túnel | n | detectados | recall | intervalo de confiança de 95% | erros para Non-DoH | erros para Benign-DoH |
+| --- | --- | --- | --- | --- | --- | --- |
+| HKD, as três ferramentas | 5258 | 90 | 1.71% | 1.38% a 2.10% | 5168 | 0 |
+| dnstt | 2304 | 0 | 0.00% | 0.00% a 0.16% | 2304 | 0 |
+| tcp-over-dns | 1502 | 0 | 0.00% | 0.00% a 0.25% | 1502 | 0 |
+| tuns | 1452 | 90 | 6.20% | 5.01% a 7.56% | 1362 | 0 |
+
+- **Recall de Malicious-DoH no HKD: 1.71%.** De 5258 túneis de
+  ferramentas que o sistema nunca viu, 5168 passam sem alerta. É
+  menor que o recall de Malicious-DoH no teste do CIRA na mesma
+  leitura (97.91%, em `results/e1/`).
+- **Destino dos erros: 5168 para Non-DoH e
+  0 para Benign-DoH.** O erro para Non-DoH trata o túnel como
+  HTTPS comum; o erro para Benign-DoH, como DoH legítimo. Nos dois o operador
+  não recebe alerta.
+- **Valores normalizados fora de [0, 1] no HKD: 0 valores em 0 fluxos.** No teste do
+  CIRA, com o mesmo scaler: 3 valores em 3 fluxos (`FlowSentRate` 1, `PacketLengthMean` 1, `ResponseTimeTimeCoefficientofVariation` 1).
+  Nenhum atributo do HKD sai da faixa do treino do CIRA: a diferença entre os dois conjuntos é de posição dentro da faixa (medianas em `../dados/hkd/seed42/medianas_malicioso.csv`), e não de faixa. A contagem não aponta atributo que explique os erros.
+
+## Retreino no combinado sem réplicas
+
+Split 90/10 estratificado pelas três classes, scaler ajustado no treino do
+combinado, três subconjuntos, três bases e meta, como em E1.
+
+### Amostras por classe em cada conjunto
+
+| conjunto | Non-DoH | Benign-DoH | Malicious-DoH | total |
+| --- | --- | --- | --- | --- |
+| treino | 800828 | 17771 | 229330 | 1047929 |
+| validação, fold 1 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 2 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 3 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 4 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 5 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 6 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 7 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 8 | 80083 | 1777 | 22933 | 104793 |
+| validação, fold 9 | 80082 | 1778 | 22933 | 104793 |
+| validação, fold 10 | 80082 | 1777 | 22933 | 104792 |
+| teste | 88981 | 1975 | 25481 | 116437 |
+
+Fluxos de túnel por ferramenta:
+
+| ferramenta | treino | teste |
+| --- | --- | --- |
+| dns2tcp | 150569 | 16718 |
+| dnscat2 | 32068 | 3674 |
+| dnstt | 2072 | 232 |
+| iodine | 41948 | 4576 |
+| tcp-over-dns | 1360 | 142 |
+| tuns | 1313 | 139 |
+
+Nenhum dos 513 fluxos do HKD no teste tem os mesmos 29 atributos de um fluxo do HKD no treino (conferido por asserção no script).
+
+### Teste
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 88826 | 9 | 146 |
+| Benign-DoH | 1956 | 0 | 19 |
+| Malicious-DoH | 708 | 4 | 24769 |
+
+| classe | fluxos | precisão | recall | F1 |
+| --- | --- | --- | --- | --- |
+| Non-DoH | 88981 | 97.0882% | 99.8258% | 98.4380% |
+| Benign-DoH | 1975 | 0.0000% | 0.0000% | 0.0000% |
+| Malicious-DoH | 25481 | 99.3383% | 97.2058% | 98.2604% |
+| média macro | 116437 | 65.4755% | 65.6772% | 65.5661% |
+| média ponderada | 116437 | 95.9338% | 97.5592% | 96.7294% |
+
+- **Acurácia 97.5592%.** No teste do CIRA, na mesma leitura:
+  97.7949%. A maior parte do teste é Non-DoH e são as mesmas linhas do
+  CIRA: a acurácia não diz se as ferramentas novas são detectadas.
+- **Recall de Malicious-DoH 97.2058%.** Soma as seis
+  ferramentas; as três do CIRA têm 24968 dos
+  25481 fluxos de túnel do teste.
+- **Recall das ferramentas do HKD 73.29%.** 376 de 513 túneis
+  detectados; intervalo de confiança de 95%: de 69.24% a
+  77.08%. São os túneis das ferramentas que o artigo não avaliou.
+- **FPR de Malicious-DoH contra o resto 0.1814%.** 165 de
+  90956 fluxos legítimos classificados como túnel: é o alarme
+  falso que o operador recebe. Intervalo de confiança de 95%: de
+  0.1548% a 0.2113%.
+- **Recall de Benign-DoH 0.0000% e F1 macro 65.5661%.** No teste do
+  CIRA: 0.0000% e 65.8027%.
+- **AUC-ROC one-vs-rest macro: 0.963208 pela saída do
+  meta-classificador e 0.988095 pela média das
+  probabilidades dos bases.**
+
+
+
+Recall de Malicious-DoH por ferramenta no teste:
+
+| fluxos de túnel | n | detectados | recall | intervalo de confiança de 95% | erros para Non-DoH | erros para Benign-DoH |
+| --- | --- | --- | --- | --- | --- | --- |
+| dns2tcp | 16718 | 16620 | 99.41% | 99.29% a 99.52% | 98 | 0 |
+| dnscat2 | 3674 | 3442 | 93.69% | 92.85% a 94.45% | 231 | 1 |
+| dnstt | 232 | 114 | 49.14% | 42.54% a 55.76% | 118 | 0 |
+| iodine | 4576 | 4331 | 94.65% | 93.95% a 95.28% | 242 | 3 |
+| tcp-over-dns | 142 | 124 | 87.32% | 80.71% a 92.31% | 18 | 0 |
+| tuns | 139 | 138 | 99.28% | 96.06% a 99.98% | 1 | 0 |
+
+### Validação cruzada
+
+10 folds estratificados sobre o treino. Em cada rodada o scaler, os
+subconjuntos, o SMOTE, os bases e o meta são refeitos com os nove folds de
+treino; o fold deixado de fora só é predito. A matriz soma o treino original,
+sem amostra sintética.
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 799924 | 76 | 828 |
+| Benign-DoH | 17612 | 0 | 159 |
+| Malicious-DoH | 6639 | 4 | 222687 |
+
+| classe | fluxos | precisão | recall | F1 |
+| --- | --- | --- | --- | --- |
+| Non-DoH | 800828 | 97.0575% | 99.8871% | 98.4520% |
+| Benign-DoH | 17771 | 0.0000% | 0.0000% | 0.0000% |
+| Malicious-DoH | 229330 | 99.5587% | 97.1033% | 98.3157% |
+| média macro | 1047929 | 65.5388% | 65.6635% | 65.5892% |
+| média ponderada | 1047929 | 95.9590% | 97.5840% | 96.7526% |
+
+Acurácia de 97.5840% e F1 macro de 65.5892%; na
+validação cruzada do CIRA, na mesma leitura, a acurácia é 97.7338%
+(`results/e1/`).
+
+
+
+## Retreino no combinado como publicado
+
+Split 90/10 estratificado pelas três classes, scaler ajustado no treino do
+combinado, três subconjuntos, três bases e meta, como em E1.
+
+### Amostras por classe em cada conjunto
+
+| conjunto | Non-DoH | Benign-DoH | Malicious-DoH | total |
+| --- | --- | --- | --- | --- |
+| treino | 800828 | 17771 | 319242 | 1137841 |
+| validação, fold 1 | 80082 | 1778 | 31925 | 113785 |
+| validação, fold 2 | 80082 | 1777 | 31925 | 113784 |
+| validação, fold 3 | 80083 | 1777 | 31924 | 113784 |
+| validação, fold 4 | 80083 | 1777 | 31924 | 113784 |
+| validação, fold 5 | 80083 | 1777 | 31924 | 113784 |
+| validação, fold 6 | 80083 | 1777 | 31924 | 113784 |
+| validação, fold 7 | 80083 | 1777 | 31924 | 113784 |
+| validação, fold 8 | 80083 | 1777 | 31924 | 113784 |
+| validação, fold 9 | 80083 | 1777 | 31924 | 113784 |
+| validação, fold 10 | 80083 | 1777 | 31924 | 113784 |
+| teste | 88981 | 1975 | 35471 | 126427 |
+
+Fluxos de túnel por ferramenta:
+
+| ferramenta | treino | teste |
+| --- | --- | --- |
+| dns2tcp | 150608 | 16679 |
+| dnscat2 | 32007 | 3735 |
+| dnstt | 41384 | 4696 |
+| iodine | 41957 | 4567 |
+| tcp-over-dns | 27105 | 2935 |
+| tuns | 26181 | 2859 |
+
+10490 dos 10490 fluxos do HKD no teste (100.00%) têm os mesmos 29 atributos de um fluxo do HKD no treino: são cópias, e o recall delas mede memorização.
+
+### Teste
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 88097 | 0 | 884 |
+| Benign-DoH | 1832 | 0 | 143 |
+| Malicious-DoH | 1222 | 0 | 34249 |
+
+| classe | fluxos | precisão | recall | F1 |
+| --- | --- | --- | --- | --- |
+| Non-DoH | 88981 | 96.6495% | 99.0065% | 97.8138% |
+| Benign-DoH | 1975 | 0.0000% | 0.0000% | 0.0000% |
+| Malicious-DoH | 35471 | 97.0887% | 96.5549% | 96.8211% |
+| média macro | 126427 | 64.5794% | 65.1872% | 64.8783% |
+| média ponderada | 126427 | 95.2629% | 96.7721% | 96.0073% |
+
+- **Acurácia 96.7721%.** No teste do CIRA, na mesma leitura:
+  97.7949%. A maior parte do teste é Non-DoH e são as mesmas linhas do
+  CIRA: a acurácia não diz se as ferramentas novas são detectadas.
+- **Recall de Malicious-DoH 96.5549%.** Soma as seis
+  ferramentas; as três do CIRA têm 24981 dos
+  35471 fluxos de túnel do teste.
+- **Recall das ferramentas do HKD 99.49%.** 10437 de 10490 túneis
+  detectados; intervalo de confiança de 95%: de 99.34% a
+  99.62%. São os túneis das ferramentas que o artigo não avaliou.
+- **FPR de Malicious-DoH contra o resto 1.1291%.** 1027 de
+  90956 fluxos legítimos classificados como túnel: é o alarme
+  falso que o operador recebe. Intervalo de confiança de 95%: de
+  1.0615% a 1.1999%.
+- **Recall de Benign-DoH 0.0000% e F1 macro 64.8783%.** No teste do
+  CIRA: 0.0000% e 65.8027%.
+- **AUC-ROC one-vs-rest macro: 0.954992 pela saída do
+  meta-classificador e 0.979789 pela média das
+  probabilidades dos bases.**
+
+O modelo não prediz Benign-DoH em nenhuma linha. A precisão de uma classe sem predição é indefinida: ela entra como 0 na precisão macro e no F1 macro.
+
+Recall de Malicious-DoH por ferramenta no teste:
+
+| fluxos de túnel | n | detectados | recall | intervalo de confiança de 95% | erros para Non-DoH | erros para Benign-DoH |
+| --- | --- | --- | --- | --- | --- | --- |
+| dns2tcp | 16679 | 15930 | 95.51% | 95.18% a 95.82% | 749 | 0 |
+| dnscat2 | 3735 | 3547 | 94.97% | 94.22% a 95.65% | 188 | 0 |
+| dnstt | 4696 | 4696 | 100.00% | 99.92% a 100.00% | 0 | 0 |
+| iodine | 4567 | 4335 | 94.92% | 94.24% a 95.54% | 232 | 0 |
+| tcp-over-dns | 2935 | 2883 | 98.23% | 97.68% a 98.67% | 52 | 0 |
+| tuns | 2859 | 2858 | 99.97% | 99.81% a 100.00% | 1 | 0 |
+
+### Validação cruzada
+
+Neste cenário a validação cruzada não é executada: ele é análise ao lado do combinado sem réplicas. A tabela de amostras por fold acima vem só dos índices.
+
+## Ferramentas do HKD nos três cenários
+
+Recall de Malicious-DoH, com detectados sobre `n` e o intervalo de confiança
+de 95% entre parênteses.
+
+| ferramenta | transferência (HKD inteiro) | retreino no combinado sem réplicas (teste) | retreino no combinado como publicado (teste) |
+| --- | --- | --- | --- |
+| dnstt | 0.00% (0/2304; 0.00% a 0.16%) | 49.14% (114/232; 42.54% a 55.76%) | 100.00% (4696/4696; 99.92% a 100.00%) |
+| tcp-over-dns | 0.00% (0/1502; 0.00% a 0.25%) | 87.32% (124/142; 80.71% a 92.31%) | 98.23% (2883/2935; 97.68% a 98.67%) |
+| tuns | 6.20% (90/1452; 5.01% a 7.56%) | 99.28% (138/139; 96.06% a 99.98%) | 99.97% (2858/2859; 99.81% a 100.00%) |
+
+No retreino publicado, 10490 dos
+10490 fluxos do HKD no teste são cópias de fluxos do treino; no
+retreino sem réplicas, nenhum. A diferença de recall entre as duas colunas de
+retreino é o que as cópias acrescentam. A coluna da transferência não é
+comparável em tamanho: é o HKD inteiro, e o sistema não viu nenhuma das três
+ferramentas.
+
+## O que não foi feito
+
+- O recall por ferramenta no retreino sem réplicas vem de uma única divisão,
+  com a seed 42: é uma estimativa, com o intervalo ao lado. Não há média
+  de várias seeds aqui.
+- No combinado como publicado não há validação cruzada; só o tamanho dos folds.
+- A validação cruzada grava só a matriz de confusão: não há recall por
+  ferramenta nem AUC nos folds.
+- Fluxos do HKD da mesma sessão de túnel podem cair um no treino e outro no
+  teste sem serem cópias exatas. Isso não é medido, e o recall do retreino sem
+  réplicas pode incluir esse efeito.
+- Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada depois de ver
+  os resultados.
