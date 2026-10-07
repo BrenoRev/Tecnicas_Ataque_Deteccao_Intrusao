@@ -33,3 +33,7 @@ report/*.synctex.gz
 
 # Dados processados
 *.parquet
+
+# Dados brutos e processados
+data/raw/
+data/processed/
