@@ -1,0 +1,249 @@
+{
+  "adopted_rule": "NaN",
+  "capture_by_class": [
+    {
+      "classe": "Non-DoH",
+      "dias": 13,
+      "máquinas": 4,
+      "primeiro dia": "2019-12-09",
+      "último dia": "2020-01-14"
+    },
+    {
+      "classe": "Benign-DoH",
+      "dias": 13,
+      "máquinas": 4,
+      "primeiro dia": "2019-12-09",
+      "último dia": "2020-01-14"
+    },
+    {
+      "classe": "Malicious-DoH",
+      "dias": 15,
+      "máquinas": 10,
+      "primeiro dia": "2020-03-18",
+      "último dia": "2020-04-01"
+    }
+  ],
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "clean_rows": [
+    889809,
+    19746,
+    249553
+  ],
+  "cleaning_rules": [
+    {
+      "Benign-DoH": 19807,
+      "Malicious-DoH": 249836,
+      "Non-DoH": 897493,
+      "diferença Benign-DoH": 61,
+      "diferença Malicious-DoH": 283,
+      "diferença Non-DoH": 7684,
+      "regra": "nenhuma (bruto)",
+      "removidas Benign-DoH": 0,
+      "removidas Malicious-DoH": 0,
+      "removidas Non-DoH": 0
+    },
+    {
+      "Benign-DoH": 19746,
+      "Malicious-DoH": 249553,
+      "Non-DoH": 889809,
+      "diferença Benign-DoH": 0,
+      "diferença Malicious-DoH": 0,
+      "diferença Non-DoH": 0,
+      "regra": "NaN",
+      "removidas Benign-DoH": 61,
+      "removidas Malicious-DoH": 283,
+      "removidas Non-DoH": 7684
+    },
+    {
+      "Benign-DoH": 19807,
+      "Malicious-DoH": 249836,
+      "Non-DoH": 897493,
+      "diferença Benign-DoH": 61,
+      "diferença Malicious-DoH": 283,
+      "diferença Non-DoH": 7684,
+      "regra": "infinito",
+      "removidas Benign-DoH": 0,
+      "removidas Malicious-DoH": 0,
+      "removidas Non-DoH": 0
+    },
+    {
+      "Benign-DoH": 19807,
+      "Malicious-DoH": 249836,
+      "Non-DoH": 897493,
+      "diferença Benign-DoH": 61,
+      "diferença Malicious-DoH": 283,
+      "diferença Non-DoH": 7684,
+      "regra": "duplicatas exatas",
+      "removidas Benign-DoH": 0,
+      "removidas Malicious-DoH": 0,
+      "removidas Non-DoH": 0
+    },
+    {
+      "Benign-DoH": 18804,
+      "Malicious-DoH": 249712,
+      "Non-DoH": 753560,
+      "diferença Benign-DoH": -942,
+      "diferença Malicious-DoH": 159,
+      "diferença Non-DoH": -136249,
+      "regra": "duplicatas nos 29 atributos",
+      "removidas Benign-DoH": 1003,
+      "removidas Malicious-DoH": 124,
+      "removidas Non-DoH": 143933
+    },
+    {
+      "Benign-DoH": 19746,
+      "Malicious-DoH": 249553,
+      "Non-DoH": 889809,
+      "diferença Benign-DoH": 0,
+      "diferença Malicious-DoH": 0,
+      "diferença Non-DoH": 0,
+      "regra": "NaN e infinito",
+      "removidas Benign-DoH": 61,
+      "removidas Malicious-DoH": 283,
+      "removidas Non-DoH": 7684
+    },
+    {
+      "Benign-DoH": 19746,
+      "Malicious-DoH": 249553,
+      "Non-DoH": 889809,
+      "diferença Benign-DoH": 0,
+      "diferença Malicious-DoH": 0,
+      "diferença Non-DoH": 0,
+      "regra": "NaN e duplicatas exatas",
+      "removidas Benign-DoH": 61,
+      "removidas Malicious-DoH": 283,
+      "removidas Non-DoH": 7684
+    },
+    {
+      "Benign-DoH": 18797,
+      "Malicious-DoH": 249538,
+      "Non-DoH": 750456,
+      "diferença Benign-DoH": -949,
+      "diferença Malicious-DoH": -15,
+      "diferença Non-DoH": -139353,
+      "regra": "NaN e duplicatas nos 29 atributos",
+      "removidas Benign-DoH": 1010,
+      "removidas Malicious-DoH": 298,
+      "removidas Non-DoH": 147037
+    },
+    {
+      "Benign-DoH": 19746,
+      "Malicious-DoH": 249553,
+      "Non-DoH": 889809,
+      "diferença Benign-DoH": 0,
+      "diferença Malicious-DoH": 0,
+      "diferença Non-DoH": 0,
+      "regra": "NaN, infinito e duplicatas exatas",
+      "removidas Benign-DoH": 61,
+      "removidas Malicious-DoH": 283,
+      "removidas Non-DoH": 7684
+    },
+    {
+      "Benign-DoH": 18797,
+      "Malicious-DoH": 249538,
+      "Non-DoH": 750456,
+      "diferença Benign-DoH": -949,
+      "diferença Malicious-DoH": -15,
+      "diferença Non-DoH": -139353,
+      "regra": "NaN, infinito e duplicatas nos 29 atributos",
+      "removidas Benign-DoH": 1010,
+      "removidas Malicious-DoH": 298,
+      "removidas Non-DoH": 147037
+    }
+  ],
+  "days_shared_with_malicious": 0,
+  "machines_shared_with_malicious": 0,
+  "nan_by_column": {
+    "ResponseTimeTimeMedian": 8028,
+    "ResponseTimeTimeSkewFromMedian": 8028
+  },
+  "parquet_columns": [
+    "Duration",
+    "FlowBytesSent",
+    "FlowSentRate",
+    "FlowBytesReceived",
+    "FlowReceivedRate",
+    "PacketLengthVariance",
+    "PacketLengthStandardDeviation",
+    "PacketLengthMean",
+    "PacketLengthMedian",
+    "PacketLengthMode",
+    "PacketLengthSkewFromMedian",
+    "PacketLengthSkewFromMode",
+    "PacketLengthCoefficientofVariation",
+    "PacketTimeVariance",
+    "PacketTimeStandardDeviation",
+    "PacketTimeMean",
+    "PacketTimeMedian",
+    "PacketTimeMode",
+    "PacketTimeSkewFromMedian",
+    "PacketTimeSkewFromMode",
+    "PacketTimeCoefficientofVariation",
+    "ResponseTimeTimeVariance",
+    "ResponseTimeTimeStandardDeviation",
+    "ResponseTimeTimeMean",
+    "ResponseTimeTimeMedian",
+    "ResponseTimeTimeMode",
+    "ResponseTimeTimeSkewFromMedian",
+    "ResponseTimeTimeSkewFromMode",
+    "ResponseTimeTimeCoefficientofVariation",
+    "label",
+    "group"
+  ],
+  "parquet_sha256": "7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3",
+  "raw_rows": [
+    897493,
+    19807,
+    249836
+  ],
+  "repeated_vectors_by_class": [
+    139353,
+    949,
+    15
+  ],
+  "skew_sentinel": {
+    "by_column": {
+      "PacketLengthSkewFromMedian": [
+        312,
+        0,
+        4616
+      ],
+      "PacketLengthSkewFromMode": [
+        312,
+        0,
+        4616
+      ],
+      "PacketTimeSkewFromMedian": [
+        0,
+        0,
+        0
+      ],
+      "PacketTimeSkewFromMode": [
+        0,
+        0,
+        0
+      ],
+      "ResponseTimeTimeSkewFromMedian": [
+        290123,
+        3547,
+        804
+      ],
+      "ResponseTimeTimeSkewFromMode": [
+        290123,
+        3547,
+        804
+      ]
+    },
+    "rows_with_any": 298766
+  },
+  "table_i": [
+    889809,
+    19746,
+    249553
+  ],
+  "vectors_in_more_than_one_class": 326
+}
