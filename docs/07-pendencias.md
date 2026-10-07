@@ -8,12 +8,12 @@ Em ordem de impacto no projeto. Levar por escrito e registrar a resposta aqui, c
 
 | # | Pergunta | Por que importa | Resposta |
 | --- | --- | --- | --- |
-| Q1 | O repositório dos autores não contém o modelo proposto. A reimplementação a partir do texto é aceita como reprodução? | Define se P1 é viável como planejado | |
-| Q2 | A Tabela II e a Figura 4b divergem (acurácia 0,9998 contra 99,78%). Qual vale como referência de "resultados próximos o suficiente", e existe tolerância? | Define o critério de sucesso de P1 | |
-| Q3 | Há requisito adicional específico para este artigo? | A especificação prevê essa possibilidade | |
-| Q4 | O dataset combinado CIRA + DoH-Tunnel-Traffic-HKD conta como "outro conjunto de dados", sendo que Non-DoH e Benign-DoH são os mesmos do CIRA? | Define P2 | |
-| Q5 | A subclassificação por ferramenta de túnel (seção VI-D), que o artigo relata sem método, entra na reprodução? | Escopo de P1 | |
-| Q6 | O painel interativo (`explainerdashboard`) precisa ser reproduzido, ou bastam as figuras SHAP? | Escopo de P1 | |
+| Q1 | O repositório dos autores não contém o modelo proposto. A reimplementação a partir do texto é aceita como reprodução? | Define se P1 é viável como planejado | Respondida em 07/10/2026 (relato de Breno): "Podem sim reimplementar a partir da descrição feita no artigo original, evidentemente tomando os devidos cuidados para que a reprodução seja a mais fiel possível." |
+| Q2 | A Tabela II e a Figura 4b divergem (acurácia 0,9998 contra 99,78%). Qual vale como referência de "resultados próximos o suficiente", e existe tolerância? | Define o critério de sucesso de P1 | Respondida em 07/10/2026: "Devem obter todas as tabelas e gráficos de resultados. Pequenas diferenças são aceitáveis e esperadas." Não disse qual das duas referências vale nem deu margem numérica. Efeito: decisão 46. |
+| Q3 | Há requisito adicional específico para este artigo? | A especificação prevê essa possibilidade | Respondida em 07/10/2026: "Por enquanto não." A equipe fechou em 07/10/2026: sem requisito adicional (decisão 48). |
+| Q4 | O dataset combinado CIRA + DoH-Tunnel-Traffic-HKD conta como "outro conjunto de dados", sendo que Non-DoH e Benign-DoH são os mesmos do CIRA? | Define P2 | Respondida em 07/10/2026: "'Outro conjunto de dados' significa que, após reproduzir o trabalho e obter os seus resultados com os datasets originalmente usados nele, devem fazer tudo novamente com outro dataset não usado no trabalho." Não comentou as duas ressalvas (classes Non-DoH e benigna iguais às do CIRA; réplicas). Efeito: decisão 47. |
+| Q5 | A subclassificação por ferramenta de túnel (seção VI-D), que o artigo relata sem método, entra na reprodução? | Escopo de P1 | Respondida em 07/10/2026: "Peço que me expliquem melhor isso depois da aula para entendermos melhor e decidirmos." A equipe decidiu em 07/10/2026 fazer sem esperar (decisão 49). |
+| Q6 | O painel interativo (`explainerdashboard`) precisa ser reproduzido, ou bastam as figuras SHAP? | Escopo de P1 | Respondida em 07/10/2026: "Se conseguirem fazer, ótimo. Mas não é necessário. O ponto principal é obterem os gráficos e tabelas." A equipe decidiu em 07/10/2026 implementar o painel (decisão 50). |
 | Q7 | Qual a política da disciplina para uso de assistentes de IA no código e no relatório? Precisa ser declarado? | Integridade acadêmica | 07/10/2026, informado por Breno: uso aprovado. `[Preencher: se o relatório precisa de frase de declaração]` |
 | Q8 | A sobreposição textual com Mitsuhashi et al. (ISC 2021) pode entrar na apresentação? | Slide 14 do seminário | |
 | Q9 | O relatório tem limite de páginas? Pode ser em português? | Formato | |

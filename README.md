@@ -9,7 +9,7 @@ Projeto da disciplina CIN0114, Técnicas de Ataque e Detecção de Intrusão (CI
 - Amanda Arruda (aams2)
 - Breno Silva Xavier de Souza (bsxs)
 - João Henrique Portela (jhpbs)
-- Antonio Gonzaga ([Preencher: login])
+- Antonio Gonzaga (agla)
 
 ## Onde está o código
 

@@ -4,7 +4,7 @@ Projeto da disciplina do Prof. Paulo Freitas de Araujo Filho (CIn/UFPE). A equip
 
 > T. Zebin, S. Rezvy and Y. Luo, "An Explainable AI-Based Intrusion Detection System for DNS Over HTTPS (DoH) Attacks," IEEE Trans. Inf. Forensics Security, vol. 17, pp. 2339-2349, 2022, doi: 10.1109/TIFS.2022.3183390.
 
-Equipe: Amanda Arruda (aams2), Breno Silva Xavier de Souza (bsxs), João Henrique Portela (jhpbs), Antonio Gonzaga ([Preencher: login]).
+Equipe: Amanda Arruda (aams2), Breno Silva Xavier de Souza (bsxs), João Henrique Portela (jhpbs), Antonio Gonzaga (agla).
 
 ## Duas pastas, um repositório
 
