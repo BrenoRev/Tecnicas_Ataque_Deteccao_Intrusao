@@ -1,7 +1,9 @@
 {
-  "commit": "0dd87bb99ec7ee2d1b758f7ddaaa2a1b70a9bdcf",
+  "commit": "121cde944758329238ff4ba41264b50bb0182502",
   "config": {
     "adopted_rule": "NaN",
+    "cv_folds": 10,
+    "test_size": 0.1,
     "zip_members": [
       "l1-nondoh.csv",
       "l2-benign.csv",
@@ -25,9 +27,9 @@
   "python": "3.12.13",
   "seed": 42,
   "slice": "cira",
-  "timestamp": "2026-10-07T03:09:59-03:00",
+  "timestamp": "2026-10-07T03:14:56-03:00",
   "timings": {
-    "total_seconds": 26.3
+    "total_seconds": 28.7
   },
   "track": "dados"
 }
