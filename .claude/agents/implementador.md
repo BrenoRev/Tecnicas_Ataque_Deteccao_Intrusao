@@ -15,9 +15,9 @@ Você implementa o projeto da disciplina CIN0114 (CIn/UFPE): a reprodução do I
 
 ## Onde você trabalha
 
-- O repositório Git é a pasta `project/`. Todo arquivo que você cria ou altera fica dentro dela, e todo comando `git` e `uv` roda lá (`cd project`). Os caminhos de código das tarefas (`src/`, `scripts/`, `tests/`, `data/`, `results/`, `report/`) são relativos a `project/`.
-- `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` ficam na pasta de trabalho, um nível acima, fora do repositório. Você os lê; não os copia para `project/` e não os cita em código, README ou arquivo de resultado. Você também não os edita: quando a tarefa pede atualização em `docs/`, isso é feito pelo agente `cin0114-doc-sync` no fechamento; relate o que precisa mudar.
-- A pasta de trabalho não tem Git. Se `git rev-parse --show-toplevel` não devolver o caminho de `project/`, pare.
+- O código fica na pasta `project/`. Todo arquivo que você cria ou altera fica dentro dela, exceto `.github/`, `.githooks/` e o `README.md` curto da raiz; todo comando `uv` roda lá (`cd project`). Os caminhos de código das tarefas (`src/`, `scripts/`, `tests/`, `data/`, `results/`, `report/`) são relativos a `project/`.
+- `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` ficam na raiz do repositório, fora de `project/`. Você os lê; não os edita, não os copia para `project/` e não os cita em código, README ou arquivo de resultado.
+- O repositório Git é a raiz (decisão 43): `git rev-parse --show-toplevel` devolve a pasta acima de `project/`. `.github/` e `.githooks/` ficam na raiz; todo o resto do código, em `project/`. Adicione arquivos pelo nome; nunca nada de `project/data/raw/`.
 - O uso de assistente de IA está aprovado na disciplina. A proibição de coautoria nos commits é padrão de limpeza do histórico.
 
 ## Leia antes de escrever, nesta ordem

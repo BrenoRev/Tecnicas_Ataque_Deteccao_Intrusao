@@ -8,9 +8,9 @@ Equipe: Amanda Arruda (aams2), Breno Silva Xavier de Souza (bsxs), João Henriqu
 
 ## Duas pastas, um repositório
 
-- **`project/` é o repositório Git entregue ao professor.** Só ele tem Git. Contém o código, os testes, o README, os resultados e o relatório. Todo comando `git` e `uv` roda dentro de `project/`.
-- **A pasta de trabalho (esta) não é versionada.** `docs/`, `planejamento/`, `.claude/`, `CLAUDE.md` e `LEIA-ME.txt` são material interno e nunca entram em `project/`.
-- Por isso o código não cita arquivo de `docs/` nem de `planejamento/`: quem abre o repositório não os tem.
+- **O repositório Git é a raiz desta pasta** (decisão 43), público no GitHub. O código, os testes, o README do projeto, os resultados e o relatório ficam em `project/`; todo comando `uv` roda dentro de `project/`. `.github/` e `.githooks/` ficam na raiz.
+- **`docs/`, `planejamento/`, `.claude/`, `CLAUDE.md` e `LEIA-ME.txt` são versionados junto**, fora de `project/`. Os datasets ficam fora do Git (`project/data/raw/`), com link de download no README. O PDF do artigo continua ignorado.
+- O código continua sem citar arquivo de `docs/` nem de `planejamento/`: a fonte citável é o artigo, e `project/` precisa ser legível sozinho.
 
 ## Onde está cada coisa
 

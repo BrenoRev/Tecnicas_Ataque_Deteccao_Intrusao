@@ -71,7 +71,7 @@ O que **não** entra em comentário nem em docstring:
 - histórico ("antes era assim", "corrigido em"), nome de quem fez, data;
 - explicação do que a biblioteca faz.
 
-Esses arquivos ficam fora do repositório: quem abre o código não os tem, e a referência ficaria quebrada. A fonte que pode ser citada é a pública: seção, tabela, figura ou algoritmo do artigo, e a documentação da biblioteca. O rastro entre ambiguidade e código fica na documentação interna, não no código. O mesmo vale para o README, para `data/README.md` e para os arquivos de `results/`.
+Esses arquivos ficam fora de `project/` e são documentação de trabalho, que muda: a referência envelhece e `project/` precisa ser legível sozinho. A fonte que pode ser citada é a pública: seção, tabela, figura ou algoritmo do artigo, e a documentação da biblioteca. O rastro entre ambiguidade e código fica na documentação de planejamento, não no código. O mesmo vale para o README, para `data/README.md` e para os arquivos de `results/`.
 
 ## Erros e validação
 

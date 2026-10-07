@@ -1,6 +1,6 @@
 # Regras de commit
 
-O repositório Git é `project/`. Todo comando `git` e `uv` roda dentro dessa pasta. A pasta de trabalho acima dela não tem Git.
+O repositório Git é a raiz (decisão 43); o código fica em `project/`. Comandos `uv` rodam dentro de `project/`; `git` roda em qualquer nível. `docs/`, `planejamento/` e `.claude/` são versionados no mesmo repositório. Os hooks valem para todo commit, inclusive os de documentação; o lint roda em `project/`. Ative-os na raiz: `git config core.hooksPath .githooks`.
 
 ## Formato
 

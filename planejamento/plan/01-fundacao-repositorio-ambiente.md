@@ -5,7 +5,21 @@
 **Depende de:** —
 **Demonstra:** repositório no GitHub com CI verde em um pull request de prova e hooks barrando commit fora do padrão. Base do entregável "link do GitHub".
 
-## Estado verificado em 07/10/2026
+## Estrutura do repositório (decisão 43, 07/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- O repositório Git é a raiz, acima de `project/`, com remoto `origin` no GitHub (público) e três commits anteriores a esta tarefa. `git rev-parse --show-toplevel` devolve a raiz, não `project/`. Não há `git init` nem primeiro commit a fazer.
+- Ficam em `project/`: `pyproject.toml`, `uv.lock`, `requirements.txt`, `src/`, `tests/`, `scripts/`, `data/`, `results/`, `report/`, `README.md`, `LICENSE`. Os comandos `uv` rodam dentro de `project/`.
+- Ficam na raiz do repositório: `.github/workflows/ci.yml`, `.github/pull_request_template.md`, `.githooks/` e um `README.md` curto (o que é o repositório, integrantes, e que o código e as instruções estão em `project/README.md`).
+- CI: `defaults: run: working-directory: project` no job; a action do uv e o cache apontam para `project/uv.lock`. A checagem de arquivo proibido usa `git ls-files` com os caminhos a partir da raiz (`^project/data/(raw|processed)/`, `\.(pkl|joblib|pcap|parquet|zip)$`, `\.pdf$` em `docs/referencias/`). A checagem de referência interna continua valendo só para o conteúdo de `project/`.
+- Hooks: rodam a partir da raiz; o `pre-commit` faz `cd project` antes do `uv run --locked ruff`. Ativação, na raiz: `git config core.hooksPath .githooks`. Valem também para commit de documentação.
+- Dados: fora do Git. `project/data/raw/` e `project/data/processed/` estão nos dois `.gitignore` (raiz e `project/`). O zip dos datasets está no drive da equipe: https://drive.google.com/file/d/1hHQRgtl6TmrfPxu5uILrsiqUrzgILn29/view?usp=sharing. O link entra em `project/README.md` e em `project/data/README.md`, com a instrução de extrair em `project/data/raw/`.
+- Os dois commits que versionavam os dados foram desfeitos localmente em 07/10/2026. Um deles já estava no remoto: a `main` local divergiu de `origin/main`, e o `push` exige `--force-with-lease`, feito por uma pessoa.
+- A `.gitignore` da raiz e a de `project/` têm mudança não commitada; entram no primeiro commit desta tarefa.
+- Branch de prova: `tarefa/01-prova-ci`, como no passo 7.
+
+## Estado verificado em 07/10/2026 (anterior à decisão 43)
 
 **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
 

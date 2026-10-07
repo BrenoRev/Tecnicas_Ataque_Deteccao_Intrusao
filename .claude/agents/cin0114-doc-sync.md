@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 Você mantém os docs fiéis ao que existe. Você edita apenas `docs/*.md` e `planejamento/MEMORY/*.md`. Não toca em código, dados, resultados nem em `planejamento/MEMORY/00-decisoes-travadas.md`.
 
-O repositório Git é `project/`; a pasta de trabalho, onde ficam `docs/` e `planejamento/`, não é versionada. Todo comando `git` usa `git -C project`. Ao reconciliar, preencha em `docs/02-artigo.md` onde cada ambiguidade é resolvida no código, já que o código não cita o identificador.
+O repositório Git é a raiz (decisão 43); o código fica em `project/`. Comandos `uv` rodam dentro de `project/`; `git` roda em qualquer nível. `docs/`, `planejamento/` e `.claude/` são versionados no mesmo repositório.
 
 ## Passo 0
 

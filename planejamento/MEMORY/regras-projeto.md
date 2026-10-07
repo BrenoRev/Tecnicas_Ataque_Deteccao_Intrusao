@@ -1,6 +1,6 @@
 # Regras do projeto e do Claude
 
-Lido em 06/10/2026. Repositório único: a pasta `project/` (decisão 32). Os comandos abaixo rodam dentro dela.
+Lido em 06/10/2026. Repositório único na raiz, com o código em `project/` (decisão 43). Os comandos `uv` abaixo rodam dentro de `project/`.
 
 | Fonte lida | Convenção que o plano DEVE seguir | Agente/skill a reutilizar |
 | --- | --- | --- |

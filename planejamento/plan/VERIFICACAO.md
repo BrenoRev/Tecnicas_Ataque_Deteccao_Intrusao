@@ -1,6 +1,6 @@
 # VERIFICAÇÃO — gate de "pronto" por tarefa
 
-> **Onde fica o código:** o repositório Git do projeto é a pasta `project/`. Todo caminho de código deste plano (`pyproject.toml`, `src/`, `scripts/`, `tests/`, `data/`, `results/`, `report/`, `README.md`, `.githooks/`, `.github/`) é relativo a `project/`, e todo comando `uv` e `git` roda lá dentro. `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` ficam na pasta de trabalho, fora do repositório, e não são versionados.
+> **Onde fica o código (decisão 43):** o repositório Git é a raiz; o código fica em `project/`. Todo caminho de código deste plano (`pyproject.toml`, `src/`, `scripts/`, `tests/`, `data/`, `results/`, `report/`, `README.md`) é relativo a `project/`, e os comandos `uv` rodam dentro dela. `.github/` e `.githooks/` ficam na raiz do repositório, porque o GitHub e o Git só os leem ali.
 
 Regra: a tarefa só é "pronta" com tudo verde. Vermelho → conserta e repete. Não conseguiu → reporta com a saída do comando, sem maquiar.
 
