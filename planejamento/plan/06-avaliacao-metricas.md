@@ -5,6 +5,17 @@
 **Depende de:** 02
 **Demonstra:** testes que recalculam as métricas da Fig. 4b (acurácia 99,78%, recall de Benign-DoH 90,23%) a partir da matriz publicada. Define o alvo de P1.
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- Dependência: a 02 está pronta e não integrada. Em execução encadeada, a branch nasce de `tarefa/05-split-scaler`, com isso dito no relato. `config.py` já foi escrito pelas tarefas 02, 03 e 04.
+- `config.py` já tem `CLASS_NAMES` (a posição na lista é o código da classe; é a ordem das matrizes do alvo) e `TABLE_I_COUNTS`. Os alvos desta tarefa entram no mesmo arquivo.
+- As somas por linha das matrizes da Fig. 4 já existem em `scripts/e0_dados.py:75-76`, como `FIG4_TRAIN_COUNTS` e `FIG4_TEST_COUNTS`. Conferido: são iguais às somas por linha das matrizes de `scripts/metricas_fig4.py:13-24` depois de permutar a ordem das classes. Com as matrizes em `config.py`, o mesmo número passa a ter duas fontes. Tirar a duplicação exige editar `scripts/e0_dados.py`, que não está na lista de arquivos desta tarefa: combinar com o usuário antes; a alternativa sem tocar no script é um teste que confere as somas.
+- O que `evaluate` e `metrics_from_confusion` devolvem vai direto para `save_run`, que grava com `json.dumps` sem conversor. Só tipos nativos: matriz como lista de listas, contagens como `int`. `numpy.int64` e array levantam `TypeError`.
+- `save_run` grava em `metrics.json` só o dicionário de métricas. Tempo, leitura adotada e qualquer valor que varie entre execuções vão pelos argumentos `timings` e `config`.
+- Referência do total do teste para a comparação célula a célula: `results/e0/dados/cira/seed42/split_counts.json`, chave `test.total`, 115.911.
+- Fixture para os testes: `synthetic_flows`, 2.340 linhas (1.800 / 60 / 480).
+- Pendente da equipe antes desta tarefa: a metade inferior da Tabela II, copiada do manuscrito e conferida por dois integrantes.
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**

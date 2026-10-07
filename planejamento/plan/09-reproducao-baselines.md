@@ -5,6 +5,15 @@
 **Depende de:** 05, 06, 08 (a 08 cria `models.py`; esta tarefa pode começar da branch da 08)
 **Demonstra:** `results/e2/fiel/<modelo>/seed42/`: três baselines ao lado das linhas da Tabela II. Seção 7: comparação com outros trabalhos.
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- `splits.py` já existe, com `stratified_split`, `fit_scaler` e `seen_in_train`; o SMOTE do treino inteiro é acrescentado ali. Carga, split e normalização como na tarefa 08: `pd.read_parquet(CIRA_PARQUET_PATH)`, `stratified_split(table, SEED_FIEL)`, `fit_scaler(train)`.
+- Asserção do critério de aceite, com a chave real: total da matriz igual a `split_counts.json["test"]["total"]`, 115.911.
+- As contagens do risco (783.057 e 576.230 sintéticas; 2.402.484 linhas) conferem com `split_counts.json["train"]["rows"]`, 800.828 / 17.771 / 224.598.
+- `save_run(..., slice_name=<modelo>, ...)`: tempo de treino em `timings`; `metrics.json` só com tipos nativos.
+- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+- **Ponto sem valor declarado:** `smote_seed(seed, subset_index)` é a seed do SMOTE de cada subconjunto do modelo proposto (decisão 41). A seed do SMOTE do treino inteiro dos baselines não está em nenhuma decisão. Confirmar com o usuário; o implementador não escolhe.
+
 ## Arquivos
 
 - `src/doh_ids/models.py` — acrescentar os construtores dos baselines.

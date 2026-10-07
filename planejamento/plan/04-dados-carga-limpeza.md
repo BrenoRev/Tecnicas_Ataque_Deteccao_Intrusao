@@ -1,6 +1,20 @@
 # 04 · dados · carga, limpeza e reconciliação com a Tabela I (E0)
 
-> ⚠️ REVISAR (07/10/2026, reconciliação no commit `5e11d56`): a fonte desta tarefa é `data/raw/cira/Total_CSVs.zip`, lido direto do zip (decisão 34; teste T04-8 com zip sintético). Na máquina onde a reconciliação rodou esse zip não existe: há a pasta extraída `data/raw/cira/Total_CSVs/` com os quatro CSVs. O zip da equipe no drive continua trazendo o zip. Motivo e as duas saídas estão no topo da [tarefa 03](03-dados-aquisicao-cira.md); a escolha é do usuário e vem antes desta tarefa. Nada foi mudado nos passos abaixo.
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta e executada em `9e7563f`** (branch `tarefa/04-carga-limpeza`, nascida de `tarefa/03-dados-cira`; código em `407dffc` e `0dd87bb`, resultado em `9e7563f`). Aguarda integração por pessoa (G10). O ⚠️ REVISAR de `5e11d56` foi resolvido em 07/10/2026: `Total_CSVs.zip` está em `data/raw/cira/` e a decisão 34 vale como escrita.
+>
+> A tarefa 05 rodou o mesmo script de novo: os arquivos versionados hoje são os da execução de `0ae2d49`, com `run.json` apontando o commit `121cde9` e `dirty: false`.
+
+## Como ficou (conferido no código em `0ae2d49`)
+
+- `data.py`: `load_cira(zip_path=CIRA_ZIP_PATH)` devolve os 5 identificadores, os 29 atributos, `label` inteiro e `group`, sem limpar; levanta `ValueError` com rótulo fora de `LABEL_ENCODING` ou fluxo sem endereço `192.168.20.x`. `local_machine(flows)`, `feature_matrix(flows)` (só as 29 colunas, por nome), `class_counts(flows)` (lista na ordem dos códigos) e `clean_flows(flows, drop_nan, drop_inf, duplicate_columns)`, que devolve `(fluxos que ficaram, removidas por classe)`.
+- Não existe `load_dataset`: a carga do CIRA é `load_cira`. Não há função que leia o Parquet; quem consome usa `pd.read_parquet(CIRA_PARQUET_PATH)`.
+- A regra adotada é `clean_flows(raw, drop_nan=True, drop_inf=False, duplicate_columns=None)`. O nome `"NaN"`, a lista `CLEANING_RULES` e `ADOPTED_RULE` moram em `scripts/e0_dados.py`, não no pacote.
+- `data/processed/cira.parquet`: 1.159.108 linhas, colunas `FEATURE_COLUMNS + ["label", "group"]`, índice de 0 a n − 1, `label` inteiro e `group` em texto (`192.168.20.111`). SHA-256 em `metrics.json`, chave `parquet_sha256`.
+- `results/e0/dados/cira/seed42/`: `metrics.json`, `run.json`, `limpeza_combinacoes.csv`, `maquina_por_classe.csv`, `periodo_por_classe.csv`, `estatisticas_descritivas.csv` (uma linha por classe e atributo, com `count`, `mean`, `std`, `min`, `25%`, `50%`, `75%`, `max`) e, da tarefa 05, `split_counts.json`. Leitura dos números em `results/e0/dados/RESUMO.md`.
+- Chaves de `metrics.json`: `classes`, `raw_rows`, `nan_by_column`, `cleaning_rules`, `adopted_rule`, `table_i`, `clean_rows`, `repeated_vectors_by_class`, `vectors_in_more_than_one_class`, `skew_sentinel`, `machines_shared_with_malicious`, `days_shared_with_malicious`, `capture_by_class`, `parquet_columns`, `parquet_sha256`.
+- O `data_sha256` do `run.json` de E0 é o do zip; o do Parquet está em `metrics.json`.
+
+**Correção de premissa, medida em `limpeza_combinacoes.csv`:** não é verdade que só uma regra reproduz a Tabela I. Quatro regras empatam com diferença zero: "NaN", "NaN e infinito", "NaN e duplicatas exatas" e "NaN, infinito e duplicatas exatas". Empatam porque não há infinito nem duplicata exata nos dados, então as quatro removem as mesmas 8.028 linhas. A adotada é "NaN", a mais simples, como manda a decisão 34. O relatório diz "a regra mais simples entre as que reproduzem", não "a única".
 
 **Onde:** `src/doh_ids/data.py`, `scripts/e0_dados.py`, `tests/test_data.py`, `results/e0/dados/cira/seed42/`
 **Objetivo:** um único conjunto de dados limpo, de três classes e 29 atributos, cujas contagens estão explicadas em relação à Tabela I do artigo.
@@ -13,7 +27,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 
 - **Fonte:** três membros de `data/raw/cira/Total_CSVs.zip`, lidos direto do zip: `l1-nondoh.csv`, `l2-benign.csv`, `l2-malicious.csv`. **Não ler `l1-doh.csv`**: ele é exatamente a união dos dois `l2` e contaria o DoH em dobro. A asserção de total bruto é 1.167.136 (897.493 + 19.807 + 249.836).
 - **Limpeza adotada (decisão 34): remover as linhas com NaN.** Reproduz a Tabela I exatamente: 889.809 / 19.746 / 249.553. Os NaN estão só em `ResponseTimeTimeMedian` e `ResponseTimeTimeSkewFromMedian`, 8.028 linhas. Não há infinito nem duplicata exata nas 35 colunas.
-- O passo 4 continua valendo como registro: o script grava a tabela de combinações, para o relatório mostrar que só essa regra reproduz o artigo. Remover duplicatas nos 29 atributos derruba o Non-DoH para 750.456 e não é adotado.
+- O passo 4 continua valendo como registro: o script grava a tabela de combinações, para o relatório mostrar quais regras reproduzem o artigo (são quatro, equivalentes nestes dados; ver "Correção de premissa" acima). Remover duplicatas nos 29 atributos, além dos NaN, derruba o Non-DoH para 750.456 e não é adotado.
 - Depois da limpeza ficam 139.353 linhas de Non-DoH, 949 de Benign-DoH e 15 de Malicious-DoH com vetor de 29 atributos repetido, e 326 vetores que aparecem em mais de uma classe. O script grava esses números; eles não são removidos na trilha fiel.
 - **`group` é a máquina local**, não o `SourceIP`: o endereço `192.168.20.x` que aparece na origem ou no destino (os fluxos são bidirecionais e `SourceIP` às vezes é o resolvedor). Non-DoH e Benign-DoH vêm de quatro máquinas (`.111`, `.112`, `.113`, `.191`); Malicious-DoH, de dez (`.144`, `.204` a `.212`).
 - **O dia da captura é usado só na tabela de período por classe e não vai para o Parquet** (decisão 37). Non-DoH e Benign-DoH: 09/12/2019 a 14/01/2020. Malicious-DoH: 18/03 a 01/04/2020. Não há máquina nem dia em comum entre o malicioso e as outras duas classes; o script grava a tabela máquina × classe e o período por classe, que vão para as seções 6 e 8 do relatório.
@@ -60,13 +74,15 @@ Ambiguidade A1 e decisão 08. Reproduzir as contagens da Tabela I é o primeiro 
 
 ## Critério de aceite
 
-- [ ] As contagens por classe depois da limpeza são 889.809 / 19.746 / 249.553 (asserção no script).
-- [ ] O Parquet tem exatamente as 29 colunas de `config.py`, `label` e `group`; a função que monta a matriz de atributos devolve só as 29 (teste e asserção; invariante I4).
-- [ ] Sem NaN e sem infinitos na saída (asserção).
-- [ ] `results/e0/dados/cira/seed42/` contém a tabela de combinações de limpeza com a contagem por classe e a diferença para a Tabela I.
-- [ ] A combinação adotada está registrada com a justificativa em `results/e0/dados/RESUMO.md`; `docs/04-dados.md` é atualizado pelo `cin0114-doc-sync` no fechamento.
-- [ ] A contagem de máquinas e de dias por classe e a tabela máquina × classe (passo 8) estão gravadas.
-- [ ] Rodar o script duas vezes gera Parquet com o mesmo hash.
+Conferido em 07/10/2026 no commit `0ae2d49`. O script de E0 não foi rodado nesta reconciliação: os itens de dados reais foram confirmados pelos arquivos versionados em `results/`.
+
+- [x] As contagens por classe depois da limpeza são 889.809 / 19.746 / 249.553 (asserção no script). Lido: asserção em `scripts/e0_dados.py:347`; `clean_rows` de `metrics.json` traz os três números.
+- [x] O Parquet tem exatamente as 29 colunas de `config.py`, `label` e `group`; a função que monta a matriz de atributos devolve só as 29 (teste e asserção; invariante I4). Executado: esquema do `cira.parquet` do disco lido com `pyarrow` e igual a `FEATURE_COLUMNS + ["label", "group"]`; testes `test_load_returns_features_and_integer_label_without_identifiers` e `test_feature_matrix_is_selected_by_name`. Lido: asserções em `e0_dados.py:354-356`.
+- [x] Sem NaN e sem infinitos na saída (asserção). Lido: `e0_dados.py:357`; o script só grava resultado se a asserção passa.
+- [x] `results/e0/dados/cira/seed42/` contém a tabela de combinações de limpeza com a contagem por classe e a diferença para a Tabela I. Lido: `limpeza_combinacoes.csv`, dez regras.
+- [ ] A combinação adotada está registrada com a justificativa em `results/e0/dados/RESUMO.md`; `docs/04-dados.md` é atualizado pelo `cin0114-doc-sync` no fechamento. Primeira metade lida e confirmada em `RESUMO.md`; a atualização de `docs/04-dados.md` é do `cin0114-doc-sync` e não foi conferida aqui.
+- [x] A contagem de máquinas e de dias por classe e a tabela máquina × classe (passo 8) estão gravadas. Lido: `periodo_por_classe.csv` (4 máquinas e 13 dias em Non-DoH e Benign-DoH; 10 máquinas e 15 dias em Malicious-DoH) e `maquina_por_classe.csv`; `machines_shared_with_malicious` e `days_shared_with_malicious` iguais a zero.
+- [x] Rodar o script duas vezes gera Parquet com o mesmo hash. Confirmado pelo histórico: as execuções de `9e7563f` (03:09) e de `0ae2d49` (03:14) gravaram o mesmo `parquet_sha256` e `git diff 9e7563f 0ae2d49` não toca `metrics.json`. O Parquet do disco tem esse hash (`shasum -a 256` executado).
 
 ## Testes
 

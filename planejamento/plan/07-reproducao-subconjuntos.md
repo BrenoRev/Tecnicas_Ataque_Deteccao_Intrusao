@@ -5,6 +5,16 @@
 **Depende de:** 05
 **Demonstra:** resumo dos três subconjuntos: contagens, razão obtida contra 15:12:12, fração sintética (gravado pela tarefa 08). Seções 4 e 6.
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- Dependência: a 05 está pronta, executada e não integrada. Em execução encadeada, a branch nasce de `tarefa/05-split-scaler`.
+- `src/doh_ids/splits.py` e `tests/test_splits.py` já existem. `splits.py` tem `stratified_split(flows, seed)`, que devolve `(train, test)` como DataFrames com o índice original; `fit_scaler(train)`, que devolve o `MinMaxScaler`; e `seen_in_train(train, test)`.
+- "Treino já normalizado" (passo 1) é `fit_scaler(train).transform(feature_matrix(train))`: um array de 29 colunas, sem nomes, na ordem de `FEATURE_COLUMNS`. Os rótulos são `train["label"]`. `feature_matrix` vem de `doh_ids.data`.
+- A seed do SMOTE do subconjunto `i` é `smote_seed(seed, i)`, função de `config.py`; não se escreve a fórmula no módulo. O número de subconjuntos é `N_SUBSETS`.
+- **Ponto sem valor declarado:** a decisão 41 fixa a seed do SMOTE, dos Random Forests e do meta-classificador, mas não a do embaralhamento do Non-DoH (passo 2). Confirmar com o usuário antes de implementar; o implementador não escolhe.
+- Contagens do bloco abaixo conferidas contra `split_counts.json`: `train.rows` é 800.828 / 17.771 / 224.598.
+- Os testes T07-1 a T07-5 entram em `tests/test_splits.py`, com a fixture `synthetic_flows`.
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**

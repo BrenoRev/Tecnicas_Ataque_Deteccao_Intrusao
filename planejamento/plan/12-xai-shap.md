@@ -5,6 +5,14 @@
 **Depende de:** 08
 **Demonstra:** `results/e5/fiel/proposto/seed42/`: figuras equivalentes às Figs. 5 a 8 e tabela de importância. P1: a parte explicável do artigo (seção 7).
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- As colunas de assimetria e o valor sentinela estão em `config.py`: `SKEW_COLUMNS` e `SKEW_SENTINEL`. As contagens do bloco abaixo estão confirmadas em `results/e0/dados/cira/seed42/metrics.json`, chave `skew_sentinel`: 298.766 linhas com o valor em alguma coluna; nas duas colunas de `ResponseTimeTimeSkew...`, 290.123 / 3.547 / 804 por classe.
+- As medianas de `Duration` do bloco abaixo estão confirmadas em `results/e0/dados/cira/seed42/estatisticas_descritivas.csv`, coluna `50%`: 0,31 s, 4,10 s e 34,07 s. É esse o arquivo "do que a tarefa 04 mostrar" citado em "Risco".
+- Conversão de `Duration` para segundos (passo 6, T12-3): o scaler é o de `fit_scaler(train)`; `Duration` é a coluna de índice 0 de `FEATURE_COLUMNS`, e a matriz normalizada é um array sem nomes de coluna.
+- Figuras e tabela são arquivos auxiliares no diretório que `save_run(experiment="e5", track="fiel", slice_name="proposto", seed=SEED_FIEL, ...)` devolve. O tamanho das amostras do SHAP entra no dicionário `config` e, se for resultado, em `metrics`.
+- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**

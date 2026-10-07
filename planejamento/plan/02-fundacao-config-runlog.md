@@ -5,13 +5,27 @@
 **Depende de:** 01
 **Demonstra:** `config.py` com cada hiperparâmetro e a seção do artigo de origem; formato único de resultado em `results/`. Base da seção 4 do relatório e da rastreabilidade de todo número.
 
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta em `b1434ab`** (branch `tarefa/02-config-runlog`, nascida de `tarefa/01-prova-ci`; commits `412c097` e `b1434ab`). Aguarda integração por pessoa (G10). **Em aberto: o passo 5a.** `N_JOBS` não existe em `config.py`, porque o valor é pendência da equipe; precisa existir antes da tarefa 08.
+
+## Como ficou (conferido no código em `0ae2d49`)
+
+Nomes públicos que as tarefas seguintes consomem.
+
+- `config.py`: `CLASS_NAMES` (a posição é o código da classe), `LABEL_COLUMN`, `LABEL_ENCODING`, `ID_COLUMNS`, `FEATURE_COLUMNS`, `NAN_COLUMNS`, `SKEW_COLUMNS`, `SKEW_SENTINEL`, `TABLE_I_COUNTS`, `CIRA_ZIP_MEMBERS`, `CIRA_LOCAL_PREFIX`, `TEST_SIZE`, `N_SUBSETS`, `N_ESTIMATORS`, `MAX_FEATURES`, `MAX_DEPTH`, `SEED_FIEL`, `SEEDS_CORRIGIDA`, `TRACKS`, `PROJECT_ROOT`, `DATA_RAW_DIR`, `DATA_PROCESSED_DIR`, `RESULTS_DIR`, `CIRA_ZIP_PATH`, `CIRA_PARQUET_PATH`. As constantes de `SKEW_COLUMNS` a `CIRA_LOCAL_PREFIX` e os dois caminhos do CIRA entraram com as tarefas 03 e 04.
+- A seed derivada é a função `smote_seed(seed, subset_index)`, que devolve `seed * 100 + subset_index`; não há constante.
+- `runlog.py`: `save_run(experiment, track, slice_name, seed, metrics, config, data_sha256, timings, results_dir=RESULTS_DIR)` devolve o diretório `<results_dir>/<experiment>/<track>/<slice_name>/seed<seed>/`. `git_state(repo_dir)` devolve `(commit, dirty)`.
+- `metrics.json` recebe só o dicionário `metrics`, gravado com `json.dumps` sem conversor: os valores precisam ser tipos nativos do Python (`int`, `float`, `list`, `dict` com chave em texto). Um `numpy.int64` ou um array levanta `TypeError`; o script de E0 converte com `.tolist()`.
+- `run.json` tem as chaves `experiment`, `track`, `slice`, `seed`, `config`, `data_sha256`, `timings`, `timestamp`, `python`, `libraries`, `commit`, `dirty`, `hostname`, `cpu_count`. O recorte aparece como `slice`. O que a tarefa quiser registrar por nome (leitura adotada, variante, ponto que muda) entra pelo dicionário `config`; tempos, por `timings`.
+- `dirty` mede o repositório inteiro menos `project/results/` (`runlog.py:38-44`). Documento de `docs/` ou de `planejamento/` editado e não commitado marca `dirty: true`; arquivo de `results/` alterado não marca. Consequência prática: toda edição do plano precisa estar em commit antes de rodar um experimento.
+- `tests/conftest.py`: fixtures `synthetic_flows` (2.340 linhas: 1.800 / 60 / 480, seed 0, 29 atributos e `label`) e `synthetic_raw_csv` (as 35 colunas, NaN nas duas colunas de `NAN_COLUMNS` em uma linha a cada vinte).
+
 ## Reconciliado com a tarefa 01 (07/10/2026, commit `5e11d56`)
 
 - Dependência: a 01 está pronta e ainda não integrada. A branch desta tarefa nasce da `main` depois da integração ou, em execução encadeada, de `tarefa/01-prova-ci`, com isso dito no relato.
 - O que a 01 deixou e esta tarefa usa, conferido no código: pacote `doh_ids` instalável (`src/doh_ids/__init__.py`), `pythonpath = ["."]` no pytest, lint com `D1`, `ERA` e `C90`, `tests/test_smoke.py`. `tests/conftest.py`, `config.py` e `runlog.py` não existem: são desta tarefa.
 - O repositório é a raiz (decisão 43): o hash do commit é lido com o Git a partir de `project/` sem mudança, mas `dirty` passa a refletir a árvore inteira, inclusive `docs/` e `planejamento/`. Um documento editado e não commitado marca `dirty: true`; o resultado versionado exige árvore limpa (decisão 38).
 - `jobs/` não existe (passo 5a): só é criada se a equipe executar no Apuana. `N_JOBS` continua `[Decidir: valor]`.
-- A constante dos membros de `Total_CSVs.zip` (bloco abaixo) depende do ⚠️ REVISAR aberto no topo das tarefas 03 e 04: no disco há a pasta extraída, não o zip. Os nomes dos três CSVs não mudam em nenhuma das duas saídas.
+- A constante dos membros de `Total_CSVs.zip` (bloco abaixo) é `CIRA_ZIP_MEMBERS`. O ⚠️ REVISAR das tarefas 03 e 04 foi resolvido em 07/10/2026: os zips originais foram repostos em `project/data/raw/cira/` e a decisão 34 vale como escrita.
 
 ## Verificado nos dados (07/10/2026)
 
@@ -58,11 +72,14 @@ Decisões 07, 12 e 18. Sem um formato único de resultado, a tarefa 17 não cons
 
 ## Critério de aceite
 
-- [ ] `config.py` tem exatamente 29 nomes de atributo e 5 de identificador, sem interseção (teste).
-- [ ] Todo hiperparâmetro tem comentário de origem: a seção do artigo, ou a frase "o artigo não informa" seguida da leitura adotada. Conferido na revisão do pull request, constante por constante; não há grep que prove isso.
-- [ ] `run.json` contém trilha, seed, versões, hash dos dados e commit (teste; invariante I6).
-- [ ] Trilha inválida é rejeitada (teste).
-- [ ] `save_run` monta o caminho `results/<experimento>/<trilha>/<recorte>/seed<k>/` (teste).
+Conferido em 07/10/2026 no commit `0ae2d49`. "Executado" quer dizer `uv run pytest` rodado nesta reconciliação (23 testes verdes); "lido" quer dizer conferido no arquivo, sem execução.
+
+- [x] `config.py` tem exatamente 29 nomes de atributo e 5 de identificador, sem interseção (teste). Executado: `test_feature_and_id_columns_are_29_and_5_without_repetition_or_overlap`.
+- [x] Todo hiperparâmetro tem comentário de origem: a seção do artigo, ou a frase "o artigo não informa" seguida da leitura adotada. Conferido na revisão do pull request, constante por constante; não há grep que prove isso. Lido em `config.py:79-100`: `TEST_SIZE`, `N_SUBSETS`, `N_ESTIMATORS`, `MAX_FEATURES`, `MAX_DEPTH` e as seeds têm o comentário. A conferência humana no pull request continua devida.
+- [x] `run.json` contém trilha, seed, versões, hash dos dados e commit (teste; invariante I6). Executado: `test_run_json_declares_track_seed_versions_data_hash_commit_and_machine`. Lido no arquivo real `results/e0/dados/cira/seed42/run.json`.
+- [x] Trilha inválida é rejeitada (teste). Executado: `test_save_run_rejects_unknown_track`.
+- [x] `save_run` monta o caminho `results/<experimento>/<trilha>/<recorte>/seed<k>/` (teste). Executado: `test_save_run_writes_both_files_in_the_standard_path`; o caminho real `results/e0/dados/cira/seed42/` existe.
+- [ ] Passo 5a, fora da lista original de critérios: `N_JOBS` em `config.py`. Não feito; espera o valor da equipe.
 
 ## Testes
 

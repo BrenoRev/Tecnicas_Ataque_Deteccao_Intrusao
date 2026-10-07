@@ -5,6 +5,17 @@
 **Depende de:** 08, 09
 **Demonstra:** `results/e4/corrigida/summary.json`: média e desvio em dez seeds, A contra B e C, com e sem duplicatas. Seção 7 (discussão) e 8 (limitações).
 
+> ⚠️ REVISAR (07/10/2026, reconciliação no commit `0ae2d49`), **só o passo 9, opcional:** o caminho `results/e4/corrigida/grupo-A/fold<k>/` não pode ser gravado por `save_run`, que sempre monta `<experimento>/<trilha>/<recorte>/seed<k>/` (`runlog.py:78`), e sai do layout único da decisão 38. O resto da tarefa não é afetado. Antes de implementar o passo 9, o usuário decide como a dobra entra no caminho; a decisão não foi reescrita e o passo ficou como estava.
+
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- **O filtro sem duplicatas já tem a sua função.** `seen_in_train(train, test)`, em `splits.py`, devolve o vetor booleano das linhas do teste cujo vetor de 29 atributos existe no treino, e tem teste (T05-5). A métrica sem duplicatas do passo 7 usa `test[~seen_in_train(train, test)]`; não se escreve um segundo filtro em `evaluate.py`. O teste T11-3 cobre só o que for novo.
+- Seeds: `SEEDS_CORRIGIDA` de `config.py`. Split por seed: `stratified_split(table, seed)`; scaler: `fit_scaler(train)`.
+- Fração de referência com a seed 42: `split_counts.json["test_seen_in_train"]`, 15.842 linhas, 13,67% do teste; por classe 17,68% / 5,42% / 0,008%. Confere com o bloco abaixo.
+- `group` está no Parquet como texto (`192.168.20.111`). `results/e0/dados/cira/seed42/maquina_por_classe.csv` confirma quatro máquinas com Non-DoH e Benign-DoH (`.111`, `.112`, `.113`, `.191`) e dez com Malicious-DoH (`.144` e `.204` a `.212`), sem nenhuma em comum.
+- `summary.json` e `RESUMO.md` são arquivos auxiliares, gravados pelo script em `results/e4/corrigida/`; cada par modelo e seed passa por `save_run(experiment="e4", track="corrigida", slice_name=<modelo>, seed=k, ...)`.
+- `metrics.json` só com tipos nativos do Python. `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
@@ -17,7 +28,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 
 - `scripts/e4_corrigido.py` — novo.
 - `src/doh_ids/config.py` — as configurações A, B e C e as prevalências hipotéticas, em commit anterior à primeira execução.
-- `src/doh_ids/evaluate.py` — acrescentar a comparação pareada, o filtro sem duplicatas e a agregação por seed.
+- `src/doh_ids/evaluate.py` — acrescentar a comparação pareada e a agregação por seed. O filtro sem duplicatas reutiliza `seen_in_train` de `splits.py` (ver o bloco de reconciliação).
 - `tests/test_evaluate.py` (T11-2 a T11-4) e `tests/test_pipeline.py` (T11-1) — acrescentar.
 - `results/e4/corrigida/<modelo>/seed<k>/`, `results/e4/corrigida/summary.json` e `results/e4/corrigida/RESUMO.md` — gerados.
 

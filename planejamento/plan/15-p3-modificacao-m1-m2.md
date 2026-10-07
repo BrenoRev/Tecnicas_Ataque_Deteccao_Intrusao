@@ -5,6 +5,15 @@
 **Depende de:** 11, 12, 14
 **Demonstra:** `results/e8/corrigida/summary.json`: original contra modificado nos dois datasets, dez seeds, com `HIPOTESE.md` anterior aos números. P3 (seções 5 e 7).
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- Seeds: `SEEDS_CORRIGIDA`. Split por seed: `stratified_split(table, seed)`, o mesmo da tarefa 11.
+- Métrica sem duplicatas (passo 7a): `test[~seen_in_train(train, test)]`, com `seen_in_train` de `splits.py`. Os 13,7% citados no passo estão confirmados em `split_counts.json["test_seen_in_train"]["fraction_total"]`, 0,1367 com a seed 42.
+- O modelo modificado normaliza dentro do `Pipeline`; `fit_scaler` não entra nele. A matriz de atributos continua vindo de `feature_matrix`.
+- A validação cruzada de M2 tem 5 folds (decisão 25); a da Fig. 4a tem 10 e hoje é `CV_FOLDS` em `scripts/e0_dados.py`. São duas constantes, com nomes diferentes.
+- `save_run(experiment="e8", track="corrigida", slice_name=<modelo>-<dataset>, seed=k, ...)`; os hiperparâmetros selecionados na seed são resultado determinístico e vão em `metrics`; `summary.json` é arquivo auxiliar.
+- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**

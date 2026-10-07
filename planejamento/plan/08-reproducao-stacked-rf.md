@@ -5,6 +5,20 @@
 **Depende de:** 06, 07
 **Demonstra:** `results/e1/fiel/proposto/seed42/`: matriz de confusão da reprodução ao lado da Fig. 4b, célula a célula, com a diferença. Evidência central de P1 (seção 7.1).
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- **Bloqueio antes de começar: `N_JOBS` não existe em `config.py`.** O passo 5a da tarefa 02 não foi feito porque o valor é pendência da equipe ("Pendentes da equipe" de `00-decisoes-travadas.md`). Esta tarefa para nesse ponto até a equipe decidir; o implementador não escolhe o valor.
+- **Folds da validação cruzada (passo 5): usar a mesma construção de E0.** `StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED_FIEL)` sobre `train` e `train["label"]`, como em `scripts/e0_dados.py:189-195`. A tabela por fold de `split_counts.json`, que vai para a seção 6 do relatório, foi gerada com essa construção; folds montados de outro jeito deixam a tabela descrevendo uma validação que não foi a rodada.
+- `CV_FOLDS = 10` é constante local de `scripts/e0_dados.py:80`. Proposta, a confirmar com o usuário porque toca um arquivo fora da lista desta tarefa: subir `CV_FOLDS` para `config.py` aqui, com o script de E0 passando a importá-la, e rodar E0 de novo para mostrar que `metrics.json` e `split_counts.json` não mudam. A alternativa, repetir o número no script novo, cria duas fontes.
+- Carga (passo 4): não há função que leia o Parquet. `pd.read_parquet(CIRA_PARQUET_PATH)` devolve `FEATURE_COLUMNS + ["label", "group"]` com índice de 0 a n − 1. Depois `stratified_split(table, SEED_FIEL)`, `fit_scaler(train)` e `scaler.transform(feature_matrix(...))`.
+- `save_run(experiment, track, slice_name, seed, metrics, config, data_sha256, timings, results_dir=RESULTS_DIR)`. As leituras adotadas nos pontos omissos entram no dicionário `config`; os tempos dos bases e do meta, em `timings`. `hostname` e `cpu_count` são gravados sem o script pedir. O recorte aparece no `run.json` como `slice`.
+- `metrics.json` recebe só o dicionário de métricas, com tipos nativos do Python. A tabela de decisão do meta e as matrizes vão como listas.
+- `data_sha256`: o arquivo que este script lê é o Parquet. O hash de referência está em `results/e0/dados/cira/seed42/metrics.json`, chave `parquet_sha256`. `sha256_of` existe em `data/verify.py` e em `scripts/e0_dados.py`; este script seria o terceiro chamador, o que pela regra de código leva a função para `src/`. Isso também toca arquivos fora da lista: combinar com o usuário.
+- `dirty` mede o repositório inteiro menos `project/results/`. Edição não commitada em `docs/` ou em `planejamento/` marca `dirty: true`: o plano precisa estar em commit antes de rodar.
+- Asserções do passo 7, com as chaves reais: total do teste igual a `split_counts.json["test"]["total"]` (115.911); soma da matriz da validação cruzada igual a `["train"]["total"]` (1.043.197); 29 colunas conferidas em `feature_matrix(...)`.
+- A fração de 13,7% do bloco abaixo é `split_counts.json["test_seen_in_train"]["fraction_total"]`.
+- No teste de ponta a ponta (T08-4), `save_run` recebe `results_dir=tmp_path`.
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
