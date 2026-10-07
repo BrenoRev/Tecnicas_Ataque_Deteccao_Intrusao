@@ -32,7 +32,9 @@ E2 os gravou) e, com a tabela de importância e as figuras, em
 results/e6/<trilha>/retreino_sem_replicas-shap/seed42/. Os arquivos RESUMO.md
 são escritos por scripts/e6_resumo.py.
 
-Uso: uv run python scripts/e6_baselines_xai.py
+Roda como módulo, a partir da pasta do projeto, porque importa os outros scripts.
+
+Uso: uv run python -m scripts.e6_baselines_xai
 """
 
 import json
@@ -216,7 +218,7 @@ def main() -> None:
         print(f"Amostra do treino: {metrics['train_sample_rows']}")
         print(f"Amostra do teste: {metrics['test_sample_rows']}")
         print(e5.stability_table(metrics))
-    print("\nPara escrever os arquivos RESUMO.md: uv run python scripts/e6_resumo.py")
+    print("\nPara escrever os arquivos RESUMO.md: uv run python -m scripts.e6_resumo")
 
 
 if __name__ == "__main__":
