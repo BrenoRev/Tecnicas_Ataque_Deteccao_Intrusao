@@ -32,6 +32,51 @@
         "CSVs/dnscat2/all.csv": 35854,
         "CSVs/iodine/all.csv": 46598
       }
+    },
+    {
+      "path": "hkd/DoH-CSVs/DoH-CSVs-48h/Total-48h.csv",
+      "size_bytes": 1877058,
+      "sha256": "f587d696e2fea253730aef22a9a92a01d15882acf1379af24da13edff10a710a",
+      "required": true,
+      "rows": {
+        "Total-48h.csv": 5258
+      }
+    },
+    {
+      "path": "hkd/Total-48h-Augmentation.csv",
+      "size_bytes": 37441530,
+      "sha256": "c7dd2a03af0bd2c7f5739931eb30b91d41ff8a57340d0017369b6824bc87ae26",
+      "required": true,
+      "rows": {
+        "Total-48h-Augmentation.csv": 105160
+      }
+    },
+    {
+      "path": "combinado/l1-total-add.csv",
+      "size_bytes": 550693495,
+      "sha256": "5d63812bbb59814b164134ad076d35d8203f2ada5269fbf7b2a99c726bdae1c1",
+      "required": true,
+      "rows": {
+        "l1-total-add.csv": 1272296
+      }
+    },
+    {
+      "path": "combinado/l2-total-add.csv",
+      "size_bytes": 128339584,
+      "sha256": "29fb3026da5579ebebeb0b0083aadb9cd8e347367a7f9defba86d91d917365f9",
+      "required": true,
+      "rows": {
+        "l2-total-add.csv": 374803
+      }
+    },
+    {
+      "path": "combinado/l3-total-add.csv",
+      "size_bytes": 145676121,
+      "sha256": "0fb59f6ce896907880ddeca2a0f206b8226883d189370cb2071e0a7d11acff94",
+      "required": true,
+      "rows": {
+        "l3-total-add.csv": 354996
+      }
     }
   ]
 }
