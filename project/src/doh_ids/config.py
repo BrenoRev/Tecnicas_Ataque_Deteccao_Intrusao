@@ -536,6 +536,75 @@ FIEL_READINGS = {
 SEED_FIEL = 42
 SEEDS_CORRIGIDA = list(range(10))
 
+# Protocolo corrigido: os modelos comparados em dez seeds.
+
+# Configurações fixadas antes da primeira execução, sem busca de
+# hiperparâmetros: escolher a configuração olhando o teste de uma seed
+# contaminaria a comparação nas outras. `stacked` diz se o modelo é o empilhado
+# em três subconjuntos ou um Random Forest único, treinado no treino inteiro
+# balanceado com SMOTE. `max_features` "sqrt" e `max_depth` sem limite são os
+# padrões do scikit-learn.
+# - A é o sistema do artigo na leitura de profundidade variável.
+# - B tem os mesmos hiperparâmetros de A e não empilha: A contra B isola o
+#   efeito da arquitetura.
+# - C é o Random Forest da Tabela II, que só informa as 10 árvores: A contra C
+#   é a comparação que o artigo faz.
+# - A-prof5 e B-prof5 repetem A e B com a profundidade máxima 5 da Seção IV-B,
+#   e são reportados ao lado.
+CORRIGIDA_MODELS = {
+    "A": {
+        "stacked": True,
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH_VARIABLE,
+        "max_features": MAX_FEATURES,
+    },
+    "B": {
+        "stacked": False,
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH_VARIABLE,
+        "max_features": MAX_FEATURES,
+    },
+    "C": {
+        "stacked": False,
+        "n_estimators": TABLE_II_FOREST_TREES,
+        "max_depth": None,
+        "max_features": "sqrt",
+    },
+    "A-prof5": {
+        "stacked": True,
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH,
+        "max_features": MAX_FEATURES,
+    },
+    "B-prof5": {
+        "stacked": False,
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH,
+        "max_features": MAX_FEATURES,
+    },
+}
+
+# Pares comparados seed a seed e as métricas da comparação, fixados antes de
+# ver os números: F1 macro e recall de Benign-DoH, a classe menor. Em cada par
+# contam-se as seeds em que cada modelo vence e aplica-se o teste de postos
+# sinalizados de Wilcoxon. Os dez conjuntos de teste se sobrepõem, então os
+# pares não são independentes e o teste é só indicativo.
+PAIRED_COMPARISONS = [("A", "B"), ("A", "C"), ("A-prof5", "B-prof5")]
+PAIRED_METRICS = ["macro_f1", "benign_doh_recall"]
+
+# Frações de fluxos maliciosos no tráfego usadas na conta de taxa base. São
+# hipotéticas: o conjunto de dados não mede a prevalência real, e os três
+# valores só mostram como a precisão operacional cai quando o ataque é raro.
+HYPOTHETICAL_PREVALENCES = [1e-3, 1e-4, 1e-5]
+
+# Avaliação por máquina com o modelo A: número de dobras e seed dos sorteios do
+# modelo. Em cada dobra fica de fora uma das quatro máquinas que geraram
+# Non-DoH e Benign-DoH e cerca de um quarto das dez que geraram Malicious-DoH.
+# A divisão em dobras não tem sorteio; a seed só controla os subconjuntos, o
+# SMOTE e os modelos, e é a primeira da lista: escolha nossa, feita antes de rodar.
+GROUP_FOLDS = 4
+GROUP_FOLD_SEED = SEEDS_CORRIGIDA[0]
+
 # Trilhas aceitas no registro de resultados. As duas primeiras são a reprodução
 # como o artigo descreve e o protocolo consertado; "variante" é para leituras
 # alternativas do texto do artigo e "dados" para etapas que não treinam modelo.
