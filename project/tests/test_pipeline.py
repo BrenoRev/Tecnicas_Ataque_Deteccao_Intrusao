@@ -3,6 +3,7 @@ import json
 import pytest
 
 import scripts.e1_reproducao as e1
+from doh_ids import system
 from doh_ids.config import FEATURE_COLUMNS, MAX_DEPTH
 from doh_ids.data import class_counts
 from doh_ids.splits import stratified_split
@@ -40,7 +41,7 @@ def test_end_to_end_run_writes_both_files_and_repeats_identically(
 def test_cross_validation_predicts_each_real_train_row_once(synthetic_flows):
     train, _ = stratified_split(synthetic_flows, SEED)
 
-    confusion = e1.cross_validated_confusion(train, SEED, MAX_DEPTH)
+    confusion = system.cross_validated_confusion(train, SEED, MAX_DEPTH)
 
     # O SMOTE de cada rodada cria amostras benignas: se alguma chegasse ao fold
     # de validação, a linha de Benign-DoH somaria mais que os benignos reais.
@@ -60,9 +61,9 @@ def test_cross_validation_scaler_never_sees_the_held_out_fold(synthetic_flows, m
         seen.append((planted_row in fold_train.index, fitted[0].data_max_[0]))
         return fitted
 
-    fit_system = e1.fit_system
-    monkeypatch.setattr(e1, "fit_system", recording_fit_system)
-    e1.cross_validated_confusion(train, SEED, MAX_DEPTH)
+    fit_system = system.fit_system
+    monkeypatch.setattr(system, "fit_system", recording_fit_system)
+    system.cross_validated_confusion(train, SEED, MAX_DEPTH)
 
     assert [in_fit for in_fit, _ in seen].count(False) == 1
     for in_fit, scaler_maximum in seen:
