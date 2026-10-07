@@ -73,6 +73,30 @@ Métricas recalculadas a partir das matrizes de confusão da Fig. 4 do artigo, s
 
 Os scripts dos experimentos e a ordem de execução serão listados aqui conforme entrarem no repositório.
 
+## Como contribuir
+
+1. Ative os hooks do Git uma vez por clone, na raiz do repositório:
+
+       git config core.hooksPath .githooks
+
+   O `pre-commit` roda o lint e a conferência de formatação; o `commit-msg` confere a mensagem.
+
+2. Instale o ambiente como em "Instalação", com uv ou com pip.
+
+3. Antes de cada commit, dentro de `project/`:
+
+       uv run ruff check .
+       uv run ruff format --check .
+       uv run pytest
+
+   Para corrigir: `uv run ruff check --fix .` e `uv run ruff format .`. Não use `--no-verify`.
+
+4. Mensagem de commit: `tipo(escopo): resumo no imperativo`, em português, com até 72 caracteres na primeira linha. Tipos aceitos: `feat`, `fix`, `docs`, `exp`, `refactor`, `test`, `chore`, `ci`. Exemplo: `feat(splits): adiciona split estratificado com seed`. Sem `Co-Authored-By` e sem assinatura de ferramenta.
+
+5. Adicione arquivos pelo nome (`git add caminho/do/arquivo`), nunca `git add -A` nem `git add .`. Dados, modelos serializados (`.pkl`, `.joblib`) e o PDF do artigo não entram em commit.
+
+6. Uma branch por mudança, criada da `main` atualizada, e integração por pull request com o CI verde e a revisão de outro integrante. A descrição do pull request segue o modelo em `.github/pull_request_template.md`: escopo, o que demonstra, como verificar e a verificação com dados reais.
+
 ## Licença
 
 Licença: [Preencher]
