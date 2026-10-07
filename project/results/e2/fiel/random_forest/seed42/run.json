@@ -1,5 +1,5 @@
 {
-  "commit": "00e50b66407ec87a491475bba039c8943b1ee678",
+  "commit": "18f00245a74b9699477cda678533e62dc56d27d4",
   "config": {
     "max_depth": null,
     "model": "random_forest",
@@ -23,23 +23,26 @@
   "experiment": "e2",
   "hostname": "MacBook-Air-de-Breno-2.local",
   "libraries": {
+    "explainerdashboard": "0.5.8",
     "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
     "mlxtend": "0.25.0",
     "numpy": "2.3.5",
     "pandas": "3.0.6",
     "pyarrow": "25.0.1",
     "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
     "shap": "0.52.0",
     "xgboost": "3.4.1"
   },
   "python": "3.12.13",
   "seed": 42,
   "slice": "random_forest",
-  "timestamp": "2026-10-07T12:55:29-03:00",
+  "timestamp": "2026-10-07T18:01:38-03:00",
   "timings": {
-    "evaluation_seconds": 1.5,
-    "fit_seconds": 129.1,
-    "smote_seconds": 151.5
+    "evaluation_seconds": 0.4,
+    "fit_seconds": 38.9,
+    "smote_seconds": 45.9
   },
   "track": "fiel"
 }
