@@ -68,10 +68,72 @@ SKEW_SENTINEL = -10
 # Fluxos por classe na Tabela I do artigo, na ordem de CLASS_NAMES.
 TABLE_I_COUNTS = [889809, 19746, 249553]
 
+# Alvos do artigo.
+
+# Matrizes de confusão da Fig. 4 do artigo: (a) treino, em validação cruzada de
+# 10 folds; (b) teste. Linha é a classe real e coluna a classe predita, as duas
+# na ordem de CLASS_NAMES. A figura desenha as classes em outra ordem (Benign-DoH,
+# Malicious-DoH, Non-DoH): as contagens foram reordenadas para a codificação do
+# projeto, porque comparar matrizes em ordens diferentes dá distância errada
+# sem erro aparente.
+FIG4A_CONFUSION = [
+    [800316, 503, 10],
+    [1816, 15946, 9],
+    [93, 9, 224496],
+]
+FIG4B_CONFUSION = [
+    [88928, 50, 2],
+    [192, 1782, 1],
+    [6, 0, 24949],
+]
+
 # Amostras por classe no treino e no teste do artigo, na ordem de CLASS_NAMES:
-# soma de cada linha das matrizes de confusão da Fig. 4a (treino) e 4b (teste).
-FIG4_TRAIN_COUNTS = [800829, 17771, 224598]
-FIG4_TEST_COUNTS = [88980, 1975, 24955]
+# soma de cada linha das matrizes da Fig. 4a e da Fig. 4b.
+FIG4_TRAIN_COUNTS = [sum(row) for row in FIG4A_CONFUSION]
+FIG4_TEST_COUNTS = [sum(row) for row in FIG4B_CONFUSION]
+
+# Tabela II do artigo, metade superior: os três modelos de comparação e o modelo
+# proposto, avaliados no teste. O artigo não diz que média (macro, ponderada ou
+# micro) usa em F1, precisão e recall, nem como calcula a AUC com três classes.
+TABLE_II = {
+    "decision_tree": {
+        "auc": 0.8617,
+        "accuracy": 0.9770,
+        "f1": 0.8197,
+        "precision": 0.9658,
+        "recall": 0.7120,
+    },
+    "xgboost": {
+        "auc": 0.9986,
+        "accuracy": 0.9927,
+        "f1": 0.9843,
+        "precision": 0.9956,
+        "recall": 0.9732,
+    },
+    "random_forest": {
+        "auc": 0.9999,
+        "accuracy": 0.9998,
+        "f1": 0.9987,
+        "precision": 0.9989,
+        "recall": 0.9985,
+    },
+    "balanced_stacked_rf": {
+        "auc": 0.9999,
+        "accuracy": 0.9998,
+        "f1": 0.9991,
+        "precision": 0.9991,
+        "recall": 0.9992,
+    },
+}
+
+# Avaliação.
+
+# Nível do intervalo de confiança da taxa de falsos positivos. O artigo não
+# reporta intervalo: 95% é escolha nossa.
+CONFIDENCE_LEVEL = 0.95
+
+# Tamanho do tráfego em que os alarmes falsos da conta de taxa base são contados.
+BASE_RATE_FLOWS = 10_000_000
 
 # Membros de Total_CSVs.zip que formam as três classes, na ordem de CLASS_NAMES.
 # O quarto membro, l1-doh.csv, é a união dos dois l2: lê-lo contaria o DoH em dobro.
