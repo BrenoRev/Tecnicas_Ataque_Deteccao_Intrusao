@@ -12,6 +12,10 @@ mesma pasta, as amostras por classe no treino, em cada fold de validação e no
 teste, ao lado das contagens da Fig. 4 do artigo, e as linhas do teste cujo
 vetor de atributos também existe no treino.
 
+Por fim desenha a figura equivalente à Fig. 2 do artigo, a densidade por classe
+de três atributos, e grava na mesma pasta a imagem e, em CSV, as curvas
+desenhadas.
+
 Nenhum modelo é treinado. A seed só entra no sorteio do teste e dos folds.
 
 Uso: uv run python scripts/e0_dados.py
@@ -23,6 +27,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from matplotlib.figure import Figure
+from scipy.stats import gaussian_kde
 from sklearn.model_selection import StratifiedKFold
 
 from doh_ids.config import (
@@ -73,6 +79,20 @@ CLEANING_RULES = [
     ("NaN, infinito e duplicatas nos 29 atributos", True, True, FEATURE_COLUMNS),
 ]
 ADOPTED_RULE = "NaN"
+
+# Painéis da Fig. 2 do artigo: atributo, unidade, início e fim do eixo
+# horizontal e se o eixo é logarítmico. As faixas foram lidas nos eixos da
+# figura; o artigo não diz como recortou os dados. A unidade vem do extrator
+# DoHLyzer, que mede o comprimento do pacote em bytes.
+FIG2_PANELS = [
+    ("FlowBytesReceived", "bytes", 0, 17500, False),
+    ("PacketLengthMean", "bytes", 0, 800, False),
+    ("PacketLengthVariance", "bytes²", 10, 1_000_000, True),
+]
+# Pontos do eixo horizontal em que cada curva é calculada.
+FIG2_GRID_POINTS = 400
+# Cores das classes na Fig. 2 do artigo, na ordem dos códigos.
+FIG2_COLORS = ["tab:blue", "tab:green", "tab:red"]
 
 
 def read_manifest_entry() -> dict:
@@ -261,6 +281,131 @@ def split_counts(table: pd.DataFrame) -> dict:
         "test_outside_unit_interval": outside_unit_interval(train, test),
         "test_seen_in_train": seen_in_train_counts(train, test),
     }
+
+
+def fig2_densities(table: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Estima a densidade por classe dos três atributos da Fig. 2 do artigo.
+
+    Devolve as curvas, uma linha por atributo, classe e ponto do eixo, e a
+    cobertura: por atributo e classe, quantos fluxos caem na faixa do eixo, a
+    posição do pico da curva e os quartis do atributo em todos os fluxos da
+    classe. Usa o conjunto limpo inteiro, sem normalizar e sem amostrar.
+    """
+    curves, coverage = [], []
+    for column, _, low, high, log_scale in FIG2_PANELS:
+        # No eixo logarítmico a densidade é estimada sobre o logaritmo do valor,
+        # e a área sob a curva vale 1 por década, não por unidade do atributo.
+        to_axis = np.log10 if log_scale else np.asarray
+        grid = np.linspace(to_axis(low), to_axis(high), FIG2_GRID_POINTS)
+        x = 10**grid if log_scale else grid
+        for code, name in enumerate(CLASS_NAMES):
+            values = table.loc[table["label"] == code, column]
+            # A densidade usa só os fluxos dentro da faixa do eixo. Com todos
+            # os fluxos, os valores extremos alargam a banda do estimador e a
+            # curva fica plana na faixa que a figura do artigo mostra.
+            inside = values[values.between(low, high)].to_numpy()
+            # Estimador de núcleo gaussiano, como o artigo declara na Seção
+            # III-A, com a largura de banda padrão da biblioteca (regra de
+            # Scott). Cada classe é estimada sozinha: a área de cada curva é 1,
+            # como na figura do artigo, em que a classe benigna, a menor, tem
+            # pico da mesma ordem das outras.
+            density = gaussian_kde(to_axis(inside))(grid)
+            curves.append(
+                pd.DataFrame({"atributo": column, "classe": name, "x": x, "densidade": density})
+            )
+            quartiles = values.quantile([0.25, 0.5, 0.75]).tolist()
+            coverage.append(
+                [column, name, len(values), len(inside), x[density.argmax()], *quartiles]
+            )
+    columns = ["atributo", "classe", "fluxos", "fluxos na faixa", "pico da densidade"]
+    columns += ["1º quartil", "mediana", "3º quartil"]
+    return pd.concat(curves, ignore_index=True), pd.DataFrame(coverage, columns=columns)
+
+
+def draw_fig2(curves: pd.DataFrame) -> Figure:
+    """Desenha os três painéis da Fig. 2 do artigo, com uma curva por classe."""
+    # A figura é criada sem a interface pyplot, que abriria uma janela: assim o
+    # script roda em máquina sem tela.
+    figure = Figure(figsize=(15, 4), layout="constrained")
+    axes = figure.subplots(1, len(FIG2_PANELS))
+    for axis, letter, (column, unit, _, _, log_scale) in zip(axes, "abc", FIG2_PANELS, strict=True):
+        panel = curves[curves["atributo"] == column]
+        for name, color in zip(CLASS_NAMES, FIG2_COLORS, strict=True):
+            curve = panel[panel["classe"] == name]
+            axis.plot(curve["x"], curve["densidade"], color=color, label=name)
+        if log_scale:
+            axis.set_xscale("log")
+        scale = ", escala logarítmica" if log_scale else ""
+        axis.set_xlabel(f"({letter}) {column} ({unit}{scale})")
+        axis.set_ylabel("Densidade (1/década)" if log_scale else f"Densidade (1/{unit})")
+        axis.set_ylim(bottom=0)
+        axis.legend(title="Classe")
+    return figure
+
+
+def write_fig2(run_dir: Path, curves: pd.DataFrame, coverage: pd.DataFrame) -> None:
+    """Grava em `run_dir` a imagem da figura, as curvas desenhadas e a cobertura."""
+    # A imagem depende da versão da biblioteca e das fontes da máquina. As
+    # curvas vão também em CSV, com seis algarismos significativos: é esse
+    # arquivo que duas execuções comparam.
+    curves.to_csv(run_dir / "fig2_densidade.csv", index=False, float_format="%.6g")
+    coverage.to_csv(run_dir / "fig2_faixa.csv", index=False, float_format="%.6g")
+    # Sem o campo com a versão da biblioteca, a imagem só muda se o desenho mudar.
+    draw_fig2(curves).savefig(run_dir / "fig2_densidade.png", dpi=150, metadata={"Software": None})
+
+
+def fig2_summary_text(coverage: pd.DataFrame) -> str:
+    """Monta a seção de RESUMO.md sobre a figura equivalente à Fig. 2 do artigo."""
+    panels = pd.DataFrame(
+        [
+            [column, unit, f"{low} a {high}", "logarítmico" if log_scale else "linear"]
+            for column, unit, low, high, log_scale in FIG2_PANELS
+        ],
+        columns=["atributo", "unidade", "faixa do eixo", "eixo"],
+    )
+    measured = coverage.copy()
+    fractions = measured["fluxos na faixa"] / measured["fluxos"]
+    measured.insert(4, "fração na faixa", [f"{fraction:.2%}" for fraction in fractions])
+    number_columns = ["pico da densidade", "1º quartil", "mediana", "3º quartil"]
+    measured[number_columns] = measured[number_columns].map(lambda value: f"{value:.6g}")
+    return f"""
+## Fig. 2: densidade por classe
+
+Figura em `cira/seed42/fig2_densidade.png`, com as curvas desenhadas em
+`cira/seed42/fig2_densidade.csv` e os números desta seção em
+`cira/seed42/fig2_faixa.csv`. Medida no conjunto limpo inteiro, antes de separar
+treino e teste e sem normalizar. Nenhum fluxo é sorteado.
+
+Como a Fig. 2 do artigo, a figura tem três painéis, um por atributo, e uma curva
+por classe, estimada com núcleo gaussiano (KDE) e a largura de banda padrão do
+SciPy, em {FIG2_GRID_POINTS} pontos do eixo. Cada classe é estimada sozinha: a
+área de cada curva é 1. As faixas dos eixos foram lidas na figura do artigo, que
+não diz como recortou os dados nem que largura de banda usou:
+
+{markdown_table(panels.set_index("atributo"))}
+
+A densidade usa só os fluxos dentro da faixa do eixo; "fração na faixa" diz
+quantos são. Fluxo com variância zero fica fora do terceiro painel, porque o
+eixo é logarítmico. Nesse painel a densidade é estimada sobre o logaritmo de
+base 10 da variância. "Pico da densidade" é o valor do atributo em que a curva
+da classe é mais alta. Os quartis são do atributo em todos os fluxos da classe,
+dentro e fora da faixa.
+
+{markdown_table(measured.set_index("atributo"))}
+
+O que o artigo afirma (Seção III-A e legenda da Fig. 2), para ler ao lado da
+tabela:
+
+- (a) o número de bytes enviados ou recebidos é maior no Malicious-DoH do que no
+  Non-DoH e no Benign-DoH. Comparar as linhas de `FlowBytesReceived`.
+- (b) e (c) os fluxos DoH têm comprimento de pacote mais regular, com variância
+  menor que a dos Non-DoH, o que a figura do artigo mostra como uma curva
+  estreita para o Malicious-DoH. Comparar o primeiro e o terceiro quartis de
+  `PacketLengthVariance`.
+- A variância do Malicious-DoH é sempre relativamente alta, ao contrário da do
+  Benign-DoH. Comparar o primeiro quartil de `PacketLengthVariance` das duas
+  classes.
+"""
 
 
 def markdown_table(frame: pd.DataFrame) -> str:
@@ -494,6 +639,7 @@ def main() -> None:
         "parquet_sha256": sha256_of(CIRA_PARQUET_PATH),
     }
     counts = split_counts(table)
+    curves, coverage = fig2_densities(table)
     run_dir = save_run(
         experiment="e0",
         track="dados",
@@ -511,7 +657,9 @@ def main() -> None:
         timings={"total_seconds": round(time.perf_counter() - start, 1)},
     )
     write_tables(run_dir, rules, machines, period, table, counts)
+    write_fig2(run_dir, curves, coverage)
     summary = summary_text(rules, machines, period, metrics) + split_summary_text(counts)
+    summary += fig2_summary_text(coverage)
     (run_dir.parents[1] / "RESUMO.md").write_text(summary, encoding="utf-8")
 
     print(f"Limpo por classe: {clean_rows}, total {len(table)}")
