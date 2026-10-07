@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verificacao:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        # O código e o ambiente ficam em project/.
+        working-directory: project
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Instala o uv
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          working-directory: project
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+
+      - name: Ambiente
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Formatação
+        run: uv run ruff format --check .
+
+      - name: Testes
+        run: uv run pytest
+
+      - name: Métricas da Fig. 4 só com a biblioteca padrão
+        run: python3 scripts/metricas_fig4.py
+
+      # Cada checagem de higiene fica em um passo próprio: o resultado do passo
+      # é o do comando negado, e o passo falha quando o grep encontra uma linha.
+      - name: Nenhum caminho absoluto de máquina
+        run: |
+          ! grep -rnE "/Users/|/home/|[A-Z]:\\\\" --include="*.py" src scripts tests data
+
+      - name: Nenhuma referência a documento interno
+        run: |
+          ! grep -rnE "docs/|planejamento/|\.claude/|[Dd]ecis[ãa]o [0-9]|[Tt]arefa [0-9]|\b[AQ][0-9]{1,2}\b" --include="*.py" --include="*.md" --include="*.json" src scripts tests data README.md results
+
+      - name: Nenhum arquivo proibido versionado
+        working-directory: .
+        run: |
+          ! git ls-files | grep -E "^project/data/(raw|processed)/|\.(pkl|joblib|pcap|parquet|zip)$|^docs/referencias/.*\.pdf$"

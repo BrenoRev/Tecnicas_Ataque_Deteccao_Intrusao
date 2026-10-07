@@ -39,7 +39,9 @@ Workflow único, criado na tarefa 01, em `push` na `main` e em todo pull request
 | Script sem dependência | `python3 scripts/metricas_fig4.py` | o script deixar de rodar só com a biblioteca padrão |
 | Caminho absoluto | `grep -rnE` de `/Users/`, `/home/` e letra de unidade, com `--include="*.py"`, em `src scripts tests data` (comando exato na tarefa 01, passo 4b) | qualquer ocorrência |
 | Referência interna | `grep -rnE` de `docs/`, `planejamento/`, `.claude/`, "decisão N", "tarefa N" e dos identificadores `A1` a `A18` e `Q1` a `Q11`, nos `.py`, `.md` e `.json` de `src scripts tests data README.md results` (comando exato na tarefa 01, passo 4b) | qualquer ocorrência: código, README e resultados não citam documento interno |
-| Arquivo proibido | `git ls-files` filtrado por `.pkl`, `.joblib`, `.pcap`, `.parquet`, `data/raw/`, `data/processed/`, PDF em `referencias/` | qualquer ocorrência |
+| Arquivo proibido | `git ls-files`, na raiz do repositório (`working-directory: .`), filtrado por `.pkl`, `.joblib`, `.pcap`, `.parquet`, `.zip`, `project/data/raw/`, `project/data/processed/`, PDF em `docs/referencias/` | qualquer ocorrência |
+
+Como ficou no commit `5e11d56`: o job roda com `working-directory: project`; cada uma das três checagens de higiene é um passo próprio; actions `actions/checkout@v7` e `astral-sh/setup-uv@v10.2.0`. O workflow ainda não rodou no GitHub (T01-5 aberto).
 
 ---
 

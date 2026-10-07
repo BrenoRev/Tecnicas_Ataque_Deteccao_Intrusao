@@ -1,0 +1,15 @@
+#!/bin/sh
+# Confere o formato da mensagem e barra trailers de coautoria.
+primeira=$(head -n 1 "$1")
+if ! printf '%s\n' "$primeira" | grep -Eq '^(Merge |(feat|fix|docs|exp|refactor|test|chore|ci)(\([a-z0-9-]+\))?: .+)'; then
+    echo "Mensagem fora do padrão. Use: tipo(escopo): resumo. Tipos: feat fix docs exp refactor test chore ci." >&2
+    exit 1
+fi
+if [ "${#primeira}" -gt 72 ]; then
+    echo "Primeira linha com mais de 72 caracteres." >&2
+    exit 1
+fi
+if grep -Eiq '^co-authored-by:|generated with' "$1"; then
+    echo "Commit sem trailer de coautoria nem assinatura de ferramenta." >&2
+    exit 1
+fi
