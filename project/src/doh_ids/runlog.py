@@ -11,7 +11,16 @@ from pathlib import Path
 from doh_ids.config import PROJECT_ROOT, RESULTS_DIR, TRACKS
 
 # Bibliotecas cuja versão pode mudar um resultado numérico.
-LIBRARIES = ["scikit-learn", "imbalanced-learn", "mlxtend", "xgboost", "shap", "pandas", "numpy"]
+LIBRARIES = [
+    "scikit-learn",
+    "imbalanced-learn",
+    "mlxtend",
+    "xgboost",
+    "shap",
+    "pandas",
+    "numpy",
+    "pyarrow",
+]
 
 
 def _git_output(args: list[str], repo_dir: Path) -> str | None:
