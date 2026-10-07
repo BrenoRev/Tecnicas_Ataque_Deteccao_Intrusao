@@ -196,15 +196,30 @@ sem réplicas, 0 dos 513.
   é medido em fluxos que o modelo já recebeu no treino: ele não mede a detecção
   de fluxo novo dessas ferramentas. A coluna que mede isso é a do retreino sem
   réplicas.
-- **O que isso não permite concluir.** A diferença de recall entre as duas
-  colunas de retreino não é a medida do efeito das cópias. Os dois retreinos
-  diferem também no split (as tabelas são diferentes, e treino e teste não têm
-  as mesmas linhas), no número de fluxos do HKD no treino (94670 contra
-  4745) e no teste (10490 contra 513). Nenhum
-  desses fatores foi isolado.
+- **O que isso não permite concluir.** A diferença entre as duas colunas reúne
+  dois efeitos que este experimento não separa: o peso 20 vezes maior do HKD
+  no treino (94670 fluxos contra 4745) e a presença, no teste, de cópias
+  de fluxos do treino. Os dois testes têm linhas e tamanhos diferentes
+  (10490 fluxos do HKD contra 513).
 
 A coluna da transferência não é comparável em tamanho: é o HKD inteiro, e o
 sistema não viu nenhuma das três ferramentas.
+
+**Proximidade ao treino.** No retreino sem réplicas, o recall das ferramentas do HKD (99.42%, 510 de 513) é de fluxos muito próximos de fluxos do treino. Nos 29 atributos normalizados, a mediana da distância de um fluxo do HKD no teste ao fluxo do HKD mais próximo no treino é 0.002571; ao fluxo Malicious-DoH do CIRA mais próximo no treino, 0.051449. Em 505 dos 513 fluxos (98.44%), o vizinho do HKD está mais perto que qualquer malicioso do CIRA. Nenhum deles é cópia exata, mas o recall não estima a detecção de uma sessão de túnel que o treino não tenha. Medida em `dados/combinado_sem_replicas/seed42/metrics.json`, com a tabela em `dados/RESUMO.md`. O recall citado é o da leitura
+variante (profundidade variável).
+
+## `PacketLengthMode` e a queda na transferência
+
+Medido pela etapa de dados nos conjuntos limpos inteiros
+(`dados/hkd/seed42/metrics.json`, com a tabela em `dados/RESUMO.md`).
+No CIRA limpo inteiro, os valores {56, 62, 68, 87} de `PacketLengthMode` cobrem 99.84% dos 249553 fluxos Malicious-DoH e ocorrem em 1 dos 909555 fluxos legítimos (Non-DoH e Benign-DoH). A regra de um só atributo que chama de malicioso o fluxo com `PacketLengthMode` nesse conjunto tem, no mesmo CIRA de onde os valores foram tirados, recall de 99.84% e 1 falso positivo em 909555 (FPR de 0.0001%). Nos 5258 fluxos do HKD ela detecta 0 (0.00%): 0.00% dos fluxos do HKD têm um valor de `PacketLengthMode` que ocorre no Malicious-DoH do CIRA. O valor mais frequente no HKD, 66 (99.90% dos fluxos), é, no CIRA, o de 28.09% dos fluxos Non-DoH, 50.70% dos fluxos Benign-DoH, 0.00% dos fluxos Malicious-DoH.
+
+O recall do sistema na transferência, nas duas leituras, está na tabela de
+cenários acima. O que não foi medido: quanto da decisão do sistema nos fluxos
+do HKD vem desse atributo, e a causa da diferença entre as capturas. Hipótese,
+não medida: a moda do comprimento do pacote depende de como cada captura gravou
+os pacotes (por exemplo, o cabeçalho de enlace ou as opções do TCP), e não só
+da ferramenta de túnel.
 
 ## Números ao lado das hipóteses
 
@@ -242,3 +257,43 @@ depois da execução.
    sem réplicas e 96.7721% no publicado.
 5. Recall de Benign-DoH no teste: 0.00% no CIRA, 0.00% no combinado
    sem réplicas e 0.00% no publicado.
+
+## Resultados que a hipótese listava como inesperados
+
+A lista é a de `fiel/HIPOTESE.md`, na mesma ordem.
+
+### variante (profundidade variável)
+
+- Recall na transferência igual ou maior que o do teste do CIRA:
+  não ocorreu (1.81% contra 99.96%).
+- Recall na transferência perto de zero em alguma ferramenta:
+  **ocorreu** em dnstt e tcp-over-dns. Por
+  ferramenta: dnstt 0.00% (0/2304); tcp-over-dns 0.33% (5/1502); tuns 6.20% (90/1452). "Perto de zero" é recall de até 1%, limite nosso.
+- Muitos valores fora de [0, 1] na transferência: não ocorreu
+  (0 valores).
+- Recall das ferramentas do HKD maior no retreino sem réplicas que no
+  publicado, além do intervalo de confiança: não ocorreu
+  (99.42%, de 98.30% a
+  99.88%, contra 100.00%, de
+  99.96% a 100.00%).
+- Métricas de Non-DoH ou de Benign-DoH no retreino longe das de E1: a hipótese
+  não fixa a distância, e não há veredito. Recall no teste do combinado sem
+  réplicas contra o do CIRA: Non-DoH 99.6752% contra 99.6943%; Benign-DoH 93.3165% contra 92.9114%.
+
+### fiel (profundidade 5)
+
+- Recall na transferência igual ou maior que o do teste do CIRA:
+  não ocorreu (1.71% contra 97.91%).
+- Recall na transferência perto de zero em alguma ferramenta:
+  **ocorreu** em dnstt e tcp-over-dns. Por
+  ferramenta: dnstt 0.00% (0/2304); tcp-over-dns 0.00% (0/1502); tuns 6.20% (90/1452). "Perto de zero" é recall de até 1%, limite nosso.
+- Muitos valores fora de [0, 1] na transferência: não ocorreu
+  (0 valores).
+- Recall das ferramentas do HKD maior no retreino sem réplicas que no
+  publicado, além do intervalo de confiança: não ocorreu
+  (73.29%, de 69.24% a
+  77.08%, contra 99.49%, de
+  99.34% a 99.62%).
+- Métricas de Non-DoH ou de Benign-DoH no retreino longe das de E1: a hipótese
+  não fixa a distância, e não há veredito. Recall no teste do combinado sem
+  réplicas contra o do CIRA: Non-DoH 99.8258% contra 99.9337%; Benign-DoH 0.0000% contra 0.0000%.

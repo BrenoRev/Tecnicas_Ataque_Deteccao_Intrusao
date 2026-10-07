@@ -82,6 +82,151 @@
   },
   "infinite_values": 0,
   "nan_by_column": {},
+  "packet_length_mode": {
+    "column": "PacketLengthMode",
+    "distinct_values": {
+      "CIRA, Benign-DoH": 14,
+      "CIRA, Malicious-DoH": 20,
+      "CIRA, Non-DoH": 237,
+      "HKD, Malicious-DoH": 2
+    },
+    "hkd_fraction_with_cira_malicious_value": 0.0,
+    "hkd_most_frequent_value": {
+      "fraction_by_group": {
+        "CIRA, Benign-DoH": 0.507039400384888,
+        "CIRA, Malicious-DoH": 0.0,
+        "CIRA, Non-DoH": 0.2808726367119236,
+        "HKD, Malicious-DoH": 0.999049068086725
+      },
+      "value": 66.0
+    },
+    "rows": {
+      "CIRA, Benign-DoH": 19746,
+      "CIRA, Malicious-DoH": 249553,
+      "CIRA, Non-DoH": 889809,
+      "HKD, Malicious-DoH": 5258
+    },
+    "rule": {
+      "cira_legitimate": {
+        "false_positives": 1,
+        "fpr": 1.099438736525004e-06,
+        "n": 909555
+      },
+      "cira_malicious": {
+        "detected": 249145,
+        "n": 249553,
+        "recall": 0.998365076757242
+      },
+      "hkd": {
+        "detected": 0,
+        "n": 5258,
+        "recall": 0.0
+      },
+      "max_legitimate_fraction": 0.0001,
+      "min_malicious_fraction": 0.01,
+      "values": [
+        56.0,
+        62.0,
+        68.0,
+        87.0
+      ]
+    },
+    "top_values": {
+      "CIRA, Benign-DoH": [
+        {
+          "fraction": 0.507039400384888,
+          "rows": 10012,
+          "value": 66.0
+        },
+        {
+          "fraction": 0.22115871568925352,
+          "rows": 4367,
+          "value": 105.0
+        },
+        {
+          "fraction": 0.12205003545021777,
+          "rows": 2410,
+          "value": 54.0
+        },
+        {
+          "fraction": 0.07950977413146966,
+          "rows": 1570,
+          "value": 60.0
+        },
+        {
+          "fraction": 0.020307910462878557,
+          "rows": 401,
+          "value": 74.0
+        }
+      ],
+      "CIRA, Malicious-DoH": [
+        {
+          "fraction": 0.8809070618265459,
+          "rows": 219833,
+          "value": 68.0
+        },
+        {
+          "fraction": 0.07561920714237055,
+          "rows": 18871,
+          "value": 56.0
+        },
+        {
+          "fraction": 0.02195926316253461,
+          "rows": 5480,
+          "value": 62.0
+        },
+        {
+          "fraction": 0.019879544625790915,
+          "rows": 4961,
+          "value": 87.0
+        },
+        {
+          "fraction": 0.0009897697082383301,
+          "rows": 247,
+          "value": 165.0
+        }
+      ],
+      "CIRA, Non-DoH": [
+        {
+          "fraction": 0.335690018869218,
+          "rows": 298700,
+          "value": 54.0
+        },
+        {
+          "fraction": 0.2808726367119236,
+          "rows": 249923,
+          "value": 66.0
+        },
+        {
+          "fraction": 0.22626541201538758,
+          "rows": 201333,
+          "value": 55.0
+        },
+        {
+          "fraction": 0.055593953309080936,
+          "rows": 49468,
+          "value": 1514.0
+        },
+        {
+          "fraction": 0.03179671142908197,
+          "rows": 28293,
+          "value": 60.0
+        }
+      ],
+      "HKD, Malicious-DoH": [
+        {
+          "fraction": 0.999049068086725,
+          "rows": 5253,
+          "value": 66.0
+        },
+        {
+          "fraction": 0.0009509319132750095,
+          "rows": 5,
+          "value": 285.0
+        }
+      ]
+    }
+  },
   "parquet_columns": [
     "Duration",
     "FlowBytesSent",
