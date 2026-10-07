@@ -1,6 +1,4 @@
 # Dados: só scripts de download e hashes vão para o Git
-data/raw/
-data/processed/
 *.pcap
 *.pcapng
 
