@@ -204,3 +204,19 @@ tabela:
 - A variância do Malicious-DoH é sempre relativamente alta, ao contrário da do
   Benign-DoH. Comparar o primeiro quartil de `PacketLengthVariance` das duas
   classes.
+
+### Veredito por afirmação
+
+Cada afirmação é confrontada com a mediana, ou com o primeiro quartil, do
+atributo em todos os fluxos de cada classe, lidos da tabela acima. É uma
+comparação de dois números, não um teste estatístico, e não olha a forma das
+curvas.
+
+- **Afirmação: (a) os bytes recebidos são mais no Malicious-DoH do que no Non-DoH e no Benign-DoH.**
+  - mediana de `FlowBytesReceived`: 4896 no Malicious-DoH, maior que 2839 no Non-DoH. O número sustenta a afirmação para o Malicious-DoH diante do Non-DoH.
+  - mediana de `FlowBytesReceived`: 4896 no Malicious-DoH, maior que 1295 no Benign-DoH. O número sustenta a afirmação para o Malicious-DoH diante do Benign-DoH.
+- **Afirmação: (b) e (c) os fluxos DoH têm variância do comprimento de pacote menor que a dos Non-DoH.**
+  - mediana de `PacketLengthVariance`: 3741.21 no Benign-DoH, menor que 115512 no Non-DoH. O número sustenta a afirmação para o Benign-DoH diante do Non-DoH.
+  - mediana de `PacketLengthVariance`: 141409 no Malicious-DoH, maior que 115512 no Non-DoH. O número não sustenta a afirmação para o Malicious-DoH diante do Non-DoH.
+- **Afirmação: a variância do Malicious-DoH é sempre relativamente alta, ao contrário da do Benign-DoH.**
+  - 1º quartil de `PacketLengthVariance`: 15544.8 no Malicious-DoH, maior que 372.49 no Benign-DoH. O número sustenta a afirmação para o Malicious-DoH diante do Benign-DoH.
