@@ -323,6 +323,48 @@ RULE_MAX_LEGITIMATE_FRACTION = 0.0001
 # de zero. Escolha nossa: 1%.
 NEAR_ZERO_RECALL = 0.01
 
+# Identificação da ferramenta de túnel (Seção VI-D e Fig. 9 do artigo).
+
+# Ferramentas de túnel do CIRA-CIC-DoHBrw-2020. Em MaliciousDoH-CSVs.zip cada
+# uma tem uma pasta com um arquivo all.csv, e a ferramenta é o nome da pasta.
+CIRA_TOOLS = [tool for tool, origin in TOOL_ORIGIN.items() if origin == "CIRA"]
+MALICIOUS_ZIP_MEMBER = "CSVs/{tool}/all.csv"
+
+# Nesses arquivos não há coluna Label: a coluna DoH, booleana, diz se o fluxo é
+# DoH. As poucas linhas em que ela é falsa não são tráfego de túnel.
+DOH_COLUMN = "DoH"
+
+# Valores da Seção VI-D do artigo, por ferramenta. O artigo os chama de
+# "accuracy" e não diz como foram calculados, nem com que modelo ou split.
+SECTION_VI_D_ACCURACY = {"dns2tcp": 0.992, "iodine": 0.929, "dnscat2": 0.913}
+
+# Painéis da Fig. 9 do artigo: atributo, unidade e início e fim do eixo
+# horizontal, lidos na figura. A unidade vem do extrator DoHLyzer, que mede o
+# tempo dos pacotes em segundos; a assimetria não tem unidade.
+FIG9_PANELS = [
+    ("ResponseTimeTimeSkewFromMode", "sem unidade", -10, 10),
+    ("PacketTimeVariance", "s²", 0, 3000),
+]
+
+# Média e desvio padrão de cada ferramenta em cada painel, como a legenda da
+# Fig. 9 do artigo os imprime.
+FIG9_MEAN_STD = {
+    "ResponseTimeTimeSkewFromMode": {
+        "dns2tcp": (1.09728, 0.607949),
+        "dnscat2": (0.504178, 1.13836),
+        "iodine": (0.520797, 1.08367),
+    },
+    "PacketTimeVariance": {
+        "dns2tcp": (197.345, 290.832),
+        "dnscat2": (854.902, 434.215),
+        "iodine": (879.466, 430.179),
+    },
+}
+
+# Intervalos do eixo horizontal em que as curvas da Fig. 9 são calculadas.
+# Escolha nossa: o artigo não informa.
+FIG9_BINS = 100
+
 # Hiperparâmetros da trilha fiel.
 
 # 10% dos fluxos para teste, Seção III-B do artigo.
@@ -506,6 +548,7 @@ DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
 CIRA_ZIP_PATH = DATA_RAW_DIR / "cira" / "Total_CSVs.zip"
+MALICIOUS_ZIP_PATH = DATA_RAW_DIR / "cira" / "MaliciousDoH-CSVs.zip"
 CIRA_PARQUET_PATH = DATA_PROCESSED_DIR / "cira.parquet"
 HKD_CSV_PATH = DATA_RAW_DIR / "hkd" / "DoH-CSVs" / "DoH-CSVs-48h" / "Total-48h.csv"
 HKD_AUGMENTED_CSV_PATH = DATA_RAW_DIR / "hkd" / "Total-48h-Augmentation.csv"
