@@ -1,0 +1,14 @@
+item,value,effect_pp
+Média da população,,36.8052
+PacketLengthMode,112,39.169
+ResponseTimeTimeMedian,0.228077,7.47029
+FlowBytesSent,178,3.50705
+Duration,0.268802,3.09205
+ResponseTimeTimeMode,0.228077,2.87916
+FlowBytesReceived,112,2.62812
+PacketLengthMedian,112,-2.25436
+PacketLengthSkewFromMode,-0.707107,2.23902
+PacketLengthMean,96.6667,-1.95191
+ResponseTimeTimeCoefficientofVariation,0,1.95018
+Outros atributos somados,,4.46624
+Predição final,,100

@@ -1,0 +1,40 @@
+{
+  "commit": "3e5aac5ec0a7ec4e7c7d6dbcca96448378e76e0b",
+  "config": {
+    "base_depth": "profundidade máxima 5 nos submodelos (Seção IV-B)",
+    "dataset": "combinado_sem_replicas",
+    "explained_base": 1,
+    "explainer": "shap.TreeExplainer, sem dados de referência, saída em probabilidade",
+    "max_depth": 5,
+    "shap_sample_per_class": 2000,
+    "shap_sample_seed": 42
+  },
+  "cpu_count": 10,
+  "data_sha256": "624c21216525d5b54075b9442e55b7b3f75aaead8ba4b6f0578c08132648890e",
+  "dirty": false,
+  "experiment": "e6",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "imbalanced-learn": "0.14.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 42,
+  "slice": "retreino_sem_replicas-shap",
+  "timestamp": "2026-10-07T17:24:12-03:00",
+  "timings": {
+    "base_fit_seconds": 49.9,
+    "meta_fit_seconds": 2.8,
+    "shap_test_sample_seconds": 0.1,
+    "shap_train_sample_seconds": 0.3,
+    "subsets_seconds": 3.8,
+    "total_seconds": 59.6
+  },
+  "track": "fiel"
+}

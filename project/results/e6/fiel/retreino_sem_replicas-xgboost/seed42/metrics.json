@@ -1,0 +1,196 @@
+{
+  "balanced_train_rows": [
+    800828,
+    800828,
+    800828
+  ],
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "dataset": "combinado_sem_replicas",
+  "synthetic_train_rows": [
+    0,
+    783057,
+    571498
+  ],
+  "test": {
+    "accuracy": 0.9933526284600256,
+    "confusion_matrix": [
+      [
+        88311,
+        669,
+        1
+      ],
+      [
+        100,
+        1875,
+        0
+      ],
+      [
+        4,
+        0,
+        25477
+      ]
+    ],
+    "macro_f1": 0.941789456808572,
+    "macro_precision": 0.9119375937811406,
+    "macro_recall": 0.9805601371820343,
+    "malicious_vs_rest": {
+      "false_positives": 1,
+      "fpr": 1.0994326927305511e-05,
+      "fpr_ci_high": 6.125492954384143e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 2.7835221932204267e-07,
+      "negatives": 90956,
+      "recall": 0.9998430202896276
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.8298296083204248,
+        "pr_auc": 0.9599304732585131,
+        "precision": 0.7370283018867925,
+        "recall": 0.9493670886075949,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9999018819050609,
+        "pr_auc": 0.9999998831457696,
+        "precision": 0.9999607504513698,
+        "recall": 0.9998430202896276,
+        "support": 25481
+      },
+      "Non-DoH": {
+        "f1": 0.99563688020023,
+        "pr_auc": 0.9998630242652341,
+        "precision": 0.9988237290052593,
+        "recall": 0.9924703026488801,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9985758277180986,
+    "total": 116437,
+    "weighted_f1": 0.9937578138079164,
+    "weighted_precision": 0.9946319899095196,
+    "weighted_recall": 0.9933526284600256
+  },
+  "test_recall_by_origin": {
+    "CIRA": {
+      "detected": 24964,
+      "n": 24968,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 24964,
+        "Non-DoH": 4
+      },
+      "recall": 0.9998397949375201,
+      "recall_ci_high": 0.9999563478426172,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9995898626793475
+    },
+    "HKD": {
+      "detected": 513,
+      "n": 513,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 513,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9928349937743438
+    }
+  },
+  "test_recall_by_tool": {
+    "dns2tcp": {
+      "detected": 16717,
+      "n": 16718,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 16717,
+        "Non-DoH": 1
+      },
+      "recall": 0.9999401842325637,
+      "recall_ci_high": 0.9999984855970323,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.999666773438809
+    },
+    "dnscat2": {
+      "detected": 3673,
+      "n": 3674,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 3673,
+        "Non-DoH": 1
+      },
+      "recall": 0.9997278170930866,
+      "recall_ci_high": 0.9999931089491696,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9984844370810004
+    },
+    "dnstt": {
+      "detected": 232,
+      "n": 232,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 232,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9842254006358045
+    },
+    "iodine": {
+      "detected": 4574,
+      "n": 4576,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 4574,
+        "Non-DoH": 2
+      },
+      "recall": 0.9995629370629371,
+      "recall_ci_high": 0.9999470652673131,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9984220794538624
+    },
+    "tcp-over-dns": {
+      "detected": 142,
+      "n": 142,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 142,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9743565015155368
+    },
+    "tuns": {
+      "detected": 139,
+      "n": 139,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 139,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9738103555657944
+    }
+  },
+  "test_rows": [
+    88981,
+    1975,
+    25481
+  ],
+  "train_rows": [
+    800828,
+    17771,
+    229330
+  ]
+}

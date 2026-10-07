@@ -1,6 +1,6 @@
 # E6: o sistema do artigo no segundo dataset, fiel (profundidade 5)
 
-Gerado por `scripts/e6_dataset2.py`. Os números vêm dos arquivos `metrics.json`
+Gerado por `scripts/e6_resumo.py`. Os números vêm dos arquivos `metrics.json`
 de `transferencia/seed42/`, `retreino_sem_replicas/seed42/` e
 `retreino_publicado/seed42/`; os tempos estão nos `run.json`.
 Random Forests base: profundidade máxima 5 nos submodelos (Seção IV-B). Os cenários das duas leituras
@@ -259,12 +259,23 @@ de 95% entre parênteses.
 | tcp-over-dns | 0.00% (0/1502; 0.00% a 0.25%) | 87.32% (124/142; 80.71% a 92.31%) | 98.23% (2883/2935; 97.68% a 98.67%) |
 | tuns | 6.20% (90/1452; 5.01% a 7.56%) | 99.28% (138/139; 96.06% a 99.98%) | 99.97% (2858/2859; 99.81% a 100.00%) |
 
-No retreino publicado, 10490 dos
-10490 fluxos do HKD no teste são cópias de fluxos do treino; no
-retreino sem réplicas, nenhum. A diferença de recall entre as duas colunas de
-retreino é o que as cópias acrescentam. A coluna da transferência não é
-comparável em tamanho: é o HKD inteiro, e o sistema não viu nenhuma das três
-ferramentas.
+O que foi medido: no retreino publicado, 10490 dos
+10490 fluxos do HKD no teste têm cópia idêntica no treino; no retreino
+sem réplicas, 0 dos 513.
+
+- **O que isso permite concluir.** No publicado, o recall das ferramentas do HKD
+  é medido em fluxos que o modelo já recebeu no treino: ele não mede a detecção
+  de fluxo novo dessas ferramentas. A coluna que mede isso é a do retreino sem
+  réplicas.
+- **O que isso não permite concluir.** A diferença de recall entre as duas
+  colunas de retreino não é a medida do efeito das cópias. Os dois retreinos
+  diferem também no split (as tabelas são diferentes, e treino e teste não têm
+  as mesmas linhas), no número de fluxos do HKD no treino (94670 contra
+  4745) e no teste (10490 contra 513). Nenhum
+  desses fatores foi isolado.
+
+A coluna da transferência não é comparável em tamanho: é o HKD inteiro, e o
+sistema não viu nenhuma das três ferramentas.
 
 ## O que não foi feito
 
@@ -279,3 +290,221 @@ ferramentas.
   réplicas pode incluir esse efeito.
 - Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada depois de ver
   os resultados.
+
+## SHAP dos Random Forests base no combinado sem réplicas
+
+Gerado por `scripts/e6_baselines_xai.py`, com as mesmas funções da explicação
+no CIRA (`scripts/e5_xai.py`). Os números vêm de `retreino_sem_replicas-shap/seed42/metrics.json`; os
+do CIRA, de `results/e5/fiel/`. O sistema explicado é o do retreino
+no combinado sem réplicas nesta leitura: mesma seed, mesmo split e mesmos
+subconjuntos de `retreino_sem_replicas/`. Não há figura do artigo para este dataset: o
+que fica ao lado é a explicação no CIRA.
+
+### Amostras
+
+Duas amostras estratificadas de até 2000 fluxos por classe,
+sorteadas com a seed 42, como no CIRA. O sorteio é feito na classe
+Malicious-DoH inteira, sem separar por ferramenta, e o número de fluxos de cada
+ferramenta na amostra não é gravado. No treino, 4745 dos 229330 fluxos da
+classe são do HKD (2.07%): pelo sorteio, a amostra de Malicious-DoH
+é quase toda de fluxos das ferramentas do CIRA, e a importância medida reflete
+sobretudo esses fluxos.
+
+| amostra | Non-DoH | Benign-DoH | Malicious-DoH | uso |
+| --- | --- | --- | --- | --- |
+| treino | 2000 | 2000 | 2000 | importância global |
+| teste | 2000 | 1975 | 2000 | dependência e explicações locais |
+
+A tabela `retreino_sem_replicas-shap/seed42/importancia.csv` traz a média do valor absoluto de SHAP
+por base, classe e atributo. As figuras, na mesma pasta, são as equivalentes às
+Figs. 5 a 8 do artigo e usam o Random Forest base 1.
+
+### Ranking de Malicious-DoH ao lado do CIRA
+
+| posto | CIRA, base 1 | combinado, base 1 | combinado, base 2 | combinado, base 3 |
+| --- | --- | --- | --- | --- |
+| 1 | PacketLengthMode | PacketLengthMode | PacketLengthMode | PacketLengthMode |
+| 2 | Duration | Duration | Duration | Duration |
+| 3 | PacketTimeMedian | PacketTimeMedian | PacketTimeMedian | PacketTimeMedian |
+| 4 | PacketLengthMedian | PacketLengthMedian | PacketLengthMedian | PacketLengthCoefficientofVariation |
+| 5 | PacketLengthCoefficientofVariation | PacketLengthMean | PacketLengthMean | PacketLengthMean |
+| 6 | PacketLengthMean | PacketLengthCoefficientofVariation | PacketLengthCoefficientofVariation | PacketLengthMedian |
+| 7 | FlowBytesSent | FlowBytesSent | FlowBytesReceived | FlowBytesReceived |
+| 8 | ResponseTimeTimeSkewFromMedian | PacketTimeCoefficientofVariation | FlowBytesSent | FlowBytesSent |
+| 9 | PacketTimeCoefficientofVariation | PacketLengthStandardDeviation | PacketLengthStandardDeviation | ResponseTimeTimeSkewFromMedian |
+| 10 | PacketLengthStandardDeviation | ResponseTimeTimeMedian | PacketTimeCoefficientofVariation | PacketTimeCoefficientofVariation |
+
+| base | classe | Spearman nos 29 atributos | Spearman na união dos 10 primeiros | atributos em comum nos 10 primeiros |
+| --- | --- | --- | --- | --- |
+| base 1 | Non-DoH | 0.980 | 0.991 | 9 |
+| base 1 | Benign-DoH | 0.975 | 0.976 | 10 |
+| base 1 | Malicious-DoH | 0.974 | 0.936 | 9 |
+| base 2 | Non-DoH | 0.967 | 0.982 | 9 |
+| base 2 | Benign-DoH | 0.967 | 0.976 | 10 |
+| base 2 | Malicious-DoH | 0.952 | 0.873 | 9 |
+| base 3 | Non-DoH | 0.988 | 1.000 | 10 |
+| base 3 | Benign-DoH | 0.965 | 0.955 | 9 |
+| base 3 | Malicious-DoH | 0.934 | 0.873 | 9 |
+
+Correlação de postos de Spearman entre o ranking de importância no combinado sem réplicas e o do base de mesmo número no CIRA; o valor 1 quer dizer a mesma ordem. O base de mesmo número não é o mesmo modelo nos dois datasets: cada um foi treinado no seu subconjunto, depois de outro split.
+
+### Estabilidade entre os três submodelos
+
+Correlação de postos de Spearman entre os rankings de dois bases, sobre os
+atributos que estão entre os 10 primeiros de pelo menos um deles.
+
+| classe | bases 1-2 | bases 1-3 | bases 2-3 |
+| --- | --- | --- | --- |
+| Non-DoH | 0.991 | 0.991 | 0.991 |
+| Benign-DoH | 0.988 | 0.982 | 0.991 |
+| Malicious-DoH | 0.900 | 0.839 | 0.927 |
+
+### Dependência e explicações locais
+
+Medidas do Random Forest base 1 na amostra do teste. O limiar de
+40 segundos é a leitura que o artigo faz da Fig. 6a, no CIRA;
+aqui ele é só a linha de referência das figuras.
+
+| medida | CIRA (E5) | combinado sem réplicas |
+| --- | --- | --- |
+| limiar medido de `Duration` (s) | 33.13 | 33.07 |
+| SHAP positivo acima de 40 s | 99.53% | 87.64% |
+| SHAP positivo até 40 s | 19.40% | 18.77% |
+| base concorda com o empilhado | 69.99% | 69.29% |
+
+Fluxos da amostra com mais bytes recebidos que enviados, por classe real:
+[1544, 988, 1614]; o valor SHAP de `FlowBytesSent` para Malicious-DoH é positivo em
+36.25% deles e em 83.05% dos demais.
+
+- `fig7_explicacao_malicious-doh.png` e `fig7_explicacao_malicious-doh.csv`: fluxo Malicious-DoH do teste. Probabilidade da classe no base 1: 100.00%, a partir da média da população de 31.61%; atributo de maior efeito: `PacketLengthMode` = 68 (+64.01 pp). Classe predita pelo base: Malicious-DoH; pelo modelo empilhado: Malicious-DoH.
+- `fig8_explicacao_non-doh.png` e `fig8_explicacao_non-doh.csv`: fluxo Non-DoH do teste. Probabilidade da classe no base 1: 98.47%, a partir da média da população de 36.81%; atributo de maior efeito: `PacketLengthMode` = 112 (+45.20 pp). Classe predita pelo base: Non-DoH; pelo modelo empilhado: Non-DoH.
+
+### Limitação
+
+Os valores SHAP deste experimento explicam os Random Forests base, não a decisão do empilhamento. A linha 8 do Algoritmo 1 do artigo aplica o `TreeExplainer` sem dizer a qual modelo. O `TreeExplainer` recusa o modelo empilhado com o erro: `Model type not yet supported by TreeExplainer: <class 'mlxtend.classifier.stacking_classification.StackingClassifier'>`. A regressão logística que combina os três bases não é um modelo de árvores, e a decisão final do sistema passa por ela.
+
+Na amostra do teste, a classe de maior probabilidade do base 1 é a classe que o modelo empilhado devolve em 69.29% dos fluxos. Predições do modelo empilhado na amostra: 4005 de Non-DoH, 0 de Benign-DoH, 1970 de Malicious-DoH. Onde os dois divergem, a explicação do base não é a explicação da saída do sistema.
+
+Os valores SHAP são calculados em amostras, com uma seed. O fluxo de cada
+explicação local é o primeiro da classe na amostra do teste e pode ser de
+qualquer ferramenta.
+
+## Modelos de comparação da Tabela II no combinado sem réplicas
+
+Gerado por `scripts/e6_baselines_xai.py`, com as mesmas funções dos modelos de
+comparação no CIRA (`scripts/e2_baselines.py`). Os números vêm de
+`retreino_sem_replicas-<modelo>/seed42/metrics.json`. Os três modelos não
+dependem da leitura de profundidade dos Random Forests base; ficam nesta trilha
+porque seguem a Tabela II do artigo, como no CIRA.
+
+Mesmo split e mesmo teste do sistema do artigo em `retreino_sem_replicas/` (conferido
+por asserção no script: total, fluxos por classe e fluxos por ferramenta):
+116437 fluxos, por classe [88981, 1975, 25481]. O normalizador é ajustado no
+treino. O treino inteiro é balanceado com SMOTE: de [800828, 17771, 229330] fluxos por
+classe passa a [800828, 800828, 800828], com [0, 783057, 571498] amostras
+sintéticas. A árvore de decisão tem profundidade máxima 10 e o Random Forest,
+10 árvores; os outros hiperparâmetros ficam no padrão do scikit-learn e do
+XGBoost. A Tabela II não traz número para este dataset: os mesmos modelos no
+CIRA estão ao lado em `../RESUMO.md`.
+
+### Árvore de decisão
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 86004 | 2942 | 35 |
+| Benign-DoH | 125 | 1834 | 16 |
+| Malicious-DoH | 114 | 70 | 25297 |
+
+- **Recall de Malicious-DoH 99.2779%.** De 25481 fluxos de
+  túnel no teste, 184 são classificados em outra classe: passam sem alerta.
+- **FPR de Malicious-DoH contra o resto 0.0561%.** 51 de
+  90956 fluxos legítimos são classificados como túnel: é o alarme
+  falso que o operador recebe. Intervalo de confiança de 95%:
+  de 0.0418% a 0.0737%.
+- **Recall de Benign-DoH 92.8608% e precisão 37.8456%.** É a
+  classe menor, com 1975 fluxos no teste; o erro nela quase não
+  aparece na acurácia (97.1641%) nem na média ponderada.
+- **F1 macro 83.8258% e F1 ponderado 97.7122%.** A média
+  macro pesa as três classes por igual; a ponderada pesa pelo suporte.
+- **AUC-ROC one-vs-rest macro 0.992473.** Não depende do limiar
+  de decisão.
+
+Recall de Malicious-DoH por ferramenta no teste:
+
+| fluxos de túnel | n | detectados | recall | intervalo de confiança de 95% | erros para Non-DoH | erros para Benign-DoH |
+| --- | --- | --- | --- | --- | --- | --- |
+| dns2tcp | 16718 | 16677 | 99.75% | 99.67% a 99.82% | 20 | 21 |
+| dnscat2 | 3674 | 3625 | 98.67% | 98.24% a 99.01% | 30 | 19 |
+| dnstt | 232 | 231 | 99.57% | 97.62% a 99.99% | 0 | 1 |
+| iodine | 4576 | 4489 | 98.10% | 97.66% a 98.47% | 64 | 23 |
+| tcp-over-dns | 142 | 136 | 95.77% | 91.03% a 98.43% | 0 | 6 |
+| tuns | 139 | 139 | 100.00% | 97.38% a 100.00% | 0 | 0 |
+
+### XGBoost
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 88311 | 669 | 1 |
+| Benign-DoH | 100 | 1875 | 0 |
+| Malicious-DoH | 4 | 0 | 25477 |
+
+- **Recall de Malicious-DoH 99.9843%.** De 25481 fluxos de
+  túnel no teste, 4 são classificados em outra classe: passam sem alerta.
+- **FPR de Malicious-DoH contra o resto 0.0011%.** 1 de
+  90956 fluxos legítimos são classificados como túnel: é o alarme
+  falso que o operador recebe. Intervalo de confiança de 95%:
+  de 0.0000% a 0.0061%.
+- **Recall de Benign-DoH 94.9367% e precisão 73.7028%.** É a
+  classe menor, com 1975 fluxos no teste; o erro nela quase não
+  aparece na acurácia (99.3353%) nem na média ponderada.
+- **F1 macro 94.1789% e F1 ponderado 99.3758%.** A média
+  macro pesa as três classes por igual; a ponderada pesa pelo suporte.
+- **AUC-ROC one-vs-rest macro 0.998576.** Não depende do limiar
+  de decisão.
+
+Recall de Malicious-DoH por ferramenta no teste:
+
+| fluxos de túnel | n | detectados | recall | intervalo de confiança de 95% | erros para Non-DoH | erros para Benign-DoH |
+| --- | --- | --- | --- | --- | --- | --- |
+| dns2tcp | 16718 | 16717 | 99.99% | 99.97% a 100.00% | 1 | 0 |
+| dnscat2 | 3674 | 3673 | 99.97% | 99.85% a 100.00% | 1 | 0 |
+| dnstt | 232 | 232 | 100.00% | 98.42% a 100.00% | 0 | 0 |
+| iodine | 4576 | 4574 | 99.96% | 99.84% a 99.99% | 2 | 0 |
+| tcp-over-dns | 142 | 142 | 100.00% | 97.44% a 100.00% | 0 | 0 |
+| tuns | 139 | 139 | 100.00% | 97.38% a 100.00% | 0 | 0 |
+
+### Random Forest
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 88403 | 575 | 3 |
+| Benign-DoH | 118 | 1854 | 3 |
+| Malicious-DoH | 10 | 1 | 25470 |
+
+- **Recall de Malicious-DoH 99.9568%.** De 25481 fluxos de
+  túnel no teste, 11 são classificados em outra classe: passam sem alerta.
+- **FPR de Malicious-DoH contra o resto 0.0066%.** 6 de
+  90956 fluxos legítimos são classificados como túnel: é o alarme
+  falso que o operador recebe. Intervalo de confiança de 95%:
+  de 0.0024% a 0.0144%.
+- **Recall de Benign-DoH 93.8734% e precisão 76.2963%.** É a
+  classe menor, com 1975 fluxos no teste; o erro nela quase não
+  aparece na acurácia (99.3902%) nem na média ponderada.
+- **F1 macro 94.5820% e F1 ponderado 99.4204%.** A média
+  macro pesa as três classes por igual; a ponderada pesa pelo suporte.
+- **AUC-ROC one-vs-rest macro 0.996537.** Não depende do limiar
+  de decisão.
+
+Recall de Malicious-DoH por ferramenta no teste:
+
+| fluxos de túnel | n | detectados | recall | intervalo de confiança de 95% | erros para Non-DoH | erros para Benign-DoH |
+| --- | --- | --- | --- | --- | --- | --- |
+| dns2tcp | 16718 | 16715 | 99.98% | 99.95% a 100.00% | 3 | 0 |
+| dnscat2 | 3674 | 3672 | 99.95% | 99.80% a 99.99% | 1 | 1 |
+| dnstt | 232 | 232 | 100.00% | 98.42% a 100.00% | 0 | 0 |
+| iodine | 4576 | 4570 | 99.87% | 99.71% a 99.95% | 6 | 0 |
+| tcp-over-dns | 142 | 142 | 100.00% | 97.44% a 100.00% | 0 | 0 |
+| tuns | 139 | 139 | 100.00% | 97.38% a 100.00% | 0 | 0 |
+
+Não há validação cruzada nem busca de hiperparâmetros dos modelos de
+comparação, como no CIRA. Uma execução por modelo, com a seed 42.

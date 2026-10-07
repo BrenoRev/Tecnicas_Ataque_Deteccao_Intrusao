@@ -1,0 +1,46 @@
+{
+  "commit": "3e5aac5ec0a7ec4e7c7d6dbcca96448378e76e0b",
+  "config": {
+    "dataset": "combinado_sem_replicas",
+    "max_depth": 10,
+    "model": "decision_tree",
+    "n_jobs": -1,
+    "readings": {
+      "class_weight": "nenhum: o artigo não menciona",
+      "hyperparameter_source": "Tabela II do artigo, sem busca",
+      "other_hyperparameters": "padrão do scikit-learn e do XGBoost: o artigo não os informa",
+      "smote_parameters": "padrão do imbalanced-learn",
+      "smote_target": "treino inteiro: as duas classes menores aumentadas até o tamanho de Non-DoH"
+    },
+    "smote_seed": 4203,
+    "table_ii_hyperparameters": {
+      "max_depth": 10
+    },
+    "test_size": 0.1
+  },
+  "cpu_count": 10,
+  "data_sha256": "624c21216525d5b54075b9442e55b7b3f75aaead8ba4b6f0578c08132648890e",
+  "dirty": false,
+  "experiment": "e6",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "imbalanced-learn": "0.14.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 42,
+  "slice": "retreino_sem_replicas-decision_tree",
+  "timestamp": "2026-10-07T17:04:41-03:00",
+  "timings": {
+    "evaluation_seconds": 0.2,
+    "fit_seconds": 88.0,
+    "smote_seconds": 55.7
+  },
+  "track": "fiel"
+}
