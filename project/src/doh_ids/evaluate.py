@@ -51,18 +51,24 @@ def malicious_vs_rest(confusion: list[list[int]]) -> dict:
     }
 
 
-def metrics_from_confusion(confusion: list[list[int]]) -> dict:
+def metrics_from_confusion(
+    confusion: list[list[int]], class_names: list[str] = CLASS_NAMES
+) -> dict:
     """Calcula as métricas a partir só da matriz de confusão.
 
     Devolve a matriz, o total, a acurácia, suporte, precisão, recall e F1 de
     cada classe (em `per_class`, pelo nome da classe), as médias macro e
     ponderada de cada uma (chaves `macro_*` e `weighted_*`) e a visão
     "Malicious-DoH contra o resto" (em `malicious_vs_rest`).
+
+    `class_names` dá o nome de cada código de classe, na ordem da matriz. Com
+    nomes que não são os de `CLASS_NAMES`, a visão "Malicious-DoH contra o
+    resto" não é devolvida.
     """
     confusion = [[int(cell) for cell in row] for row in confusion]
     total = sum(map(sum, confusion))
     per_class = {}
-    for index, name in enumerate(CLASS_NAMES):
+    for index, name in enumerate(class_names):
         hits = confusion[index][index]
         support = sum(confusion[index])
         predicted = sum(row[index] for row in confusion)
@@ -78,16 +84,19 @@ def metrics_from_confusion(confusion: list[list[int]]) -> dict:
     metrics = {
         "confusion_matrix": confusion,
         "total": total,
-        "accuracy": sum(confusion[index][index] for index in range(len(CLASS_NAMES))) / total,
+        "accuracy": sum(confusion[index][index] for index in range(len(class_names))) / total,
         "per_class": per_class,
-        "malicious_vs_rest": malicious_vs_rest(confusion),
     }
+    # A visão binária separa o tráfego malicioso do legítimo. Entre classes que
+    # são todas maliciosas, como as ferramentas de túnel, ela não existe.
+    if class_names == CLASS_NAMES:
+        metrics["malicious_vs_rest"] = malicious_vs_rest(confusion)
     # O artigo reporta médias sem dizer qual (Tabela II). Aqui toda média leva
     # o nome: a macro pesa as três classes por igual; a ponderada pesa pelo
     # suporte e por isso esconde a classe benigna, a menor.
     for metric in CLASS_METRICS:
-        values = [per_class[name][metric] for name in CLASS_NAMES]
-        supports = [per_class[name]["support"] for name in CLASS_NAMES]
+        values = [per_class[name][metric] for name in class_names]
+        supports = [per_class[name]["support"] for name in class_names]
         metrics[f"macro_{metric}"] = sum(values) / len(values)
         metrics[f"weighted_{metric}"] = (
             sum(value * support for value, support in zip(values, supports, strict=True)) / total
@@ -107,13 +116,15 @@ def _check_proba(proba: np.ndarray, n_samples: int) -> None:
         raise ValueError("Cada linha das probabilidades deve somar 1.")
 
 
-def _ranking_metrics(y_true: np.ndarray, proba: np.ndarray) -> tuple[float, dict]:
+def _ranking_metrics(
+    y_true: np.ndarray, proba: np.ndarray, class_names: list[str]
+) -> tuple[float, dict]:
     """Devolve a AUC-ROC one-vs-rest macro e a AUC-PR de cada classe, pelo nome."""
-    labels = list(range(len(CLASS_NAMES)))
+    labels = list(range(len(class_names)))
     roc_auc = roc_auc_score(y_true, proba, multi_class="ovr", average="macro", labels=labels)
     pr_auc = {
         name: float(average_precision_score(y_true == index, proba[:, index]))
-        for index, name in enumerate(CLASS_NAMES)
+        for index, name in enumerate(class_names)
     }
     return float(roc_auc), pr_auc
 
@@ -123,6 +134,7 @@ def evaluate(
     y_pred: ArrayLike,
     proba: ArrayLike,
     base_mean_proba: ArrayLike | None = None,
+    class_names: list[str] = CLASS_NAMES,
 ) -> dict:
     """Avalia um modelo pelos rótulos reais, os preditos e as probabilidades por classe.
 
@@ -137,6 +149,9 @@ def evaluate(
     distintos, de modo que a AUC da saída dele mede essa discretização, não a
     capacidade de ordenação do modelo.
 
+    `class_names` dá o nome de cada código de classe, como em
+    `metrics_from_confusion`; o número de classes é sempre o de `CLASS_NAMES`.
+
     Levanta `ValueError` se as probabilidades não tiverem uma coluna por classe
     e uma linha por amostra, que é o que acontece ao passar rótulos no lugar.
     """
@@ -144,17 +159,21 @@ def evaluate(
     proba = np.asarray(proba)
     _check_proba(proba, len(y_true))
 
-    labels = list(range(len(CLASS_NAMES)))
-    metrics = metrics_from_confusion(confusion_matrix(y_true, y_pred, labels=labels).tolist())
-    metrics["roc_auc_ovr_macro"], pr_auc = _ranking_metrics(y_true, proba)
-    for name in CLASS_NAMES:
+    labels = list(range(len(class_names)))
+    metrics = metrics_from_confusion(
+        confusion_matrix(y_true, y_pred, labels=labels).tolist(), class_names
+    )
+    metrics["roc_auc_ovr_macro"], pr_auc = _ranking_metrics(y_true, proba, class_names)
+    for name in class_names:
         metrics["per_class"][name]["pr_auc"] = pr_auc[name]
 
     if base_mean_proba is not None:
         base_mean_proba = np.asarray(base_mean_proba)
         _check_proba(base_mean_proba, len(y_true))
-        metrics["roc_auc_ovr_macro_base_mean"], pr_auc = _ranking_metrics(y_true, base_mean_proba)
-        for name in CLASS_NAMES:
+        metrics["roc_auc_ovr_macro_base_mean"], pr_auc = _ranking_metrics(
+            y_true, base_mean_proba, class_names
+        )
+        for name in class_names:
             metrics["per_class"][name]["pr_auc_base_mean"] = pr_auc[name]
     return metrics
 

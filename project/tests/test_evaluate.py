@@ -243,3 +243,28 @@ def test_outside_unit_interval_finds_the_planted_values():
     assert result["values"] == 3
     assert result["rows"] == 2
     assert result["by_column"] == {FEATURE_COLUMNS[0]: 2, FEATURE_COLUMNS[4]: 1}
+
+
+def test_metrics_are_keyed_by_the_class_names_given():
+    tools = ["dns2tcp", "dnscat2", "iodine"]
+    confusion = [[5, 1, 0], [1, 4, 1], [0, 1, 5]]
+    y_true, y_pred = labels_from_confusion(confusion)
+
+    metrics = evaluate(y_true, y_pred, one_hot(y_pred), one_hot(y_pred), class_names=tools)
+
+    assert list(metrics["per_class"]) == tools
+    assert set(metrics["per_class"]["dnscat2"]) == {
+        "support",
+        "precision",
+        "recall",
+        "f1",
+        "pr_auc",
+        "pr_auc_base_mean",
+    }
+    # Entre ferramentas não há tráfego legítimo: a visão binária não é devolvida.
+    assert "malicious_vs_rest" not in metrics
+    # Só os nomes mudam: os números são os da mesma matriz com os nomes padrão.
+    default = metrics_from_confusion(confusion)
+    assert metrics["accuracy"] == default["accuracy"]
+    assert metrics["macro_f1"] == default["macro_f1"]
+    assert metrics["per_class"]["dnscat2"]["recall"] == default["per_class"]["Benign-DoH"]["recall"]
