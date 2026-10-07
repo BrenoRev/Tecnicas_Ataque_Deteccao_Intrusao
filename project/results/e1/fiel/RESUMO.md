@@ -1,8 +1,9 @@
-# E1: reprodução do Balanced Stacked Random Forest, trilha fiel
+# E1: reprodução do Balanced Stacked Random Forest, fiel (profundidade 5)
 
 Gerado por `scripts/e1_reproducao.py`. Os números vêm de
-`proposto/seed42/metrics.json`; os tempos de treino estão em
-`proposto/seed42/run.json`.
+`proposto/seed42/metrics.json`; os tempos de treino estão em `proposto/seed42/run.json`.
+Random Forests base: profundidade máxima 5 nos submodelos (Seção IV-B). A outra leitura da profundidade
+está ao lado desta em `../RESUMO.md`.
 Uma única execução, com a seed 42: não há média nem desvio padrão.
 Classes na ordem dos códigos: Non-DoH, Benign-DoH, Malicious-DoH.
 
@@ -32,14 +33,7 @@ Diferença (reprodução menos artigo):
 | Benign-DoH | 1783 | -1782 | -1 |
 | Malicious-DoH | 516 | 0 | -516 |
 
-Soma das diferenças absolutas: 4711. Diferença de
-total: 1 (o teste tem 115911 fluxos e a
-Fig. 4b soma 115910; essa parte da distância vem do
-tamanho do conjunto). Diferença em pontos percentuais: acurácia
--1.9886, precisão macro
--33.3363, recall macro
--30.7678, F1 macro
--32.0168.
+Soma das diferenças absolutas: 4711. Diferença de total: 1 (a matriz obtida soma 115911 fluxos; essa parte da distância vem do tamanho do conjunto). Diferença em pontos percentuais: acurácia -1.9886, precisão macro -33.3363, recall macro -30.7678, F1 macro -32.0168.
 
 ## Métricas do teste
 
@@ -69,6 +63,8 @@ tamanho do conjunto). Diferença em pontos percentuais: acurácia
   probabilidades dos bases.** A primeira ordena os fluxos só pelas combinações
   de rótulos dos três bases; a segunda mede a capacidade de ordenação dos
   Random Forests. Nenhuma das duas depende do limiar de decisão.
+
+O modelo não prediz Benign-DoH em nenhuma linha. A precisão de uma classe sem predição é indefinida: ela entra como 0 na precisão macro e no F1 macro, em vez de a classe sair da média.
 
 15842 das 115911 linhas do teste (13.67%) têm
 vetor de 29 atributos idêntico ao de alguma linha do treino; em Non-DoH são
@@ -106,12 +102,7 @@ Diferença (reprodução menos artigo):
 | Benign-DoH | 15931 | -15945 | 14 |
 | Malicious-DoH | 5000 | 21 | -5021 |
 
-Soma das diferenças absolutas: 43275. Diferença de
-total: -1. Diferença em pontos percentuais: acurácia
--2.0323, precisão macro
--32.9058, recall macro
--30.6632, F1 macro
--31.9153.
+Soma das diferenças absolutas: 43275. Diferença de total: -1 (a matriz obtida soma 1043197 fluxos; essa parte da distância vem do tamanho do conjunto). Diferença em pontos percentuais: acurácia -2.0323, precisão macro -32.9058, recall macro -30.6632, F1 macro -31.9153.
 
 ## Teste ao lado da Tabela II
 
@@ -141,44 +132,69 @@ obtida está escrita com Malicious-DoH valendo 12.
 | 2 | [266943, 224598, 224598] | 14.3:12.0:12.0 | 92.09% |
 | 3 | [266942, 224598, 224598] | 14.3:12.0:12.0 | 92.09% |
 
+## Bases isolados no teste
+
+Cada Random Forest base avaliado sozinho, antes do empilhamento.
+
+Base 1: recall de Benign-DoH 85.1646%, precisão de Benign-DoH 29.8916%, acurácia 96.1272%.
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 85312 | 3630 | 39 |
+| Benign-DoH | 293 | 1682 | 0 |
+| Malicious-DoH | 212 | 315 | 24428 |
+
+Base 2: recall de Benign-DoH 85.9747%, precisão de Benign-DoH 30.0584%, acurácia 96.1108%.
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 85291 | 3625 | 65 |
+| Benign-DoH | 277 | 1698 | 0 |
+| Malicious-DoH | 215 | 326 | 24414 |
+
+Base 3: recall de Benign-DoH 85.1646%, precisão de Benign-DoH 27.8892%, acurácia 95.7511%.
+
+| real \ predito | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| Non-DoH | 85392 | 3557 | 32 |
+| Benign-DoH | 293 | 1682 | 0 |
+| Malicious-DoH | 251 | 792 | 23912 |
+
 ## Meta-classificador
 
-O meta-classificador recebe o rótulo predito por cada base, como número. Os
-bases discordam em 829 linhas do teste
-(0.7152%); nas demais os três dão o mesmo
-rótulo. Combinações em que o meta devolve uma classe que nenhum base predisse:
-2 de 27, com
-5473 linhas do teste.
+O meta-classificador recebe o rótulo predito por cada base, como número. Ele é ajustado no treino original, sobre as predições de bases que já viram essas linhas ao serem treinados: todo o Benign-DoH e todo o Malicious-DoH estão nos três subconjuntos, e cada linha de Non-DoH em um deles. O artigo não descreve esse passo; a alternativa, com predições fora da amostra, não foi medida aqui.
 
-| rótulos dos três bases | classe do meta | linhas do teste |
-| --- | --- | --- |
-| [0, 0, 0] | 0 | 85685 |
-| [0, 0, 1] | 0 | 20 |
-| [0, 0, 2] | 0 | 14 |
-| [0, 1, 0] | 0 | 74 |
-| [0, 1, 1] | 0 | 9 |
-| [0, 1, 2] | 0 | 2 |
-| [0, 2, 0] | 0 | 13 |
-| [0, 2, 1] | 0 | 0 |
-| [0, 2, 2] | 1 | 0 |
-| [1, 0, 0] | 0 | 62 |
-| [1, 0, 1] | 0 | 2 |
-| [1, 0, 2] | 0 | 0 |
-| [1, 1, 0] | 0 | 65 |
-| [1, 1, 1] | 0 | 5473 |
-| [1, 1, 2] | 1 | 0 |
-| [1, 2, 0] | 0 | 0 |
-| [1, 2, 1] | 2 | 25 |
-| [1, 2, 2] | 2 | 0 |
-| [2, 0, 0] | 0 | 0 |
-| [2, 0, 1] | 2 | 0 |
-| [2, 0, 2] | 2 | 0 |
-| [2, 1, 0] | 2 | 19 |
-| [2, 1, 1] | 2 | 3 |
-| [2, 1, 2] | 2 | 4 |
-| [2, 2, 0] | 2 | 18 |
-| [2, 2, 1] | 2 | 499 |
-| [2, 2, 2] | 2 | 23924 |
+Os bases discordam em 829 linhas do teste (0.7152%); nas demais os três dão o mesmo rótulo. Combinações em que o meta devolve uma classe que nenhum base predisse: 2 de 27, com 5473 linhas do teste.
+
+| rótulos dos três bases | classe do meta | linhas do treino por classe real | linhas do teste |
+| --- | --- | --- | --- |
+| [0, 0, 0] | 0 | [767396, 2118, 1971] | 85685 |
+| [0, 0, 1] | 0 | [99, 43, 0] | 20 |
+| [0, 0, 2] | 0 | [106, 3, 22] | 14 |
+| [0, 1, 0] | 0 | [575, 216, 8] | 74 |
+| [0, 1, 1] | 0 | [122, 0, 1] | 9 |
+| [0, 1, 2] | 0 | [30, 0, 0] | 2 |
+| [0, 2, 0] | 0 | [134, 0, 1] | 13 |
+| [0, 2, 1] | 0 | [0, 0, 0] | 0 |
+| [0, 2, 2] | 1 | [1, 0, 11] | 0 |
+| [1, 0, 0] | 0 | [463, 15, 18] | 62 |
+| [1, 0, 1] | 0 | [59, 0, 0] | 2 |
+| [1, 0, 2] | 0 | [0, 0, 0] | 0 |
+| [1, 1, 0] | 0 | [330, 17, 121] | 65 |
+| [1, 1, 1] | 0 | [31025, 15357, 2865] | 5473 |
+| [1, 1, 2] | 1 | [0, 0, 0] | 0 |
+| [1, 2, 0] | 0 | [0, 0, 0] | 0 |
+| [1, 2, 1] | 2 | [244, 0, 39] | 25 |
+| [1, 2, 2] | 2 | [0, 0, 0] | 0 |
+| [2, 0, 0] | 0 | [2, 0, 0] | 0 |
+| [2, 0, 1] | 2 | [0, 0, 0] | 0 |
+| [2, 0, 2] | 2 | [1, 0, 1] | 0 |
+| [2, 1, 0] | 2 | [0, 0, 193] | 19 |
+| [2, 1, 1] | 2 | [17, 0, 1] | 3 |
+| [2, 1, 2] | 2 | [27, 0, 6] | 4 |
+| [2, 2, 0] | 2 | [118, 0, 3] | 18 |
+| [2, 2, 1] | 2 | [0, 0, 4114] | 499 |
+| [2, 2, 2] | 2 | [79, 2, 215223] | 23924 |
 
 ## O que não foi feito
 
@@ -187,11 +203,13 @@ rótulo. Combinações em que o meta devolve uma classe que nenhum base predisse
 - One-sided selection não é aplicada: o artigo a cita sem descrever.
 - A validação cruzada grava só a matriz de confusão; a AUC é calculada só no teste.
 
-## Se a matriz difere da do artigo
+## Onde a matriz difere da do artigo
 
-Causas possíveis, sem evidência para escolher uma: a seed do artigo não é
-informada; o artigo não lista os 29 atributos nem descreve a limpeza; o alvo e
-os parâmetros do SMOTE, a divisão do Non-DoH em três partes e os dados de
-treino do meta-classificador não estão no texto; as versões das bibliotecas
-são outras. Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada para
-aproximar o resultado.
+Sozinhos, no teste, os três bases têm recall de Benign-DoH de 85.16%, 85.97%, 85.16% e precisão de Benign-DoH de 29.89%, 30.06%, 27.89%. O modelo empilhado tem recall 0.00% e precisão 0.00% nessa classe.
+
+A combinação em que os três bases dizem Benign-DoH ocorre em 49247 linhas do treino original, que é o que o meta-classificador vê: 31025 de Non-DoH, 15357 de Benign-DoH, 2865 de Malicious-DoH. A classe real mais frequente nela é Non-DoH, e o meta devolve Non-DoH para ela. No teste a combinação ocorre em 5473 linhas.
+
+O artigo não informa a seed, a lista dos 29 atributos, a limpeza, o alvo e os
+parâmetros do SMOTE, como o Non-DoH é dividido em três partes nem com que dados
+o meta-classificador é treinado; as versões das bibliotecas são outras. Nenhuma
+seed, hiperparâmetro ou regra de limpeza foi ajustada para aproximar o resultado.
