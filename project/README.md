@@ -85,7 +85,7 @@ Métricas recalculadas a partir das matrizes de confusão da Fig. 4 do artigo, s
 
 Os scripts dos experimentos e a ordem de execução serão listados aqui conforme entrarem no repositório.
 
-Explicabilidade com SHAP sobre os Random Forests base, ao lado das Figs. 5 a 8 do artigo (precisa dos dados e dos resultados da etapa de dados e da reprodução; grava em `results/e5/`):
+Explicabilidade com SHAP sobre os Random Forests base, ao lado das Figs. 5 a 8 do artigo (precisa dos dados e dos resultados da etapa de dados, da reprodução e de `scripts/e6_dados.py`, a etapa de dados do segundo dataset; grava em `results/e5/`):
 
     uv run python scripts/e5_xai.py
 
