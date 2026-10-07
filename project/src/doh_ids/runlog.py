@@ -19,7 +19,10 @@ LIBRARIES = [
     "shap",
     "pandas",
     "numpy",
+    "scipy",
     "pyarrow",
+    "matplotlib",
+    "explainerdashboard",
 ]
 
 
