@@ -14,6 +14,7 @@ dependencies = [
     "pyarrow==25.0.1",
     "matplotlib==3.11.2",
     "scipy==1.18.1",
+    "explainerdashboard==0.5.8",
 ]
 
 [dependency-groups]
