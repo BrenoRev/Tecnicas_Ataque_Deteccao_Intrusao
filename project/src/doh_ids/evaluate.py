@@ -6,11 +6,12 @@ Os dicionários devolvidos só têm tipos nativos, para serem gravados em JSON.
 """
 
 import numpy as np
+import pandas as pd
 from numpy.typing import ArrayLike
 from scipy.stats import binomtest
 from sklearn.metrics import average_precision_score, confusion_matrix, roc_auc_score
 
-from doh_ids.config import BASE_RATE_FLOWS, CLASS_NAMES, CONFIDENCE_LEVEL
+from doh_ids.config import BASE_RATE_FLOWS, CLASS_NAMES, CONFIDENCE_LEVEL, FEATURE_COLUMNS
 
 MALICIOUS = CLASS_NAMES.index("Malicious-DoH")
 CLASS_METRICS = ["precision", "recall", "f1"]
@@ -156,6 +157,83 @@ def evaluate(
         for name in CLASS_NAMES:
             metrics["per_class"][name]["pr_auc_base_mean"] = pr_auc[name]
     return metrics
+
+
+def _malicious_recall(y_pred: np.ndarray) -> dict:
+    """Resume as predições de fluxos que são todos Malicious-DoH.
+
+    Devolve o número de fluxos, os detectados, o recall com intervalo de
+    confiança binomial exato (Clopper-Pearson) e, em `predicted_as`, quantos
+    fluxos foram para cada classe, pelo nome.
+    """
+    predicted = np.bincount(y_pred, minlength=len(CLASS_NAMES))
+    n, detected = len(y_pred), int(predicted[MALICIOUS])
+    interval = binomtest(detected, n).proportion_ci(
+        confidence_level=CONFIDENCE_LEVEL, method="exact"
+    )
+    return {
+        "n": n,
+        "detected": detected,
+        "recall": detected / n,
+        "recall_ci_level": CONFIDENCE_LEVEL,
+        "recall_ci_low": float(interval.low),
+        "recall_ci_high": float(interval.high),
+        "predicted_as": dict(zip(CLASS_NAMES, predicted.tolist(), strict=True)),
+    }
+
+
+def recall_by_tool(tool: ArrayLike, y_pred: ArrayLike) -> dict:
+    """Calcula o recall de Malicious-DoH de cada ferramenta de túnel.
+
+    `tool` traz a ferramenta de cada fluxo e fica vazia fora da classe
+    maliciosa; as linhas sem ferramenta não entram. Devolve, para cada
+    ferramenta presente, o número de fluxos (`n`), os detectados, o recall com
+    intervalo de confiança binomial exato e a classe atribuída a cada fluxo.
+    """
+    tool = pd.Series(np.asarray(tool, dtype=object))
+    y_pred = np.asarray(y_pred)
+    return {
+        name: _malicious_recall(y_pred[(tool == name).to_numpy()])
+        for name in sorted(tool.dropna().unique())
+    }
+
+
+def malicious_only_metrics(tool: ArrayLike, y_pred: ArrayLike) -> dict:
+    """Avalia um conjunto em que todos os fluxos são Malicious-DoH.
+
+    `tool` é a ferramenta de túnel de cada fluxo. Devolve o recall da classe
+    maliciosa no conjunto todo (`malicious`) e por ferramenta (`by_tool`), cada
+    um com `n`, intervalo de confiança e a classe para onde foram os erros.
+    """
+    # Sem fluxo legítimo no conjunto não existe falso positivo: precisão e FPR
+    # não são definidos, e a acurácia repetiria o recall. Nenhum dos três é
+    # devolvido, para não entrar em tabela ao lado de conjunto com três classes.
+    y_pred = np.asarray(y_pred)
+    return {
+        "negatives": 0,
+        "malicious": _malicious_recall(y_pred),
+        "by_tool": recall_by_tool(tool, y_pred),
+    }
+
+
+def outside_unit_interval(X_scaled: ArrayLike) -> dict:
+    """Conta os valores normalizados que caem fora do intervalo de 0 a 1.
+
+    `X_scaled` tem os 29 atributos, na ordem de `FEATURE_COLUMNS`, já
+    transformados pelo normalizador. Devolve o total de valores fora do
+    intervalo (`values`), o número de linhas com ao menos um (`rows`) e a
+    contagem de cada atributo que tem algum (`by_column`).
+    """
+    # O normalizador conhece só o treino: valor abaixo do mínimo ou acima do
+    # máximo do treino sai do intervalo, e a contagem mede mudança de faixa.
+    X_scaled = np.asarray(X_scaled)
+    outside = pd.DataFrame((X_scaled < 0) | (X_scaled > 1), columns=FEATURE_COLUMNS)
+    by_column = outside.sum()
+    return {
+        "values": int(by_column.sum()),
+        "rows": int(outside.any(axis=1).sum()),
+        "by_column": {name: int(count) for name, count in by_column.items() if count > 0},
+    }
 
 
 def base_rate(fpr: float, recall: float, prevalence: float) -> dict:

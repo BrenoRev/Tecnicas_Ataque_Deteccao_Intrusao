@@ -3,8 +3,16 @@ import json
 import numpy as np
 import pytest
 
-from doh_ids.config import CLASS_NAMES, FIG4A_CONFUSION, FIG4B_CONFUSION
-from doh_ids.evaluate import base_rate, compare_confusion, evaluate, metrics_from_confusion
+from doh_ids.config import CLASS_NAMES, FEATURE_COLUMNS, FIG4A_CONFUSION, FIG4B_CONFUSION
+from doh_ids.evaluate import (
+    base_rate,
+    compare_confusion,
+    evaluate,
+    malicious_only_metrics,
+    metrics_from_confusion,
+    outside_unit_interval,
+    recall_by_tool,
+)
 from scripts import metricas_fig4
 
 # O script da Fig. 4 só imprime porcentagens com duas casas: 5e-5 é meia
@@ -176,3 +184,62 @@ def test_evaluate_result_is_json_serializable():
     metrics = evaluate(y_true, y_pred, one_hot(y_pred), base_mean_proba=one_hot(y_pred))
 
     assert json.loads(json.dumps(metrics)) == metrics
+
+
+def keys_in(result):
+    """Devolve todas as chaves de um dicionário aninhado."""
+    if not isinstance(result, dict):
+        return set()
+    return set(result).union(*(keys_in(value) for value in result.values()))
+
+
+def test_malicious_only_evaluation_reports_no_precision_fpr_or_accuracy():
+    tool = ["dnstt", "dnstt", "tuns", "tuns"]
+    y_pred = np.array([2, 0, 2, 1])
+
+    result = malicious_only_metrics(tool, y_pred)
+
+    assert result["negatives"] == 0
+    assert result["malicious"]["recall"] == 0.5
+    assert result["malicious"]["predicted_as"] == {
+        "Non-DoH": 1,
+        "Benign-DoH": 1,
+        "Malicious-DoH": 2,
+    }
+    forbidden = ("precision", "fpr", "accuracy", "f1")
+    assert not [key for key in keys_in(result) if any(word in key for word in forbidden)]
+    assert json.loads(json.dumps(result)) == result
+
+
+def test_recall_by_tool_matches_a_hand_made_example():
+    # Quatro fluxos de dnstt, três detectados; dois de tuns, nenhum detectado.
+    # As duas linhas sem ferramenta não são de túnel e não entram na conta,
+    # nem a que foi classificada como maliciosa.
+    tool = ["dnstt", "dnstt", "dnstt", "dnstt", "tuns", "tuns", None, None]
+    y_pred = np.array([2, 2, 2, 0, 1, 0, 2, 0])
+
+    result = recall_by_tool(tool, y_pred)
+
+    assert list(result) == ["dnstt", "tuns"]
+    assert (result["dnstt"]["n"], result["dnstt"]["detected"]) == (4, 3)
+    assert result["dnstt"]["recall"] == 0.75
+    assert result["dnstt"]["predicted_as"]["Non-DoH"] == 1
+    assert (result["tuns"]["n"], result["tuns"]["recall"]) == (2, 0.0)
+    assert result["tuns"]["predicted_as"] == {"Non-DoH": 1, "Benign-DoH": 1, "Malicious-DoH": 0}
+    # Com dois fluxos, o intervalo exato de um recall zero ainda vai longe.
+    assert result["tuns"]["recall_ci_low"] == 0.0
+    assert 0.5 < result["tuns"]["recall_ci_high"] < 1.0
+
+
+def test_outside_unit_interval_finds_the_planted_values():
+    X_scaled = np.full((5, len(FEATURE_COLUMNS)), 0.5)
+    # Os extremos 0 e 1 pertencem ao intervalo.
+    X_scaled[0, 0], X_scaled[1, 0] = 0.0, 1.0
+    X_scaled[2, 0], X_scaled[3, 0] = 1.5, -0.1
+    X_scaled[3, 4] = 7.0
+
+    result = outside_unit_interval(X_scaled)
+
+    assert result["values"] == 3
+    assert result["rows"] == 2
+    assert result["by_column"] == {FEATURE_COLUMNS[0]: 2, FEATURE_COLUMNS[4]: 1}
