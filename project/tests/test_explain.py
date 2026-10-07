@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 import pytest
+from explainerdashboard import ExplainerDashboard
 from sklearn.ensemble import RandomForestClassifier
 
+import scripts.painel_xai as painel
 from doh_ids.config import CLASS_NAMES, FEATURE_COLUMNS
 from doh_ids.data import feature_matrix
 from doh_ids.explain import (
@@ -82,3 +84,16 @@ def test_rank_agreement_is_one_for_equal_rankings_and_lower_when_swapped():
     # A escala não importa, só a ordem.
     assert rank_agreement(importance, 2 * importance, top=10) == pytest.approx(1.0)
     assert rank_agreement(importance, swapped, top=10) < 1.0
+
+
+def test_dashboard_is_built_in_memory_without_writing_any_file(
+    synthetic_flows, tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+
+    dashboard = painel.build_dashboard(synthetic_flows)
+
+    assert isinstance(dashboard, ExplainerDashboard)
+    assert isinstance(dashboard.explainer.model, RandomForestClassifier)
+    # O painel não pode deixar modelo nem explicador serializado no disco.
+    assert list(tmp_path.iterdir()) == []

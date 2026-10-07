@@ -85,6 +85,16 @@ Métricas recalculadas a partir das matrizes de confusão da Fig. 4 do artigo, s
 
 Os scripts dos experimentos e a ordem de execução serão listados aqui conforme entrarem no repositório.
 
+Explicabilidade com SHAP sobre os Random Forests base, ao lado das Figs. 5 a 8 do artigo (precisa dos dados e dos resultados da etapa de dados e da reprodução; grava em `results/e5/`):
+
+    uv run python scripts/e5_xai.py
+
+Painel interativo de explicabilidade, como o da Seção VI-C do artigo (precisa dos dados):
+
+    uv run python scripts/painel_xai.py
+
+O script treina o sistema na memória, calcula os valores SHAP de um dos Random Forests base em uma amostra do teste e serve o painel em http://127.0.0.1:8050, só na própria máquina. O endereço responde depois de alguns minutos de treino e cálculo. Nenhum modelo é gravado nem lido do disco, e o painel não grava resultado: é material de demonstração, e os números vêm de `scripts/e5_xai.py`. Para encerrar, Ctrl+C.
+
 ## Como contribuir
 
 1. Ative os hooks do Git uma vez por clone, na raiz do repositório:
