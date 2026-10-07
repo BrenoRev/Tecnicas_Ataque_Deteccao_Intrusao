@@ -9,7 +9,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import MinMaxScaler
 
-from doh_ids.config import CLASS_NAMES, CV_FOLDS, CV_SHUFFLE, FEATURE_COLUMNS
+from doh_ids.config import CLASS_NAMES, CV_FOLDS, CV_SHUFFLE, FEATURE_COLUMNS, MAX_FEATURES
 from doh_ids.data import feature_matrix
 from doh_ids.models import base_forests, stacked_forest
 from doh_ids.splits import balanced_subsets, fit_scaler
@@ -20,13 +20,26 @@ MALICIOUS = CLASS_NAMES.index("Malicious-DoH")
 
 
 def fit_system(
-    train: pd.DataFrame, seed: int, max_depth: int | None
+    train: pd.DataFrame,
+    seed: int,
+    max_depth: int | None,
+    class_weight: str | None = None,
+    max_features: int | str = MAX_FEATURES,
+    use_probas: bool = False,
+    meta_on_subsets: bool = False,
 ) -> tuple[MinMaxScaler, StackingClassifier, list[dict], dict]:
     """Ajusta o sistema inteiro só com `train`: normalizador, subconjuntos, bases e meta.
 
-    `max_depth` é a profundidade máxima dos Random Forests base. Devolve o
-    normalizador, o modelo empilhado, o resumo dos subconjuntos e os tempos de
-    cada etapa, em segundos.
+    `max_depth` é a profundidade máxima dos Random Forests base. Os quatro
+    argumentos seguintes são os pontos que o artigo deixa em aberto e que o
+    estudo de sensibilidade varia, um de cada vez; os valores padrão são os da
+    reprodução. `class_weight` e `max_features` vão para os bases, `use_probas`
+    faz o meta-classificador receber probabilidades em vez de rótulos e
+    `meta_on_subsets` o ajusta na união dos três subconjuntos balanceados, em
+    vez do treino original.
+
+    Devolve o normalizador, o modelo empilhado, o resumo dos subconjuntos e os
+    tempos de cada etapa, em segundos.
     """
     scaler = fit_scaler(train)
     X_train = scaler.transform(feature_matrix(train))
@@ -52,11 +65,19 @@ def fit_system(
     )
 
     start = time.perf_counter()
-    forests = base_forests(subsets, seed, max_depth)
+    forests = base_forests(subsets, seed, max_depth, class_weight, max_features)
     base_seconds = time.perf_counter() - start
 
+    X_meta, y_meta = X_train, y_train
+    if meta_on_subsets:
+        # A união é a concatenação dos três subconjuntos: cada linha real de
+        # Benign-DoH e de Malicious-DoH entra três vezes, uma por subconjunto,
+        # e as amostras sintéticas de Benign-DoH entram junto.
+        X_meta = np.concatenate([X for X, _ in subsets])
+        y_meta = np.concatenate([y for _, y in subsets])
+
     start = time.perf_counter()
-    stacked = stacked_forest(forests, X_train, y_train, seed)
+    stacked = stacked_forest(forests, X_meta, y_meta, seed, use_probas)
     meta_seconds = time.perf_counter() - start
 
     timings = {
