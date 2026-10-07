@@ -59,6 +59,23 @@ FEATURE_COLUMNS = [
 # fluxos sem nenhum par requisição-resposta, em que o extrator não calcula a mediana.
 NAN_COLUMNS = ["ResponseTimeTimeMedian", "ResponseTimeTimeSkewFromMedian"]
 
+# As seis colunas de assimetria. Nelas o extrator DoHLyzer grava -10 quando o
+# desvio padrão é zero (métodos get_skew e get_skew2 de packet_length.py e
+# response_time.py): o valor marca o fluxo, não mede assimetria.
+SKEW_COLUMNS = [column for column in FEATURE_COLUMNS if "Skew" in column]
+SKEW_SENTINEL = -10
+
+# Fluxos por classe na Tabela I do artigo, na ordem de CLASS_NAMES.
+TABLE_I_COUNTS = [889809, 19746, 249553]
+
+# Membros de Total_CSVs.zip que formam as três classes, na ordem de CLASS_NAMES.
+# O quarto membro, l1-doh.csv, é a união dos dois l2: lê-lo contaria o DoH em dobro.
+CIRA_ZIP_MEMBERS = ["l1-nondoh.csv", "l2-benign.csv", "l2-malicious.csv"]
+
+# Rede das máquinas que geraram o tráfego do CIRA-CIC-DoHBrw-2020. O endereço
+# dessa rede que aparece no fluxo identifica a máquina local.
+CIRA_LOCAL_PREFIX = "192.168.20."
+
 # Hiperparâmetros da trilha fiel.
 
 # 10% dos fluxos para teste, Seção III-B do artigo.
@@ -93,6 +110,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
+CIRA_ZIP_PATH = DATA_RAW_DIR / "cira" / "Total_CSVs.zip"
+CIRA_PARQUET_PATH = DATA_PROCESSED_DIR / "cira.parquet"
 
 
 def smote_seed(seed: int, subset_index: int) -> int:
