@@ -18,9 +18,9 @@ O sistema é treinado com os Random Forests base sem limite de profundidade
 etapa, e com profundidade máxima 5 (Seção IV-B), ao lado.
 
 Grava metrics.json e run.json em results/e6/<trilha>/<cenário>/seed42/, com a
-trilha `variante` para a profundidade variável e `fiel` para a profundidade 5,
-a leitura dos números de cada trilha em results/e6/<trilha>/RESUMO.md e os
-cenários ao lado do CIRA em results/e6/RESUMO.md.
+trilha `variante` para a profundidade variável e `fiel` para a profundidade 5.
+Os arquivos RESUMO.md de results/e6/ são escritos por scripts/e6_resumo.py, a
+partir dos metrics.json, com as funções de texto deste arquivo.
 
 Uso: uv run python scripts/e6_dataset2.py
 """
@@ -366,15 +366,17 @@ def recall_table(entries: dict) -> str:
 
 def class_metrics_table(metrics: dict) -> str:
     """Escreve suporte, precisão, recall e F1 de cada classe e as médias macro e ponderada."""
+    # As classes entram pela ordem dos códigos, e não pela ordem das chaves:
+    # lido de metrics.json, o dicionário vem em ordem alfabética.
     rows = [
         [
             name,
-            entry["support"],
-            f"{entry['precision']:.4%}",
-            f"{entry['recall']:.4%}",
-            f"{entry['f1']:.4%}",
+            metrics["per_class"][name]["support"],
+            f"{metrics['per_class'][name]['precision']:.4%}",
+            f"{metrics['per_class'][name]['recall']:.4%}",
+            f"{metrics['per_class'][name]['f1']:.4%}",
         ]
-        for name, entry in metrics["per_class"].items()
+        for name in CLASS_NAMES
     ]
     for average, title in [("macro", "média macro"), ("weighted", "média ponderada")]:
         values = [f"{metrics[f'{average}_{key}']:.4%}" for key in ("precision", "recall", "f1")]
@@ -587,8 +589,36 @@ def memorization_table(result: dict) -> str:
     return markdown_table(columns, rows)
 
 
+def copies_text(result: dict) -> str:
+    """Escreve o que as cópias do HKD no teste permitem e não permitem concluir."""
+    unique, published = result["retreino_sem_replicas"], result["retreino_publicado"]
+    tools = result[TRANSFER_SLICE]["hkd"]["by_tool"]
+    unique_train, published_train = (
+        sum(metrics["split"]["train"]["rows_by_tool"][name] for name in tools)
+        for metrics in (unique, published)
+    )
+    seen = published["hkd_test_rows_seen_in_train"]
+    return f"""O que foi medido: no retreino publicado, {seen} dos
+{published["hkd_test_rows"]} fluxos do HKD no teste têm cópia idêntica no treino; no retreino
+sem réplicas, {unique["hkd_test_rows_seen_in_train"]} dos {unique["hkd_test_rows"]}.
+
+- **O que isso permite concluir.** No publicado, o recall das ferramentas do HKD
+  é medido em fluxos que o modelo já recebeu no treino: ele não mede a detecção
+  de fluxo novo dessas ferramentas. A coluna que mede isso é a do retreino sem
+  réplicas.
+- **O que isso não permite concluir.** A diferença de recall entre as duas
+  colunas de retreino não é a medida do efeito das cópias. Os dois retreinos
+  diferem também no split (as tabelas são diferentes, e treino e teste não têm
+  as mesmas linhas), no número de fluxos do HKD no treino ({published_train} contra
+  {unique_train}) e no teste ({published["hkd_test_rows"]} contra {unique["hkd_test_rows"]}). Nenhum
+  desses fatores foi isolado.
+
+A coluna da transferência não é comparável em tamanho: é o HKD inteiro, e o
+sistema não viu nenhuma das três ferramentas."""
+
+
 def summary_text(reading: dict, result: dict) -> str:
-    """Monta o RESUMO.md de uma leitura a partir dos números medidos na execução.
+    """Monta o texto do sistema em uma leitura a partir das métricas de cada cenário.
 
     `result` leva o nome de cada cenário às métricas dele e `e1` às métricas da
     reprodução no CIRA na mesma leitura.
@@ -597,10 +627,9 @@ def summary_text(reading: dict, result: dict) -> str:
     retrains = "\n".join(
         retrain_section(result[scenario["slice_name"]], scenario, e1) for scenario in RETRAINS
     )
-    published = result["retreino_publicado"]
     return f"""# E6: o sistema do artigo no segundo dataset, {reading["label"]}
 
-Gerado por `scripts/e6_dataset2.py`. Os números vêm dos arquivos `metrics.json`
+Gerado por `scripts/e6_resumo.py`. Os números vêm dos arquivos `metrics.json`
 de `transferencia/seed{SEED_FIEL}/`, `retreino_sem_replicas/seed{SEED_FIEL}/` e
 `retreino_publicado/seed{SEED_FIEL}/`; os tempos estão nos `run.json`.
 Random Forests base: {reading["base_depth"]}. Os cenários das duas leituras
@@ -631,12 +660,7 @@ de 95% entre parênteses.
 
 {memorization_table(result)}
 
-No retreino publicado, {published["hkd_test_rows_seen_in_train"]} dos
-{published["hkd_test_rows"]} fluxos do HKD no teste são cópias de fluxos do treino; no
-retreino sem réplicas, nenhum. A diferença de recall entre as duas colunas de
-retreino é o que as cópias acrescentam. A coluna da transferência não é
-comparável em tamanho: é o HKD inteiro, e o sistema não viu nenhuma das três
-ferramentas.
+{copies_text(result)}
 
 ## O que não foi feito
 
@@ -748,82 +772,6 @@ def hypothesis_lines(reading: dict, result: dict) -> str:
    sem réplicas e {benign["published"]:.2%} no publicado."""
 
 
-def comparison_text(results: list[tuple[dict, dict]]) -> str:
-    """Monta o RESUMO.md que põe os cenários das duas leituras ao lado do CIRA.
-
-    `results` tem um par (leitura, resultado dos cenários) por leitura.
-    """
-    columns = [
-        "cenário",
-        "leitura",
-        "avaliado em",
-        "fluxos avaliados",
-        "acurácia",
-        "F1 macro",
-        "recall de Non-DoH",
-        "recall de Benign-DoH",
-        "recall de Malicious-DoH",
-        "precisão de Malicious-DoH",
-        "FPR de Malicious-DoH contra o resto",
-        "recall das ferramentas do HKD",
-    ]
-    rows = [row for reading, result in results for row in scenario_rows(reading, result)]
-    readings = "\n".join(
-        f"- **{reading['label']}:** {reading['base_depth']}. Detalhe em "
-        f"`{reading['track']}/RESUMO.md`."
-        for reading, _ in results
-    )
-    tools = "\n\n".join(
-        f"{reading['label']}:\n\n{memorization_table(result)}" for reading, result in results
-    )
-    hypotheses = "\n\n".join(hypothesis_lines(reading, result) for reading, result in results)
-    return f"""# E6: o sistema do artigo no segundo dataset, ao lado do CIRA
-
-Gerado por `scripts/e6_dataset2.py`, a partir dos `metrics.json` de
-`results/e6/` e de `results/e1/`. Seed {SEED_FIEL}, uma execução de cada cenário:
-não há média nem desvio padrão.
-
-{readings}
-
-O sistema base desta etapa é o de profundidade variável; o de profundidade 5
-vai ao lado. O artigo não traz figura nem tabela para o segundo dataset: o que
-fica lado a lado é o resultado no CIRA (E1) e os três cenários abaixo.
-
-- **CIRA (E1):** treino e teste no CIRA-CIC-DoHBrw-2020.
-- **Transferência:** treino no CIRA, avaliação nos fluxos do
-  DoH-Tunnel-Traffic-HKD. O HKD só tem a classe maliciosa: não há precisão,
-  FPR nem acurácia, e neste cenário tudo é teste.
-- **Retreino no combinado sem réplicas:** treino e teste no dataset combinado
-  CIRA + HKD com cada fluxo do HKD uma única vez. É o dataset principal.
-- **Retreino no combinado como publicado:** o mesmo, com as {HKD_REPLICAS} cópias de
-  cada fluxo do HKD, que deixam cópias idênticas no treino e no teste.
-
-No combinado, Non-DoH e Benign-DoH são os fluxos do CIRA; só a classe maliciosa
-ganha fluxos novos.
-
-## Cenários lado a lado
-
-{markdown_table(columns, rows)}
-
-A última coluna é o recall de Malicious-DoH só nos fluxos de dnstt, tcp-over-dns
-e tuns. Na validação cruzada ela não é medida, porque só a matriz de confusão
-é gravada.
-
-## Recall por ferramenta do HKD
-
-Detectados sobre `n` e intervalo de confiança de 95% entre parênteses.
-
-{tools}
-
-## Números ao lado das hipóteses
-
-As hipóteses estão em `fiel/HIPOTESE.md`, na mesma ordem, e não foram alteradas
-depois da execução.
-
-{hypotheses}
-"""
-
-
 def checked_sha256() -> dict:
     """Confere o hash de cada tabela contra o registrado pela etapa de dados e os devolve."""
     sources = {
@@ -853,8 +801,8 @@ def print_run(title: str, run_dir: Path) -> None:
     print(f"Resultados em {run_dir.relative_to(PROJECT_ROOT)}", flush=True)
 
 
-def run_reading(reading: dict, sha256: dict, cira: pd.DataFrame, hkd: pd.DataFrame) -> dict:
-    """Roda os três cenários de uma leitura e devolve as métricas de cada um, com as de E1."""
+def run_reading(reading: dict, sha256: dict, cira: pd.DataFrame, hkd: pd.DataFrame) -> None:
+    """Roda os três cenários de uma leitura, conferindo o sistema do CIRA com o de E1."""
     e1_dir = E1_DIR / reading["track"] / reading["e1_slice"] / f"seed{SEED_FIEL}"
     e1 = json.loads((e1_dir / "metrics.json").read_text(encoding="utf-8"))
     cira_counts = json.loads((E0_DIR / "split_counts.json").read_text(encoding="utf-8"))
@@ -868,34 +816,27 @@ def run_reading(reading: dict, sha256: dict, cira: pd.DataFrame, hkd: pd.DataFra
     print_run(f"{reading['label']}: transferência", run_dir)
     print(recall_table(transfer["hkd"]["by_tool"]))
 
-    result = {"e1": e1, TRANSFER_SLICE: transfer}
     for scenario in RETRAINS:
         table = pd.read_parquet(scenario["path"])
         run_dir, metrics = run_retrain(
             table, sha256[scenario["dataset"]], RESULTS_DIR, reading, scenario
         )
-        result[scenario["slice_name"]] = metrics
         print_run(f"{reading['label']}: retreino no {scenario['title']}", run_dir)
         print(matrix_table(metrics["test"]["confusion_matrix"]))
         print(recall_table(metrics["test_recall_by_tool"]))
         print(
             f"Fluxos do HKD no teste já vistos no treino: {metrics['hkd_test_rows_seen_in_train']}"
         )
-    return result
 
 
 def main() -> None:
-    """Confere os Parquets, roda os cenários nas duas leituras e grava os resumos."""
+    """Confere os Parquets e roda os cenários nas duas leituras."""
     sha256 = checked_sha256()
     cira = pd.read_parquet(CIRA_PARQUET_PATH)
     hkd = pd.read_parquet(HKD_PARQUET_PATH)
-    results = []
     for reading in READINGS:
-        result = run_reading(reading, sha256, cira, hkd)
-        track_dir = RESULTS_DIR / "e6" / reading["track"]
-        (track_dir / "RESUMO.md").write_text(summary_text(reading, result), encoding="utf-8")
-        results.append((reading, result))
-    (RESULTS_DIR / "e6" / "RESUMO.md").write_text(comparison_text(results), encoding="utf-8")
+        run_reading(reading, sha256, cira, hkd)
+    print("\nPara escrever os arquivos RESUMO.md: uv run python -m scripts.e6_resumo")
 
 
 if __name__ == "__main__":
