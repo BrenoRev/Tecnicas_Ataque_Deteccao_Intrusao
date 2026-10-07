@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from doh_ids.config import FEATURE_COLUMNS, TEST_SIZE
+from doh_ids.config import FEATURE_COLUMNS
 from doh_ids.data import class_counts, feature_matrix
 from doh_ids.splits import fit_scaler, seen_in_train, stratified_split
 
@@ -18,10 +18,11 @@ def test_train_and_test_indices_are_disjoint_and_cover_all_rows(synthetic_flows)
 def test_split_keeps_class_proportion_with_ten_percent_in_test(synthetic_flows):
     train, test = stratified_split(synthetic_flows, SEED)
 
-    # Os tamanhos das classes sintéticas são múltiplos de 10: a conta é exata.
-    total = np.array(class_counts(synthetic_flows))
-    assert class_counts(test) == (total * TEST_SIZE).astype(int).tolist()
-    assert class_counts(train) == (total - total * TEST_SIZE).astype(int).tolist()
+    # O teste fica com um décimo de cada classe. Os tamanhos das classes
+    # sintéticas são múltiplos de 10, então a divisão inteira é exata.
+    total = class_counts(synthetic_flows)
+    assert class_counts(test) == [size // 10 for size in total]
+    assert class_counts(train) == [size - size // 10 for size in total]
 
 
 def test_same_seed_gives_same_split_and_other_seed_gives_another(synthetic_flows):
@@ -57,5 +58,11 @@ def test_seen_in_train_finds_the_planted_duplicate(synthetic_flows):
 
     planted = 3
     test.loc[test.index[planted], FEATURE_COLUMNS] = train.iloc[0][FEATURE_COLUMNS]
+    # O vetor plantado aparece duas vezes no treino: a linha do teste não pode
+    # ser contada duas vezes nem deslocar as seguintes.
+    train = pd.concat([train, train.iloc[[0]]])
 
-    assert np.flatnonzero(seen_in_train(train, test)).tolist() == [planted]
+    seen = seen_in_train(train, test)
+
+    assert len(seen) == len(test)
+    assert np.flatnonzero(seen).tolist() == [planted]
