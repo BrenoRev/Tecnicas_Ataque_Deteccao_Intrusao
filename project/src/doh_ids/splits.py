@@ -104,3 +104,23 @@ def balanced_subsets(
             }
         )
     return subsets, summary
+
+
+def balanced_train(
+    X_train: np.ndarray, y_train: np.ndarray, seed: int
+) -> tuple[np.ndarray, np.ndarray]:
+    """Balanceia o treino inteiro com SMOTE, para os modelos de comparação da Tabela II.
+
+    Recebe o treino já normalizado. Benign-DoH e Malicious-DoH são aumentadas
+    até o tamanho de Non-DoH; nenhuma linha real é retirada. O teste não entra aqui.
+
+    Devolve o par `(X, y)` com as linhas reais primeiro, na ordem de `X_train`,
+    e as sintéticas no fim.
+    """
+    # A Tabela II do artigo só diz "SMOTE balanced" e não informa o alvo nem os
+    # parâmetros. Igualar as duas classes menores à maior, com os vizinhos no
+    # padrão da biblioteca, é escolha nossa. A seed usa o índice seguinte ao
+    # dos três subconjuntos do modelo proposto, para o sorteio não coincidir
+    # com o de nenhum deles.
+    smote = SMOTE(sampling_strategy="not majority", random_state=smote_seed(seed, N_SUBSETS))
+    return smote.fit_resample(X_train, np.asarray(y_train))

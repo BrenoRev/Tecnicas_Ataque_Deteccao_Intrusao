@@ -126,6 +126,98 @@ TABLE_II = {
     },
 }
 
+# Tabela II do artigo, metade inferior ("Comparison with literature"): resultados
+# de outros trabalhos sobre o mesmo dataset, que o artigo copia das referências
+# [10] (Banadaki), [12] (Jafar et al.) e [22] (Ahakonye et al.) da sua lista.
+# Os valores estão como impressos na tabela, na ordem das linhas. `None` marca a
+# célula que o artigo imprime como "–". As sete primeiras linhas estão impressas
+# como fração, entre 0 e 1; a última, Random Forest [22], está impressa em
+# percentual (99.5, 99.4 e 99.6), e `percent` diz a escala de cada linha. O
+# artigo declara que o método experimental desses trabalhos não é diretamente
+# comparável ao dele (Seção V).
+TABLE_II_LITERATURE = [
+    {
+        "model": "Decision Tree",
+        "reference": "[10]",
+        "auc": 0.998,
+        "accuracy": 0.998,
+        "f1": 0.998,
+        "precision": 0.998,
+        "recall": 0.999,
+        "percent": False,
+    },
+    {
+        "model": "Gradient Boosting(XGB)",
+        "reference": "[10]",
+        "auc": 1,
+        "accuracy": 0.999,
+        "f1": 1,
+        "precision": 1,
+        "recall": 1,
+        "percent": False,
+    },
+    {
+        "model": "Random Forest",
+        "reference": "[10]",
+        "auc": 1,
+        "accuracy": 0.998,
+        "f1": 0.997,
+        "precision": 0.999,
+        "recall": 0.998,
+        "percent": False,
+    },
+    {
+        "model": "Decision Tree",
+        "reference": "[12]",
+        "auc": None,
+        "accuracy": 0.999715,
+        "f1": None,
+        "precision": None,
+        "recall": None,
+        "percent": False,
+    },
+    {
+        "model": "Random Forest",
+        "reference": "[12]",
+        "auc": None,
+        "accuracy": 0.999802,
+        "f1": None,
+        "precision": None,
+        "recall": None,
+        "percent": False,
+    },
+    {
+        "model": "Decision Tree",
+        "reference": "[22]",
+        "auc": None,
+        "accuracy": 0.993,
+        "f1": None,
+        "precision": 0.992,
+        "recall": 0.993,
+        "percent": False,
+    },
+    {
+        "model": "Gradient Boosting(XGB)",
+        "reference": "[22]",
+        "auc": None,
+        "accuracy": 0.951,
+        "f1": None,
+        "precision": 0.957,
+        "recall": 0.951,
+        "percent": False,
+    },
+    {
+        "model": "Random Forest",
+        "reference": "[22]",
+        "auc": None,
+        "accuracy": 99.5,
+        "f1": None,
+        "precision": 99.4,
+        "recall": 99.6,
+        "percent": True,
+    },
+]
+
 # Avaliação.
 
 # Nível do intervalo de confiança da taxa de falsos positivos. O artigo não
@@ -182,6 +274,13 @@ MAX_FEATURES = 28
 # As duas são medidas no mesmo protocolo e nenhuma foi escolhida pelo resultado.
 MAX_DEPTH = 5
 MAX_DEPTH_VARIABLE = None
+
+# Modelos de comparação da Tabela II do artigo: a árvore de decisão tem
+# profundidade máxima 10 ("Tree Depth=10") e o Random Forest tem 10 árvores
+# ("number of Trees=10"). São os únicos hiperparâmetros que a tabela informa;
+# o XGBoost não tem nenhum.
+TABLE_II_TREE_DEPTH = 10
+TABLE_II_FOREST_TREES = 10
 
 # Núcleos usados no treino: -1 pede todos os da máquina. Não altera o
 # resultado, porque cada árvore recebe a própria seed; muda só o tempo.
