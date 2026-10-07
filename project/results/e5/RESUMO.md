@@ -32,11 +32,14 @@ Random Forest base 1 de cada leitura, na amostra do treino.
 
 ## Medidas lado a lado
 
-| leitura | Spearman com a Fig. 5 (29 atributos) | atributos em comum nos 10 primeiros | limiar medido de `Duration` (s) | SHAP positivo acima de 40 s | SHAP positivo até 40 s | base concorda com o empilhado |
-| --- | --- | --- | --- | --- | --- | --- |
-| variante (profundidade variável) | 0.515 | 7 | 33.13 | 97.37% | 20.51% | 99.50% |
-| fiel (profundidade 5) | 0.616 | 5 | 33.13 | 99.53% | 19.40% | 69.99% |
+| leitura | Spearman com a Fig. 5 (29 atributos) | atributos em comum nos 10 primeiros | corte que melhor separa o sinal do SHAP (s), amostra com classes em partes iguais | limiar de 40 s confirmado | SHAP positivo acima de 40 s | SHAP positivo até 40 s | base concorda com o empilhado |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| variante (profundidade variável) | 0.515 | 7 | 33.13 | não | 97.37% | 20.51% | 99.50% |
+| fiel (profundidade 5) | 0.616 | 5 | 33.13 | não | 99.53% | 19.40% | 69.99% |
 
-As medidas são do Random Forest base 1. A última coluna diz em que fração
-da amostra do teste a classe mais provável do base é a classe que o modelo
-empilhado devolve: é o alcance da explicação do base como explicação do sistema.
+As medidas são do Random Forest base 1, na amostra do teste com as classes
+em partes iguais. O limiar de 40 s é dado como confirmado quando a maioria dos fluxos
+entre ele e o corte medido tem o sinal que ele prevê; o detalhe por classe está
+no resumo de cada trilha. A última coluna diz em que fração da amostra a classe
+mais provável do base é a classe que o modelo empilhado devolve: é o alcance da
+explicação do base como explicação do sistema.
