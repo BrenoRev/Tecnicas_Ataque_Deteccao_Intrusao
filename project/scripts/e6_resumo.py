@@ -301,8 +301,13 @@ def local_lines(shap: dict) -> str:
     return "\n".join(lines)
 
 
-def shap_section(reading: dict, shap: dict, e5_metrics: dict) -> str:
+def shap_section(reading: dict, result: dict) -> str:
     """Escreve a seção do SHAP no combinado sem réplicas para uma leitura de profundidade."""
+    shap, e5_metrics = result["shap"], result["e5"]
+    train = result[UNIQUE_SLICE]["split"]["train"]
+    hkd_tools = result[e6.TRANSFER_SLICE]["hkd"]["by_tool"]
+    hkd_train = sum(train["rows_by_tool"][name] for name in hkd_tools)
+    malicious_train = train["rows"][CLASS_NAMES.index(MALICIOUS_NAME)]
     run_dir = f"{e6b.SHAP_SLICE}/seed{SEED_FIEL}"
     samples = e6.markdown_table(
         ["amostra", *CLASS_NAMES, "uso"],
@@ -324,8 +329,12 @@ que fica ao lado é a explicação no CIRA.
 ### Amostras
 
 Duas amostras estratificadas de até {shap["sample_per_class_requested"]} fluxos por classe,
-sorteadas com a seed {SEED_FIEL}, como no CIRA. Na classe {MALICIOUS_NAME} entram fluxos das seis
-ferramentas, na proporção em que aparecem no conjunto.
+sorteadas com a seed {SEED_FIEL}, como no CIRA. O sorteio é feito na classe
+{MALICIOUS_NAME} inteira, sem separar por ferramenta, e o número de fluxos de cada
+ferramenta na amostra não é gravado. No treino, {hkd_train} dos {malicious_train} fluxos da
+classe são do HKD ({hkd_train / malicious_train:.2%}): pelo sorteio, a amostra de {MALICIOUS_NAME}
+é quase toda de fluxos das ferramentas do CIRA, e a importância medida reflete
+sobretudo esses fluxos.
 
 {samples}
 
@@ -408,11 +417,7 @@ comparação, como no CIRA. Uma execução por modelo, com a seed {SEED_FIEL}.
 
 def track_text(reading: dict, result: dict, baselines: dict) -> str:
     """Monta o RESUMO.md de uma trilha: o sistema, o SHAP e, na trilha deles, os baselines."""
-    text = (
-        e6.summary_text(reading, result)
-        + "\n"
-        + shap_section(reading, result["shap"], result["e5"])
-    )
+    text = e6.summary_text(reading, result) + "\n" + shap_section(reading, result)
     if reading["track"] == e6b.BASELINE_TRACK:
         text += "\n" + baselines_section(baselines)
     return text
