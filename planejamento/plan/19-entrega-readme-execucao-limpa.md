@@ -8,7 +8,7 @@
 ## Arquivos
 
 - `README.md` — completar.
-- `LICENSE` e nota de uso — conferir.
+- `LICENSE` e nota de uso — a tarefa 01 não os criou (licença pendente da equipe; `README.md` tem `Licença: [Preencher]`). Criar quando a equipe decidir e conferir aqui.
 - Todo o repositório — revisão final de comentários e de higiene.
 
 ## O que fazer

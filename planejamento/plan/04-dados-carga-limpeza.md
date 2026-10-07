@@ -1,5 +1,7 @@
 # 04 · dados · carga, limpeza e reconciliação com a Tabela I (E0)
 
+> ⚠️ REVISAR (07/10/2026, reconciliação no commit `5e11d56`): a fonte desta tarefa é `data/raw/cira/Total_CSVs.zip`, lido direto do zip (decisão 34; teste T04-8 com zip sintético). Na máquina onde a reconciliação rodou esse zip não existe: há a pasta extraída `data/raw/cira/Total_CSVs/` com os quatro CSVs. O zip da equipe no drive continua trazendo o zip. Motivo e as duas saídas estão no topo da [tarefa 03](03-dados-aquisicao-cira.md); a escolha é do usuário e vem antes desta tarefa. Nada foi mudado nos passos abaixo.
+
 **Onde:** `src/doh_ids/data.py`, `scripts/e0_dados.py`, `tests/test_data.py`, `results/e0/dados/cira/seed42/`
 **Objetivo:** um único conjunto de dados limpo, de três classes e 29 atributos, cujas contagens estão explicadas em relação à Tabela I do artigo.
 **Depende de:** 02, 03

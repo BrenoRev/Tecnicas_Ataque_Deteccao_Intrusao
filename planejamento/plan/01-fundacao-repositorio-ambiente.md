@@ -5,6 +5,29 @@
 **Depende de:** —
 **Demonstra:** repositório no GitHub com CI verde em um pull request de prova e hooks barrando commit fora do padrão. Base do entregável "link do GitHub".
 
+## Situação em 07/10/2026: pronta, aguardando integração por pessoa
+
+Reconciliada com o commit `5e11d56` (branch `tarefa/01-prova-ci`). **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- Commits: `5347ed3` (ambiente), `15ff958` (hooks), `7a41d90` (CI) e `6bf80bd` (README) na `main`; `5adf3c5` e `5e11d56` (README: "Como contribuir" e tutorial dos dados) na branch de prova.
+- Remoto: `origin/main` está em `7a41d90`; a `main` local está um commit à frente (`6bf80bd`) e nenhum atrás. A divergência citada no bloco da decisão 43 não existe mais. A branch de prova não está no remoto.
+- Falta, e é de uma pessoa (passo 8): `push` da `main` e da branch de prova, pull request de prova com o modelo, CI verde no GitHub, integração, proteção da `main` e acesso de escrita dos quatro integrantes.
+- Pendente da equipe: a licença. Não há `LICENSE`; `project/README.md` tem `Licença: [Preencher]`.
+
+Como ficou, onde difere do texto abaixo:
+
+| Previsto | Implementado |
+| --- | --- |
+| Passo 1: `show-toplevel` devolve `project/`; `git init` | Superado pela decisão 43: `show-toplevel` devolve a raiz; não houve `git init` |
+| Passo 4b: checagens de higiene em um bloco `run` | Um passo do CI por checagem, porque o resultado do passo é o do último comando e um `! grep` no meio do bloco não o reprovaria |
+| Passo 4b: `git ls-files` filtrado por `^data/(raw\|processed)/` e `referencias/.*\.pdf$` | Passo com `working-directory: .` e o filtro `^project/data/(raw\|processed)/`, `\.(pkl\|joblib\|pcap\|parquet\|zip)$`, `^docs/referencias/.*\.pdf$` |
+| Passo 4b: versão principal das actions | `actions/checkout@v7` e `astral-sh/setup-uv@v10.2.0`, com `working-directory: project` e cache pelo `uv.lock` |
+| Passo 4a: `pre-commit` roda o ruff direto | O hook faz `cd project` antes, porque o Git o roda na raiz |
+| `LICENSE` | Não criado: licença pendente da equipe |
+| `data/README.md` como esqueleto | Já traz o tutorial de download e extração; o manifesto de hashes fica como `[Preencher]` para a tarefa 03 |
+| Passo 7: só entra o que está em `project/` | Superado pela decisão 43: `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` são versionados; `README.md` curto na raiz |
+| `jobs/` | Não criada; só passa a existir se a equipe executar no Apuana (tarefas 08 a 16) |
+
 ## Estrutura do repositório (decisão 43, 07/10/2026)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
@@ -15,8 +38,8 @@
 - CI: `defaults: run: working-directory: project` no job; a action do uv e o cache apontam para `project/uv.lock`. A checagem de arquivo proibido usa `git ls-files` com os caminhos a partir da raiz (`^project/data/(raw|processed)/`, `\.(pkl|joblib|pcap|parquet|zip)$`, `\.pdf$` em `docs/referencias/`). A checagem de referência interna continua valendo só para o conteúdo de `project/`.
 - Hooks: rodam a partir da raiz; o `pre-commit` faz `cd project` antes do `uv run --locked ruff`. Ativação, na raiz: `git config core.hooksPath .githooks`. Valem também para commit de documentação.
 - Dados: fora do Git. `project/data/raw/` e `project/data/processed/` estão nos dois `.gitignore` (raiz e `project/`). O zip dos datasets está no drive da equipe: https://drive.google.com/file/d/1hHQRgtl6TmrfPxu5uILrsiqUrzgILn29/view?usp=sharing. O link entra em `project/README.md` e em `project/data/README.md`, com a instrução de extrair em `project/data/raw/`.
-- Os dois commits que versionavam os dados foram desfeitos localmente em 07/10/2026. Um deles já estava no remoto: a `main` local divergiu de `origin/main`, e o `push` exige `--force-with-lease`, feito por uma pessoa.
-- A `.gitignore` da raiz e a de `project/` têm mudança não commitada; entram no primeiro commit desta tarefa.
+- Os dois commits que versionavam os dados foram desfeitos em 07/10/2026. Estado conferido no commit `5e11d56`: `origin/main` é ancestral da `main` local (um commit atrás), sem divergência; o `push` que falta é comum, sem `--force`.
+- As duas `.gitignore` estão commitadas; a da raiz ignora também `*.zip`.
 - Branch de prova: `tarefa/01-prova-ci`, como no passo 7.
 
 ## Estado verificado em 07/10/2026 (anterior à decisão 43)
@@ -41,7 +64,7 @@
 - `tests/test_smoke.py` — novo: um teste mínimo que importa o pacote. Sem nenhum teste, o pytest termina com código 5 e o gate nunca passa.
 - `data/README.md`, `results/.gitkeep`, `report/.gitkeep` — novos.
 - `README.md` — novo, esqueleto (objetivo, setup, como rodar, "Como contribuir"; o resto vem na tarefa 19).
-- `LICENSE` e nota de uso acadêmico — novos (`[Decidir: licença; ver "Pendentes da equipe" em 00-decisoes-travadas.md]`).
+- `LICENSE` e nota de uso acadêmico — **não criados**: licença pendente da equipe (`[Decidir: licença; ver "Pendentes da equipe" em 00-decisoes-travadas.md]`).
 - `.githooks/pre-commit`, `.githooks/commit-msg` — novos: barram commit fora do lint e mensagem fora do padrão.
 - `.github/workflows/ci.yml` — novo: verificação automática em `push` na `main` e em pull request.
 - `.github/pull_request_template.md` — novo: modelo de descrição de pull request, para toda tarefa mostrar o que demonstra.
@@ -49,7 +72,7 @@
 
 ## O que fazer
 
-1. Entrar em `project/` e conferir: `git rev-parse --show-toplevel` devolve o caminho de `project/`; `git status` mostra só `.gitignore` e `scripts/` como não rastreados e nada de `data/`. Não há pasta a criar nem `git init` a fazer.
+1. (Superado pela decisão 43.) Conferir, na raiz: `git rev-parse --show-toplevel` devolve a raiz do repositório, acima de `project/`; `git status` não mostra nada de `project/data/`. Não há pasta a criar nem `git init` a fazer.
 2. Escrever o `pyproject.toml` com `requires-python = "==3.12.*"` e as versões exatas de `planejamento/MEMORY/01-discovery-stack.md`: scikit-learn 1.9.1, imbalanced-learn 0.14.2, mlxtend 0.25.0, xgboost 3.4.1, shap 0.52.0, pandas 3.0.6, numpy 2.3.5, pyarrow 25.0.1, matplotlib 3.11.2, scipy 1.18.1; em grupo de desenvolvimento, pytest 9.1.1 e ruff 0.16.10. `explainerdashboard` 0.5.8 só entra se Q6 exigir o painel. Com o bloco de instalação do pacote:
 
 ```toml
@@ -156,7 +179,7 @@ Saída das asserções do script na máquina de quem tem os dados, ou "não se a
 
 5. Criar as pastas da estrutura de `docs/06-padroes.md:22-31`.
 6. `scripts/metricas_fig4.py` continua rodando só com a biblioteca padrão (`python3 scripts/metricas_fig4.py`).
-7. Fazer os primeiros commits na `main`, no padrão de `.claude/rules/commits.md`, sem trailer de coautoria (`chore:` para o ambiente, `ci:` para o workflow e o modelo de pull request). Só entra o que está dentro de `project/`: `docs/`, `planejamento/`, `.claude/`, `CLAUDE.md` e `LEIA-ME.txt` ficam fora do repositório (decisão 32). O último commit da tarefa, com a seção "Como contribuir" do README, sai em uma branch `tarefa/01-prova-ci`, para o CI rodar em um pull request de prova.
+7. Fazer os primeiros commits na `main`, no padrão de `.claude/rules/commits.md`, sem trailer de coautoria (`chore:` para o ambiente, `ci:` para o workflow e o modelo de pull request). Os arquivos entram pelo nome; `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` são versionados no mesmo repositório (decisão 43, que substitui a 32), em commits próprios. O último commit da tarefa, com a seção "Como contribuir" do README, sai em uma branch `tarefa/01-prova-ci`, para o CI rodar em um pull request de prova.
 7a. No esqueleto do `README.md`, uma seção curta "Como contribuir": ativar os hooks, padrão de mensagem de commit, comandos de lint e de teste, instalação com uv e com pip, modelo de pull request. É o que o integrante sem o assistente precisa, já que as regras completas ficam fora do repositório.
 8. **Pessoa:** criar o repositório no GitHub com os quatro integrantes, ligar o remoto, fazer o `push` da `main` e da branch de prova, abrir o pull request de prova, conferir o CI verde, integrar e proteger a `main` (integração só por pull request). Visibilidade conforme Q10; até a resposta, privado com acesso para o professor.
 
@@ -175,20 +198,23 @@ Reprodutibilidade é requisito da equipe (`CLAUDE.md`, regra 5) e a especificaç
 - Um colega em Windows ou sem uv: mitigado pelo `requirements.txt` exportado e por instruções no README.
 - Versão nova de uma biblioteca quebrar a instalação daqui a semanas: mitigado pelo lock.
 - `git add` por engano em `data/`: já aconteceu uma vez (ver bloco); o `.gitignore` é o primeiro arquivo e o CI barra arquivo proibido.
-- Um segundo repositório Git na pasta de trabalho, acima de `project/`, confunde o editor e permite commitar os documentos internos por engano. Em 07/10/2026 havia um `.git` vazio na pasta de trabalho; a decisão 32 diz que só `project/` tem Git.
+- (Superado pela decisão 43.) O repositório é a raiz e os documentos internos são versionados de propósito. O risco que resta é o código de `project/` citar documento interno; a checagem de referência interna do CI cobre isso.
 
 ## Critério de aceite
 
-- [ ] `uv sync --locked` em clone limpo instala sem erro e `uv run python -c "import doh_ids"` funciona.
-- [ ] `uv run ruff check .`, `uv run ruff format --check .` e `uv run pytest` terminam com código 0 (o pytest, graças ao teste mínimo).
-- [ ] `uv run python scripts/metricas_fig4.py` imprime as duas matrizes.
-- [ ] Os hooks barram, em teste manual: mensagem fora do padrão, trailer `Co-Authored-By` e arquivo fora do lint.
-- [ ] `git log --format=%B | grep -ci "co-authored-by"` devolve 0.
-- [ ] `requirements.txt` corresponde ao lock (gerado por `uv export`, não editado à mão), e a instalação com pip seguida de `pip install -e .` passa no teste mínimo.
-- [ ] `git ls-files` não lista nada de `data/raw/` nem `data/processed/`, nenhum PDF do artigo e nenhum arquivo de `docs/`, `planejamento/` ou `.claude/`.
-- [ ] `git rev-parse --show-toplevel` dentro de `project/` devolve o caminho de `project/`.
-- [ ] `.github/pull_request_template.md` existe e o pull request de prova o usa.
-- [ ] **Pessoa:** repositório remoto existe, os quatro integrantes têm acesso de escrita, o CI rodou e ficou verde no pull request de prova, e a `main` está protegida.
+Conferido pelo agente `cin0114-plan-sync` em 07/10/2026, no commit `5e11d56`. "Executado" é comando rodado na reconciliação; "lido" é conferência do arquivo.
+
+- [x] `uv sync --locked` em clone limpo instala sem erro e `uv run python -c "import doh_ids"` funciona. Executado em um clone descartável da branch de prova, na mesma máquina.
+- [x] `uv run ruff check .`, `uv run ruff format --check .` e `uv run pytest` terminam com código 0 (o pytest, graças ao teste mínimo). Executado na árvore de trabalho e no clone: lint sem erro, 5 arquivos formatados, 1 teste verde.
+- [x] `uv run python scripts/metricas_fig4.py` imprime as duas matrizes. Executado com `python3`, código 0.
+- [x] Os hooks barram, em teste manual: mensagem fora do padrão, trailer `Co-Authored-By` e arquivo fora do lint. Executado no clone descartável com `core.hooksPath .githooks`: as três tentativas de commit foram barradas e o `HEAD` não mudou.
+- [x] `git log --format=%B | grep -ci "co-authored-by"` devolve 0. Executado.
+- [ ] `requirements.txt` corresponde ao lock (gerado por `uv export`, não editado à mão), e a instalação com pip seguida de `pip install -e .` passa no teste mínimo. Primeira metade confirmada: a saída de `uv export --no-emit-project --no-hashes` só difere do arquivo na linha de comentário do cabeçalho. **A instalação com pip não foi executada.**
+- [x] `git ls-files` não lista nada de `project/data/raw/` nem de `project/data/processed/`, nenhum zip, modelo serializado ou Parquet e nenhum PDF do artigo. (Texto ajustado à decisão 43: `docs/`, `planejamento/` e `.claude/` são versionados.) Executado com o filtro do CI: nenhuma linha.
+- [x] `git rev-parse --show-toplevel` devolve a raiz do repositório, acima de `project/`. (Texto ajustado à decisão 43.) Executado.
+- [ ] `.github/pull_request_template.md` existe e o pull request de prova o usa. O arquivo existe, com o conteúdo do passo 4c (lido); o pull request de prova ainda não foi aberto.
+- [ ] **Pessoa:** repositório remoto existe, os quatro integrantes têm acesso de escrita, o CI rodou e ficou verde no pull request de prova, e a `main` está protegida. O remoto existe (`origin`, com `origin/main` em `7a41d90`); o resto está aberto. O workflow não rodou no GitHub para a branch de prova: o CI só foi lido, não visto verde.
+- [ ] Licença decidida pela equipe e `LICENSE` criado (item da lista "Arquivos" que ficou de fora).
 
 ## Testes
 

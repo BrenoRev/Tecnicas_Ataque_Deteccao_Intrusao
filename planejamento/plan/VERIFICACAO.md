@@ -6,7 +6,7 @@ Regra: a tarefa só é "pronta" com tudo verde. Vermelho → conserta e repete. 
 
 ## Gate universal
 
-Executado de dentro de `project/`, a raiz do repositório.
+Executado de dentro de `project/`. A raiz do repositório fica um nível acima (decisão 43); os comandos `git` funcionam dos dois lugares.
 
 | # | Verificação | Esperado |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ Para G6 funcionar, `metrics.json` não contém nada que varie entre execuções:
 
 G2 e G3 também rodam no hook `pre-commit`, em todo commit. G1 a G4 e G7 rodam no CI do GitHub, em todo pull request. Os testes de G4 usam dados sintéticos; o que depende dos datasets é o nível N2 do plano de testes e entra em G5.
 
-G1 a G4 passam a existir com a tarefa 01. Antes dela, o único comando disponível é `cd project && python3 scripts/metricas_fig4.py`.
+G1 a G4 e G7 existem desde a tarefa 01 (commit `5e11d56`): rodaram verdes em 07/10/2026 na árvore de trabalho e em um clone descartável. No CI, cada checagem do G7 é um passo próprio, e a de arquivo proibido roda na raiz do repositório.
 
 G5 e G6 das tarefas 08 a 16 rodam na máquina local ou no cluster Apuana (decisão 42); a comparação do G6 é entre duas execuções na mesma máquina. Resultado gerado em máquinas diferentes pode divergir em casas decimais (versão de BLAS, número de threads); por isso os resultados versionados e a execução limpa da tarefa 19 saem do mesmo ambiente.
 
@@ -80,6 +80,6 @@ Valores de trilha aceitos: `fiel`, `corrigida`, `variante` (leituras alternativa
 
 ## Execução limpa (tarefa 19)
 
-Em um diretório novo, sem a pasta de trabalho por perto: `git clone` → `uv sync --locked` → colocar os dados em `data/raw/` conforme `data/README.md` → `uv run python data/verify.py` → rodar os scripts na ordem do README → comparar os `metrics.json` gerados com os versionados.
+Em um diretório novo, sem a pasta de trabalho por perto: `git clone` → `cd project` → `uv sync --locked` → baixar o zip da equipe e extraí-lo dentro de `project/`, conforme `data/README.md` → `uv run python data/verify.py` → rodar os scripts na ordem do README → comparar os `metrics.json` gerados com os versionados.
 
 Uma primeira execução limpa, só com o que existir, é feita em 10/11, para o problema aparecer com uma semana de folga.

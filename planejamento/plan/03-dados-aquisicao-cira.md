@@ -1,5 +1,7 @@
 # 03 · dados · aquisição do CIRA-CIC-DoHBrw-2020
 
+> ⚠️ REVISAR (07/10/2026, reconciliação no commit `5e11d56`): **o disco não tem mais os zips do CIRA que esta tarefa registra.** Em `project/data/raw/cira/` há três pastas extraídas, `Total_CSVs/` (os quatro CSVs), `CSVs/` (`Chrome`, `Firefox`) e `CSVs 2/` (`dns2tcp`, `dnscat2`, `iodine`), e nenhum `.zip` nem `.md5`. O zip da equipe (`data-ml-tadi.zip`, o do link do drive) contém os três zips e os três `.md5`: quem seguir o tutorial de `project/data/README.md` fica com zips, e a máquina onde a reconciliação rodou ficou com pastas. Consequências: (a) os SHA-256 de `docs/08-inventario-dados.md`, seção 1, são dos zips e não podem ser recalculados nesta máquina, como o bloco abaixo manda; (b) a decisão 34 e a tarefa 04 leem `Total_CSVs.zip` "direto do zip", e `data/verify.py` falharia aqui por arquivo obrigatório ausente; (c) `CSVs 2/` é nome gerado pela extração, não existe no dataset. Conferido no disco: as contagens de linhas dos quatro CSVs extraídos são as do bloco abaixo (`wc -l` menos o cabeçalho). **Decisão do usuário antes de implementar:** repor os zips nesta máquina, extraindo o zip da equipe de novo sem abrir os zips internos (o plano fica como está), ou mudar a fonte para as pastas extraídas, o que reabre a decisão 34 e exige novo inventário de hashes por CSV. A decisão não foi reescrita.
+
 **Onde:** `data/README.md`, `data/manifest.json`, `data/verify.py`, `tests/test_verify.py`, `data/raw/cira/` (fora do Git)
 **Objetivo:** os CSVs do dataset do artigo estão na máquina de quem vai rodar, com origem e integridade registradas.
 **Depende de:** — para o download e o registro manual (passos 1 a 4, onda 0); 01 para o script de conferência (passo 5)
@@ -15,21 +17,23 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 - Linhas por membro: `l1-nondoh.csv` 897.493; `l1-doh.csv` 269.643; `l2-benign.csv` 19.807; `l2-malicious.csv` 249.836.
 - Coluna de rótulo: `Label`, em texto. Cabeçalho idêntico ao previsto.
 - O plano B (extrair o CIRA de dentro do combinado) não é mais necessário, e seria pior: o combinado arredonda os números para 8 casas.
-- Falta desta tarefa: `data/README.md`, `data/manifest.json`, `data/verify.py` e o teste dele (passos 2, 5 e 6). Os passos 3 e 7 já estão feitos.
+- Falta desta tarefa: `data/manifest.json`, `data/verify.py` e o teste dele, e completar o `data/README.md` (passos 2 e 5). Os passos 3 e 7 já estão feitos.
+- **`data/README.md` já existe** (tarefa 01, commit `5e11d56`), com o link do drive e o tutorial: o zip da equipe contém a pasta `data/` e é extraído dentro de `project/`. O passo 6 está feito. Esta tarefa acrescenta ao arquivo origem, data do download, citação exigida, registro do cabeçalho e da coluna de rótulo, e troca a linha `Manifesto de hashes dos arquivos: [Preencher]` pelo apontamento para `data/manifest.json`. O arquivo passa pela checagem de referência interna do CI: não cita `docs/`.
+- O zip da equipe traz também `hkd/` e `combinado/`; o registro deles no manifesto é da tarefa 13.
 - Cluster, opcional (decisão 42): se a execução for no Apuana, os arquivos são copiados à mão para o Apuana e conferidos lá com `data/verify.py`; o `data/README.md` diz onde ficam no servidor `[Preencher: caminho]`.
 
 ## Arquivos
 
 - `data/raw/cira/` — CSVs baixados, fora do Git.
 - `data/manifest.json` — novo: fonte única de nome, tamanho, número de linhas, SHA-256 e se o arquivo é obrigatório ou opcional.
-- `data/README.md` — origem, data do download, citação exigida, como obter os arquivos e onde a equipe os compartilha; aponta para o manifesto, sem repetir os hashes.
+- `data/README.md` — já existe (tarefa 01); completar com origem, data do download, citação exigida, como obter os arquivos e onde a equipe os compartilha; aponta para o manifesto, sem repetir os hashes.
 - `data/verify.py` — novo: confere que os arquivos do manifesto existem e que os hashes batem.
 - `tests/test_verify.py` — novo.
 
 ## O que fazer
 
 1. (Feito em 07/10/2026.) Preencher o formulário em http://cicresearch.ca/CICDataset/DoHBrw-2020/ e baixar os CSVs de atributos estatísticos (não os PCAPs).
-2. Registrar no `data/manifest.json` os nomes reais dos arquivos, o tamanho, o número de linhas (sem o cabeçalho), o SHA-256 (`shasum -a 256`) e se são obrigatórios (`Total_CSVs.zip`) ou opcionais (os outros dois zips, usados só na tarefa 21). No `data/README.md`: origem, data, citação, instruções de download e o local do drive da equipe `[Preencher: link]`.
+2. Registrar no `data/manifest.json` os nomes reais dos arquivos, o tamanho, o número de linhas (sem o cabeçalho), o SHA-256 (`shasum -a 256`) e se são obrigatórios (`Total_CSVs.zip`) ou opcionais (os outros dois zips, usados só na tarefa 21). No `data/README.md`: origem, data, citação, instruções de download e o local do drive da equipe (link e tutorial já estão no arquivo desde a tarefa 01).
 3. (Feito; ver o bloco acima.) O cabeçalho é idêntico ao de `docs/04-dados.md:54-62` e o rótulo está em `Label`; registrar isso no `data/README.md`.
 4. Registrar a citação exigida pelos mantenedores (`docs/04-dados.md:9`).
 5. Escrever `data/verify.py`: lê `data/manifest.json`, recalcula os hashes e falha, com mensagem que nomeia o arquivo, se faltar arquivo obrigatório ou se qualquer hash divergir; arquivo opcional ausente gera aviso, não erro. Tem `main()` sob `if __name__ == "__main__":`, para o teste importar a função de conferência.
@@ -57,7 +61,7 @@ Decisão 17. É a primeira tarefa do caminho crítico: sem dados não há E0, e 
 - [ ] `uv run python data/verify.py` termina com código 0 na máquina de quem baixou e falha quando um arquivo obrigatório é alterado ou removido; opcional ausente só avisa.
 - [ ] As contagens de linhas por classe estão registradas e comparadas com as de `docs/04-dados.md:26-31`.
 - [ ] O cabeçalho real está registrado, com a coluna de rótulo identificada.
-- [ ] `git status` não mostra nenhum arquivo de `data/raw/`.
+- [ ] `git status` não mostra nenhum arquivo de `data/raw/`. (Em 07/10/2026, no commit `5e11d56`: `git status` limpo e `git ls-files` sem nada de `project/data/raw/`; o item fecha com a tarefa.)
 
 ## Testes
 
