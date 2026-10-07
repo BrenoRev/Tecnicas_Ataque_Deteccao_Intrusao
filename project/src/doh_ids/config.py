@@ -167,11 +167,21 @@ CV_SHUFFLE = True
 # 10 árvores por Random Forest, Seção IV-A do artigo.
 N_ESTIMATORS = 10
 
-# 28 atributos candidatos em cada divisão, de 29 disponíveis, Seção IV-A.
+# A Seção IV-A do artigo diz que os atributos de cada divisão são "selected at
+# random from 28 features". A frase admite duas leituras: 28 atributos
+# candidatos em cada divisão, de 29 disponíveis, ou um modelo com 28 atributos
+# no total. Adotamos a primeira, porque o Algoritmo 1 e a Seção VI-C falam em
+# 29 atributos de entrada e o artigo não diz qual seria o atributo retirado.
 MAX_FEATURES = 28
 
-# Profundidade máxima 5, Seção IV-B do artigo.
+# O artigo traz duas passagens sobre a profundidade das árvores. A Seção IV-B
+# declara profundidade máxima 5 nos submodelos; a linha 3 do Algoritmo 1 fala
+# em "variable tree depth". A trilha fiel usa 5, o único valor numérico que o
+# texto fornece. A leitura sem limite de profundidade, com todo o resto
+# igual, é reportada como variante nomeada, porque também tem apoio no texto.
+# As duas são medidas no mesmo protocolo e nenhuma foi escolhida pelo resultado.
 MAX_DEPTH = 5
+MAX_DEPTH_VARIABLE = None
 
 # Núcleos usados no treino: -1 pede todos os da máquina. Não altera o
 # resultado, porque cada árvore recebe a própria seed; muda só o tempo.
