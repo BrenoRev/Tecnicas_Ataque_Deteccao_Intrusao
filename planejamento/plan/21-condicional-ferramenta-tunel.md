@@ -1,11 +1,27 @@
-# 21 · condicional · subclassificação por ferramenta de túnel (E7)
+# 21 · reprodução · identificação da ferramenta de túnel (E7)
 
-**Onde:** `scripts/e7_ferramenta.py`, `results/e7/`
-**Objetivo:** reproduzir a identificação da ferramenta de túnel (seção VI-D do artigo), se e somente se o professor considerar isso parte da reprodução.
-**Depende de:** 08, 13 — e da resposta a Q5
-**Demonstra:** se feita, recall por ferramenta ao lado dos valores da seção VI-D do artigo; se não, a frase de fora de escopo.
+**Onde:** `scripts/e7_ferramenta.py`, `src/doh_ids/data.py`, `tests/test_data.py`, `results/e7/`
+**Objetivo:** reproduzir a identificação da ferramenta de túnel (Seção VI-D do artigo e Fig. 9): as três acurácias por ferramenta e as duas distribuições da figura. É parte de P1 desde as decisões 46 e 49.
+**Depende de:** 08, 13. Na ordem de execução, entra depois da 14
+**Demonstra:** `results/e7/`: métricas por ferramenta ao lado dos três valores da Seção VI-D e a figura equivalente à Fig. 9. P1 (seção 7).
 
-> **Tarefa condicional.** Não começa sem a resposta do professor a Q5 (decisão 20). Sem exigência, fica registrada como fora de escopo no relatório, com o motivo: o artigo dá três acurácias e nenhum método.
+> **Deixou de ser condicional em 07/10/2026 (decisão 49).** O professor respondeu a Q5 pedindo uma conversa depois da aula; a equipe decidiu fazer sem esperar, porque a decisão 46 pede todos os resultados do artigo e a Seção VI-D traz três acurácias e a Fig. 9. Se o professor pedir outro método depois, ajusta-se. O nome do arquivo ficou como estava, para não quebrar as referências.
+
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo (passos, critérios, riscos) divergirem, vale este bloco.**
+
+- **Método (decisão 49):** o mesmo sistema da tarefa 08 aplicado só aos fluxos maliciosos, com as três ferramentas como classes. É leitura da equipe, porque o artigo não descreve o método, e isso é declarado no resumo e no relatório. As métricas são por ferramenta (precisão, recall, F1), não só acurácia, porque as classes são desbalanceadas.
+- **O que o código atual não cobre, conferido em `360c3d3`:**
+  - `evaluate` e `metrics_from_confusion` nomeiam as classes por `CLASS_NAMES` (Non-DoH, Benign-DoH, Malicious-DoH) e calculam "Malicious-DoH contra o resto" pelo índice da classe maliciosa. O passo 4, "avaliar com a função da tarefa 06", não funciona como está: as chaves sairiam com os nomes errados e a visão binária não faz sentido entre ferramentas. A função precisa receber os nomes das classes, ou o script precisa de um caminho próprio; as duas saídas tocam `evaluate.py` ou duplicam a conta, e são combinadas com o usuário.
+  - `balanced_subsets` fixa o papel de cada código de classe: divide a classe 0 em três partes, repete as classes 1 e 2 e aumenta a classe 1 com SMOTE até o tamanho da 2. **Ponto sem valor declarado:** que ferramenta recebe cada código. Pelas contagens, a leitura que mantém os papéis é dns2tcp (167.486, a maior) como classe dividida, dnscat2 (35.770, a menor) como classe aumentada e iodine (46.580) como classe de referência; o usuário confirma antes de implementar.
+  - `load_cira` lê `Total_CSVs.zip` e não lê `MaliciousDoH-CSVs.zip`: a carga por ferramenta é função nova em `data.py`, com o teste T21-1.
+- **Ponto sem valor declarado: a leitura de profundidade.** A tarefa 08 mede duas, e a decisão 49 diz "o mesmo sistema da tarefa 08" sem dizer qual; a lista da decisão 45 não cita esta tarefa. O conjunto é pequeno (cerca de 250 mil fluxos, um quarto do treino do CIRA), então rodar as duas é a proposta; o usuário confirma.
+- **Ponto sem valor declarado: o caminho em `results/e7/`.** A decisão 38 não lista E7. Pelo padrão de E1, seria `results/e7/fiel/proposto/seed42/` e `results/e7/variante/profundidade_variavel/seed42/`; ver "Pendências abertas pela decisão 45" em `00-README.md`.
+- Protocolo, igual ao de E1: mesma regra de limpeza (remover as linhas com NaN), split 90/10 estratificado pela ferramenta com a seed 42, scaler ajustado só no treino, três subconjuntos, três bases, meta. As linhas com `DoH == True` somam 249.836 (167.486 + 35.770 + 46.580), que é o total bruto de Malicious-DoH do CIRA; depois da limpeza o esperado é 249.553, o número da Tabela I, a conferir por asserção no script. Validação cruzada não está prevista aqui: o artigo não mostra matriz para a Seção VI-D.
+- **Fig. 9, conferida no manuscrito:** distribuição de (a) `ResponseTimeTimeSkewFromMode` e (b) `PacketTimeVariance` para dns2tcp, dnscat2 e iodine. A figura é gerada por este script, que lê os dados, e gravada em `results/e7/`; a tarefa 17 a leva para `report/figures/`. `ResponseTimeTimeSkewFromMode` é uma das colunas de assimetria com o valor sentinela `-10` (`SKEW_COLUMNS`, `SKEW_SENTINEL`): o resumo diz quanto da distribuição é esse marcador.
+- **Custo: não medido.** O conjunto tem cerca de um quarto das linhas do treino do CIRA.
+- Execução com dados reais na própria sessão (decisão 44).
 
 ## Verificado nos dados (07/10/2026)
 
@@ -13,12 +29,14 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 
 - **Resposta ao passo 1: o rótulo de ferramenta existe.** Em `data/raw/cira/MaliciousDoH-CSVs.zip` há um `CSVs/<ferramenta>/all.csv` por ferramenta; a coluna é `DoH` (booleana), sem `Label`, e a ferramenta é o nome da pasta. Linhas com `DoH == True`: dns2tcp 167.486, dnscat2 35.770, iodine 46.580. As linhas com `DoH == False` (31, 84, 18) não entram. A alternativa é `combinado/l3-total-add.csv`, que traz as mesmas três ferramentas com o rótulo em `Label`, mas com os números arredondados.
 - Em 07/10/2026 (reconciliação no commit `0ae2d49`), `data/raw/cira/MaliciousDoH-CSVs.zip` está no disco e no manifesto, como opcional, com as linhas de cada `CSVs/<ferramenta>/all.csv` (167.517, 35.854 e 46.598, que são as somas de `True` e `False` do item acima). O ⚠️ REVISAR da tarefa 03 foi resolvido. A pasta `CSVs 2/` que sobrou da extração não é fonte: lê-se o zip.
-- A tarefa continua condicional à resposta do professor.
+- Em 07/10/2026 (reconciliação no commit `360c3d3`): a tarefa deixou de ser condicional (decisão 49).
 
 ## Arquivos
 
 - `scripts/e7_ferramenta.py` — novo.
-- `results/e7/fiel/` — gerado.
+- `src/doh_ids/data.py` — carga dos fluxos maliciosos por ferramenta, a partir de `MaliciousDoH-CSVs.zip`.
+- `tests/test_data.py` — T21-1.
+- `results/e7/` — métricas, figura equivalente à Fig. 9 e `RESUMO.md`, gerados.
 
 ## O que fazer
 
@@ -30,7 +48,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 
 ## Por quê
 
-A seção VI-D faz parte do artigo, mas é a mais mal especificada (ambiguidade A16). Entra só se o professor pedir, para não gastar prazo com algo que não será cobrado.
+A seção VI-D faz parte do artigo, mas é a mais mal especificada (ambiguidade A16). Entra porque o alvo de P1 são todas as tabelas e gráficos de resultado do artigo (decisões 46 e 49), com o método declarado como leitura da equipe.
 
 ## Evidência — verificada no baseline
 
@@ -46,9 +64,13 @@ A seção VI-D faz parte do artigo, mas é a mais mal especificada (ambiguidade 
 
 ## Critério de aceite
 
-- [ ] Resposta de Q5 registrada em `docs/07-pendencias.md` antes do início.
-- [ ] Se feita: métricas por ferramenta ao lado dos valores do artigo, com a leitura adotada declarada.
-- [ ] Se não feita: frase de fora de escopo pronta para a seção de limitações do relatório.
+- [x] Resposta de Q5 registrada em `docs/07-pendencias.md` antes do início. Lido em `360c3d3`: resposta de 07/10/2026 e a decisão da equipe de fazer sem esperar (decisão 49).
+- [ ] Os três pontos sem valor declarado do bloco de reconciliação (papel de cada ferramenta nos subconjuntos, leitura de profundidade, caminho em `results/e7/`) e a forma de avaliar com nomes de classe próprios estão decididos pelo usuário antes da primeira execução.
+- [ ] Conjunto só com fluxos maliciosos e rótulo em {dns2tcp, dnscat2, iodine}; total depois da limpeza conferido por asserção.
+- [ ] Métricas por ferramenta (precisão, recall, F1, com o suporte) ao lado dos três valores do artigo, que o artigo chama de acurácia, com a diferença.
+- [ ] Figura equivalente à Fig. 9, com eixos rotulados e unidade.
+- [ ] `RESUMO.md` declara que o método é leitura da equipe e por quê.
+- [ ] Revisor metodológico sem achado bloqueante.
 
 ## Testes
 
@@ -56,4 +78,4 @@ Seção "Tarefa 21" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo, se executada: G1–G10, com G5 = `uv run python scripts/e7_ferramenta.py`.
+Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e7_ferramenta.py`.

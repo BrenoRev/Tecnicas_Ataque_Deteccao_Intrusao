@@ -5,6 +5,19 @@
 **Depende de:** 05
 **Demonstra:** resumo dos três subconjuntos: contagens, razão obtida contra 15:12:12, fração sintética (gravado pela tarefa 08). Seções 4 e 6.
 
+> **Situação (07/10/2026, reconciliação no commit `360c3d3`): pronta em `a4ba0e5`** (branch `tarefa/07-subconjuntos`, nascida de `tarefa/06-avaliacao-metricas`). Executada com os dados reais dentro da tarefa 08 (`798ecd3`). Aguarda integração por pessoa (G10).
+
+## Como ficou (conferido no código em `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- `splits.py`: `balanced_subsets(X_train, y_train, seed)` devolve `(subsets, summary)`. `subsets` é a lista de três pares `(X, y)`, com as linhas reais primeiro (parte de Non-DoH, benignos, maliciosos) e as sintéticas no fim. `summary` tem um dicionário por subconjunto: `class_counts` (posição é o código da classe), `ratio` (contagens divididas pela da classe maliciosa) e `synthetic_benign_fraction`.
+- SMOTE: `SMOTE(sampling_strategy={BENIGN: len(malicious)}, random_state=smote_seed(seed, index))`, vizinhos no padrão da biblioteca.
+- **O ponto sem valor declarado do bloco abaixo foi resolvido no código:** o Non-DoH é embaralhado com `np.random.default_rng(seed).permutation`, a própria seed da execução, e cortado com `np.array_split`. Nenhuma decisão registra essa escolha; a decisão 41 só fala do SMOTE, dos Random Forests e do meta. Fica para o usuário confirmar se ela entra como adendo da decisão 41.
+- **A função fixa o papel de cada classe:** divide a classe 0 em três, repete as classes 1 e 2 e aumenta a classe 1 até o tamanho da 2. Serve para o CIRA e para o combinado. Para a tarefa 21, em que as classes são ferramentas, o papel de cada classe precisa ser declarado antes.
+- A tarefa 08 acrescenta ao resumo, no script, `ratio_article_scale` e `article_ratio`, e grava tudo em `metrics.json`, chave `subsets`.
+- Medido com a seed 42 (`results/e1/fiel/proposto/seed42/metrics.json`, chave `subsets`): contagens 266.943 / 224.598 / 224.598 nos dois primeiros subconjuntos e 266.942 / 224.598 / 224.598 no terceiro; fração de benignos sintéticos 0,9209; razão na escala do artigo 14,26 : 12 : 12, ao lado de 15 : 12 : 12. Confere com o bloco "Verificado nos dados".
+
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
 - Dependência: a 05 está pronta, executada e não integrada. Em execução encadeada, a branch nasce de `tarefa/05-split-scaler`.
@@ -54,9 +67,11 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 
 ## Critério de aceite
 
-- [ ] Testes do invariante I3 e dos itens do passo 7 verdes.
-- [ ] Com os dados reais e seed 42, o resumo mostra três subconjuntos com o mesmo conjunto de maliciosos e partes de Non-DoH disjuntas (asserção no script da tarefa 08).
-- [ ] O resumo registra a razão obtida e a fração sintética, para o relatório.
+Conferido em 07/10/2026 no commit `360c3d3`.
+
+- [x] Testes do invariante I3 e dos itens do passo 7 verdes. Executado: `tests/test_splits.py` inteiro, verde; os cinco testes desta tarefa são `test_non_doh_parts_are_disjoint_cover_train_and_differ_by_at_most_one`, `test_malicious_rows_are_the_same_real_rows_in_every_subset`, `test_benign_keeps_every_real_row_and_reaches_the_malicious_count`, `test_no_synthetic_sample_in_non_doh` e `test_same_seed_gives_same_subsets_and_other_seed_gives_others`.
+- [x] Com os dados reais e seed 42, o resumo mostra três subconjuntos com o mesmo conjunto de maliciosos e partes de Non-DoH disjuntas (asserção no script da tarefa 08). Lido: asserções em `scripts/e1_reproducao.py:116-121` (o Non-DoH dos três subconjuntos soma o Non-DoH do treino; cada subconjunto tem a contagem de maliciosos do treino) e as contagens em `metrics.json`. A asserção com dados reais é por contagem; a identidade das linhas é coberta pelos testes sintéticos do item anterior.
+- [x] O resumo registra a razão obtida e a fração sintética, para o relatório. Lido: chave `subsets` de `metrics.json` nas duas leituras de profundidade e a seção "Subconjuntos de treino" dos dois `RESUMO.md`.
 
 ## Testes
 

@@ -7,6 +7,12 @@
 
 > Só existe se a tarefa 15 foi concluída. Se P3 for cortado, esta tarefa sai junto.
 
+## Reconciliado com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+- **Decisão 50:** o painel interativo da tarefa 12 é material de demonstração e pode entrar na apresentação, ao vivo ou em captura de tela. Se entrar ao vivo, o ensaio do passo 5 é feito com o painel já no ar, porque o script treina o modelo antes de subir (cerca de 3 minutos, pelo tempo de ajuste medido na tarefa 08). Os números ditos em sala continuam vindo de `report/`, não do painel.
+- **Decisão 45:** o bloco da reprodução mostra as duas leituras de profundidade lado a lado e diz qual foi usada como base e por quê.
+- **Decisões 46, 47 e 49:** o roteiro do passo 2 ganha a ferramenta de túnel (Seção VI-D) no bloco da reprodução, e o bloco do segundo dataset passa a ser "P1 refeito no combinado sem réplicas", com transferência e combinado publicado ao lado.
+
 ## Arquivos
 
 - Cópia do modelo institucional do CIn (`https://docs.google.com/presentation/d/1lAaS3mgRNcWwQmUez8e8s4JKzim4ZwwWh7RCAwCoNyo/edit`).

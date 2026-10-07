@@ -2,8 +2,32 @@
 
 **Onde:** `scripts/make_report_assets.py`, `report/tables/`, `report/figures/`
 **Objetivo:** toda tabela e toda figura de resultado do relatório sai de `results/` por um comando, sem número digitado à mão.
-**Depende de:** 08, 09, 12, 14 (obrigatórias); 10, 11, 15, 16 entram se concluídas
+**Depende de:** 08, 09, 12, 14, 21 e o complemento da 04 com a Fig. 2 (obrigatórias); 10, 11, 15, 16 entram se concluídas
 **Demonstra:** `report/tables/` e `report/figures/` regenerados por um comando a partir de `results/`. Toda tabela e figura das seções 6 e 7.
+
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- **Todas as tabelas e gráficos de resultado do artigo são alvo (decisão 46).** Cada um tem de ter o seu equivalente em `report/`, com a origem em `results/`:
+
+| Resultado do artigo | Equivalente nosso | Fonte | Tarefa que gera a fonte |
+| --- | --- | --- | --- |
+| Tabela I (contagens por classe) | reconciliação bruta e limpa ao lado da Tabela I | `results/e0/` | 04 (feita) |
+| Fig. 2 (densidade por classe de `FlowBytesReceived`, da média e da variância do comprimento de pacote) | a mesma figura, com os nossos dados | `results/e0/` | complemento da 04 (a fazer) |
+| Fig. 4a e Fig. 4b (matrizes de confusão) | matrizes de validação cruzada e de teste, nas duas leituras de profundidade, com a diferença | `results/e1/fiel/`, `results/e1/variante/` | 08 (feita) |
+| Tabela II, metade superior | três baselines e o proposto nas duas leituras, ao lado do artigo | `results/e1/`, `results/e2/` | 08, 09 |
+| Tabela II, metade inferior (literatura) | as oito linhas, com a referência | `config.py` | 09 |
+| Figs. 5, 6a, 6b, 7 e 8 (SHAP) | figuras equivalentes | `results/e5/` | 12 |
+| Seção VI-D (três acurácias por ferramenta) e Fig. 9 | métricas por ferramenta ao lado do artigo; densidade de `ResponseTimeTimeSkewFromMode` e `PacketTimeVariance` por ferramenta | `results/e7/` | 21 |
+
+- **As duas leituras de profundidade vão lado a lado (decisão 45)** em toda tabela do sistema proposto: uma coluna ou linha por leitura, nomeada, lida de `fiel/` e de `variante/`. A recusa de juntar trilhas sem coluna que as identifique (item de risco abaixo) continua valendo e é o que protege essa tabela.
+- **P2 refeito (decisão 47):** cada item acima que a tarefa 14 produz para o combinado sem réplicas (contagens por conjunto, matrizes de teste e de validação cruzada nas duas leituras, baselines, figuras SHAP) ganha a sua tabela ou figura, com o CIRA ao lado. Retreino publicado e transferência ficam em bloco próprio, nomeado como análise ao lado.
+- **A tarefa 21 passa a ser obrigatória (decisão 49):** o passo 5 falha também se faltar `results/e7/`. O conjunto obrigatório é 08, 09, 12, 14 e 21, mais a Fig. 2 em `results/e0/`.
+- A Fig. 2 e a Fig. 9 são densidades calculadas sobre os dados, que este script não lê: quem as calcula é o script que lê os dados (`scripts/e0_dados.py` e `scripts/e7_ferramenta.py`), e este script só as leva para `report/figures/`.
+- Fonte dos tempos de treino: chave `timings` do `run.json` (`subsets_seconds`, `base_fit_seconds`, `meta_fit_seconds`, `cross_validation_seconds`, `total_seconds` em E1).
+- Chaves que este script lê de `results/e1/<trilha>/<recorte>/seed42/metrics.json`: ver o bloco "Como ficou" da tarefa 08.
+- Q9 (idioma e limite de páginas) continua sem resposta: o passo 6 segue valendo.
 
 ## Arquivos
 
@@ -33,6 +57,11 @@
 | Tabela de decisão do meta e desacordo entre bases | `results/e1/` | 7 |
 | Taxa base: precisão operacional sob prevalências hipotéticas | `results/e4/` | 7 ou 8 |
 | Estabilidade do ranking SHAP entre submodelos | `results/e5/` | 7 |
+| Figura: densidades por classe equivalentes à Fig. 2 | `results/e0/` | 6 |
+| Matriz de validação cruzada: artigo (Fig. 4a), reprodução, diferença | `results/e1/` | 7 |
+| Explicações locais equivalentes às Figs. 7 e 8 | `results/e5/` | 7 |
+| Ferramenta de túnel: métricas por ferramenta ao lado da Seção VI-D; figura equivalente à Fig. 9 | `results/e7/` | 7 |
+| P1 refeito no combinado sem réplicas: sistema nas duas leituras, validação cruzada, baselines, SHAP, ao lado do CIRA | `results/e6/` | 7 |
 | Máquina × classe e período de captura por classe | `results/e0/` | 6 e 8 |
 | Métricas com e sem as linhas duplicadas entre treino e teste | `results/e4/`, `results/e8/` | 7 |
 | Retreino no combinado publicado contra sem réplicas | `results/e6/` | 7 |
@@ -44,7 +73,7 @@
 2. Para cada item, o script lê os `metrics.json` e escreve um arquivo `.tex` de tabela ou uma figura em PDF. Formatação numérica única: vírgula decimal ou ponto, escolher um e manter; mesma quantidade de casas.
 3. Toda tabela leva na legenda a trilha (fiel ou corrigida), a seed ou o número de seeds, e o nome da média.
 4. Toda figura tem eixos rotulados e unidade.
-5. O script falha se faltar resultado de tarefa obrigatória (08, 09, 12, 14), em vez de gerar tabela incompleta. Tudo o que a lista de cortes de `00-README.md` permite cortar é opcional: tarefas 10, 11, 15 e 16 inteiras, as variantes opcionais da 10 e a avaliação por grupo da 11. Item ausente é listado na saída como "não gerado", sem erro.
+5. O script falha se faltar resultado de tarefa obrigatória (08, 09, 12, 14 e, desde a decisão 49, 21), em vez de gerar tabela incompleta. Tudo o que a lista de cortes de `00-README.md` permite cortar é opcional: tarefas 10, 11, 15 e 16 inteiras, as variantes opcionais da 10 e a avaliação por grupo da 11. Item ausente é listado na saída como "não gerado", sem erro.
 6. Antes de fixar a lista, conferir o limite de páginas do template (tarefa 18, passo 1): se não couberem todas as tabelas, decidir quais vão para o corpo e quais ficam só no repositório.
 7. Conferir, por amostragem, três números de cada tabela contra o `metrics.json` de origem.
 

@@ -5,6 +5,18 @@
 **Depende de:** — para o download e o registro (passos 2 e 3, onda 0); 04 para a carga e a limpeza (passos 4 a 8)
 **Demonstra:** `results/e6/dados/`: compatibilidade de colunas, contagens por classe, origem e ferramenta, e o parágrafo de justificativa. P2 e seção 6.
 
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- **Q4 respondida em 07/10/2026 (`docs/07-pendencias.md`); efeito na decisão 47.** P2 refaz no segundo dataset tudo o que P1 produz no CIRA. O dataset em que isso é feito é o **combinado sem réplicas**, o único com as três classes; o combinado como publicado e o HKD (transferência) ficam como análises ao lado. O passo 1 e o risco "Q4 respondida com não" deixam de valer como condicionais: não há troca de fonte prevista.
+- O professor não comentou as duas ressalvas enviadas (Non-DoH e Benign-DoH do combinado são os do CIRA; réplicas do HKD). A justificativa do passo 8 declara as duas, e declara que o HKD sozinho só tem a classe maliciosa e por isso não permite treinar o sistema.
+- **"Contagens por classe" do segundo dataset (decisão 47) saem daqui:** `results/e6/dados/combinado_sem_replicas/seed42/` é o equivalente, para P2, da reconciliação com a Tabela I. A tabela por conjunto (treino, folds, teste) é da tarefa 14.
+- `sha256_of` está em `doh_ids.data` desde `f1eba42`; `data/verify.py` e `scripts/e0_dados.py` importam de lá.
+- A carga do segundo dataset não cria `group`: o teste correspondente é o T13-7 do plano de testes (era a segunda metade do T04-9), e o T13-1 confere o esquema da decisão 40, sem `group`.
+- A tarefa 21 lê `data/raw/cira/MaliciousDoH-CSVs.zip`, que já está no manifesto; a carga desse arquivo é da 21, não desta tarefa.
+- Execução com dados reais na própria sessão (decisão 44). Custo: não medido; a tarefa não treina modelo.
+
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
 - **`load_cira` não serve para o segundo dataset.** Ela lê os membros de `CIRA_ZIP_MEMBERS` de um zip, mapeia o rótulo com `LABEL_ENCODING` e levanta `ValueError` com rótulo fora do mapa ou com fluxo sem endereço `192.168.20.x`, que é o caso de todo o HKD. A carga do segundo dataset é função nova em `data.py`; reutiliza `feature_matrix`, `class_counts` e `clean_flows`.
@@ -83,9 +95,9 @@ Objetivo P2 e decisão 11. A especificação exige que a escolha do segundo data
 - [ ] Parágrafo de justificativa escrito, sem afirmar nada que não esteja nos arquivos de resultado ou nas fontes citadas.
 - [ ] `docs/04-dados.md` atualizado pelo `cin0114-doc-sync` no fechamento, sem `[A verificar]` nos itens resolvidos.
 
-## Execução com dados reais: local ou Apuana (decisão 42)
+## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e6_dados.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e6_dados.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
 
 ## Testes
 

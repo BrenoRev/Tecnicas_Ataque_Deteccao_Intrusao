@@ -5,6 +5,13 @@
 **Depende de:** — para as perguntas (onda 0); 08 para o material de 10/11
 **Demonstra:** respostas do professor registradas com data; página de status e tabela de resultados para 10/11; rascunho para 17/11.
 
+## Reconciliado com as respostas do professor (07/10/2026, commit `360c3d3`)
+
+- Q1 a Q6 respondidas em 07/10/2026 e registradas em `docs/07-pendencias.md`, com o efeito de cada uma: Q1, reimplementação aceita; Q2, decisão 46; Q3, decisão 48 (sem requisito adicional: o passo 3 não se aplica por ora); Q4, decisão 47; Q5, decisão 49; Q6, decisão 50. As tarefas afetadas foram atualizadas nesta reconciliação.
+- Seguem sem resposta: Q9 (idioma e limite de páginas), Q10 (repositório público ou privado) e a parte em aberto de Q7 (frase de declaração do uso de IA).
+- **Para levar ao professor, porque ele não comentou ou pediu conversa:** (1) as duas ressalvas de Q4: Non-DoH e Benign-DoH do combinado são os do CIRA, e o combinado publicado replica o HKD; (2) Q5: ele pediu que a equipe explicasse melhor depois da aula; a equipe decidiu fazer (decisão 49) e leva o método adotado; (3) Q2: ele não disse qual referência vale entre a Tabela II e a Fig. 4b nem deu margem; (4) as duas leituras de profundidade (decisão 45) e o resultado da leitura de profundidade 5.
+- Material de 10/11: a tabela de resultados já pode partir de `results/e1/RESUMO.md`.
+
 ## O que fazer
 
 1. (Feito em 07/10/2026.) Enviar ao professor, por escrito, as perguntas de `docs/07-pendencias.md:11-21`: foram Q1 a Q6, Q9, Q10 e a parte em aberto de Q7, em uma mensagem só.
@@ -34,7 +41,7 @@ Sete perguntas em aberto podem mudar o escopo: se a reimplementação vale como 
 ## Critério de aceite
 
 - [x] Mensagem enviada em 07/10/2026, com Q1 a Q6, Q9, Q10 e a parte em aberto de Q7; cópia em `docs/07-pendencias.md`.
-- [ ] Cada resposta registrada com data, e as tarefas afetadas atualizadas ou marcadas.
+- [ ] Cada resposta registrada com data, e as tarefas afetadas atualizadas ou marcadas. Parcial em 07/10/2026: Q1 a Q6 registradas com data (lido em `docs/07-pendencias.md`) e levadas às tarefas nesta reconciliação; Q9, Q10 e a parte em aberto de Q7 sem resposta.
 - [ ] Página de status e tabela de resultados prontas na véspera de 10/11.
 - [ ] Retorno de cada encontro registrado e convertido em ajuste.
 
