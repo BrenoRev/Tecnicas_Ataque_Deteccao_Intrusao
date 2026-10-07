@@ -1,0 +1,10 @@
+atributo,classe,fluxos,fluxos na faixa,pico da densidade,1º quartil,mediana,3º quartil
+FlowBytesReceived,Non-DoH,889809,767716,131.579,108,2839,6929
+FlowBytesReceived,Benign-DoH,19746,17367,263.158,327,1295,5785
+FlowBytesReceived,Malicious-DoH,249553,174488,4868.42,4169,4896,34055
+PacketLengthMean,Non-DoH,889809,805917,62.1554,60.5,227.147,393.889
+PacketLengthMean,Benign-DoH,19746,19746,88.2206,87.2222,116.522,153.78
+PacketLengthMean,Malicious-DoH,249553,249553,224.561,150.158,223.433,248.864
+PacketLengthVariance,Non-DoH,889809,787095,29.9358,30.25,115512,399280
+PacketLengthVariance,Benign-DoH,19746,19559,379.269,372.49,3741.21,20192.3
+PacketLengthVariance,Malicious-DoH,249553,237443,140563,15544.8,141409,182528
