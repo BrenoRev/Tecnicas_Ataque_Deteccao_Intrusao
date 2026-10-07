@@ -9,7 +9,8 @@ results/e0/dados/RESUMO.md.
 
 Depois separa treino e teste com a seed 42 e grava em split_counts.json, na
 mesma pasta, as amostras por classe no treino, em cada fold de validação e no
-teste, ao lado das contagens da Fig. 4 do artigo.
+teste, ao lado das contagens da Fig. 4 do artigo, e as linhas do teste cujo
+vetor de atributos também existe no treino.
 
 Nenhum modelo é treinado. A seed só entra no sorteio do teste e dos folds.
 
@@ -30,8 +31,12 @@ from doh_ids.config import (
     CIRA_ZIP_MEMBERS,
     CIRA_ZIP_PATH,
     CLASS_NAMES,
+    CV_FOLDS,
+    CV_SHUFFLE,
     DATA_RAW_DIR,
     FEATURE_COLUMNS,
+    FIG4_TEST_COUNTS,
+    FIG4_TRAIN_COUNTS,
     ID_COLUMNS,
     PROJECT_ROOT,
     SEED_FIEL,
@@ -70,15 +75,6 @@ CLEANING_RULES = [
 ]
 ADOPTED_RULE = "NaN"
 
-# Amostras por classe no treino e no teste do artigo, na ordem de CLASS_NAMES:
-# soma de cada linha das matrizes de confusão da Fig. 4a (treino) e 4b (teste).
-FIG4_TRAIN_COUNTS = [800829, 17771, 224598]
-FIG4_TEST_COUNTS = [88980, 1975, 24955]
-
-# Validação cruzada de 10 folds sobre o treino, como diz a legenda da Fig. 4a.
-# O artigo não tem conjunto de validação separado.
-CV_FOLDS = 10
-
 
 def sha256_of(path: Path) -> str:
     """Devolve o SHA-256 do arquivo, em hexadecimal."""
@@ -114,13 +110,17 @@ def cleaning_table(raw: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=columns)
 
 
-def capture_tables(flows: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def capture_day(flows: pd.DataFrame) -> pd.Series:
+    """Devolve o dia de captura de cada fluxo, em texto no formato ano-mês-dia."""
+    return pd.to_datetime(flows["TimeStamp"], format="%Y-%m-%d %H:%M:%S").dt.strftime("%Y-%m-%d")
+
+
+def capture_tables(flows: pd.DataFrame, day: pd.Series) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Monta a tabela máquina por classe e a tabela de período de captura por classe.
 
-    Usa `group` e `TimeStamp`, por isso roda antes de os identificadores saírem.
+    Usa `group` e o dia de captura, por isso roda antes de os identificadores saírem.
     """
     class_name = flows["label"].map(dict(enumerate(CLASS_NAMES)))
-    day = pd.to_datetime(flows["TimeStamp"], format="%Y-%m-%d %H:%M:%S").dt.strftime("%Y-%m-%d")
 
     machines = pd.crosstab(flows["group"], class_name)[CLASS_NAMES]
     machines.index.name = "máquina"
@@ -187,12 +187,40 @@ def outside_unit_interval(train: pd.DataFrame, test: pd.DataFrame) -> dict:
 
 
 def validation_fold_rows(train: pd.DataFrame) -> list[list[int]]:
-    """Conta as amostras por classe do fold de validação de cada uma das 10 rodadas."""
+    """Conta as amostras por classe do fold de validação de cada rodada."""
     # Os folds são sorteados só dentro do treino; o teste não participa.
-    folds = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED_FIEL)
+    folds = StratifiedKFold(n_splits=CV_FOLDS, shuffle=CV_SHUFFLE, random_state=SEED_FIEL)
     return [
         class_counts(train.iloc[validation]) for _, validation in folds.split(train, train["label"])
     ]
+
+
+def seen_in_train_counts(train: pd.DataFrame, test: pd.DataFrame) -> dict:
+    """Conta, por classe, as linhas do teste cujo vetor de atributos existe no treino.
+
+    Separa dois casos: o vetor está no treino com o mesmo rótulo da linha do
+    teste, ou está com outro rótulo. Uma linha entra nos dois quando o treino
+    tem o vetor dela com mais de um rótulo; `both_labels_rows` conta essas.
+    """
+    seen = seen_in_train(train, test)
+    same_label = np.zeros(len(test), dtype=bool)
+    other_label = np.zeros(len(test), dtype=bool)
+    for code in range(len(CLASS_NAMES)):
+        of_class = (test["label"] == code).to_numpy()
+        same_label |= of_class & seen_in_train(train[train["label"] == code], test)
+        other_label |= of_class & seen_in_train(train[train["label"] != code], test)
+    assert np.array_equal(same_label | other_label, seen), "Linha vista sem rótulo no treino."
+
+    seen_rows, test_rows = class_counts(test[seen]), class_counts(test)
+    return {
+        "rows": seen_rows,
+        "total": sum(seen_rows),
+        "fraction": np.divide(seen_rows, test_rows).tolist(),
+        "fraction_total": sum(seen_rows) / len(test),
+        "same_label_rows": class_counts(test[same_label]),
+        "other_label_rows": class_counts(test[other_label]),
+        "both_labels_rows": class_counts(test[same_label & other_label]),
+    }
 
 
 def split_counts(table: pd.DataFrame) -> dict:
@@ -215,7 +243,6 @@ def split_counts(table: pd.DataFrame) -> dict:
     assert test_difference == [1, 0, 0], f"Teste {test_rows} difere da Fig. 4b."
 
     validation_rows = validation_fold_rows(train)
-    seen_rows = class_counts(test[seen_in_train(train, test)])
     return {
         "classes": CLASS_NAMES,
         "seed": SEED_FIEL,
@@ -234,16 +261,12 @@ def split_counts(table: pd.DataFrame) -> dict:
         },
         "validation_folds": {
             "n_folds": CV_FOLDS,
+            "shuffle": CV_SHUFFLE,
             "validation_rows": validation_rows,
             "train_rows": np.subtract(train_rows, validation_rows).tolist(),
         },
         "test_outside_unit_interval": outside_unit_interval(train, test),
-        "test_seen_in_train": {
-            "rows": seen_rows,
-            "total": sum(seen_rows),
-            "fraction": np.divide(seen_rows, test_rows).tolist(),
-            "fraction_total": sum(seen_rows) / len(test),
-        },
+        "test_seen_in_train": seen_in_train_counts(train, test),
     }
 
 
@@ -266,8 +289,8 @@ def summary_text(
     sentinel.index.name = "coluna"
     return f"""# E0: dados do CIRA-CIC-DoHBrw-2020
 
-Gerado por `scripts/e0_dados.py`. Os números vêm de `cira/seed42/metrics.json`
-e dos arquivos CSV da mesma pasta.
+Gerado por `scripts/e0_dados.py`. Os números vêm de `cira/seed42/metrics.json`,
+de `cira/seed42/split_counts.json` e dos arquivos CSV da mesma pasta.
 
 ## Fonte
 
@@ -325,6 +348,110 @@ SHA-256: `{metrics["parquet_sha256"]}`.
 """
 
 
+def split_summary_text(counts: dict) -> str:
+    """Monta a seção de RESUMO.md sobre treino, validação e teste a partir de `counts`."""
+    train, test, folds = counts["train"], counts["test"], counts["validation_folds"]
+    seen = counts["test_seen_in_train"]
+    sets = pd.DataFrame(
+        {
+            "treino": train["rows"],
+            "Fig. 4a": train["fig4a"],
+            "diferença no treino": train["difference"],
+            "teste": test["rows"],
+            "Fig. 4b": test["fig4b"],
+            "diferença no teste": test["difference"],
+        },
+        index=pd.Index(CLASS_NAMES, name="classe"),
+    )
+    seen_table = pd.DataFrame(
+        {
+            "linhas do teste": test["rows"],
+            "vetor presente no treino": seen["rows"],
+            "fração": [f"{fraction:.2%}" for fraction in seen["fraction"]],
+            "com o mesmo rótulo": seen["same_label_rows"],
+            "com outro rótulo": seen["other_label_rows"],
+            "com os dois": seen["both_labels_rows"],
+        },
+        index=pd.Index(CLASS_NAMES, name="classe"),
+    )
+    fold_table = pd.DataFrame(
+        folds["validation_rows"],
+        columns=CLASS_NAMES,
+        index=pd.RangeIndex(1, folds["n_folds"] + 1, name="fold"),
+    )
+    outside = counts["test_outside_unit_interval"]
+    clean_total = train["total"] + test["total"]
+    return f"""
+## Treino, validação e teste
+
+Gerado de `cira/seed42/split_counts.json`. Sorteio estratificado por classe,
+seed {counts["seed"]}, fração de teste {counts["test_size"]}. Treino:
+{train["total"]} fluxos; teste: {test["total"]}.
+
+{markdown_table(sets)}
+
+As matrizes da Fig. 4 somam {sum(train["fig4a"])} fluxos no treino e
+{sum(test["fig4b"])} no teste. A fração {counts["test_size"]} de {clean_total}
+fluxos não é um número inteiro, e a biblioteca arredonda o tamanho do teste
+para cima: o teste fica com {test["total"]} fluxos, e o fluxo que passa do
+treino para o teste é Non-DoH. O tamanho não é forçado para igualar a figura.
+
+### Validação
+
+O artigo não tem conjunto de validação separado: a validação é cruzada, com
+{folds["n_folds"]} folds estratificados sorteados só dentro do treino
+(embaralhamento: {folds["shuffle"]}, seed {counts["seed"]}). O teste não entra
+em nenhum fold. Amostras por classe no fold de validação de cada rodada:
+
+{markdown_table(fold_table)}
+
+### Teste com vetor de atributos presente no treino
+
+Linhas do teste cujos 29 atributos são iguais aos de alguma linha do treino:
+{seen["total"]} de {test["total"]} ({seen["fraction_total"]:.2%}). Os índices
+de treino e teste são disjuntos; o que se repete é o vetor de atributos, porque
+o conjunto limpo mantém as linhas repetidas. "Com o mesmo rótulo" conta a linha
+do teste cujo vetor está no treino com a classe dela; "com outro rótulo", a que
+tem o vetor no treino com classe diferente; "com os dois", a que está nos dois
+casos.
+
+{markdown_table(seen_table)}
+
+### Teste normalizado
+
+O normalizador é ajustado só no treino. No teste normalizado,
+{outside["values"]} valores em {outside["rows"]} linhas ficam fora do
+intervalo de 0 a 1, nas colunas {outside["by_column"]}.
+"""
+
+
+def model_table(cleaned: pd.DataFrame) -> pd.DataFrame:
+    """Devolve o conjunto limpo só com as colunas do Parquet, sem os identificadores."""
+    table = cleaned[TABLE_COLUMNS].reset_index(drop=True)
+    assert list(table.columns) == TABLE_COLUMNS
+    assert feature_matrix(table).shape[1] == len(FEATURE_COLUMNS)
+    assert not set(ID_COLUMNS) & set(table.columns)
+    assert np.isfinite(feature_matrix(table)).all(axis=None), "NaN ou infinito na saída."
+    return table
+
+
+def write_tables(
+    run_dir: Path,
+    rules: pd.DataFrame,
+    machines: pd.DataFrame,
+    period: pd.DataFrame,
+    table: pd.DataFrame,
+    counts: dict,
+) -> None:
+    """Grava em `run_dir` os arquivos CSV e o split_counts.json."""
+    rules.to_csv(run_dir / "limpeza_combinacoes.csv", index=False)
+    machines.to_csv(run_dir / "maquina_por_classe.csv")
+    period.to_csv(run_dir / "periodo_por_classe.csv")
+    descriptive_statistics(table).to_csv(run_dir / "estatisticas_descritivas.csv")
+    counts_text = json.dumps(counts, indent=2, sort_keys=True, ensure_ascii=False)
+    (run_dir / "split_counts.json").write_text(counts_text + "\n", encoding="utf-8")
+
+
 def main() -> None:
     """Roda a carga, mede as regras de limpeza e grava o Parquet e os resultados."""
     start = time.perf_counter()
@@ -346,16 +473,11 @@ def main() -> None:
     clean_rows = class_counts(cleaned)
     assert clean_rows == TABLE_I_COUNTS, f"Limpo {clean_rows} difere da Tabela I {TABLE_I_COUNTS}."
 
-    machines, period = capture_tables(cleaned)
-    day = cleaned["TimeStamp"].str[:10]
+    day = capture_day(cleaned)
+    machines, period = capture_tables(cleaned, day)
 
     # A partir daqui os identificadores não existem mais na tabela.
-    table = cleaned[TABLE_COLUMNS].reset_index(drop=True)
-    assert list(table.columns) == TABLE_COLUMNS
-    assert feature_matrix(table).shape[1] == 29
-    assert not set(ID_COLUMNS) & set(table.columns)
-    assert np.isfinite(feature_matrix(table)).all(axis=None), "NaN ou infinito na saída."
-
+    table = model_table(cleaned)
     CIRA_PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
     table.to_parquet(CIRA_PARQUET_PATH, index=False)
 
@@ -390,17 +512,13 @@ def main() -> None:
             "adopted_rule": ADOPTED_RULE,
             "test_size": TEST_SIZE,
             "cv_folds": CV_FOLDS,
+            "cv_shuffle": CV_SHUFFLE,
         },
         data_sha256=manifest_entry["sha256"],
         timings={"total_seconds": round(time.perf_counter() - start, 1)},
     )
-    rules.to_csv(run_dir / "limpeza_combinacoes.csv", index=False)
-    machines.to_csv(run_dir / "maquina_por_classe.csv")
-    period.to_csv(run_dir / "periodo_por_classe.csv")
-    descriptive_statistics(table).to_csv(run_dir / "estatisticas_descritivas.csv")
-    counts_text = json.dumps(counts, indent=2, sort_keys=True, ensure_ascii=False)
-    (run_dir / "split_counts.json").write_text(counts_text + "\n", encoding="utf-8")
-    summary = summary_text(rules, machines, period, metrics)
+    write_tables(run_dir, rules, machines, period, table, counts)
+    summary = summary_text(rules, machines, period, metrics) + split_summary_text(counts)
     (run_dir.parents[1] / "RESUMO.md").write_text(summary, encoding="utf-8")
 
     print(f"Limpo por classe: {clean_rows}, total {len(table)}")

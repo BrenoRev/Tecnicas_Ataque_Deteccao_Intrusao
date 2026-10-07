@@ -68,6 +68,11 @@ SKEW_SENTINEL = -10
 # Fluxos por classe na Tabela I do artigo, na ordem de CLASS_NAMES.
 TABLE_I_COUNTS = [889809, 19746, 249553]
 
+# Amostras por classe no treino e no teste do artigo, na ordem de CLASS_NAMES:
+# soma de cada linha das matrizes de confusão da Fig. 4a (treino) e 4b (teste).
+FIG4_TRAIN_COUNTS = [800829, 17771, 224598]
+FIG4_TEST_COUNTS = [88980, 1975, 24955]
+
 # Membros de Total_CSVs.zip que formam as três classes, na ordem de CLASS_NAMES.
 # O quarto membro, l1-doh.csv, é a união dos dois l2: lê-lo contaria o DoH em dobro.
 CIRA_ZIP_MEMBERS = ["l1-nondoh.csv", "l2-benign.csv", "l2-malicious.csv"]
@@ -84,6 +89,15 @@ TEST_SIZE = 0.10
 # Três subconjuntos balanceados de treino, um por Random Forest, Seção III-B.
 N_SUBSETS = 3
 
+# Validação cruzada de 10 folds sobre o treino (Seção III-B e legenda da
+# Fig. 4a do artigo). O artigo não tem conjunto de validação separado e não diz
+# se os folds são estratificados nem se as linhas são embaralhadas. Leitura
+# adotada: folds estratificados, para a classe benigna, a menor, ter a mesma
+# proporção em todos; com embaralhamento e seed, para os folds dependerem só
+# da seed e não da ordem das linhas da tabela.
+CV_FOLDS = 10
+CV_SHUFFLE = True
+
 # 10 árvores por Random Forest, Seção IV-A do artigo.
 N_ESTIMATORS = 10
 
@@ -92,6 +106,10 @@ MAX_FEATURES = 28
 
 # Profundidade máxima 5, Seção IV-B do artigo.
 MAX_DEPTH = 5
+
+# Núcleos usados no treino: -1 pede todos os da máquina. Não altera o
+# resultado, porque cada árvore recebe a própria seed; muda só o tempo.
+N_JOBS = -1
 
 # Seeds. O artigo não informa a seed. Na trilha fiel usamos 42, a que aparece
 # no script publicado pelos autores. Na trilha corrigida usamos dez seeds, de
