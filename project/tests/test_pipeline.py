@@ -3,9 +3,10 @@ import json
 import pytest
 
 import scripts.e1_reproducao as e1
+import scripts.e4_corrigido as e4
 import scripts.e6_dataset2 as e6
 from doh_ids import system
-from doh_ids.config import CLASS_NAMES, FEATURE_COLUMNS, MAX_DEPTH
+from doh_ids.config import CLASS_NAMES, CORRIGIDA_MODELS, FEATURE_COLUMNS, MAX_DEPTH
 from doh_ids.data import class_counts
 from doh_ids.splits import stratified_split
 
@@ -95,3 +96,45 @@ def test_transfer_scales_the_second_dataset_with_the_scaler_of_the_first_train(
     assert run_dir == tmp_path / "e6" / "fiel" / "transferencia" / "seed42"
     assert run["config"]["train_dataset"] == "cira"
     assert run["config"]["max_depth"] == MAX_DEPTH
+
+
+def test_every_model_of_a_seed_gets_the_same_train_and_test_rows(
+    synthetic_flows, tmp_path, monkeypatch
+):
+    seeds = [0, 1]
+    fitted, evaluated = [], []
+
+    def recording_fit_model(name, train, seed, balanced):
+        fitted.append((seed, list(train.index)))
+        return fit_model(name, train, seed, balanced)
+
+    def recording_model_metrics(scaler, model, test, seen):
+        evaluated.append(list(test.index))
+        return model_metrics(scaler, model, test, seen)
+
+    fit_model, model_metrics = e4.fit_model, e4.model_metrics
+    monkeypatch.setattr(e4, "fit_model", recording_fit_model)
+    monkeypatch.setattr(e4, "model_metrics", recording_model_metrics)
+    results = e4.run_experiment(synthetic_flows, DATA_SHA256, tmp_path, seeds)
+
+    n_models = len(CORRIGIDA_MODELS)
+    assert len(fitted) == len(evaluated) == n_models * len(seeds)
+    for position, seed in enumerate(seeds):
+        calls = slice(position * n_models, (position + 1) * n_models)
+        train, test = stratified_split(synthetic_flows, seed)
+        assert fitted[calls] == [(seed, list(train.index))] * n_models
+        assert evaluated[calls] == [list(test.index)] * n_models
+    # Seeds diferentes dão splits diferentes: sem isso as dez execuções seriam uma só.
+    assert evaluated[0] != evaluated[n_models]
+
+    # A trilha e a leitura de profundidade ficam no caminho e no registro.
+    for name, spec in CORRIGIDA_MODELS.items():
+        run_file = tmp_path / "e4" / "corrigida" / name / "seed1" / "run.json"
+        run = json.loads(run_file.read_text(encoding="utf-8"))
+        assert run["track"] == "corrigida"
+        assert run["config"]["max_depth"] == spec["max_depth"]
+
+    summary = e4.summary_content(results)
+    assert set(summary["models"]) == set(CORRIGIDA_MODELS)
+    assert all(model["test"]["macro_f1"]["n"] == len(seeds) for model in summary["models"].values())
+    assert "A contra B" in e4.summary_text(summary)

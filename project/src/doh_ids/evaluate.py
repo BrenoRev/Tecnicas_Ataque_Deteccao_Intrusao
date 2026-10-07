@@ -8,7 +8,7 @@ Os dicionários devolvidos só têm tipos nativos, para serem gravados em JSON.
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
-from scipy.stats import binomtest
+from scipy.stats import binomtest, wilcoxon
 from sklearn.metrics import average_precision_score, confusion_matrix, roc_auc_score
 
 from doh_ids.config import BASE_RATE_FLOWS, CLASS_NAMES, CONFIDENCE_LEVEL, FEATURE_COLUMNS
@@ -272,6 +272,52 @@ def base_rate(fpr: float, recall: float, prevalence: float) -> dict:
         "operational_precision": _ratio(true_alerts, true_alerts + false_alerts),
         "false_alarms_per_10_million": BASE_RATE_FLOWS * false_alerts,
     }
+
+
+def aggregate_seeds(runs: list[dict]) -> dict:
+    """Resume uma métrica por seed em média e desvio padrão.
+
+    `runs` tem um dicionário por seed, todos com as mesmas chaves e um número
+    em cada uma. Devolve, para cada chave, a média (`mean`), o desvio padrão
+    amostral (`std`) e o número de seeds (`n`).
+    """
+    # Desvio padrão amostral, com n - 1 no denominador: as seeds são uma
+    # amostra das execuções possíveis, não todas elas.
+    return {
+        key: {
+            "mean": float(np.mean([run[key] for run in runs])),
+            "std": float(np.std([run[key] for run in runs], ddof=1)),
+            "n": len(runs),
+        }
+        for key in runs[0]
+    }
+
+
+def paired_comparison(first: ArrayLike, second: ArrayLike) -> dict:
+    """Compara dois modelos pela mesma métrica, seed a seed.
+
+    `first` e `second` trazem o valor da métrica de cada modelo, na mesma ordem
+    de seeds; vence a seed quem tem o valor maior. Devolve a diferença média
+    (primeiro menos segundo), o número de seeds em que cada um vence, os
+    empates e a estatística e o p-valor do teste de postos sinalizados de
+    Wilcoxon, bilateral.
+    """
+    difference = np.asarray(first, dtype=float) - np.asarray(second, dtype=float)
+    result = {
+        "mean_difference": float(difference.mean()),
+        "first_wins": int((difference > 0).sum()),
+        "second_wins": int((difference < 0).sum()),
+        "ties": int((difference == 0).sum()),
+        "wilcoxon_statistic": None,
+        "wilcoxon_p_value": None,
+    }
+    # O teste ordena as diferenças não nulas. Com todas nulas não há o que
+    # ordenar, e a estatística fica vazia em vez de sugerir um resultado.
+    if np.any(difference != 0):
+        test = wilcoxon(difference)
+        result["wilcoxon_statistic"] = float(test.statistic)
+        result["wilcoxon_p_value"] = float(test.pvalue)
+    return result
 
 
 def _difference_pp(obtained: dict, target: dict) -> dict:

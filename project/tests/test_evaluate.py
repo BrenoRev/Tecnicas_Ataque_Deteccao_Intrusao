@@ -4,16 +4,20 @@ import numpy as np
 import pytest
 
 from doh_ids.config import CLASS_NAMES, FEATURE_COLUMNS, FIG4A_CONFUSION, FIG4B_CONFUSION
+from doh_ids.data import class_counts
 from doh_ids.evaluate import (
+    aggregate_seeds,
     base_rate,
     compare_confusion,
     evaluate,
     malicious_only_metrics,
     metrics_from_confusion,
     outside_unit_interval,
+    paired_comparison,
     recall_by_tool,
 )
-from scripts import metricas_fig4
+from doh_ids.splits import stratified_split
+from scripts import e4_corrigido, metricas_fig4
 
 # O script da Fig. 4 só imprime porcentagens com duas casas: 5e-5 é meia
 # unidade da quarta casa decimal da fração.
@@ -268,3 +272,49 @@ def test_metrics_are_keyed_by_the_class_names_given():
     assert metrics["accuracy"] == default["accuracy"]
     assert metrics["macro_f1"] == default["macro_f1"]
     assert metrics["per_class"]["dnscat2"]["recall"] == default["per_class"]["Benign-DoH"]["recall"]
+
+
+def test_paired_comparison_matches_a_hand_made_example():
+    # Diferenças 1, 2, 3, 4 e -5: os postos são 1 a 5, a soma dos positivos é
+    # 10 e a dos negativos é 5. A estatística é a menor das duas, e 10 das 32
+    # combinações de sinais dão uma soma de até 5 em um dos lados: p = 20/32.
+    result = paired_comparison([5, 5, 5, 5, 5], [4, 3, 2, 1, 10])
+
+    assert result["mean_difference"] == pytest.approx(1.0)
+    assert (result["first_wins"], result["second_wins"], result["ties"]) == (4, 1, 0)
+    assert result["wilcoxon_statistic"] == pytest.approx(5.0)
+    assert result["wilcoxon_p_value"] == pytest.approx(0.625)
+
+
+def test_paired_comparison_of_equal_values_reports_ties_and_no_statistic():
+    result = paired_comparison([0.5, 0.7, 0.9], [0.5, 0.7, 0.9])
+
+    assert (result["first_wins"], result["second_wins"], result["ties"]) == (0, 0, 3)
+    assert result["wilcoxon_statistic"] is None
+    assert result["wilcoxon_p_value"] is None
+
+
+def test_aggregate_seeds_gives_mean_and_sample_standard_deviation():
+    runs = [{"recall": 1.0, "fpr": 0.0}, {"recall": 2.0, "fpr": 0.0}, {"recall": 3.0, "fpr": 3.0}]
+
+    result = aggregate_seeds(runs)
+
+    assert result["recall"] == {"mean": pytest.approx(2.0), "std": pytest.approx(1.0), "n": 3}
+    # Com n - 1 no denominador: a soma dos quadrados dos desvios é 6, sobre 2.
+    assert result["fpr"] == {"mean": pytest.approx(1.0), "std": pytest.approx(3**0.5), "n": 3}
+
+
+def test_unseen_scope_drops_exactly_the_planted_test_rows_that_exist_in_train(synthetic_flows):
+    seed, planted = 0, 7
+    train, test = stratified_split(synthetic_flows, seed)
+    test = test.copy()
+    # As primeiras linhas do teste recebem os 29 atributos de linhas do treino.
+    test.iloc[:planted, : len(FEATURE_COLUMNS)] = train[FEATURE_COLUMNS].iloc[:planted].to_numpy()
+
+    metrics, _ = e4_corrigido.evaluate_split(["B-prof5"], train, test, seed)
+    result = metrics["B-prof5"]
+
+    assert result["test_seen_in_train"]["rows"] == planted
+    assert result["test"]["total"] == len(test)
+    unseen_rows = [sum(row) for row in result["test_unseen"]["confusion_matrix"]]
+    assert unseen_rows == class_counts(test.iloc[planted:])
