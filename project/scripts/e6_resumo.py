@@ -30,11 +30,12 @@ from doh_ids.config import (
     CLASS_NAMES,
     FEATURE_COLUMNS,
     HKD_REPLICAS,
+    NEAR_ZERO_RECALL,
     RESULTS_DIR,
     SEED_FIEL,
     SHAP_TOP_FEATURES,
 )
-from doh_ids.summary import markdown_table
+from doh_ids.summary import markdown_table, one_feature_rule_text
 
 E6_DIR = RESULTS_DIR / "e6"
 UNIQUE_SLICE = e6b.SCENARIO["slice_name"]
@@ -53,7 +54,8 @@ def load_reading(reading: dict) -> dict:
 
     Devolve as métricas de cada cenário do sistema pelo nome do recorte, as do
     SHAP no combinado sem réplicas em `shap` e as do CIRA na mesma leitura em
-    `e1` (reprodução) e `e5` (SHAP).
+    `e1` (reprodução) e `e5` (SHAP). `hkd_data` e `unique_data` são as medidas
+    da etapa de dados para o HKD e para o combinado sem réplicas.
     """
     track_dir = E6_DIR / reading["track"]
     # A explicação no CIRA usa, em cada trilha, a mesma pasta da reprodução.
@@ -62,7 +64,16 @@ def load_reading(reading: dict) -> dict:
         "e5": load_metrics(RESULTS_DIR / "e5" / reading["track"] / reading["e1_slice"]),
         e6.TRANSFER_SLICE: load_metrics(track_dir / e6.TRANSFER_SLICE),
         "shap": load_metrics(track_dir / e6b.SHAP_SLICE),
+        "hkd_data": load_metrics(e6.E6_DATA_DIR / "hkd"),
+        "unique_data": load_metrics(e6.E6_DATA_DIR / e6b.SCENARIO["dataset"]),
     }
+    # A medida de distância refaz o split do retreino: os fluxos do HKD no
+    # teste têm de ser os mesmos, em número e por ferramenta.
+    proximity = result["unique_data"]["hkd_test_proximity"]
+    test_tools = load_metrics(track_dir / UNIQUE_SLICE)["split"]["test"]["rows_by_tool"]
+    assert {name: entry["n"] for name, entry in proximity["by_tool"].items()} == {
+        name: test_tools[name] for name in proximity["by_tool"]
+    }, "A medida de distância usou outro teste."
     for scenario in e6.RETRAINS:
         result[scenario["slice_name"]] = load_metrics(track_dir / scenario["slice_name"])
     return result
@@ -211,6 +222,55 @@ def declared_lines(results: list[tuple[dict, dict]], baselines: dict) -> str:
     return "\n".join(lines)
 
 
+def occurred(condition: bool) -> str:
+    """Escreve se um resultado declarado como inesperado ocorreu."""
+    return "**ocorreu**" if condition else "não ocorreu"
+
+
+def unexpected_lines(reading: dict, result: dict) -> str:
+    """Diz, com os números, quais resultados declarados como inesperados ocorreram.
+
+    A lista é a da hipótese escrita antes da execução, na mesma ordem.
+    """
+    transfer, e1_test = result[e6.TRANSFER_SLICE], result["e1"]["test"]
+    total, by_tool = transfer["hkd"]["malicious"], transfer["hkd"]["by_tool"]
+    e1_recall = e1_test["per_class"][MALICIOUS_NAME]["recall"]
+    near_zero = [name for name, entry in by_tool.items() if entry["recall"] <= NEAR_ZERO_RECALL]
+    tools = "; ".join(
+        f"{name} {entry['recall']:.2%} ({entry['detected']}/{entry['n']})"
+        for name, entry in by_tool.items()
+    )
+    outside = transfer["hkd_outside_unit_interval"]["values"]
+    unique = result["retreino_sem_replicas"]
+    unique_hkd = unique["test_recall_by_origin"]["HKD"]
+    published_hkd = result["retreino_publicado"]["test_recall_by_origin"]["HKD"]
+    beyond = unique_hkd["recall_ci_low"] > published_hkd["recall_ci_high"]
+    legitimate = "; ".join(
+        f"{name} {unique['test']['per_class'][name]['recall']:.4%} contra "
+        f"{e1_test['per_class'][name]['recall']:.4%}"
+        for name in CLASS_NAMES
+        if name != MALICIOUS_NAME
+    )
+
+    return f"""### {reading["label"]}
+
+- Recall na transferência igual ou maior que o do teste do CIRA:
+  {occurred(total["recall"] >= e1_recall)} ({total["recall"]:.2%} contra {e1_recall:.2%}).
+- Recall na transferência perto de zero em alguma ferramenta:
+  {occurred(bool(near_zero))}{f" em {' e '.join(near_zero)}" if near_zero else ""}. Por
+  ferramenta: {tools}. "Perto de zero" é recall de até {NEAR_ZERO_RECALL:.0%}, limite nosso.
+- Muitos valores fora de [0, 1] na transferência: {occurred(outside > 0)}
+  ({outside} valores).
+- Recall das ferramentas do HKD maior no retreino sem réplicas que no
+  publicado, além do intervalo de confiança: {occurred(beyond)}
+  ({unique_hkd["recall"]:.2%}, de {unique_hkd["recall_ci_low"]:.2%} a
+  {unique_hkd["recall_ci_high"]:.2%}, contra {published_hkd["recall"]:.2%}, de
+  {published_hkd["recall_ci_low"]:.2%} a {published_hkd["recall_ci_high"]:.2%}).
+- Métricas de Non-DoH ou de Benign-DoH no retreino longe das de E1: a hipótese
+  não fixa a distância, e não há veredito. Recall no teste do combinado sem
+  réplicas contra o do CIRA: {legitimate}."""
+
+
 def shap_ranking_table(shap: dict, e5_metrics: dict) -> str:
     """Põe os primeiros atributos de Malicious-DoH no CIRA ao lado dos de cada base no combinado."""
     base = f"base_{shap['explained_base']}"
@@ -260,7 +320,11 @@ def shap_measures_table(shap: dict, e5_metrics: dict) -> str:
     """Põe as medidas da amostra do teste no combinado ao lado das do CIRA."""
     seconds = ARTICLE_DURATION_THRESHOLD_SECONDS
     measures = [
-        ("limiar medido de `Duration` (s)", "best_threshold_seconds", ".2f"),
+        (
+            "corte que melhor separa o sinal do SHAP (s), amostra com classes em partes iguais",
+            "best_threshold_seconds",
+            ".2f",
+        ),
         (f"SHAP positivo acima de {seconds} s", "positive_fraction_above_article_threshold", ".2%"),
         (f"SHAP positivo até {seconds} s", "positive_fraction_up_to_article_threshold", ".2%"),
     ]
@@ -506,9 +570,12 @@ def final_text(results: list[tuple[dict, dict]], baselines: dict) -> str:
         for reading, _ in results
     )
     tools = "\n\n".join(
-        f"{reading['label']}:\n\n{e6.memorization_table(result)}" for reading, result in results
+        f"{reading['label']}:\n\n{e6.hkd_recall_table(result)}" for reading, result in results
     )
     hypotheses = "\n\n".join(e6.hypothesis_lines(reading, result) for reading, result in results)
+    unexpected = "\n\n".join(unexpected_lines(reading, result) for reading, result in results)
+    unique_hkd = results[0][1][UNIQUE_SLICE]["test_recall_by_origin"]["HKD"]
+    proximity = results[0][1]["unique_data"]["hkd_test_proximity"]
     return f"""# E6: o segundo dataset ao lado do CIRA
 
 Gerado por `scripts/e6_resumo.py`, a partir dos `metrics.json` de `results/e6/`
@@ -597,12 +664,34 @@ intervalo de confiança de 95% entre parênteses.
 
 {e6.copies_text(results[0][1])}
 
+{e6.proximity_text(proximity, unique_hkd, "dados")} O recall citado é o da leitura
+{results[0][0]["label"]}.
+
+## `PacketLengthMode` e a queda na transferência
+
+Medido pela etapa de dados nos conjuntos limpos inteiros
+(`dados/hkd/seed{SEED_FIEL}/metrics.json`, com a tabela em `dados/RESUMO.md`).
+{one_feature_rule_text(results[0][1]["hkd_data"]["packet_length_mode"])}
+
+O recall do sistema na transferência, nas duas leituras, está na tabela de
+cenários acima. O que não foi medido: quanto da decisão do sistema nos fluxos
+do HKD vem desse atributo, e a causa da diferença entre as capturas. Hipótese,
+não medida: a moda do comprimento do pacote depende de como cada captura gravou
+os pacotes (por exemplo, o cabeçalho de enlace ou as opções do TCP), e não só
+da ferramenta de túnel.
+
 ## Números ao lado das hipóteses
 
 As hipóteses estão em `fiel/HIPOTESE.md`, na mesma ordem, e não foram alteradas
 depois da execução.
 
 {hypotheses}
+
+## Resultados que a hipótese listava como inesperados
+
+A lista é a de `fiel/HIPOTESE.md`, na mesma ordem.
+
+{unexpected}
 """
 
 
