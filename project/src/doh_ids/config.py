@@ -235,6 +235,48 @@ CIRA_ZIP_MEMBERS = ["l1-nondoh.csv", "l2-benign.csv", "l2-malicious.csv"]
 # dessa rede que aparece no fluxo identifica a máquina local.
 CIRA_LOCAL_PREFIX = "192.168.20."
 
+# Segundo dataset: DoH-Tunnel-Traffic-HKD e o combinado CIRA + HKD.
+
+# Os CSVs do HKD e parte dos do combinado começam com a marca de ordem de bytes
+# (BOM). Lida como UTF-8 comum, a marca fica colada ao nome da primeira coluna;
+# esta codificação a descarta e lê do mesmo jeito o arquivo que não a tem.
+SECOND_DATASET_ENCODING = "utf-8-sig"
+
+# Conjunto de origem de cada fluxo do segundo dataset.
+ORIGINS = ["CIRA", "HKD"]
+
+# Ferramenta de túnel que gerou o fluxo malicioso e o conjunto de onde ela vem.
+# No combinado, o arquivo de nível 3 traz a ferramenta na coluna Label, e ela
+# basta para dizer a origem: as três primeiras são do CIRA-CIC-DoHBrw-2020 e as
+# três últimas, do DoH-Tunnel-Traffic-HKD.
+TOOL_ORIGIN = {
+    "dns2tcp": "CIRA",
+    "dnscat2": "CIRA",
+    "iodine": "CIRA",
+    "dnstt": "HKD",
+    "tcp-over-dns": "HKD",
+    "tuns": "HKD",
+}
+
+# Rótulos em texto, nos arquivos de nível 1 e 2 do combinado, das duas classes
+# sem ferramenta de túnel. Os outros rótulos desses arquivos, DoH e Malicious,
+# não são lidos: os fluxos maliciosos vêm todos do arquivo de nível 3.
+COMBINED_NON_DOH_LABEL = "NonDoH"
+COMBINED_BENIGN_LABEL = "Benign"
+
+# Colunas das tabelas do segundo dataset: os atributos, o rótulo, o conjunto de
+# origem e a ferramenta de túnel, que fica vazia fora da classe maliciosa.
+SECOND_DATASET_COLUMNS = FEATURE_COLUMNS + ["label", "origin", "tool"]
+
+# Vezes que cada fluxo do HKD aparece em Total-48h-Augmentation.csv e no
+# combinado. O README do HKD descreve o arquivo como "augmented assuming 20
+# client PCs"; a contagem é conferida nos dados pelo script que os prepara.
+HKD_REPLICAS = 20
+
+# Maior diferença aceita, em um atributo, entre um fluxo de Total-48h.csv e a
+# cópia dele nos arquivos replicados, que gravam os números arredondados.
+HKD_ROUNDING_TOLERANCE = 1e-7
+
 # Hiperparâmetros da trilha fiel.
 
 # 10% dos fluxos para teste, Seção III-B do artigo.
@@ -321,6 +363,17 @@ DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
 CIRA_ZIP_PATH = DATA_RAW_DIR / "cira" / "Total_CSVs.zip"
 CIRA_PARQUET_PATH = DATA_PROCESSED_DIR / "cira.parquet"
+HKD_CSV_PATH = DATA_RAW_DIR / "hkd" / "DoH-CSVs" / "DoH-CSVs-48h" / "Total-48h.csv"
+HKD_AUGMENTED_CSV_PATH = DATA_RAW_DIR / "hkd" / "Total-48h-Augmentation.csv"
+# Arquivos de nível 1, 2 e 3 do combinado, nessa ordem.
+COMBINED_CSV_PATHS = [
+    DATA_RAW_DIR / "combinado" / "l1-total-add.csv",
+    DATA_RAW_DIR / "combinado" / "l2-total-add.csv",
+    DATA_RAW_DIR / "combinado" / "l3-total-add.csv",
+]
+HKD_PARQUET_PATH = DATA_PROCESSED_DIR / "hkd.parquet"
+COMBINED_PARQUET_PATH = DATA_PROCESSED_DIR / "combinado.parquet"
+COMBINED_UNIQUE_PARQUET_PATH = DATA_PROCESSED_DIR / "combinado_sem_replicas.parquet"
 
 
 def smote_seed(seed: int, subset_index: int) -> int:

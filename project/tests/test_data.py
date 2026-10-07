@@ -1,7 +1,9 @@
+import codecs
 import zipfile
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from doh_ids.config import (
     CIRA_LOCAL_PREFIX,
@@ -9,11 +11,26 @@ from doh_ids.config import (
     FEATURE_COLUMNS,
     ID_COLUMNS,
     LABEL_COLUMN,
+    SECOND_DATASET_COLUMNS,
+    TOOL_ORIGIN,
 )
-from doh_ids.data import clean_flows, feature_matrix, load_cira
+from doh_ids.data import (
+    clean_flows,
+    column_differences,
+    feature_matrix,
+    load_cira,
+    load_combined,
+    load_hkd,
+    read_flow_csv,
+    read_header,
+    without_replicas,
+)
 
 # Rótulo em texto de cada membro do zip, na ordem de CIRA_ZIP_MEMBERS.
 MEMBER_LABELS = ["NonDoH", "Benign", "Malicious"]
+
+# Vezes que cada fluxo do HKD aparece no combinado sintético.
+SYNTHETIC_REPLICAS = 3
 
 
 def write_cira_zip(raw, path):
@@ -107,3 +124,108 @@ def test_group_is_the_local_machine_on_either_side_of_the_flow(synthetic_raw_csv
     in_source = flows[~resolver_is_source]
     assert (in_destination["group"] == in_destination["DestinationIP"]).all()
     assert (in_source["group"] == in_source["SourceIP"]).all()
+
+
+def write_bom_csv(frame, path):
+    """Grava o CSV como os do HKD: com BOM e `TimeStamp` sem segundos nem zero à esquerda."""
+    moment = pd.to_datetime(frame["TimeStamp"])
+    date = moment.dt.year.astype(str) + "/" + moment.dt.month.astype(str)
+    date += "/" + moment.dt.day.astype(str)
+    short = date + " " + moment.dt.hour.astype(str) + ":" + moment.dt.strftime("%M")
+    frame.assign(TimeStamp=short).to_csv(path, index=False, encoding="utf-8-sig")
+    return path
+
+
+@pytest.fixture
+def second_dataset_paths(synthetic_raw_csv, tmp_path):
+    """Grava o HKD e os três níveis do combinado; devolve o caminho do HKD e a lista dos níveis.
+
+    Os fluxos maliciosos sintéticos são repartidos entre as seis ferramentas. Os
+    das três ferramentas do HKD formam o arquivo do HKD e entram no combinado
+    repetidos `SYNTHETIC_REPLICAS` vezes.
+    """
+    raw = synthetic_raw_csv
+    non_doh = raw[raw[LABEL_COLUMN] == "NonDoH"]
+    benign = raw[raw[LABEL_COLUMN] == "Benign"]
+    malicious = raw[raw[LABEL_COLUMN] == "Malicious"]
+    tunnels = malicious.assign(**{LABEL_COLUMN: np.resize(list(TOOL_ORIGIN), len(malicious))})
+    from_hkd = tunnels[LABEL_COLUMN].map(TOOL_ORIGIN) == "HKD"
+    hkd = tunnels[from_hkd]
+    level3 = pd.concat([tunnels[~from_hkd]] + [hkd] * SYNTHETIC_REPLICAS)
+    # Como nos arquivos reais, o nível 1 repete os fluxos DoH e o nível 2 os maliciosos.
+    level2 = pd.concat([benign, level3.assign(**{LABEL_COLUMN: "Malicious"})])
+    level1 = pd.concat([level2.assign(**{LABEL_COLUMN: "DoH"}), non_doh])
+    levels = [
+        write_bom_csv(level, tmp_path / f"l{number}.csv")
+        for number, level in enumerate([level1, level2, level3], start=1)
+    ]
+    return write_bom_csv(hkd, tmp_path / "hkd.csv"), levels
+
+
+def test_second_dataset_load_returns_features_label_origin_and_tool_without_identifiers(
+    synthetic_raw_csv, second_dataset_paths
+):
+    hkd_path, level_paths = second_dataset_paths
+    hkd = load_hkd(hkd_path)
+    combined = load_combined(level_paths)
+
+    for flows in [hkd, combined]:
+        assert list(flows.columns) == SECOND_DATASET_COLUMNS
+        assert list(feature_matrix(flows).columns) == FEATURE_COLUMNS
+        assert not set(ID_COLUMNS) & set(flows.columns)
+        assert (flows["origin"] == flows["tool"].map(TOOL_ORIGIN).fillna("CIRA")).all()
+    assert set(hkd["label"]) == {2}
+    assert set(hkd["origin"]) == {"HKD"}
+    assert set(combined["label"]) == {0, 1, 2}
+    malicious = combined["label"] == 2
+    assert set(combined.loc[malicious, "tool"]) == set(TOOL_ORIGIN)
+    assert combined.loc[~malicious, "tool"].isna().all()
+    # Cada fluxo entra uma vez: as linhas DoH do nível 1 e Malicious do nível 2
+    # repetem o nível 3 e não são somadas.
+    assert len(combined) == len(synthetic_raw_csv) + (SYNTHETIC_REPLICAS - 1) * len(hkd)
+
+
+def test_column_differences_reports_missing_and_renamed_columns(synthetic_raw_csv):
+    header = list(synthetic_raw_csv.columns)
+    without_duration = [column for column in header if column != "Duration"]
+    renamed = ["duration" if column == "Duration" else column for column in header]
+
+    assert column_differences(header) == {"missing": [], "unexpected": []}
+    assert column_differences(without_duration) == {"missing": ["Duration"], "unexpected": []}
+    assert column_differences(renamed) == {"missing": ["Duration"], "unexpected": ["duration"]}
+
+
+def test_csv_with_bom_and_short_timestamp_is_read_with_source_ip_first(synthetic_raw_csv, tmp_path):
+    path = write_bom_csv(synthetic_raw_csv, tmp_path / "hkd.csv")
+    assert path.read_bytes().startswith(codecs.BOM_UTF8)
+
+    flows = read_flow_csv(path)
+
+    assert read_header(path)[0] == "SourceIP"
+    assert flows.columns[0] == "SourceIP"
+    assert flows["TimeStamp"].iloc[0] == "2020/1/14 15:49"
+    assert all(pd.api.types.is_numeric_dtype(flows[column]) for column in FEATURE_COLUMNS)
+
+
+def test_without_replicas_keeps_one_row_per_hkd_flow_and_all_cira_rows(second_dataset_paths):
+    hkd_path, level_paths = second_dataset_paths
+    combined = load_combined(level_paths)
+    # Uma linha do CIRA repetida: ela não é réplica do HKD e precisa ficar.
+    combined = pd.concat([combined, combined.iloc[[0]]], ignore_index=True)
+    from_hkd = combined["origin"] == "HKD"
+
+    unique = without_replicas(combined)
+
+    unique_hkd = unique[unique["origin"] == "HKD"]
+    assert len(unique_hkd) == len(load_hkd(hkd_path))
+    assert len(unique_hkd) * SYNTHETIC_REPLICAS == from_hkd.sum()
+    assert not unique_hkd.duplicated(subset=FEATURE_COLUMNS + ["tool"]).any()
+    pd.testing.assert_frame_equal(unique[unique["origin"] == "CIRA"], combined[~from_hkd])
+
+
+def test_second_dataset_load_does_not_create_group_or_time_window(second_dataset_paths):
+    hkd_path, level_paths = second_dataset_paths
+
+    for flows in [load_hkd(hkd_path), load_combined(level_paths)]:
+        assert "group" not in flows.columns
+        assert "time_window" not in flows.columns
