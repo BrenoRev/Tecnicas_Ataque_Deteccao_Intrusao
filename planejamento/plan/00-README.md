@@ -16,10 +16,10 @@ Antes de implementar qualquer tarefa: ler [../MEMORY/00-decisoes-travadas.md](..
 
 | # | Fluxo | Tarefa | Objetivo da especificação | Depende de | Situação |
 | --- | --- | --- | --- | --- | --- |
-| [01](01-fundacao-repositorio-ambiente.md) | Fundação | Repositório e ambiente | — | — | a fazer |
+| [01](01-fundacao-repositorio-ambiente.md) | Fundação | Repositório e ambiente | — | — | pronta em `5e11d56` (branch `tarefa/01-prova-ci`); aguarda integração por pessoa: `push`, pull request de prova, CI verde, proteção da `main`; licença pendente |
 | [02](02-fundacao-config-runlog.md) | Fundação | Configuração e registro de execução | — | 01 | a fazer |
-| [03](03-dados-aquisicao-cira.md) | Dados | Aquisição do CIRA-CIC-DoHBrw-2020 | P1 | — (script: 01) | a fazer |
-| [04](04-dados-carga-limpeza.md) | Dados | Carga, limpeza e reconciliação com a Tabela I (E0) | P1 | 02, 03 | a fazer |
+| [03](03-dados-aquisicao-cira.md) | Dados | Aquisição do CIRA-CIC-DoHBrw-2020 | P1 | — (script: 01) | a fazer — ⚠️ REVISAR (zips do CIRA extraídos no disco) |
+| [04](04-dados-carga-limpeza.md) | Dados | Carga, limpeza e reconciliação com a Tabela I (E0) | P1 | 02, 03 | a fazer — ⚠️ REVISAR (mesma causa da 03) |
 | [05](05-dados-split-scaler.md) | Dados | Split, normalização e contagens | P1 | 04 | a fazer |
 | [06](06-avaliacao-metricas.md) | Avaliação | Métricas e comparação com o artigo | P1 | 02 | a fazer |
 | [07](07-reproducao-subconjuntos.md) | Reprodução | Três subconjuntos balanceados | P1 | 05 | a fazer |

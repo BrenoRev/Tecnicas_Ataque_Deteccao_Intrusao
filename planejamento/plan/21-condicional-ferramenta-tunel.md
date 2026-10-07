@@ -12,6 +12,7 @@
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
 
 - **Resposta ao passo 1: o rótulo de ferramenta existe.** Em `data/raw/cira/MaliciousDoH-CSVs.zip` há um `CSVs/<ferramenta>/all.csv` por ferramenta; a coluna é `DoH` (booleana), sem `Label`, e a ferramenta é o nome da pasta. Linhas com `DoH == True`: dns2tcp 167.486, dnscat2 35.770, iodine 46.580. As linhas com `DoH == False` (31, 84, 18) não entram. A alternativa é `combinado/l3-total-add.csv`, que traz as mesmas três ferramentas com o rótulo em `Label`, mas com os números arredondados.
+- Em 07/10/2026 (reconciliação no commit `5e11d56`), o disco tem esse zip extraído como `data/raw/cira/CSVs 2/<ferramenta>/all.csv`; `CSVs 2` é nome gerado pela extração. O zip da equipe traz o `.zip`. Ver o ⚠️ REVISAR no topo da [tarefa 03](03-dados-aquisicao-cira.md) antes de fixar o caminho.
 - A tarefa continua condicional à resposta do professor.
 
 ## Arquivos

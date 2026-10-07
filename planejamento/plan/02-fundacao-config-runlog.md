@@ -5,6 +5,14 @@
 **Depende de:** 01
 **Demonstra:** `config.py` com cada hiperparâmetro e a seção do artigo de origem; formato único de resultado em `results/`. Base da seção 4 do relatório e da rastreabilidade de todo número.
 
+## Reconciliado com a tarefa 01 (07/10/2026, commit `5e11d56`)
+
+- Dependência: a 01 está pronta e ainda não integrada. A branch desta tarefa nasce da `main` depois da integração ou, em execução encadeada, de `tarefa/01-prova-ci`, com isso dito no relato.
+- O que a 01 deixou e esta tarefa usa, conferido no código: pacote `doh_ids` instalável (`src/doh_ids/__init__.py`), `pythonpath = ["."]` no pytest, lint com `D1`, `ERA` e `C90`, `tests/test_smoke.py`. `tests/conftest.py`, `config.py` e `runlog.py` não existem: são desta tarefa.
+- O repositório é a raiz (decisão 43): o hash do commit é lido com o Git a partir de `project/` sem mudança, mas `dirty` passa a refletir a árvore inteira, inclusive `docs/` e `planejamento/`. Um documento editado e não commitado marca `dirty: true`; o resultado versionado exige árvore limpa (decisão 38).
+- `jobs/` não existe (passo 5a): só é criada se a equipe executar no Apuana. `N_JOBS` continua `[Decidir: valor]`.
+- A constante dos membros de `Total_CSVs.zip` (bloco abaixo) depende do ⚠️ REVISAR aberto no topo das tarefas 03 e 04: no disco há a pasta extraída, não o zip. Os nomes dos três CSVs não mudam em nenhuma das duas saídas.
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
