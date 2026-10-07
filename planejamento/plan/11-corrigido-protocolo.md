@@ -71,6 +71,10 @@ Decisões 06, 12, 23 e 24. O artigo sustenta a vantagem do modelo proposto com 0
 - [ ] Todo resultado tem trilha `corrigida` no caminho e no `run.json`.
 - [ ] Revisor metodológico sem achado bloqueante.
 
+## Execução com dados reais: local ou Apuana (decisão 42)
+
+O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e4.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). As dez seeds podem ser um job por seed, em paralelo; para isso o script aceita a seed como argumento e a agregação do `summary.json` roda depois, em um passo próprio. Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+
 ## Testes
 
 Seção "Tarefa 11" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes listados ali são escritos junto com o código e precisam estar verdes antes da tarefa seguinte.

@@ -16,6 +16,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 - Coluna de rótulo: `Label`, em texto. Cabeçalho idêntico ao previsto.
 - O plano B (extrair o CIRA de dentro do combinado) não é mais necessário, e seria pior: o combinado arredonda os números para 8 casas.
 - Falta desta tarefa: `data/README.md`, `data/manifest.json`, `data/verify.py` e o teste dele (passos 2, 5 e 6). Os passos 3 e 7 já estão feitos.
+- Cluster, opcional (decisão 42): se a execução for no Apuana, os arquivos são copiados à mão para o Apuana e conferidos lá com `data/verify.py`; o `data/README.md` diz onde ficam no servidor `[Preencher: caminho]`.
 
 ## Arquivos
 

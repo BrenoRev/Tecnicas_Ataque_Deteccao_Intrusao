@@ -35,6 +35,15 @@ A skill `implementar` conduz os passos 1 a 5 e o 7. O passo 6 é sempre de uma p
 - O gate continua vermelho depois de três tentativas de correção.
 - O trabalho pede mudança fora dos arquivos listados na tarefa.
 
+## Dois fechamentos em tarefa de experimento (decisão 42)
+
+Vale para as tarefas 08 a 16.
+
+- **Pronta:** código, testes N1 e revisão sem bloqueante.
+- **Executada:** o script rodou com os dados reais, na máquina local ou no cluster Apuana. As duas formas valem; o importante é treinar e gerar a evidência: resultados em commit `exp` de quem rodou, com a árvore limpa, `run.json` com a máquina e a saída no pull request.
+- A tarefa seguinte pode começar com a anterior "pronta", desde que não dependa de resultado real. Dependem de resultado real: a 05 (saída da 04), a 11 (resultados da 08 e da 09), a 15 (`results/e4/`) e a 17 (todos).
+- "Pronta" sem "executada" não vira número no relatório.
+
 ## O que é "pronto"
 
 1. Critério de aceite da tarefa conferido item a item.

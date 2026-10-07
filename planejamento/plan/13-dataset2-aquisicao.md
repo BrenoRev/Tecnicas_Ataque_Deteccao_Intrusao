@@ -20,6 +20,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 - O HKD tem só duas máquinas (`192.168.11.12` e `.16`), capturas de 27/10 a 04/11/2021.
 - `group` não se aplica ao HKD: todas as 5.258 linhas têm as duas máquinas locais, uma na origem e outra no destino (medido em 07/10/2026). O esquema do segundo dataset não tem `group` nem `time_window` (decisão 40).
 - A justificativa da escolha (passo 8) precisa dizer que o combinado, como publicado, replica o HKD e por que a equipe avalia também sem as réplicas.
+- Cluster, opcional (decisão 42): se a execução for no Apuana, os arquivos são copiados à mão para o Apuana e conferidos lá com `data/verify.py`; o `data/README.md` diz onde ficam no servidor `[Preencher: caminho]`.
 
 ## Arquivos
 
@@ -70,6 +71,10 @@ Objetivo P2 e decisão 11. A especificação exige que a escolha do segundo data
 - [ ] Os três Parquets existem e passam pelas asserções de 29 colunas, sem NaN, sem infinito e `label` em {0, 1, 2}; o esquema é 29 atributos + `label` + `origin` + `tool`.
 - [ ] Parágrafo de justificativa escrito, sem afirmar nada que não esteja nos arquivos de resultado ou nas fontes citadas.
 - [ ] `docs/04-dados.md` atualizado pelo `cin0114-doc-sync` no fechamento, sem `[A verificar]` nos itens resolvidos.
+
+## Execução com dados reais: local ou Apuana (decisão 42)
+
+O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e6_dados.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
 
 ## Testes
 

@@ -26,6 +26,7 @@ O repositório Git é a pasta `project/`. A árvore abaixo é o conteúdo dela. 
 ├── src/                 # código reutilizável
 ├── scripts/             # um script por experimento, executável da raiz
 ├── tests/               # testes com dados sintéticos, rodam no CI
+├── jobs/                # scripts de submissão ao cluster, só para o que rodar no Apuana (decisão 42)
 ├── results/             # métricas, figuras e logs gerados por script
 └── report/              # fonte LaTeX e PDF do relatório
 ```

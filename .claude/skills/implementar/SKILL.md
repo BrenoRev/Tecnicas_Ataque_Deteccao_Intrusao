@@ -58,6 +58,8 @@ Achado bloqueante ou importante volta para o agente `implementador`, com o texto
 3. Chame o agente `cin0114-doc-sync` quando a implementação mudou algo que `docs/` afirma (nome de coluna, contagem, leitura de ambiguidade) e sempre que a tarefa pede atualização em `docs/` (03, 04, 08, 13): o implementador não edita `docs/`.
 4. Não faça `push` nem abra pull request sem pedido explícito.
 
+Tarefas 08 a 16 (decisão 42): a tarefa fica "pronta" com código, N1 e revisão, e "executada" quando o script rodou com os dados reais, na máquina local ou no Apuana, e o resultado entrou em commit `exp`. Se a execução ficou para uma pessoa, diga isso no relato e não libere tarefa que dependa do resultado real (05, 11, 15, 17).
+
 ## 6. Relatar
 
 Em poucas linhas: situação da tarefa; critério de aceite com o que ficou pendente; resultado do gate; achados da revisão e como foram tratados; o que depende de dados reais ou de uma pessoa; a próxima tarefa liberada.

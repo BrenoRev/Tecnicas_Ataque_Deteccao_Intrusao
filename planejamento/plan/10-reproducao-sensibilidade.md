@@ -58,6 +58,10 @@ Risco R2. Como o artigo não especifica vários pontos, "a reprodução" é uma 
 - [ ] Texto de interpretação em `RESUMO.md` separa o que foi medido do que é hipótese.
 - [ ] Revisor metodológico sem achado bloqueante.
 
+## Execução com dados reais: local ou Apuana (decisão 42)
+
+O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e3.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+
 ## Testes
 
 Seção "Tarefa 10" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes listados ali são escritos junto com o código e precisam estar verdes antes da tarefa seguinte.

@@ -26,7 +26,7 @@ Em ordem de impacto no projeto. Levar por escrito e registrar a resposta aqui, c
 | --- | --- | --- | --- | --- |
 | D1 | Fazer P3 (modificação, ponto extra)? | Sim / Não | Sim, com M1 + M2 de [05-plano-experimental.md](05-plano-experimental.md): custo baixo e as críticas do seminário já são a justificativa. Obriga apresentação em 19/11 | |
 | D2 | Segundo dataset | HKD + combinado / outro | HKD + combinado, se Q4 for respondida com sim | |
-| D3 | Ambiente | Local / Colab | Local, com ambiente fixado; os modelos são pequenos | |
+| D3 | Ambiente | Local / Colab / cluster Apuana | Local, com ambiente fixado; os modelos são pequenos | 07/10/2026: desenvolvimento local; execução dos experimentos local ou no Apuana, as duas valem (decisão 42) |
 | D4 | Versionar `CLAUDE.md` e `.claude/` no repositório entregue? | Sim / Não | Sim, se Q7 permitir uso de IA: os quatro passam a trabalhar com as mesmas regras e o uso fica transparente | | 07/10/2026: Não. O repositório é `project/`; `CLAUDE.md`, `.claude/`, `docs/` e `planejamento/` ficam fora dele |
 | D5 | Divisão de responsabilidades do projeto | — | Por experimento, com um revisor por experimento diferente do autor | |
 | D6 | Escrever aos autores pedindo o código completo? | Sim / Não | Alinhar com o professor antes (Q1) | |

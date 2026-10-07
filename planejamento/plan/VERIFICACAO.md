@@ -44,6 +44,8 @@ G2 e G3 também rodam no hook `pre-commit`, em todo commit. G1 a G4 e G7 rodam n
 
 G1 a G4 passam a existir com a tarefa 01. Antes dela, o único comando disponível é `cd project && python3 scripts/metricas_fig4.py`.
 
+G5 e G6 das tarefas 08 a 16 rodam na máquina local ou no cluster Apuana (decisão 42); a comparação do G6 é entre duas execuções na mesma máquina. Resultado gerado em máquinas diferentes pode divergir em casas decimais (versão de BLAS, número de threads); por isso os resultados versionados e a execução limpa da tarefa 19 saem do mesmo ambiente.
+
 ## Quais itens valem por tipo de tarefa
 
 O rodapé de cada tarefa repete a linha correspondente desta tabela.

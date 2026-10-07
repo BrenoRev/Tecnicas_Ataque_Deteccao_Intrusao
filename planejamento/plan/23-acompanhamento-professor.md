@@ -12,6 +12,7 @@
 3. Se o professor informar requisito adicional para este artigo (Q3), propor a tarefa nova e sua posição no grafo antes de implementar.
 4. **Para 10/11:** uma página com o que funciona, o que falta e o que travou; a tabela de resultados que existir (reprodução ao lado da Fig. 4b, segundo dataset); a lista de decisões que dependem dele; e o resultado da primeira execução limpa (tarefa 19).
 5. **Para 17/11:** o rascunho do relatório e as dúvidas que restarem.
+5a. Em 10/11, dizer ao professor que os experimentos rodaram no Apuana, se rodaram lá e a equipe quiser que isso conte.
 6. Depois de cada encontro, registrar o retorno recebido e convertê-lo em ajuste de tarefa.
 
 ## Por quê
