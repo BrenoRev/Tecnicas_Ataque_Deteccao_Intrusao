@@ -30,9 +30,9 @@ from matplotlib.colors import LogNorm
 from matplotlib.figure import Figure
 from mlxtend.classifier import StackingClassifier
 from scipy.stats import spearmanr
-from shap.utils._exceptions import InvalidModelError
 
 from doh_ids.config import (
+    ADDITIVITY_TOLERANCE,
     ARTICLE_DURATION_THRESHOLD_SECONDS,
     CIRA_PARQUET_PATH,
     CLASS_NAMES,
@@ -62,6 +62,7 @@ from doh_ids.explain import (
 )
 from doh_ids.runlog import save_run
 from doh_ids.splits import stratified_split
+from doh_ids.summary import markdown_table
 from doh_ids.system import fit_system
 
 # Resultados da etapa de dados e da reprodução, com os quais esta execução é conferida.
@@ -96,10 +97,6 @@ LOCAL_FIGURES = [
     ("Fig. 7", "fig7_explicacao_malicious-doh", FIG7_MALICIOUS),
     ("Fig. 8", "fig8_explicacao_non-doh", FIG8_NON_DOH),
 ]
-
-# Tolerância da conferência de que o valor base mais a soma dos valores SHAP
-# reproduz a probabilidade do modelo.
-ADDITIVITY_TOLERANCE = 1e-6
 
 
 def base_importance(forests: list, X: np.ndarray) -> tuple[pd.DataFrame, list[list[float]]]:
@@ -246,9 +243,11 @@ def local_explanation(
 
 def stacked_explainer_error(stacked: StackingClassifier) -> str | None:
     """Devolve a mensagem com que o TreeExplainer recusa o modelo empilhado, ou None."""
+    # O erro que a biblioteca levanta para modelo que não é de árvores é uma
+    # subclasse de ValueError.
     try:
         shap.TreeExplainer(stacked)
-    except InvalidModelError as error:
+    except ValueError as error:
         return str(error)
     return None
 
@@ -569,13 +568,6 @@ def run_experiment(
     )
     write_artifacts(run_dir, *artifacts)
     return run_dir, metrics
-
-
-def markdown_table(columns: list[str], rows: list[list]) -> str:
-    """Escreve uma tabela em Markdown."""
-    lines = [" | ".join(columns), " | ".join("---" for _ in columns)]
-    lines += [" | ".join(str(value) for value in row) for row in rows]
-    return "\n".join(f"| {line} |" for line in lines)
 
 
 def ranking_table(metrics: dict) -> str:

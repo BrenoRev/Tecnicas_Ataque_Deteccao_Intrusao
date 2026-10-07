@@ -34,6 +34,7 @@ from doh_ids.config import (
     SEED_FIEL,
     SHAP_TOP_FEATURES,
 )
+from doh_ids.summary import markdown_table
 
 E6_DIR = RESULTS_DIR / "e6"
 UNIQUE_SLICE = e6b.SCENARIO["slice_name"]
@@ -162,7 +163,7 @@ def tools_table(models: dict) -> str:
         ]
         for origin in first["test_recall_by_origin"]
     ]
-    return e6.markdown_table(["ferramenta", *models], rows)
+    return markdown_table(["ferramenta", *models], rows)
 
 
 def detection_lines(models: dict) -> str:
@@ -220,7 +221,7 @@ def shap_ranking_table(shap: dict, e5_metrics: dict) -> str:
         [rank + 1, cira_top[rank], *[by[MALICIOUS_NAME][rank] for by in shap["ranking"].values()]]
         for rank in range(SHAP_TOP_FEATURES)
     ]
-    return e6.markdown_table(columns, rows)
+    return markdown_table(columns, rows)
 
 
 def shap_agreement_rows(shap: dict, prefix: list) -> list[list]:
@@ -279,7 +280,7 @@ def shap_measures_table(shap: dict, e5_metrics: dict) -> str:
             ],
         ]
     )
-    return e6.markdown_table(["medida", "CIRA (E5)", COMBINED], rows)
+    return markdown_table(["medida", "CIRA (E5)", COMBINED], rows)
 
 
 def local_lines(shap: dict) -> str:
@@ -309,7 +310,7 @@ def shap_section(reading: dict, result: dict) -> str:
     hkd_train = sum(train["rows_by_tool"][name] for name in hkd_tools)
     malicious_train = train["rows"][CLASS_NAMES.index(MALICIOUS_NAME)]
     run_dir = f"{e6b.SHAP_SLICE}/seed{SEED_FIEL}"
-    samples = e6.markdown_table(
+    samples = markdown_table(
         ["amostra", *CLASS_NAMES, "uso"],
         [
             ["treino", *shap["train_sample_rows"], "importância global"],
@@ -346,7 +347,7 @@ Figs. 5 a 8 do artigo e usam o Random Forest base {shap["explained_base"]}.
 
 {shap_ranking_table(shap, e5_metrics)}
 
-{e6.markdown_table(AGREEMENT_COLUMNS, shap_agreement_rows(shap, []))}
+{markdown_table(AGREEMENT_COLUMNS, shap_agreement_rows(shap, []))}
 
 {AGREEMENT_NOTE}
 
@@ -449,11 +450,11 @@ classe nas amostras: {samples}.
 
 Primeiros atributos de {MALICIOUS_NAME}, Random Forest base {explained_base}:
 
-{e6.markdown_table(columns, rows)}
+{markdown_table(columns, rows)}
 
 Concordância do ranking no combinado sem réplicas com o do CIRA:
 
-{e6.markdown_table(["leitura", *AGREEMENT_COLUMNS], agreement)}
+{markdown_table(["leitura", *AGREEMENT_COLUMNS], agreement)}
 
 {AGREEMENT_NOTE}"""
 
@@ -541,7 +542,7 @@ Os modelos de comparação são os da Tabela II do artigo e não dependem da
 leitura de profundidade. Os resultados no CIRA vêm de `results/e1/` (sistema) e
 de `results/e2/` (modelos de comparação).
 
-{e6.markdown_table(FINAL_COLUMNS, final_rows(results, baselines))}
+{markdown_table(FINAL_COLUMNS, final_rows(results, baselines))}
 
 - As duas linhas de um modelo não usam o mesmo teste: cada dataset tem o seu
   split, com a mesma seed. A diferença entre elas não isola o efeito das
@@ -583,7 +584,7 @@ Os quatro cenários do sistema do artigo, nas duas leituras: CIRA,
 transferência, retreino no combinado sem réplicas e retreino no combinado como
 publicado.
 
-{e6.markdown_table(SCENARIO_COLUMNS, scenarios)}
+{markdown_table(SCENARIO_COLUMNS, scenarios)}
 
 A última coluna é o recall de Malicious-DoH só nos fluxos de dnstt, tcp-over-dns
 e tuns. Na validação cruzada ela não é medida, porque só a matriz de confusão

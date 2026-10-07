@@ -40,6 +40,7 @@ from doh_ids.evaluate import evaluate
 from doh_ids.models import fit_baseline
 from doh_ids.runlog import save_run
 from doh_ids.splits import balanced_train, fit_scaler, stratified_split
+from doh_ids.summary import markdown_table
 
 # Resultados da etapa de dados, com os quais esta execução é conferida.
 E0_DIR = RESULTS_DIR / "e0" / "dados" / "cira" / f"seed{SEED_FIEL}"
@@ -223,12 +224,6 @@ def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> 
         )
         results[name] = (run_dir, metrics)
     return results
-
-
-def markdown_table(columns: list[str], rows: list[list]) -> str:
-    """Escreve uma tabela em Markdown a partir dos nomes das colunas e das linhas."""
-    lines = [columns, ["---"] * len(columns), *rows]
-    return "\n".join("| " + " | ".join(str(cell) for cell in line) + " |" for line in lines)
 
 
 def comparison_table(comparisons: dict) -> str:

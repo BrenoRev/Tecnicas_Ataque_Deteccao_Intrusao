@@ -92,6 +92,18 @@ FIG4B_CONFUSION = [
 FIG4_TRAIN_COUNTS = [sum(row) for row in FIG4A_CONFUSION]
 FIG4_TEST_COUNTS = [sum(row) for row in FIG4B_CONFUSION]
 
+# Painéis da Fig. 2 do artigo: atributo, unidade, início e fim do eixo
+# horizontal e se o eixo é logarítmico. As faixas foram lidas nos eixos da
+# figura; o artigo não diz como recortou os dados. A unidade vem do extrator
+# DoHLyzer, que mede o comprimento do pacote em bytes.
+FIG2_PANELS = [
+    ("FlowBytesReceived", "bytes", 0, 17500, False),
+    ("PacketLengthMean", "bytes", 0, 800, False),
+    ("PacketLengthVariance", "bytes²", 10, 1_000_000, True),
+]
+# Pontos do eixo horizontal em que cada curva da Fig. 2 é calculada.
+FIG2_GRID_POINTS = 400
+
 # Tabela II do artigo, metade superior: os três modelos de comparação e o modelo
 # proposto, avaliados no teste. O artigo não diz que média (macro, ponderada ou
 # micro) usa em F1, precisão e recall, nem como calcula a AUC com três classes.
@@ -227,6 +239,12 @@ CONFIDENCE_LEVEL = 0.95
 # Tamanho do tráfego em que os alarmes falsos da conta de taxa base são contados.
 BASE_RATE_FLOWS = 10_000_000
 
+# Diferença, em pontos percentuais, a partir da qual um modelo de comparação é
+# destacado como muito acima da sua linha na Tabela II. Escolha nossa: 5 pontos
+# estão longe do que a seed ou a versão de uma biblioteca muda em um modelo
+# com os mesmos hiperparâmetros.
+TABLE_II_FAR_ABOVE_PP = 5.0
+
 # Membros de Total_CSVs.zip que formam as três classes, na ordem de CLASS_NAMES.
 # O quarto membro, l1-doh.csv, é a união dos dois l2: lê-lo contaria o DoH em dobro.
 CIRA_ZIP_MEMBERS = ["l1-nondoh.csv", "l2-benign.csv", "l2-malicious.csv"]
@@ -276,6 +294,34 @@ HKD_REPLICAS = 20
 # Maior diferença aceita, em um atributo, entre um fluxo de Total-48h.csv e a
 # cópia dele nos arquivos replicados, que gravam os números arredondados.
 HKD_ROUNDING_TOLERANCE = 1e-7
+
+# Fluxos por classe do combinado, na ordem de CLASS_NAMES, e por ferramenta,
+# como o README.txt do dataset combinado os informa.
+README_CLASS_ROWS = [897493, 19807, 354996]
+README_TOOL_ROWS = {
+    "dns2tcp": 167486,
+    "dnscat2": 35770,
+    "iodine": 46580,
+    "dnstt": 46080,
+    "tcp-over-dns": 30040,
+    "tuns": 29040,
+}
+
+# Comparação de um atributo entre o CIRA e o HKD: quantos dos valores mais
+# frequentes de cada classe e origem são gravados.
+TOP_VALUES_SHOWN = 5
+
+# Regra de um só atributo, usada para medir quanto um atributo sozinho separa
+# o tráfego malicioso do CIRA: ficam na regra os valores que cobrem ao menos 1%
+# dos fluxos Malicious-DoH do CIRA e no máximo 0,01% dos fluxos legítimos
+# (Non-DoH e Benign-DoH). Os dois limites são escolha nossa, para a regra não
+# depender de valor que aparece em poucos fluxos.
+RULE_MIN_MALICIOUS_FRACTION = 0.01
+RULE_MAX_LEGITIMATE_FRACTION = 0.0001
+
+# Recall de uma ferramenta de túnel abaixo do qual ele é descrito como perto
+# de zero. Escolha nossa: 1%.
+NEAR_ZERO_RECALL = 0.01
 
 # Hiperparâmetros da trilha fiel.
 
@@ -349,6 +395,10 @@ EXPLAINED_BASE = 0
 # Limiar de duração, em segundos, que a legenda da Fig. 6 do artigo atribui ao
 # modelo para o tráfego malicioso.
 ARTICLE_DURATION_THRESHOLD_SECONDS = 40
+
+# Tolerância da conferência de que o valor base mais a soma dos valores SHAP
+# reproduz a probabilidade do modelo.
+ADDITIVITY_TOLERANCE = 1e-6
 
 # Ordem dos 29 atributos na Fig. 5 do artigo, do mais para o menos importante,
 # lida dos rótulos do eixo vertical da figura.
