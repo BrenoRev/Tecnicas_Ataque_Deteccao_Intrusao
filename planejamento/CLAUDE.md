@@ -4,7 +4,7 @@
 
 **Tipo de entrega:** análise implementável. **Tier:** médio. **Estimativa de horas:** não pedida. **Gestão:** só os `.md` do plano.
 
-**Repositório:** a pasta `project/`, já com Git inicializado e sem commits; o primeiro commit é da tarefa 01. A pasta de trabalho, onde este plano fica, não é versionada. A fase de plano está encerrada; a implementação segue o ciclo de `.claude/rules/fluxo-implementacao.md`, uma tarefa por vez.
+**Repositório:** a raiz desta pasta (decisão 43), com remoto público no GitHub; o código fica em `project/` e este plano é versionado junto. A fase de plano está encerrada; a implementação segue o ciclo de `.claude/rules/fluxo-implementacao.md`, uma tarefa por vez.
 
 ## Índice
 

@@ -9,13 +9,13 @@ Argumento: número da tarefa (`01` a `23`). Sem argumento, escolha a de menor n�
 
 Uma tarefa por execução. As regras do ciclo estão em `.claude/rules/fluxo-implementacao.md`.
 
-O repositório Git é `project/`. Todos os comandos `git` e `uv` abaixo rodam dentro dessa pasta; os arquivos de plano e de regras são lidos da pasta de trabalho, fora do repositório.
+O repositório Git é a raiz (decisão 43); o código fica em `project/`. Comandos `uv` rodam dentro de `project/`; `git` roda em qualquer nível. `docs/`, `planejamento/` e `.claude/` são versionados no mesmo repositório.
 
 ## 1. Preparar
 
 1. Leia a tarefa, a seção dela em `planejamento/plan/PLANO-DE-TESTES.md` e a linha dela em `planejamento/plan/00-README.md`.
 2. Confira as dependências: todas com a situação "concluída". Confira os bloqueios externos da mesma página. Dependência aberta ou bloqueio que trava a tarefa: pare e diga o que falta.
-3. `git -C project status`: a árvore precisa estar limpa. Se não estiver, pare e mostre o que há. Exceção da tarefa 01: `project/` já existe com `git init` feito e sem commits, e `.gitignore` e `scripts/metricas_fig4.py` aparecem como não rastreados até o primeiro commit; `data/` não pode aparecer.
+3. `git status`: a árvore precisa estar limpa. Se não estiver, pare e mostre o que há. Na tarefa 01 vale o bloco "Estrutura do repositório" do arquivo dela. Texto anterior à decisão 43: `project/` já existe com `git init` feito e sem commits, e `.gitignore` e `scripts/metricas_fig4.py` aparecem como não rastreados até o primeiro commit; `data/` não pode aparecer.
 4. Branch: na tarefa 01, fique na `main`. Nas demais, crie `tarefa/NN-nome-curto` a partir da `main`. Se o usuário pediu para seguir sem esperar a integração da anterior, crie a branch a partir da branch da tarefa anterior e diga isso no relato: os pull requests são integrados na ordem.
 5. Se a tarefa usa datasets, confira se os arquivos existem em `project/data/raw/` ou `project/data/processed/`. Se não existem, avise que a verificação local ficará pendente.
 6. Tarefa só de texto ou organização (18, 20, 22, 23) não passa pelo agente implementador: siga o arquivo da tarefa e vá direto à revisão.

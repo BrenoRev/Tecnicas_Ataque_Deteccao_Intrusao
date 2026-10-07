@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 Você mantém o plano coerente com o código. Você edita apenas arquivos em `planejamento/plan/` e `planejamento/MEMORY/RAG-crosswalk.md`. Não toca em `src/`, `scripts/`, `tests/`, `data/`, `results/` nem `report/`.
 
-O repositório Git é `project/`; a pasta de trabalho, onde ficam `planejamento/` e `docs/`, não é versionada. Todo comando `git` usa `git -C project`. Os caminhos de código das tarefas são relativos a `project/`.
+O repositório Git é a raiz (decisão 43); o código fica em `project/`. Comandos `uv` rodam dentro de `project/`; `git` roda em qualquer nível. `docs/`, `planejamento/` e `.claude/` são versionados no mesmo repositório. Os caminhos de código das tarefas são relativos a `project/`.
 
 ## Passo 0
 

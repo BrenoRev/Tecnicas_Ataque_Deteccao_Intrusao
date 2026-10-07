@@ -17,7 +17,7 @@ O que faz um trabalho parecer não escrito por quem o entrega é a falta de deci
 
 **Estrutura**
 
-O repositório Git é a pasta `project/`. A árvore abaixo é o conteúdo dela. `docs/`, `planejamento/` e `.claude/` ficam fora do repositório.
+O repositório Git é a raiz; o código fica na pasta `project/`. A árvore abaixo é o conteúdo dela. `docs/`, `planejamento/` e `.claude/` ficam na raiz, ao lado de `project/`, com `.github/` e `.githooks/`.
 
 ```
 ├── README.md            # objetivo, setup, como reproduzir cada tabela e figura

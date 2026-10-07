@@ -97,7 +97,7 @@ Origem: **U** = respondida pelo usuário no intake; **R** = recomendação técn
 31. **[U] Testes só da funcionalidade macro e dos pontos de erro silencioso, com dados sintéticos, rodando no CI do GitHub; um plano de testes por tarefa.** O que depende dos datasets é verificação local, por asserção no script, registrada no pull request.
     Pedido do usuário em 07/10/2026. O CI não tem acesso aos dados, que ficam fora do Git. (afeta: todas; `plan/PLANO-DE-TESTES.md`, `.claude/rules/testes.md`)
 
-32. **[U] O repositório Git do projeto é a pasta `project/`, dentro da pasta de trabalho.** Só ela tem Git e só ela é entregue. `docs/`, `planejamento/`, `.claude/`, `CLAUDE.md` e `LEIA-ME.txt` ficam fora e não são versionados. Todo caminho de código do plano é relativo a `project/`. Resolve D4 (não versionar) e altera a decisão 04.
+32. **[U] (substituída pela decisão 43) O repositório Git do projeto é a pasta `project/`, dentro da pasta de trabalho.** Só ela tem Git e só ela é entregue. `docs/`, `planejamento/`, `.claude/`, `CLAUDE.md` e `LEIA-ME.txt` ficam fora e não são versionados. Todo caminho de código do plano é relativo a `project/`. Resolve D4 (não versionar) e altera a decisão 04.
     Pedido do usuário em 07/10/2026: repositório limpo, só com o projeto. (afeta: 01 e todas as de código; `scripts/metricas_fig4.py` é movido na tarefa 01)
 
 33. **[U] Uso de assistente de IA aprovado na disciplina; commits sem coautoria por limpeza e padrão do repositório.** Resolve Q7. Se o relatório precisa de frase de declaração fica a confirmar com o professor.
@@ -129,6 +129,7 @@ Origem: **U** = respondida pelo usuário no intake; **R** = recomendação técn
 
 42. **[U] A execução com dados reais (N2 das tarefas 08 a 16 e a execução limpa final) pode ser feita na máquina local ou no cluster Apuana do CIn; o importante é treinar e gerar a evidência.** A evidência é a mesma nos dois casos: resultados em `results/`, `run.json` com máquina, núcleos, versões, hash dos dados e commit, saída colada no pull request e commit `exp` de quem rodou, com a árvore limpa. Desenvolvimento e testes N1 são locais. Cada tarefa de experimento tem dois fechamentos: "pronta" (código, N1 e revisão) e "executada" (rodada com os dados reais). A seguinte pode começar com a anterior "pronta", salvo quando depende de resultado real (05, 11, 15, 17). Atualiza D3 de `docs/07-pendencias.md`.
     Pedido do usuário em 07/10/2026. O Apuana usa Slurm, com acesso por formulário e `/home` compartilhado (página do Helpdesk do CIn, 07/10/2026); acesso de graduação, partições, limites e versão do Python não foram verificados. Os modelos treinam em minutos na máquina local, então o cluster é opção, não requisito. Resultados versionados e execução limpa saem do mesmo ambiente, porque máquinas diferentes podem divergir em casas decimais. (afeta: 01, 02, 03, 08 a 16, 19, 23; `.claude/rules/fluxo-implementacao.md`)
+43. **[U] O repositório Git é a raiz da pasta de trabalho, público no GitHub; substitui a decisão 32 (07/10/2026).** O código, os testes, o README do projeto, `results/` e `report/` ficam em `project/`, e os comandos `uv` rodam ali. `.github/` (CI com `working-directory: project` e modelo de pull request) e `.githooks/` ficam na raiz, com um `README.md` curto que aponta para `project/`. `docs/`, `planejamento/`, `.claude/`, `CLAUDE.md` e `LEIA-ME.txt` são versionados e visíveis a quem abre o repositório. Os datasets ficam fora do Git, em `project/data/raw/`, com o zip no drive da equipe (https://drive.google.com/file/d/1hHQRgtl6TmrfPxu5uILrsiqUrzgILn29/view?usp=sharing) e o link no README. O PDF do artigo continua fora do Git. O código segue sem citar documento interno. (afeta: 01, 03, 19, 22)
 
 ## Pendentes da equipe (valores que o implementador não pode escolher)
 
@@ -139,8 +140,8 @@ Cada item tem uma proposta; a equipe confirma ou troca antes da tarefa indicada,
 | Licença do repositório | MIT, com nota de uso acadêmico e citação do artigo e dos datasets | 01 | tarefa 01 |
 | Visibilidade do repositório (Q10 enviada) | privado com acesso para o professor até a resposta | 01 | tarefa 01 |
 | Dono de cada tarefa (D5) | `[Preencher]` na tabela de ondas de `plan/00-README.md`; cada um roda o ciclo na própria máquina | 00-README | tarefa 01 |
-| Link do drive da equipe (dados e pasta de trabalho) | `[Preencher]` | 03, decisão 04 | tarefa 03 |
-| `.git` vazio na pasta de trabalho, acima de `project/` (apareceu em 07/10/2026) | remover (`rm -rf .git` na pasta de trabalho); a decisão 32 diz que só `project/` tem Git | — | tarefa 01 |
+| Link do drive da equipe (dados) | resolvido em 07/10/2026: https://drive.google.com/file/d/1hHQRgtl6TmrfPxu5uILrsiqUrzgILn29/view?usp=sharing | 03 | — |
+| `.git` na raiz | resolvido em 07/10/2026: a raiz é o repositório (decisão 43) | — | — |
 | Metade inferior da Tabela II (resultados de outros trabalhos) | copiar do manuscrito para `config.py`, com as referências, conferido por dois integrantes | 06 | tarefa 06 |
 | Prevalências hipotéticas da taxa base | 10⁻³, 10⁻⁴ e 10⁻⁵ (o script `metricas_fig4.py` já usa 10⁻⁴) | 11 | tarefa 11 |
 | Tamanho das amostras do SHAP | 2.000 fluxos por classe, estratificados, uma amostra do treino e uma do teste | 12 | tarefa 12 |

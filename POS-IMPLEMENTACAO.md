@@ -130,6 +130,6 @@ O trabalho é defendido em sala. Ninguém assina o que não consegue explicar.
 | Respostas do professor (reimplementação, alvo, segundo dataset, ferramenta de túnel, painel, páginas e idioma, visibilidade, declaração de IA) | seções 2, 4, 5 e 7 | professor |
 | Template Overleaf não lido | seções 3 e 4 | equipe |
 | Dono de cada tarefa: quem desenvolve e quem executa | seções 1 e 5 | equipe |
-| Licença do repositório e link do drive da equipe | seção 5 | equipe |
+| Licença do repositório | seção 5 | equipe |
 | Metade inferior da Tabela II, copiada do artigo e conferida por dois | seções 3 e 4 | equipe |
 | Decisão sobre P3 em 09/11 | seções 2 e 8 | equipe |

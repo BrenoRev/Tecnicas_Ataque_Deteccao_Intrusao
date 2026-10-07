@@ -33,7 +33,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 3. (Feito; ver o bloco acima.) O cabeçalho é idêntico ao de `docs/04-dados.md:54-62` e o rótulo está em `Label`; registrar isso no `data/README.md`.
 4. Registrar a citação exigida pelos mantenedores (`docs/04-dados.md:9`).
 5. Escrever `data/verify.py`: lê `data/manifest.json`, recalcula os hashes e falha, com mensagem que nomeia o arquivo, se faltar arquivo obrigatório ou se qualquer hash divergir; arquivo opcional ausente gera aviso, não erro. Tem `main()` sob `if __name__ == "__main__":`, para o teste importar a função de conferência.
-6. Compartilhar os arquivos entre os integrantes por um meio fora do Git (drive da equipe `[Preencher: link]`) e anotar o local no README.
+6. Os arquivos são compartilhados fora do Git, em um zip no drive da equipe: https://drive.google.com/file/d/1hHQRgtl6TmrfPxu5uILrsiqUrzgILn29/view?usp=sharing. O link fica no README e em `data/README.md`.
 7. (Feito em 07/10/2026: `docs/04-dados.md:8` e `:62` já não têm `[A verificar]`.) Qualquer ajuste novo em `docs/` é do agente `cin0114-doc-sync`, no fechamento; o implementador não edita `docs/`.
 
 ## Por quê
