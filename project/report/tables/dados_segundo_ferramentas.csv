@@ -1,0 +1,7 @@
+Ferramenta,Origem,Publicado,Sem réplicas Limpo,Sem réplicas Treino,Sem réplicas Teste,Transferência HKD isolado
+dns2tcp,CIRA,167287,167287,150569,16718,0
+dnscat2,CIRA,35742,35742,32068,3674,0
+iodine,CIRA,46524,46524,41948,4576,0
+dnstt,HKD,46080,2304,2072,232,2304
+tcp-over-dns,HKD,30040,1502,1360,142,1502
+tuns,HKD,29040,1452,1313,139,1452

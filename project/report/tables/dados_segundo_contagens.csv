@@ -1,0 +1,12 @@
+Conjunto,Non-DoH,Benign-DoH,Malicious-DoH,Total
+Publicado: limpo,889809,19746,354713,1264268
+Publicado: só HKD,0,0,105160,105160
+Publicado: treino,800828,17771,319242,1137841
+Publicado: validação,80082,1777,31924,113784
+Publicado: teste,88981,1975,35471,126427
+Sem réplicas: limpo,889809,19746,254811,1164366
+Sem réplicas: só HKD,0,0,5258,5258
+Sem réplicas: treino,800828,17771,229330,1047929
+Sem réplicas: validação,80082,1777,22933,104792
+Sem réplicas: teste,88981,1975,25481,116437
+HKD isolado: teste,0,0,5258,5258

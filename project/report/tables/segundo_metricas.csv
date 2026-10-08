@@ -1,0 +1,16 @@
+Métrica,CIRA Prof. 5,CIRA Prof. var.,Combinado sem réplicas Prof. 5,Combinado sem réplicas Prof. var.
+Benign-DoH: precisão,0.00,87.13,0.00,86.04
+Benign-DoH: recall,0.00,92.91,0.00,93.32
+Benign-DoH: F1,0.00,89.93,0.00,89.53
+Malicious-DoH: precisão,99.76,99.99,99.34,99.99
+Malicious-DoH: recall,97.91,99.96,97.21,99.94
+Malicious-DoH: F1,98.83,99.97,98.26,99.96
+Non-DoH: precisão,97.27,99.83,97.09,99.85
+Non-DoH: recall,99.93,99.69,99.83,99.68
+Non-DoH: F1,98.58,99.76,98.44,99.76
+Malicious-DoH: FPR,0.0649,0.0033,0.1814,0.0022
+Acurácia,97.79,99.64,97.56,99.62
+Precisão macro,65.68,95.65,65.48,95.29
+Recall macro,65.95,97.52,65.68,97.64
+F1 macro,65.80,96.56,65.57,96.42
+F1 ponderado,96.96,99.64,96.73,99.63

@@ -1,0 +1,6 @@
+Modelo,Teste repetido no treino,Teste inteiro F1 macro,Teste inteiro Benign-DoH: recall,Teste sem vetores repetidos do treino F1 macro,Teste sem vetores repetidos do treino Benign-DoH: recall
+A,13.64 ± 0.08,96.56 ± 0.12,93.07 ± 0.52,96.75 ± 0.14,94.37 ± 0.45
+A-prof5,13.64 ± 0.08,65.67 ± 0.14,0.00 ± 0.00,65.59 ± 0.14,0.00 ± 0.00
+B,13.64 ± 0.08,95.71 ± 0.18,93.67 ± 0.42,95.88 ± 0.20,94.99 ± 0.33
+B-prof5,13.64 ± 0.08,78.50 ± 1.03,87.19 ± 1.17,78.22 ± 1.04,88.05 ± 1.24
+C,13.64 ± 0.08,94.86 ± 0.26,94.51 ± 0.31,95.07 ± 0.27,95.83 ± 0.29
