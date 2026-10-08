@@ -16,6 +16,7 @@ Uso: uv run python -m scripts.e8_robustez_resumo
 """
 
 import json
+from itertools import combinations
 from pathlib import Path
 
 import numpy as np
@@ -29,8 +30,10 @@ from doh_ids.config import (
     FRAGMENTED_COLUMNS,
     PROJECT_ROOT,
     RESULTS_DIR,
+    ROBUSTNESS_COLLAPSE_RECALL,
     ROBUSTNESS_COLUMN_PAIRS,
     ROBUSTNESS_COLUMN_SETS,
+    ROBUSTNESS_INCOHERENT_FRACTION,
     ROBUSTNESS_MODEL_PAIR,
     ROBUSTNESS_MODELS,
     SEEDS_CORRIGIDA,
@@ -57,6 +60,11 @@ UNEXPECTED_F1_DROP = 0.01
 READING_RULE = (
     "uma diferença pareada conta quando a média é, em módulo, maior que o desvio padrão das "
     "diferenças entre as seeds; caso contrário os dois lados não se distinguem"
+)
+DESCRIPTIVE_NOTE = (
+    "leitura descritiva acrescentada depois da execução: não faz parte da hipótese, não muda "
+    "a regra de leitura nem os vereditos dela, e os limiares que usa foram escolhidos com os "
+    "resultados à vista"
 )
 
 
@@ -244,6 +252,145 @@ def paired_rows(loaded: dict) -> dict:
     }
 
 
+def collapse_by_factor(recalls: dict, seeds: list[int]) -> dict:
+    """Conta, em cada fator perturbado, as seeds com recall abaixo do limiar de colapso.
+
+    `recalls[fator]` tem o recall de cada seed, na ordem de `seeds`. Devolve,
+    por fator, as seeds abaixo do limiar e o menor e o maior recall das demais.
+    """
+    summary = {}
+    for factor in PERTURBED:
+        values = recalls[str(factor)]
+        others = [value for value in values if value >= ROBUSTNESS_COLLAPSE_RECALL]
+        summary[str(factor)] = {
+            "seeds_below": [
+                seed
+                for seed, value in zip(seeds, values, strict=True)
+                if value < ROBUSTNESS_COLLAPSE_RECALL
+            ],
+            "others_min": min(others, default=None),
+            "others_max": max(others, default=None),
+        }
+    return summary
+
+
+def seed_rises(recalls: dict, seeds: list[int]) -> list[dict]:
+    """Lista as vezes em que o recall de uma seed sobe de um fator para o seguinte."""
+    rises = []
+    for index, seed in enumerate(seeds):
+        for before, after in zip(FRAGMENTATION_FACTORS, FRAGMENTATION_FACTORS[1:], strict=False):
+            difference = recalls[str(after)][index] - recalls[str(before)][index]
+            if difference > 0:
+                rises.append({"seed": seed, "from": before, "to": after, "difference": difference})
+    return rises
+
+
+def column_effect(loaded: dict, models: list[str]) -> list[dict]:
+    """Mede, por modelo e fator, o efeito de retirar colunas no recall sob fragmentação.
+
+    Para cada par de `ROBUSTNESS_COLUMN_PAIRS`, devolve a diferença média de
+    recall (sem as colunas menos com todas), em quantas seeds ela é positiva e
+    negativa e a menor e a maior diferença entre as seeds.
+    """
+    rows = []
+    for model in models:
+        for columns, reference in ROBUSTNESS_COLUMN_PAIRS:
+            for factor in PERTURBED:
+                difference = np.subtract(
+                    recall_by_seed(loaded[(model, columns)], factor),
+                    recall_by_seed(loaded[(model, reference)], factor),
+                )
+                rows.append(
+                    {
+                        "model": model,
+                        "first": columns,
+                        "second": reference,
+                        "factor": factor,
+                        "mean_difference": float(difference.mean()),
+                        "seeds_higher": int((difference > 0).sum()),
+                        "seeds_lower": int((difference < 0).sum()),
+                        "min_difference": float(difference.min()),
+                        "max_difference": float(difference.max()),
+                    }
+                )
+    return rows
+
+
+def identical_clean_matrices(loaded: dict, models: list[str]) -> list[dict]:
+    """Lista os pares de conjuntos de colunas com a mesma matriz no teste sem perturbação.
+
+    Só entra o par em que as matrizes de confusão são iguais em todas as
+    seeds. Devolve também em quantas seeds as predições dos fluxos
+    fragmentados diferem: matriz igual não quer dizer modelo igual.
+    """
+    rows = []
+    for model in models:
+        for first, second in combinations(ROBUSTNESS_COLUMN_SETS, 2):
+            pairs = [
+                (one, other)
+                for (one, _), (other, _) in zip(
+                    loaded[(model, first)].values(), loaded[(model, second)].values(), strict=True
+                )
+            ]
+            if all(
+                one["test"]["confusion_matrix"] == other["test"]["confusion_matrix"]
+                for one, other in pairs
+            ):
+                differing = sum(
+                    any(
+                        one["fragmentation"][str(factor)]["malicious"]
+                        != other["fragmentation"][str(factor)]["malicious"]
+                        for factor in PERTURBED
+                    )
+                    for one, other in pairs
+                )
+                rows.append(
+                    {
+                        "model": model,
+                        "first": first,
+                        "second": second,
+                        "seeds_with_other_fragmented_predictions": differing,
+                    }
+                )
+    return rows
+
+
+def descriptive_findings(loaded: dict, seeds: list[int]) -> dict:
+    """Calcula a leitura descritiva acrescentada depois da execução.
+
+    Devolve o recall de cada seed em cada fator, as seeds abaixo do limiar de
+    colapso, as subidas de recall por seed, o efeito de retirar colunas por
+    modelo e os pares de conjuntos de colunas com a mesma matriz no teste.
+    """
+    models = sorted({model for model, _ in loaded}, key=ROBUSTNESS_MODELS.index)
+    recalls = {
+        model: {
+            columns: {
+                str(factor): recall_by_seed(loaded[(model, columns)], factor)
+                for factor in FRAGMENTATION_FACTORS
+            }
+            for columns in ROBUSTNESS_COLUMN_SETS
+        }
+        for model in models
+    }
+    return {
+        "note": DESCRIPTIVE_NOTE,
+        "collapse_recall": ROBUSTNESS_COLLAPSE_RECALL,
+        "incoherent_fraction": ROBUSTNESS_INCOHERENT_FRACTION,
+        "recall_by_seed": recalls,
+        "collapse": {
+            model: {columns: collapse_by_factor(entry, seeds) for columns, entry in by.items()}
+            for model, by in recalls.items()
+        },
+        "rises_by_seed": {
+            model: {columns: seed_rises(entry, seeds) for columns, entry in by.items()}
+            for model, by in recalls.items()
+        },
+        "column_effect": column_effect(loaded, models),
+        "identical_clean_matrices": identical_clean_matrices(loaded, models),
+    }
+
+
 def summary_content(loaded: dict, seeds: list[int]) -> dict:
     """Monta o conteúdo de summary-robustez.json a partir das execuções lidas."""
     for runs in loaded.values():
@@ -277,6 +424,7 @@ def summary_content(loaded: dict, seeds: list[int]) -> dict:
         "paired_caveat": e4r.PAIRED_CAVEAT,
         "paired": paired_all,
         "hypothesis": hypothesis_findings(models, paired_all),
+        "descriptive": descriptive_findings(loaded, seeds),
     }
 
 
@@ -450,9 +598,13 @@ def factors_with(rows: list[dict], wanted: str) -> list[int]:
     return [row["factor"] for row in rows if row["factor"] != 1 and row["verdict"] == wanted]
 
 
-def factors_text(factors: list[int]) -> str:
-    """Escreve uma lista de fatores, ou "nenhum" quando ela está vazia."""
-    return ", ".join(str(factor) for factor in factors) or "nenhum"
+def in_factors(factors: list[int]) -> str:
+    """Escreve em que fatores algo ocorre: "nos fatores 2, 4", "no fator 2" ou "em nenhum fator"."""
+    if not factors:
+        return "em nenhum fator"
+    if len(factors) == 1:
+        return f"no fator {factors[0]}"
+    return "nos fatores " + ", ".join(str(factor) for factor in factors)
 
 
 def hypothesis_findings(models: dict, paired_all: dict) -> dict:
@@ -539,14 +691,15 @@ def expected_lines(found: dict) -> list[str]:
     missed = found["missed_mean_rows"]
     lines += [
         f"3. Parte B, {second_model} com todos os atributos degrada em todos os fatores a partir "
-        f"de 2: {e4r.occurred(degrades[second_model] == PERTURBED)} (degrada nos fatores "
-        f"{factors_text(degrades[second_model])}); o recall não aumenta de um fator para o "
+        f"de 2: {e4r.occurred(degrades[second_model] == PERTURBED)} (degrada "
+        f"{in_factors(degrades[second_model])}); o recall não aumenta de um fator para o "
         f"seguinte: {e4r.occurred(not found['recall_rises'][second_model])}.",
         f"4. Parte B, {first_model} com todos os atributos degrada em todos os fatores a partir "
-        f"de 2: {e4r.occurred(degrades[first_model] == PERTURBED)} (degrada nos fatores "
-        f"{factors_text(degrades[first_model])}); resiste melhor que {second_model} em todos "
-        f"eles: {e4r.occurred(higher == PERTURBED)} (recall maior nos fatores "
-        f"{factors_text(higher)}, menor nos fatores {factors_text(lower)}).",
+        f"de 2: {e4r.occurred(degrades[first_model] == PERTURBED)} (pela regra, degrada "
+        f"{in_factors(degrades[first_model])}); resiste melhor que {second_model} em todos "
+        f"eles: {e4r.occurred(higher == PERTURBED)} (recall maior {in_factors(higher)}, menor "
+        f"{in_factors(lower)}). Estes são os vereditos da regra de leitura; o recall de "
+        f"{first_model} em cada seed e a contagem das quedas estão na leitura descritiva, abaixo.",
         f"5. Parte B, os modelos sem `Duration` resistem melhor que o mesmo modelo com todos os "
         f"atributos: "
         f"{e4r.occurred(found['reduced_columns_higher'] == found['column_comparisons'])} "
@@ -555,7 +708,9 @@ def expected_lines(found: dict) -> list[str]:
         f"{found['reduced_columns_lower']}); e não ficam imunes: "
         f"{e4r.occurred(found['reduced_models_degrading'] > 0)} (degradam em "
         f"{found['reduced_models_degrading']} das {found['reduced_model_comparisons']} "
-        f"combinações de modelo, colunas e fator).",
+        f"combinações de modelo, colunas e fator). A-prof5 fica fora dessas contagens, porque a "
+        f"hipótese só declara expectativa para {' e '.join(MAIN_MODELS)}; os três modelos "
+        f"estão, em separado, na leitura descritiva, abaixo.",
         f"6. Os fluxos não detectados vão mais para Non-DoH do que para Benign-DoH: "
         f"{e4r.occurred(missed['Non-DoH'] > missed['Benign-DoH'])}. Somando "
         f"{' e '.join(MAIN_MODELS)} com todos os atributos nos fatores a partir de 2, a média "
@@ -565,11 +720,27 @@ def expected_lines(found: dict) -> list[str]:
     return lines
 
 
-def unexpected_lines(found: dict) -> list[str]:
+def rises_text(rises_by_seed: dict) -> str:
+    """Escreve as vezes em que o recall de uma seed sobe de um fator para o seguinte."""
+    cells = [
+        f"{model} `{columns}`, seed {rise['seed']}, do fator {rise['from']} para o {rise['to']} "
+        f"({100 * rise['difference']:+.2f} pp)"
+        for model, by_columns in rises_by_seed.items()
+        for columns, rises in by_columns.items()
+        for rise in rises
+    ]
+    return "; ".join(cells) or "em nenhuma seed"
+
+
+def unexpected_lines(found: dict, descriptive: dict) -> list[str]:
     """Escreve cada resultado que a hipótese declarou como inesperado e se ele ocorreu."""
     first_model, second_model = ROBUSTNESS_MODEL_PAIR
     rising, lower = found["slices_with_rising_recall"], found["modification_lower_in_factors"]
     missed = found["missed_mean_rows"]
+    # A regra só diz "pior" ou "melhor" quando a média passa do desvio: sem
+    # veredito de "menor" em nenhum fator e sem "maior" em todos, ela não
+    # sustenta nenhuma das duas direções.
+    undecided = not lower and found["modification_higher_in_factors"] != PERTURBED
     f1_lines = []
     for model in MAIN_MODELS:
         lost = found["ablation"][model]["largest_macro_f1_drop"] < -UNEXPECTED_F1_DROP
@@ -582,9 +753,17 @@ def unexpected_lines(found: dict) -> list[str]:
         f"- Nenhum modelo degradar em nenhum fator: "
         f"{e4r.occurred(not found['any_model_degrades'])}.",
         f"- O recall médio de um modelo subir de um fator para o seguinte: "
-        f"{e4r.occurred(bool(rising))}" + (f" ({', '.join(rising)})." if rising else "."),
+        f"{e4r.occurred(bool(rising))}"
+        + (f" ({', '.join(rising)})." if rising else ".")
+        + " O item fala da média. Olhando cada seed, na leitura descritiva acrescentada depois "
+        f"da execução, o recall sobe em: {rises_text(descriptive['rises_by_seed'])}.",
         f"- {first_model} resistir pior que {second_model}: {e4r.occurred(bool(lower))}"
-        + (f" (fatores {factors_text(lower)})." if lower else "."),
+        + (f" ({in_factors(lower)})." if lower else ".")
+        + (
+            " É o veredito da regra; pela leitura descritiva, abaixo, nenhuma direção é sustentada."
+            if undecided
+            else ""
+        ),
         f"- Um modelo sem `Duration` resistir pior que o mesmo modelo com todos os atributos: "
         f"{e4r.occurred(found['reduced_columns_lower'] > 0)} "
         f"({found['reduced_columns_lower']} das {found['column_comparisons']} comparações).",
@@ -593,7 +772,7 @@ def unexpected_lines(found: dict) -> list[str]:
     ]
 
 
-def hypothesis_text(found: dict) -> str:
+def hypothesis_text(found: dict, descriptive: dict) -> str:
     """Escreve a seção que põe a hipótese ao lado do resultado."""
     lines = [
         "## Hipótese ao lado do resultado",
@@ -604,9 +783,251 @@ def hypothesis_text(found: dict) -> str:
         "",
         "Resultados que a hipótese declarou como inesperados:",
         "",
-        *unexpected_lines(found),
+        *unexpected_lines(found, descriptive),
     ]
     return "\n".join(lines) + "\n"
+
+
+def seed_recall_table(recalls: dict, seeds: list[int]) -> str:
+    """Escreve o recall de Malicious-DoH de um modelo em cada seed e fator, em percentual."""
+    rows = [
+        [seed, *[f"{100 * recalls[str(factor)][index]:.2f}" for factor in FRAGMENTATION_FACTORS]]
+        for index, seed in enumerate(seeds)
+    ]
+    return markdown_table(["seed", *[f"fator {factor}" for factor in FRAGMENTATION_FACTORS]], rows)
+
+
+def collapse_lines(summary: dict, model: str) -> list[str]:
+    """Escreve, por fator, em quantas seeds o recall de `model` cai e em quantas colapsa."""
+    seeds, limit = summary["seeds"], summary["descriptive"]["collapse_recall"]
+    lines = []
+    for row in select(summary["paired"]["degradation"], model=model, columns="todos"):
+        entry = summary["descriptive"]["collapse"][model]["todos"][str(row["factor"])]
+        below = entry["seeds_below"]
+        line = (
+            f"- Fator {row['factor']}: o recall é menor que o do fator 1 em {row['second_wins']} "
+            f"das {len(seeds)} seeds; fica abaixo de {limit:.0%} em {len(below)}"
+        )
+        if below:
+            line += f" (seeds {', '.join(str(seed) for seed in below)})"
+        if entry["others_min"] is not None:
+            line += (
+                f"; nas {'demais' if below else len(seeds)}, vai de "
+                f"{100 * entry['others_min']:.2f}% a {100 * entry['others_max']:.2f}%"
+            )
+        lines.append(line + ".")
+    return lines
+
+
+def direction_text(summary: dict) -> str:
+    """Escreve o que se pode dizer da direção da diferença entre a modificação e o original."""
+    first_model, second_model = ROBUSTNESS_MODEL_PAIR
+    found = summary["hypothesis"]
+    higher, lower = found["modification_higher_in_factors"], found["modification_lower_in_factors"]
+    rows = select(summary["paired"]["between_models"], columns="todos")
+    wins = "; ".join(
+        f"fator {row['factor']}, acima em {row['first_wins']} seeds e abaixo em "
+        f"{row['second_wins']}"
+        for row in rows
+        if row["factor"] != 1
+    )
+    text = (
+        f"{first_model} contra {second_model}, com todos os atributos: pela regra, o recall de "
+        f"{first_model} é maior {in_factors(higher)} e menor {in_factors(lower)}. Seed a seed, "
+        f"{first_model} fica acima ou abaixo de {second_model} assim: {wins}."
+    )
+    if higher != PERTURBED and lower != PERTURBED:
+        text += (
+            " Nenhuma direção é sustentada: a modificação não é nem mais robusta, nem menos, "
+            "que o original."
+        )
+    return text
+
+
+def column_effect_table(rows: list[dict]) -> str:
+    """Escreve o efeito de retirar colunas no recall sob fragmentação, por modelo e fator."""
+    lines = [
+        [
+            row["model"],
+            f"`{row['first']}` menos `{row['second']}`",
+            row["factor"],
+            f"{100 * row['mean_difference']:+.4f} pp",
+            row["seeds_higher"],
+            row["seeds_lower"],
+            f"{100 * row['min_difference']:+.4f} pp",
+            f"{100 * row['max_difference']:+.4f} pp",
+        ]
+        for row in rows
+    ]
+    columns = [
+        "modelo",
+        "par",
+        "fator",
+        "diferença média",
+        "seeds com recall maior sem as colunas",
+        "seeds com recall menor sem as colunas",
+        "menor diferença entre as seeds",
+        "maior diferença entre as seeds",
+    ]
+    return markdown_table(columns, lines)
+
+
+def seed_range(counts: list[int]) -> str:
+    """Escreve a faixa de uma contagem de seeds: "9 a 10", ou só "10" quando não varia."""
+    low, high = min(counts), max(counts)
+    return str(low) if low == high else f"{low} a {high}"
+
+
+def column_effect_lines(summary: dict) -> list[str]:
+    """Escreve, modelo a modelo, se retirar colunas ajuda ou piora o recall sob fragmentação."""
+    rows, n_seeds = summary["descriptive"]["column_effect"], len(summary["seeds"])
+    lines, helped, hurt = [], [], []
+    for model in summary["models"]:
+        own = select(rows, model=model)
+        means = [row["mean_difference"] for row in own]
+        positive = sum(mean > 0 for mean in means)
+        if positive == len(own):
+            helped.append(model)
+        elif positive == 0:
+            hurt.append(model)
+        verdicts = [
+            row["verdict"] for row in select(summary["paired"]["between_columns"], model=model)
+        ]
+        higher = [row["seeds_higher"] for row in own]
+        lines.append(
+            f"- {model}: diferença média positiva em {positive} das {len(own)} comparações (de "
+            f"{100 * min(means):+.2f} a {100 * max(means):+.2f} pp); recall maior sem as colunas "
+            f"em {seed_range(higher)} das {n_seeds} seeds, conforme a comparação; menor "
+            f"diferença em uma seed, {100 * min(row['min_difference'] for row in own):+.2f} pp. "
+            f"Vereditos da regra: maior em {verdicts.count(HIGHER)}, menor em "
+            f"{verdicts.count(LOWER)}, não se distinguem em "
+            f"{len(verdicts) - verdicts.count(HIGHER) - verdicts.count(LOWER)}."
+        )
+    if helped and hurt:
+        lines.append(
+            "\nO efeito tem sinais opostos: retirar as colunas aumenta o recall sob fragmentação "
+            f"em {' e '.join(helped)} e diminui em {' e '.join(hurt)}. A causa não foi "
+            "investigada."
+        )
+    return lines
+
+
+def incoherence_text(summary: dict) -> str:
+    """Liga a fração de vetores incoerentes de cada fator ao que se pode ler do recall."""
+    first_model, _ = ROBUSTNESS_MODEL_PAIR
+    limit = summary["descriptive"]["incoherent_fraction"]
+    fraction = {
+        factor: summary["perturbation"][str(factor)]["incoherent_row_fraction"]
+        for factor in PERTURBED
+    }
+    by_factor = "; ".join(
+        f"fator {factor}, {100 * entry['mean']:.2f}%" for factor, entry in fraction.items()
+    )
+    coherent = [factor for factor, entry in fraction.items() if entry["mean"] < 0.5]
+    outside = [factor for factor, entry in fraction.items() if entry["mean"] > limit]
+    drops = "; ".join(
+        f"{model}, fator {row['factor']}, {100 * row['mean_difference']:+.2f} pp"
+        for model in MAIN_MODELS
+        for row in select(summary["paired"]["degradation"], model=model, columns="todos")
+        if row["factor"] in coherent
+    )
+    recall_std = max(
+        summary["models"][first_model]["todos"]["fragmentation"][str(factor)]["recall"]["std"]
+        for factor in PERTURBED
+    )
+    fraction_std = max(entry["std"] for entry in fraction.values())
+    return (
+        "Fração dos vetores Malicious-DoH do teste com tempo médio de pacote maior que a "
+        f"duração, média entre as seeds: {by_factor}. A maioria dos vetores continua coerente só "
+        f"{in_factors(coherent)}; aí, a diferença de recall para o fator 1, com todos os "
+        f"atributos, é: {drops or 'nenhuma a mostrar'}. Com mais de {limit:.0%} dos vetores "
+        f"incoerentes, o que ocorre {in_factors(outside)}, o recall descreve o modelo fora da "
+        "região de fluxos possíveis, e não a resposta dele a fluxos fragmentados.\n\n"
+        f"A relação entre a incoerência e o colapso de {first_model} em algumas seeds não foi "
+        "investigada. A fração incoerente é quase a mesma em todas as seeds (desvio padrão de "
+        f"no máximo {100 * fraction_std:.2f} pp), e o recall de {first_model} com todos os "
+        f"atributos tem desvio padrão de até {100 * recall_std:.2f} pp: o que muda de uma seed "
+        "para outra é o split e o modelo ajustado, não a proporção de vetores incoerentes."
+    )
+
+
+def missed_by_factor_text(summary: dict) -> str:
+    """Escreve, por modelo e fator, para que classe vão os fluxos não detectados."""
+    cells, benign_first = [], []
+    for model in MAIN_MODELS:
+        for factor in PERTURBED:
+            predicted = summary["models"][model]["todos"]["fragmentation"][str(factor)][
+                "predicted_as"
+            ]
+            non_doh, benign = predicted["Non-DoH"]["mean"], predicted["Benign-DoH"]["mean"]
+            cells.append(f"{model}, fator {factor}, {non_doh:.1f} e {benign:.1f}")
+            if benign > non_doh:
+                benign_first.append(f"{model} no fator {factor}")
+    return (
+        "O item 6 da hipótese soma os fatores. Por fator, com todos os atributos, a média por "
+        f"seed de fluxos preditos como Non-DoH e como Benign-DoH é: {'; '.join(cells)}. Vão "
+        "mais fluxos para Benign-DoH do que para Non-DoH em: "
+        f"{', '.join(benign_first) or 'nenhum caso'}."
+    )
+
+
+def identical_text(summary: dict) -> str:
+    """Escreve a frase sobre conjuntos de colunas com a mesma matriz no teste, se houver."""
+    lines = [
+        f"{row['model']}: `{row['first']}` e `{row['second']}` têm a mesma matriz de confusão "
+        f"no teste sem perturbação nas {len(summary['seeds'])} seeds, e por isso as linhas dos "
+        "dois são iguais nas tabelas desta parte. Os dois modelos não são o mesmo: as predições "
+        f"dos fluxos fragmentados diferem em {row['seeds_with_other_fragmented_predictions']} "
+        "seeds."
+        for row in summary["descriptive"]["identical_clean_matrices"]
+    ]
+    if not lines:
+        return ""
+    return "Nota acrescentada depois da execução. " + " ".join(lines) + "\n\n"
+
+
+def descriptive_text(summary: dict) -> str:
+    """Escreve a seção da leitura descritiva acrescentada depois da execução."""
+    first_model, _ = ROBUSTNESS_MODEL_PAIR
+    descriptive, seeds = summary["descriptive"], summary["seeds"]
+    return f"""## Leitura descritiva acrescentada depois da execução
+
+Tudo nesta seção é {DESCRIPTIVE_NOTE}. Os números saem dos mesmos
+`metrics.json`; nenhuma execução foi refeita. O mínimo entre as seeds e a nota
+de leitura da tabela de recall por fator também foram acrescentados depois da
+execução, sem mudar a regra nem os vereditos.
+
+### Recall de {first_model} com todos os atributos, em cada seed
+
+Em percentual. A regra de leitura diz "não se distinguem" quando a média não
+passa do desvio; a tabela mostra o que há por trás da média.
+
+{seed_recall_table(descriptive["recall_by_seed"][first_model]["todos"], seeds)}
+
+{chr(10).join(collapse_lines(summary, first_model))}
+
+O limiar de {descriptive["collapse_recall"]:.0%} é descritivo e foi escolhido depois de ver os
+resultados: com outro limiar, a contagem muda.
+
+{direction_text(summary)}
+
+### Retirar `Duration`, modelo a modelo
+
+Recall de Malicious-DoH sem as colunas menos o do mesmo modelo com todas, em
+cada fator. A hipótese só fala de {" e ".join(MAIN_MODELS)}; aqui estão os três modelos.
+
+{column_effect_table(descriptive["column_effect"])}
+
+{chr(10).join(column_effect_lines(summary))}
+
+### A incoerência dos vetores e o que se pode ler
+
+{incoherence_text(summary)}
+
+### Destino dos fluxos não detectados, por fator
+
+{missed_by_factor_text(summary)}
+"""
 
 
 def provenance_text(summary: dict) -> str:
@@ -688,7 +1109,7 @@ Cada conjunto de colunas contra `todos`, no mesmo modelo, seed a seed:
 
 {ablation_table(paired_all["ablation"])}
 
-## Parte B: a perturbação
+{identical_text(summary)}## Parte B: a perturbação
 
 Descrição dos fluxos Malicious-DoH do teste depois da fragmentação. Não
 depende do modelo. A faixa do treino é a do normalizador: valor abaixo do
@@ -696,15 +1117,23 @@ mínimo ou acima do máximo que o atributo tem no treino da seed.
 
 {perturbation_table(summary["perturbation"])}
 
-A última coluna mede a incoerência que a simplificação cria: o extrator mede o
-tempo de cada pacote desde o início do fluxo, de modo que em um fluxo real o
-tempo médio de pacote não passa da duração. Como as estatísticas por pacote
-não foram recalculadas, o vetor perturbado deixa de respeitar isso.
+A última coluna mede a incoerência que a simplificação cria. Nos fluxos do
+conjunto de dados o tempo médio de pacote não passa da duração. Isso é
+observação dos dados, não leitura do código do extrator: no fator 1, que é o
+teste sem perturbação, a coluna é {
+        e4r.mean_std(summary["perturbation"]["1"]["incoherent_row_fraction"])
+    }%;
+e, em conferência feita à parte na tabela limpa do CIRA, que não é gravada em
+`results/`, em nenhuma linha a média, a mediana ou a moda do tempo de pacote
+passa da duração. Como as estatísticas por pacote não foram recalculadas, o
+vetor perturbado deixa de respeitar isso.
 
 ## Parte B: recall de Malicious-DoH por fator de fragmentação
 
 Média ± desvio padrão entre as seeds e, entre parênteses, o menor valor entre
-as seeds. Onde o mínimo fica longe da média, o modelo cede em algumas seeds
+as seeds. O mínimo e esta nota de leitura foram acrescentados depois da
+execução, sem mudar a regra nem os vereditos. Onde o mínimo fica longe da
+média, o modelo cede em algumas seeds
 muito mais que nas outras, e a regra de leitura, que compara a média com o
 desvio, pode dizer "não se distinguem" para uma queda que existe em todas as
 seeds: as colunas de contagem de seeds das tabelas pareadas mostram isso.
@@ -746,7 +1175,8 @@ Cada conjunto de colunas contra `todos`, no mesmo modelo, em cada fator:
         )
     }
 
-{hypothesis_text(summary["hypothesis"])}
+{hypothesis_text(summary["hypothesis"], summary["descriptive"])}
+{descriptive_text(summary)}
 ## Relação com a explicação do modelo
 
 Os valores SHAP de `results/e5/variante/` põem `Duration` como o terceiro
@@ -766,7 +1196,8 @@ coisa, e a parte B não isola o efeito de `Duration` do efeito dos bytes.
   de comprimento de pacote mudariam com os pacotes de handshake de cada
   conexão nova. Aqui os 24 atributos que não são {fragmented} nem as
   duas taxas ficam com o valor do fluxo inteiro. A coluna de incoerência da
-  tabela da perturbação conta os vetores que nenhum fluxo real teria.
+  tabela da perturbação conta os vetores com uma relação entre tempo de pacote
+  e duração que nenhum fluxo do conjunto de dados tem.
 - **Efeito no resultado.** A queda de recall pode estar subestimada, porque
   atributos que também mudariam ficam com o valor original, ou superestimada,
   porque vetores incoerentes caem em regiões do espaço de atributos em que o
