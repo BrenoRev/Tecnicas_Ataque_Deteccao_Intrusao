@@ -17,8 +17,8 @@ Um experimento só existe quando deixa um resultado em `results/` que outra pess
 
 ## Ao implementar
 
-- Um script por experimento em `scripts/`, executável da raiz; lógica reutilizável em `src/`.
-- Configuração explícita no topo ou em arquivo: hiperparâmetros com a origem (seção do artigo ou "escolha nossa"), seed, caminhos relativos.
+- Um script por experimento em `scripts/`, executável de dentro de `project/` (`uv run python scripts/<nome>.py`, ou `uv run python -m scripts.<nome>` quando importa outro script); lógica reutilizável em `src/`. O script de treino só grava `metrics.json` e `run.json`; o resumo sai de um script separado (`.claude/rules/experimentos.md`).
+- Configuração em `src/doh_ids/config.py`: hiperparâmetros com a origem (seção do artigo ou "escolha nossa") em comentário, seed, caminhos relativos a `project/`.
 - O conjunto de teste é separado primeiro e só é lido na avaliação final.
 - Scaler, reamostragem e busca de hiperparâmetros são ajustados só no treino. Onde há validação cruzada ou seleção de hiperparâmetros, scaler e reamostragem são refeitos dentro de cada fold.
 - Identificadores (IPs, portas, timestamp) fora da matriz de atributos.
@@ -26,7 +26,7 @@ Um experimento só existe quando deixa um resultado em `results/` que outra pess
 
 ## Ao registrar
 
-Cada execução grava em `results/<experimento>/`:
+Antes da primeira execução, `HIPOTESE.md` em commit próprio, com o que seria inesperado e a regra de leitura. Cada execução grava em `results/<experimento>/<trilha>/<recorte>/seed<k>/`:
 
 - métricas em arquivo legível por máquina: matriz de confusão, precisão/recall/F1 por classe, macro e ponderada, AUC, contagem por classe em cada conjunto;
 - a configuração usada, a seed, as versões das bibliotecas, o hash dos dados e o commit;

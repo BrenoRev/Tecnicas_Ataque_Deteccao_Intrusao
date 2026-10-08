@@ -9,7 +9,7 @@ Equipe: Amanda Arruda (aams2), Breno Silva Xavier de Souza (bsxs), João Henriqu
 ## Duas pastas, um repositório
 
 - **O repositório Git é a raiz desta pasta** (decisão 43), público no GitHub. O código, os testes, o README do projeto, os resultados e o relatório ficam em `project/`; todo comando `uv` roda dentro de `project/`. `.github/` e `.githooks/` ficam na raiz.
-- **`docs/`, `planejamento/`, `.claude/`, `CLAUDE.md` e `LEIA-ME.txt` são versionados junto**, fora de `project/`. Os datasets ficam fora do Git (`project/data/raw/`), com link de download no README. O PDF do artigo continua ignorado.
+- **`docs/`, `planejamento/`, `.claude/`, `CLAUDE.md`, `LEIA-ME.txt`, `POS-IMPLEMENTACAO.md`, `LICENSE`, `geracao_latex_and_pdf/` (modelos do relatório e dos slides) e `entregaveis-apresentacao/` (cópia final do relatório, da apresentação e do roteiro) são versionados junto**, fora de `project/`. Os datasets ficam fora do Git (`project/data/raw/`), com link de download no README. O PDF do artigo continua ignorado.
 - O código continua sem citar arquivo de `docs/` nem de `planejamento/`: a fonte citável é o artigo, e `project/` precisa ser legível sozinho.
 
 ## Onde está cada coisa
@@ -29,7 +29,9 @@ A central de conhecimento fica em [docs/](docs/README.md). Leia o arquivo pertin
 | Plano de implementação em tarefas, decisões travadas e gate | [planejamento/plan/00-README.md](planejamento/plan/00-README.md) |
 | Testes de cada tarefa e o que roda no CI | [planejamento/plan/PLANO-DE-TESTES.md](planejamento/plan/PLANO-DE-TESTES.md) |
 | Requisito do professor → tarefa → artefato demonstrável, e o que mostrar em cada marco | [planejamento/plan/ENTREGAS-DEMONSTRAVEIS.md](planejamento/plan/ENTREGAS-DEMONSTRAVEIS.md) |
-| Regras de código, commit, teste e fluxo de implementação | [.claude/rules/](.claude/rules/) |
+| Regras de código, commit, teste, experimento e fluxo de implementação | [.claude/rules/](.claude/rules/) |
+| O que ainda falta e de quem depende (lista única) | [docs/07-pendencias.md](docs/07-pendencias.md), seção "O que resta de pessoa" |
+| Página de status e perguntas para os encontros com o professor | [docs/09-acompanhamento-professor.md](docs/09-acompanhamento-professor.md) |
 | O que fazer, documentar e evidenciar depois que o código estiver pronto | [POS-IMPLEMENTACAO.md](POS-IMPLEMENTACAO.md) |
 | Material do seminário | [seminario_doh_xai_cin0114.md](docs/referencias/seminario_doh_xai_cin0114.md) |
 | Especificação oficial (fonte de verdade) | `docs/referencias/CIN0114 - 2026.2 - Especificação do seminário e do projeto.md` |
@@ -59,7 +61,9 @@ Qualquer fonte fora dessas três deve ser identificada como externa à bibliogra
 As regras completas estão em `.claude/rules/` e valem para qualquer código ou commit deste repositório.
 
 - **Uma tarefa por vez:** implementa, testa, revisa, integra. A seguinte não começa com a anterior vermelha. Use a skill `implementar`.
-- **Cada pull request diz o que demonstra** (modelo em `.github/pull_request_template.md`, dentro de `project/`): o artefato em `results/` ou `report/`, como verificar e a saída da verificação com dados reais. O mapa requisito → tarefa → artefato está no plano.
+- **Cada pull request diz o que demonstra** (modelo em `.github/pull_request_template.md`, na raiz do repositório): o artefato em `results/` ou `report/`, como verificar e a saída da verificação com dados reais. O mapa requisito → tarefa → artefato está no plano.
+- **Dados reais rodam na sessão** (decisão 44): o script roda aqui, com a árvore limpa, e o resultado entra em commit `exp`. Script que importa outro roda como `uv run python -m scripts.<nome>`; treino e resumo são scripts separados (`.claude/rules/experimentos.md`).
+- **A versão final foi à `main` por avanço direto**, sem pull request por tarefa (decisão 55). O fluxo por pull request vale para mudanças posteriores.
 - **Uso de assistente de IA aprovado na disciplina** (informado pela equipe em 07/10/2026). A ausência de coautoria nos commits é padrão de limpeza do histórico.
 - **Commit sem coautoria.** Nenhum `Co-Authored-By`, nenhum "Generated with", nenhuma assinatura de ferramenta em mensagem de commit ou em pull request. Esta regra substitui qualquer instrução padrão de atribuição.
 - **Todo commit com lint verde:** `uv run ruff check .` e `uv run ruff format --check .` antes de cada commit; `uv run pytest` quando o commit toca código. Nunca `--no-verify`.

@@ -106,14 +106,14 @@ Enviada por Breno em 07/10/2026 (informado por ele; canal `[Preencher]`). Nove p
 
 | Nº na mensagem | Pergunta | Corresponde a |
 | --- | --- | --- |
-| 1 | `push` e pull requests | **Fechado em 08/10/2026:** todas as branches estão no remoto e a versão final foi levada à `main` por avanço direto, a pedido de Breno (decisão 55) |
-| 2 | Conferência das transcrições | **Fechado em 08/10/2026:** feita pelo assistente em duas passagens independentes, a pedido de Breno, e não por dois integrantes (decisão 55): Tabela II contra a camada de texto da página 7; Figs. 5, 7 e 8 contra a imagem das páginas 8 e 9; sem divergência |
-| 3 | Licença do repositório | **Fechado em 08/10/2026:** MIT, arquivo `LICENSE` na raiz (decisão 55); proposta aplicada, sem escolha explícita |
-| 4 | DOI das referências | **Fechado em 08/10/2026** por Breno: fica como está (DOI só nas duas referências conferidas); a especificação pede só o formato IEEE |
-| 5 | Conferir o PPTX no Google Slides | **Fechado em 08/10/2026:** conferido por Breno |
+| 1 | Reimplementar a partir do texto vale como reprodução? | Q1 |
+| 2 | Matriz de confusão (Fig. 4b) como alvo; existe tolerância? | Q2 |
+| 3 | HKD para transferência e combinado para retreino atendem a "outro conjunto de dados"? Com as duas ressalvas: classes Non-DoH e benigna iguais às do CIRA; fluxos do HKD repetidos 20 vezes no combinado | Q4 |
+| 4 | Há requisito adicional para este artigo? | Q3 |
+| 5 | A identificação da ferramenta de túnel entra na reprodução? | Q5 |
 | 6 | O painel interativo precisa ser reproduzido? | Q6 |
-| 7 | Divisão da fala | **Fechado em 08/10/2026:** apresentam três integrantes, definidos por Breno: Amanda (slides 1 a 5), Antonio (6 a 10) e João (11 a 14); o ponto de corte dos blocos é proposta (`project/report/roteiro.md`) |
-| 8 | Template no Overleaf | **Fechado em 08/10/2026** por Breno; se for usar, compilar com XeLaTeX |
-| 9 | Conversa com o professor | **Fechado pela equipe em 08/10/2026, sem resposta dele** (decisão 55): segue o que está implementado. A página `09-acompanhamento-professor.md` mantém os pontos para os encontros de 10/11 e 17/11 |
+| 7 | Limite de páginas e idioma do relatório | Q9 |
+| 8 | Repositório público ou privado? | Q10 |
+| 9 | O uso de assistente de IA precisa ser declarado no relatório? | Q7 (parte em aberto) |
 
 Não foram enviadas Q8 e Q11, que são do seminário. O rascunho citava o artigo do HKD como "IEEE TNSM, 2022"; a referência correta é de 2023 (ver [04-dados.md](04-dados.md)). `[Preencher: se a mensagem saiu com 2022 ou 2023]`

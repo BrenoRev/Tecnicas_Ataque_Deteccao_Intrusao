@@ -54,11 +54,11 @@ Objetivos
 - [ ] **[exigido]** P2: resultados do mesmo sistema em outro dataset.
 - [ ] **[exigido]** P2: escolha do dataset justificada no relatório.
 - [ ] P3 (opcional): modificação implementada e avaliada nos dois datasets.
-- [ ] Requisitos adicionais do professor para este artigo atendidos (ver Q3 em `docs/07-pendencias.md`).
+- [ ] Requisitos adicionais do professor: não há (resposta de 07/10/2026 e decisão 48); `Não aplicável`, salvo pedido novo registrado em `docs/07-pendencias.md`.
 
 Relatório
 
-- [ ] **[exigido]** PDF no template Overleaf indicado, formato de artigo.
+- [ ] **[exigido]** PDF no template da disciplina (`geracao_latex_and_pdf/template.tex`, decisão 53), formato de artigo, em até 8 páginas.
 - [ ] **[exigido]** Abstract/Resumo com contexto, problema, soluções existentes, método e resultados.
 - [ ] **[exigido]** 1. Introdução breve, respondendo às seis perguntas da especificação, com contribuições em lista.
 - [ ] **[exigido]** 2. Trabalhos relacionados com contribuições e limitações.
@@ -83,14 +83,15 @@ Código e repositório (comandos rodados dentro de `project/`)
 - [ ] Seeds fixadas; resultado idêntico em duas execuções.
 - [ ] Dados fora do Git, com manifesto de hashes (`data/manifest.json`) e script de conferência (`data/verify.py`).
 - [ ] Nenhuma credencial, pickle de terceiros ou PDF do artigo versionado.
-- [ ] Sem caminho absoluto nem referência interna: os dois `grep` do CI (tarefa 01, passo 4b) não devolvem nada.
+- [ ] Sem caminho absoluto, sem referência interna e sem arquivo proibido: as três checagens de higiene de `.github/workflows/ci.yml` não devolvem nada.
 - [ ] Testes passam; lint limpo.
 - [ ] Revisão pelo agente `revisor-metodologico` sem achado bloqueante em aberto.
-- [ ] Histórico com commits dos quatro integrantes.
-- [ ] Uso de assistente de IA: aprovado na disciplina (07/10/2026); se o professor pediu declaração, a mesma frase está no README e no relatório; se não pediu, nenhuma.
+- [ ] Histórico com uma só identidade Git, aceito pela equipe (decisão 55); nenhum commit com coautoria de ferramenta.
+- [ ] Uso de assistente de IA: aprovado na disciplina (07/10/2026); sem frase de declaração no README e no relatório (decisão 55), salvo pedido do professor.
+- [ ] `entregaveis-apresentacao/` idêntico a `project/report/` em `relatorio.pdf`, `apresentacao.pptx` e `roteiro.md` (`cmp`).
 - [ ] Nenhum commit com `Co-Authored-By` (`git log --format=%B | grep -ci "co-authored-by"` devolve 0).
 - [ ] Nenhum arquivo interno (`docs/`, `planejamento/`, `.claude/`, `CLAUDE.md`) dentro de `project/`.
 
 Apresentação (só com P3)
 
-- [ ] **[exigido]** Slides no modelo do CIn e apresentação de 15 minutos em 19/11/2026.
+- [ ] **[exigido]** Slides no modelo do CIn, entregues em PPTX, e apresentação de 15 minutos em 19/11/2026, por três integrantes.

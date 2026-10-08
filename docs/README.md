@@ -22,13 +22,13 @@ Material de origem, em `docs/referencias/`:
 
 ## Estado em 08/10/2026
 
-Reconciliado com o repositório no commit `759ec29` (branch `tarefa/24-entregaveis`).
+A versão final está na `main` do repositório.
 
 - Lidos e conferidos: especificação, artigo completo, repositório dos autores, página do dataset, código do extrator de atributos (DoHLyzer).
 - Dados baixados e inventariados em 07/10/2026 ([08-inventario-dados.md](08-inventario-dados.md)).
 - Sistema implementado e todos os experimentos (E0 a E8) executados com os dados reais em 07 e 08/10/2026. Os resultados e a interpretação de cada um estão em `project/results/e<k>/`, no `RESUMO.md`; esta central aponta para eles e não os copia.
 - Relatório, apresentação, tabelas e figuras gerados em `project/report/`; o índice que liga cada item à origem é `project/report/INDICE.md`.
-- Não feito ainda: integração na `main`, conferências de pessoa, README completo e execução limpa. A lista está em [07-pendencias.md](07-pendencias.md), seção "O que resta de pessoa".
+- Em andamento: execução limpa (tarefa 19) e revisão final em código (tarefa 25). O que resta de pessoa está em [07-pendencias.md](07-pendencias.md), seção "O que resta de pessoa".
 - Próxima entrega: slides do seminário em 14/10/2026.
 
 ## Como as afirmações desta central foram verificadas

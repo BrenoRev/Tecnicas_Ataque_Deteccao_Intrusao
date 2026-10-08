@@ -1,6 +1,6 @@
 # Regras de código
 
-Valem para tudo em `project/`: `src/`, `scripts/`, `tests/` e `data/*.py`. Os caminhos abaixo são relativos a `project/`, que é o repositório Git. O objetivo é um código pequeno, direto, que qualquer integrante explica linha a linha na arguição.
+Valem para tudo em `project/`: `src/`, `scripts/`, `tests/` e `data/*.py`. Os caminhos abaixo são relativos a `project/`; o repositório Git é a raiz (decisão 43). O objetivo é um código pequeno, direto, que qualquer integrante explica linha a linha na arguição.
 
 ## Simplicidade
 
@@ -19,7 +19,7 @@ Valem para tudo em `project/`: `src/`, `scripts/`, `tests/` e `data/*.py`. Os ca
 - Nome diz o que a coisa é no domínio: `balanced_subsets`, `fit_scaler`, `malicious_fpr`. Sem `utils`, `helpers`, `manager`, `process_data`.
 - `X` e `y` só para matriz de atributos e rótulos, como na convenção do scikit-learn.
 - Tipos anotados em toda função pública de `src/`.
-- Caminhos relativos à raiz do repositório, montados com `pathlib`. Nenhum caminho de máquina.
+- Caminhos relativos a `project/` (`config.PROJECT_ROOT`), montados com `pathlib`. Nenhum caminho de máquina.
 - Nenhum número solto: hiperparâmetro, seed, fração e limiar moram em `config.py`.
 
 ## Docstring

@@ -84,7 +84,7 @@ Os datasets não são versionados; ficam em um zip no drive da equipe.
 
 5. Apague o zip ou deixe-o onde está: arquivos `.zip` e as pastas de dados estão no `.gitignore` e não entram em commit.
 
-   Se a extração criar uma pasta `__MACOSX/`, apague-a (`rm -rf __MACOSX`): ela não está no `.gitignore`, e um arquivo novo na árvore faz os `run.json` registrarem `dirty: true`.
+   Se a extração criar uma pasta `__MACOSX/`, apague-a (`rm -rf __MACOSX`): ela já está no `.gitignore`, mas não tem uso.
 
 6. Confira a integridade dos arquivos:
 

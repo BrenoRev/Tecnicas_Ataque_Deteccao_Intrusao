@@ -2,7 +2,7 @@
 
 O plano de testes por tarefa está em `planejamento/plan/PLANO-DE-TESTES.md`. Este arquivo diz como escrever os testes; aquele diz quais.
 
-Os caminhos são relativos a `project/`, o repositório Git.
+Os caminhos são relativos a `project/`; o repositório Git é a raiz.
 
 ## O que testar
 
@@ -34,7 +34,7 @@ Se um teste novo não protege nenhum item da lista "O que testar", ele não entr
 
 ## Dados reais
 
-O que depende dos datasets não é teste do `pytest`: é asserção dentro do script do experimento e conferência do arquivo gerado em `results/`. O script falha com mensagem clara quando a asserção quebra. Isso roda na máquina de quem tem os dados e é registrado no pull request.
+O que depende dos datasets não é teste do `pytest`: é asserção dentro do script do experimento e conferência do arquivo gerado em `results/`. O script falha com mensagem clara quando a asserção quebra. Isso roda na sessão de implementação (decisão 44), e a saída fica no relato da tarefa e no `run.json`.
 
 ## CI
 
@@ -45,7 +45,7 @@ uv sync --locked
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
-python scripts/metricas_fig4.py
+python3 scripts/metricas_fig4.py
 ```
 
-Mais duas checagens de higiene: nenhum caminho absoluto de máquina no código e nenhum arquivo proibido versionado. Pull request com CI vermelho não é integrado.
+Mais três checagens de higiene: nenhum caminho absoluto de máquina no código, nenhuma referência a documento interno em `project/` e nenhum arquivo proibido versionado. Pull request com CI vermelho não é integrado.

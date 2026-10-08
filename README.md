@@ -26,7 +26,7 @@ Reimplementamos o sistema a partir do texto do artigo, porque o repositório dos
 | Objetivo | Entrega | Onde ver |
 | --- | --- | --- |
 | **1. Reproduzir o artigo** | Todas as tabelas e figuras de resultado: Tabela I, Fig. 2, Fig. 4, Tabela II, Figs. 5 a 8, Seção VI-D e Fig. 9 | [`results/e0`](project/results/e0/dados/RESUMO.md) a [`e7`](project/results/e7/RESUMO.md) |
-| **2. Outro conjunto de dados** | Tudo de novo no DoH-Tunnel-Traffic-HKD e no combinado CIRA + HKD | [`results/e6`](project/results/e6/RESUMO.md) |
+| **2. Outro conjunto de dados** | Tudo refeito no combinado CIRA + HKD sem réplicas; transferência do modelo original para o DoH-Tunnel-Traffic-HKD ao lado | [`results/e6`](project/results/e6/RESUMO.md) |
 | **3. Melhorar o sistema** | Random Forest único com peso de classe, comparado em dez seeds, e teste de robustez | [`results/e8`](project/results/e8/corrigida/RESUMO.md) |
 
 ## O sistema do artigo
@@ -74,7 +74,7 @@ O artigo traz duas passagens sobre a profundidade das árvores: profundidade má
 
 **Modificação da equipe.** Um Random Forest único, sem SMOTE e com peso de classe, ganha cerca de 0,5 ponto de F1 macro sobre o sistema do artigo nas dez seeds, nos dois conjuntos. A seleção de hiperparâmetros não acrescenta F1 sobre essa troca e custa mais tempo de treino.
 
-Os números completos, com o que cada um permite e não permite concluir, estão no [relatório](project/report/relatorio.pdf) e nos arquivos `RESUMO.md` de cada experimento.
+Os números completos, com o que cada um permite e não permite concluir, estão no [relatório](entregaveis-apresentacao/relatorio.pdf) e nos arquivos `RESUMO.md` de cada experimento.
 
 ## Como rodar
 
@@ -94,7 +94,7 @@ Para reproduzir os experimentos, baixe os dados (zip de 1,5 GB, [instruções](p
 uv run python data/verify.py               # confere os hashes dos dados
 uv run python scripts/e0_dados.py          # limpeza e Tabela I, menos de 1 min
 uv run python scripts/e1_reproducao.py     # reprodução do artigo, cerca de 1 h
-bash scripts/execucao_limpa.sh logs/       # todos os passos, em ordem
+bash scripts/execucao_limpa.sh ../../logs-execucao   # todos os passos; os logs ficam fora do repositório
 ```
 
 ## Estrutura
@@ -111,8 +111,13 @@ bash scripts/execucao_limpa.sh logs/       # todos os passos, em ordem
 ├── planejamento/             plano de implementação e decisões da equipe
 ├── entregaveis-apresentacao/ cópia final do relatório, da apresentação e do roteiro
 ├── geracao_latex_and_pdf/    modelos do relatório e dos slides
+├── CLAUDE.md, .claude/       regras e agentes do assistente de IA usado no projeto
 └── .github/, .githooks/      integração contínua e hooks de commit
 ```
+
+O relatório e os slides são gerados a partir dos resultados: `tectonic relatorio.tex` em `project/report/` e `uv run --group slides python scripts/make_slides.py`. O painel interativo de explicabilidade sobe com `uv run python scripts/painel_xai.py`. Detalhes no [guia técnico](project/README.md#relatório-slides-e-painel).
+
+O desenvolvimento usou um assistente de IA, com uso aprovado na disciplina; as regras que ele seguiu estão em `CLAUDE.md` e `.claude/`.
 
 ## Reprodutibilidade
 

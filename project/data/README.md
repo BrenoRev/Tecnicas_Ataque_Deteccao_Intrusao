@@ -157,9 +157,6 @@ Ficam em `data/raw/combinado/`, todos obrigatórios no manifesto:
 
 Os três têm as mesmas colunas: os 29 atributos, `label` (0 Non-DoH, 1 Benign-DoH, 2 Malicious-DoH), `origin` (`CIRA` ou `HKD`) e `tool` (a ferramenta de túnel, vazia fora da classe maliciosa). Nenhum tem identificador do fluxo. As contagens medidas ficam em `results/e6/dados/`.
 
-## Cluster
-
-Se a execução for no cluster Apuana, os arquivos são copiados à mão para o servidor, na mesma estrutura de `data/raw/`, e conferidos lá com `uv run python data/verify.py`. Caminho no servidor: [Preencher: caminho].
 
 ## Cuidados
 
