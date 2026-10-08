@@ -95,7 +95,7 @@ essa classe erra no máximo essas linhas, e a soma quase não registra a perda d
 uma classe inteira. Por isso a soma vai ao lado das métricas por classe, e
 nenhuma leitura é declarada a mais próxima do artigo por um número só.
 
-Nos recortes de profundidade variável, a soma das diferenças absolutas vai de 469 a 1061; a da partida, com a seed 42, é 553. O mesmo modelo de partida, nas 10 seeds de `results/e4/corrigida/A/`, tem soma de 509 a 653: só a troca do split e dos sorteios move a soma em até 144 linhas. Diferença entre recortes menor que essa não ordena as leituras, e nenhum recorte é apontado como o mais próximo da Fig. 4b. O recorte que corresponde ao script publicado pelos autores, `rf_unico-prof5`, tem a maior soma entre os 10 recortes medidos (15287; a maior é 15287).
+Nos recortes de profundidade variável, a soma das diferenças absolutas vai de 469 a 1061; a da partida, com a seed 42, é 553. O mesmo modelo de partida, nas 10 seeds de `results/e4/corrigida/A/`, tem soma de 509 a 653: só a troca do split e dos sorteios move a soma em até 144 linhas. Diferença entre recortes menor que essa não ordena as leituras, e nenhum recorte é apontado como o mais próximo da Fig. 4b. O recorte que corresponde ao script publicado pelos autores, `rf_unico-prof5`, tem a maior soma entre os 10 recortes medidos (15287).
 
 Não predizem Benign-DoH em nenhuma linha do teste: `use_probas-prof5`, `max_features_padrao-prof5`. Nesses recortes a precisão da classe é indefinida e entra como 0 no F1 macro.
 

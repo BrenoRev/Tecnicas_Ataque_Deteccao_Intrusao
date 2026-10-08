@@ -166,16 +166,19 @@ sem essas linhas.
 
 Os fluxos do HKD são todos Malicious-DoH e não entram em nenhum ajuste; são
 normalizados com o normalizador do treino do CIRA. Sem fluxo legítimo, só o
-recall é definido. A coluna do sistema do artigo vem de uma execução com a
-seed 42 (`results/e6/variante/transferencia/`): não é das mesmas seeds e
-não há comparação pareada.
+recall é definido. O mínimo e o máximo entre as seeds foram acrescentados
+depois da execução.
 
-| fluxos do HKD | fluxos | recall, M1M2 ajustado no CIRA, média ± desvio padrão entre as seeds (%) | recall, sistema do artigo ajustado no CIRA, seed 42 (%) |
-| --- | --- | --- | --- |
-| as três ferramentas | 5258 | 22.779 ± 12.102 | 1.807 |
-| dnstt | 2304 | 1.016 ± 3.212 | 0.000 |
-| tcp-over-dns | 1502 | 26.305 ± 26.968 | 0.333 |
-| tuns | 1452 | 53.664 ± 35.495 | 6.198 |
+| fluxos do HKD | fluxos | recall, M1M2 ajustado no CIRA, média ± desvio padrão entre as seeds (%) | menor recall entre as seeds (%) | maior recall entre as seeds (%) | seeds sem nenhum fluxo detectado |
+| --- | --- | --- | --- | --- | --- |
+| as três ferramentas | 5258 | 22.779 ± 12.102 | 2.130 | 42.963 | 0 |
+| dnstt | 2304 | 1.016 ± 3.212 | 0.000 | 10.156 | 9 |
+| tcp-over-dns | 1502 | 26.305 ± 26.968 | 0.333 | 66.911 | 0 |
+| tuns | 1452 | 53.664 ± 35.495 | 7.369 | 95.110 | 0 |
+
+Sem nenhum fluxo detectado em alguma seed: dnstt, em 9 das 10 seeds. Nas 10 seeds, M1M2 deixa passar de 57.04% a 97.87% dos fluxos do HKD.
+
+O sistema do artigo ajustado no CIRA foi avaliado no HKD em uma execução só, com a seed 42 (`results/e6/variante/transferencia/`): recall de 1.807% (dnstt 0.000%, tcp-over-dns 0.333%, tuns 6.198%), ou 98.19% dos fluxos sem detecção. Esse número não é das mesmas seeds, por isso fica fora da tabela, e não há comparação pareada. Nenhum dos dois sistemas transfere.
 
 ### Hiperparâmetros selecionados
 
@@ -212,6 +215,10 @@ tempo depende da carga da máquina e não é reprodutível como as métricas.
 | M1-prof5 | 15.0 ± 0.9 |  |
 | M1M2 | 263.2 ± 7.2 | 178.2 ± 4.8 |
 
+A definição de tempo de treino acima foi ajustada depois da execução: antes era o total da execução menos a avaliação. Com a definição anterior, os vereditos de tempo são os mesmos.
+
+Os tempos dos modelos que vêm de `results/e4/corrigida/` foram medidos em outra execução, com outra carga na máquina. Os mesmos modelos foram reajustados nas mesmas seeds pelo script da robustez (`robustez-<modelo>-todos/`): A, 112.5 ± 3.4 s reajustado contra 161.0 ± 57.3 s na tabela; A-prof5, 39.2 ± 1.3 s reajustado contra 63.5 ± 30.9 s na tabela. Com o tempo reajustado no lugar, os vereditos de tempo são os mesmos.
+
 ### Comparação pareada
 
 | par | conjunto | métrica | melhor é o valor | diferença média | desvio padrão das diferenças | seeds em que o primeiro tem o valor maior | seeds em que o segundo tem o valor maior | empates | p-valor de Wilcoxon | veredito para a modificação |
@@ -237,6 +244,35 @@ tempo depende da carga da máquina e não é reprodutível como as métricas.
 | M1M2 contra A | teste sem vetores repetidos do treino | F1 macro | maior | +0.6181 pp | 0.1509 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
 | M1M2 contra A | teste sem vetores repetidos do treino | FPR de Malicious-DoH | menor | -0.0016 pp | 0.0014 pp | 0 | 7 | 3 | 0.0156 | **melhora** |
 | M1M2 contra A | uma medida por execução | tempo de treino | menor | +102.2 s | 59.9 s | 9 | 1 | 0 | 0.0039 | **piora** |
+
+### Análise acrescentada depois da execução, fora dos pares pré-registrados
+
+Este bloco é análise acrescentada depois da execução, fora dos pares pré-registrados: o par ou a métrica não estavam na hipótese, e a regra de leitura é aplicada do mesmo modo. Não entra na condição que a hipótese fixou para
+dizer que o modelo proposto é melhor que A.
+
+| par | conjunto | métrica | melhor é o valor | diferença média | desvio padrão das diferenças | seeds em que o primeiro tem o valor maior | seeds em que o segundo tem o valor maior | empates | p-valor de Wilcoxon | veredito para a modificação |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| M1M2 contra A | teste inteiro | precisão de Benign-DoH | maior | +2.1907 pp | 0.5368 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
+| M1M2 contra A | teste sem vetores repetidos do treino | precisão de Benign-DoH | maior | +2.8499 pp | 0.5010 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
+| M1M2 contra M1 | teste inteiro | F1 macro | maior | -0.0835 pp | 0.1545 pp | 3 | 7 | 0 | 0.1309 | **não se distinguem** |
+| M1M2 contra M1 | teste inteiro | recall de Benign-DoH | maior | +1.0987 pp | 0.4863 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
+| M1M2 contra M1 | teste inteiro | precisão de Benign-DoH | maior | -1.5192 pp | 0.5833 pp | 0 | 10 | 0 | 0.0020 | **piora** |
+| M1M2 contra M1 | teste inteiro | FPR de Malicious-DoH | menor | -0.0046 pp | 0.0027 pp | 0 | 10 | 0 | 0.0020 | **melhora** |
+| M1M2 contra M1 | teste sem vetores repetidos do treino | F1 macro | maior | -0.0318 pp | 0.1410 pp | 3 | 7 | 0 | 0.3223 | **não se distinguem** |
+| M1M2 contra M1 | teste sem vetores repetidos do treino | recall de Benign-DoH | maior | +1.0842 pp | 0.4467 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
+| M1M2 contra M1 | teste sem vetores repetidos do treino | precisão de Benign-DoH | maior | -1.1962 pp | 0.5447 pp | 0 | 10 | 0 | 0.0020 | **piora** |
+| M1M2 contra M1 | teste sem vetores repetidos do treino | FPR de Malicious-DoH | menor | -0.0056 pp | 0.0032 pp | 0 | 10 | 0 | 0.0020 | **melhora** |
+
+Falsos positivos de Malicious-DoH somados nas seeds: teste inteiro, A 14, M1 44, M1M2 2, em 909560 fluxos não maliciosos; teste sem vetores repetidos do treino, A 14, M1 44, M1M2 2, em 751516 fluxos não maliciosos.
+
+Pela regra, no teste inteiro, de M1 para M1M2: F1 macro, não se distinguem; recall de Benign-DoH, melhora; precisão de Benign-DoH, piora; FPR de Malicious-DoH, melhora. A seleção de hiperparâmetros troca precisão por recall de Benign-DoH; reduz os falsos positivos de Malicious-DoH; não aumenta o F1 macro. O ganho de F1 macro de M1M2 sobre A já está em M1.
+
+| modelo | árvores, profundidade máxima, atributos por divisão | F1 macro de validação, subamostra de 25% do treino (%) | F1 macro no teste inteiro (%) |
+| --- | --- | --- | --- |
+| M1 | (10, sem limite, 28) | 96.062 ± 0.168 | 97.136 ± 0.119 |
+| M1M2 | a escolhida em cada seed | 96.930 ± 0.156 | 97.053 ± 0.155 |
+
+A combinação de M1 é a 3ª das 8 da grade pela média de validação. Na validação, a combinação escolhida fica acima da de M1 em 10 das 10 seeds (diferença média de +0.868 pp); no teste, M1M2 fica acima de M1 em 3 seeds e abaixo em 7 (diferença média de -0.084 pp). A validação mede modelos ajustados em quatro quintos da subamostra; o teste, modelos ajustados no treino inteiro. A ordem que a validação dá às duas combinações não se repete no teste: é evidência da limitação da subamostra, registrada em Limitações.
 
 ## combinado CIRA + HKD sem réplicas
 
@@ -361,6 +397,8 @@ tempo depende da carga da máquina e não é reprodutível como as métricas.
 | A | 117.8 ± 2.0 |  |
 | M1M2 | 265.1 ± 1.4 | 180.0 ± 1.4 |
 
+A definição de tempo de treino acima foi ajustada depois da execução: antes era o total da execução menos a avaliação. Com a definição anterior, os vereditos de tempo são os mesmos.
+
 ### Comparação pareada
 
 | par | conjunto | métrica | melhor é o valor | diferença média | desvio padrão das diferenças | seeds em que o primeiro tem o valor maior | seeds em que o segundo tem o valor maior | empates | p-valor de Wilcoxon | veredito para a modificação |
@@ -372,6 +410,18 @@ tempo depende da carga da máquina e não é reprodutível como as métricas.
 | M1M2 contra A | teste sem vetores repetidos do treino | F1 macro | maior | +0.6894 pp | 0.2031 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
 | M1M2 contra A | teste sem vetores repetidos do treino | FPR de Malicious-DoH | menor | -0.0013 pp | 0.0014 pp | 0 | 6 | 4 | 0.0312 | **não se distinguem** |
 | M1M2 contra A | uma medida por execução | tempo de treino | menor | +147.2 s | 1.8 s | 10 | 0 | 0 | 0.0020 | **piora** |
+
+### Análise acrescentada depois da execução, fora dos pares pré-registrados
+
+Este bloco é análise acrescentada depois da execução, fora dos pares pré-registrados: o par ou a métrica não estavam na hipótese, e a regra de leitura é aplicada do mesmo modo. Não entra na condição que a hipótese fixou para
+dizer que o modelo proposto é melhor que A.
+
+| par | conjunto | métrica | melhor é o valor | diferença média | desvio padrão das diferenças | seeds em que o primeiro tem o valor maior | seeds em que o segundo tem o valor maior | empates | p-valor de Wilcoxon | veredito para a modificação |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| M1M2 contra A | teste inteiro | precisão de Benign-DoH | maior | +2.7219 pp | 0.8061 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
+| M1M2 contra A | teste sem vetores repetidos do treino | precisão de Benign-DoH | maior | +3.3376 pp | 0.7796 pp | 10 | 0 | 0 | 0.0020 | **melhora** |
+
+Falsos positivos de Malicious-DoH somados nas seeds: teste inteiro, A 15, M1M2 5, em 909560 fluxos não maliciosos; teste sem vetores repetidos do treino, A 15, M1M2 5, em 751844 fluxos não maliciosos.
 
 ## Hipótese ao lado do resultado
 
@@ -394,15 +444,15 @@ fixada na hipótese: a modificação melhora a métrica quando a diferença méd
 4. M1M2 contra A, CIRA-CIC-DoHBrw-2020, teste inteiro:
    - Esperado: melhora do F1 macro. F1 macro: diferença média de +0.4973 pp, desvio padrão das diferenças de 0.1677 pp, veredito **melhora**: **ocorreu**.
    - Esperado: diferença de F1 macro abaixo de 1 pp: **ocorreu**.
-   - Esperado: sem melhora no recall de Benign-DoH. recall de Benign-DoH: diferença média de +0.5975 pp, desvio padrão das diferenças de 0.5458 pp, veredito **melhora**: não ocorreu.
+   - Esperado: sem melhora no recall de Benign-DoH. recall de Benign-DoH: diferença média de +0.5975 pp, desvio padrão das diferenças de 0.5458 pp, veredito **melhora**: não ocorreu. Em fluxos (contagem acrescentada depois da execução): M1M2 acerta em média +11.8 fluxos Benign-DoH por teste em relação a A, de 1975 no teste da primeira seed.
    - Esperado: o ganho, se houver, vem de menos fluxos Non-DoH preditos como Benign-DoH. Média por teste de 224.2 em M1M2 contra 267.5 em A: **ocorreu**.
-   - Esperado: os dois não se distinguem no FPR de Malicious-DoH. FPR de Malicious-DoH: diferença média de -0.0013 pp, desvio padrão das diferenças de 0.0011 pp, veredito **melhora**: não ocorreu.
+   - Esperado: os dois não se distinguem no FPR de Malicious-DoH. FPR de Malicious-DoH: diferença média de -0.0013 pp, desvio padrão das diferenças de 0.0011 pp, veredito **melhora**: não ocorreu. Em fluxos (contagem acrescentada depois da execução): 2 falsos positivos de Malicious-DoH somados nas 10 seeds em M1M2 contra 14 em A, em 909560 fluxos não maliciosos somados.
 5. M1M2 contra A, combinado CIRA + HKD sem réplicas, teste inteiro:
    - Esperado: melhora do F1 macro. F1 macro: diferença média de +0.5720 pp, desvio padrão das diferenças de 0.2008 pp, veredito **melhora**: **ocorreu**.
    - Esperado: diferença de F1 macro abaixo de 1 pp: **ocorreu**.
-   - Esperado: sem melhora no recall de Benign-DoH. recall de Benign-DoH: diferença média de +0.4608 pp, desvio padrão das diferenças de 0.4746 pp, veredito **não se distinguem**: **ocorreu**.
+   - Esperado: sem melhora no recall de Benign-DoH. recall de Benign-DoH: diferença média de +0.4608 pp, desvio padrão das diferenças de 0.4746 pp, veredito **não se distinguem**: **ocorreu**. Em fluxos (contagem acrescentada depois da execução): M1M2 acerta em média +9.1 fluxos Benign-DoH por teste em relação a A, de 1975 no teste da primeira seed.
    - Esperado: o ganho, se houver, vem de menos fluxos Non-DoH preditos como Benign-DoH. Média por teste de 217.5 em M1M2 contra 274.2 em A: **ocorreu**.
-   - Esperado: os dois não se distinguem no FPR de Malicious-DoH. FPR de Malicious-DoH: diferença média de -0.0011 pp, desvio padrão das diferenças de 0.0012 pp, veredito **não se distinguem**: **ocorreu**.
+   - Esperado: os dois não se distinguem no FPR de Malicious-DoH. FPR de Malicious-DoH: diferença média de -0.0011 pp, desvio padrão das diferenças de 0.0012 pp, veredito **não se distinguem**: **ocorreu**. Em fluxos (contagem acrescentada depois da execução): 5 falsos positivos de Malicious-DoH somados nas 10 seeds em M1M2 contra 15 em A, em 909560 fluxos não maliciosos somados.
 6. Esperado: os vereditos de M1M2 contra A são os mesmos no teste inteiro e no teste sem vetores repetidos.
    - CIRA-CIC-DoHBrw-2020: recall de Benign-DoH, melhora e melhora; F1 macro, melhora e melhora; FPR de Malicious-DoH, melhora e melhora: **ocorreu**.
    - combinado CIRA + HKD sem réplicas: recall de Benign-DoH, não se distinguem e não se distinguem; F1 macro, melhora e melhora; FPR de Malicious-DoH, não se distinguem e não se distinguem: **ocorreu**.
@@ -419,12 +469,15 @@ Malicious-DoH.
 - CIRA-CIC-DoHBrw-2020: recall de Benign-DoH, melhora no teste inteiro e melhora no teste sem vetores repetidos do treino; F1 macro, melhora no teste inteiro e melhora no teste sem vetores repetidos do treino; FPR de Malicious-DoH, melhora no teste inteiro e melhora no teste sem vetores repetidos do treino. Pela regra, M1M2 **é dito melhor que A**.
 - combinado CIRA + HKD sem réplicas: recall de Benign-DoH, não se distinguem no teste inteiro e não se distinguem no teste sem vetores repetidos do treino; F1 macro, melhora no teste inteiro e melhora no teste sem vetores repetidos do treino; FPR de Malicious-DoH, não se distinguem no teste inteiro e não se distinguem no teste sem vetores repetidos do treino. Pela regra, M1M2 **é dito melhor que A**.
 
+Leitura acrescentada depois da execução. Pela regra, no teste inteiro, o veredito de melhora de M1M2 sobre A se repete em todos os conjuntos de dados em: F1 macro, precisão de Benign-DoH. Não se repete em: recall de Benign-DoH (só em CIRA-CIC-DoHBrw-2020), FPR de Malicious-DoH (só em CIRA-CIC-DoHBrw-2020). A precisão de Benign-DoH não estava entre as métricas da hipótese e entra aqui como análise posterior. Os conjuntos não são independentes: o segundo tem 0.45% de fluxos a mais que o primeiro (+0 Non-DoH, +0 Benign-DoH, +5258 Malicious-DoH). É o primeiro mais os fluxos do HKD, e o resultado nele não é uma réplica independente do resultado no primeiro.
+
 M1M2 difere de A em três coisas ao mesmo tempo: a arquitetura (um Random
 Forest em vez de três e um meta-classificador), o balanceamento (peso de
 classe em vez de SMOTE) e os hiperparâmetros. A diferença entre os dois não
 pode ser atribuída a nenhuma das três em separado. M1 contra A, no CIRA, mede
-a arquitetura e o balanceamento juntos, com os hiperparâmetros iguais; a
-diferença entre M1 e M1M2 não foi comparada seed a seed aqui. Médias dos dois
+a arquitetura e o balanceamento juntos, com os hiperparâmetros iguais. M1
+contra M1M2 não estava entre os pares da hipótese: a comparação seed a seed
+foi acrescentada depois da execução e está na seção do CIRA. Médias dos dois
 no teste inteiro do CIRA: F1 macro de 97.136 ± 0.119% em M1 e de
 97.053 ± 0.155% em M1M2; recall de Benign-DoH de
 92.572 ± 0.514% e de 93.671 ± 0.479%; precisão de
@@ -466,7 +519,8 @@ Benign-DoH de 90.710 ± 0.521% e de 89.191 ± 0.699%.
   desvio padrão entre seeds mede a variação entre sorteios desta tabela, não a
   variação entre redes ou entre capturas.
 - O tempo de treino de A no CIRA foi medido em outra execução, a do protocolo
-  corrigido, com outra carga na máquina. A comparação de tempo é indicativa.
+  corrigido, com outra carga na máquina. A comparação de tempo é indicativa; a
+  seção de tempo de treino do CIRA mostra o mesmo modelo reajustado.
 - O tráfego malicioso do CIRA-CIC-DoHBrw-2020 foi capturado em outras máquinas
   e em outro período que o tráfego das outras duas classes. Nenhum split
   dentro do conjunto remove essa diferença.
