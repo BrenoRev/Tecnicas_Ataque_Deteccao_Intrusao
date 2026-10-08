@@ -199,8 +199,8 @@ def duration_threshold(duration: np.ndarray, shap_duration: np.ndarray, labels: 
 
     `duration` está em segundos e `labels` é a classe real de cada fluxo.
     Devolve a fração de valores positivos acima e abaixo do limiar do artigo,
-    no total e por classe, o corte que melhor separa os dois sinais e se o
-    limiar do artigo é confirmado.
+    no total e por classe, o corte que melhor separa os dois sinais e os
+    fluxos que ficam entre esse corte e o limiar do artigo.
     """
     positive = shap_duration > 0
     above = duration > ARTICLE_DURATION_THRESHOLD_SECONDS
@@ -213,13 +213,11 @@ def duration_threshold(duration: np.ndarray, shap_duration: np.ndarray, labels: 
     best_seconds = float(duration[order][best])
 
     # Fluxos que o corte medido e o limiar do artigo põem em lados diferentes.
-    # O limiar do artigo é dado como confirmado quando a maioria deles tem o
-    # sinal que ele prevê: positivo acima de 40 segundos, não positivo até lá.
-    # Sem nenhum fluxo entre os dois, os cortes separam a amostra do mesmo jeito.
+    # O corte medido é, por construção, o que mais concorda com o sinal: ele
+    # não serve de critério para confirmar ou negar o limiar do artigo, e os
+    # dois cortes são só reportados lado a lado.
     low, high = sorted([best_seconds, float(ARTICLE_DURATION_THRESHOLD_SECONDS)])
     between = (duration > low) & (duration <= high)
-    as_article_predicts = positive[between] == above[between]
-    confirmed = bool(not between.any() or as_article_predicts.mean() > 0.5)
     return {
         "article_threshold_seconds": ARTICLE_DURATION_THRESHOLD_SECONDS,
         "rows_above_article_threshold": int(above.sum()),
@@ -231,7 +229,6 @@ def duration_threshold(duration: np.ndarray, shap_duration: np.ndarray, labels: 
         "best_threshold_agreement": float(agreeing[best] / len(duration)),
         "rows_between_cuts": int(between.sum()),
         "positive_fraction_between_cuts": positive_share(positive[between]),
-        "article_threshold_confirmed": confirmed,
         "by_class": duration_by_class(positive, above, between, labels),
         "shortest_positive_seconds": float(duration[positive].min()),
         "longest_non_positive_seconds": float(duration[~positive].max()),
@@ -709,28 +706,28 @@ def threshold_class_table(threshold: dict) -> str:
     return markdown_table(columns, rows)
 
 
-def threshold_verdict(threshold: dict) -> str:
-    """Escreve se a amostra confirma o limiar de 40 segundos que o artigo lê na Fig. 6a."""
+def threshold_facts(threshold: dict) -> str:
+    """Escreve os dois fatos medidos sobre o limiar de 40 segundos que o artigo lê na Fig. 6a."""
     seconds = threshold["article_threshold_seconds"]
     malicious = threshold["by_class"][CLASS_NAMES[MALICIOUS]]
-    confirmed = threshold["article_threshold_confirmed"]
-    direction = threshold["positive_fraction_above_article_threshold"] > 0.5
-    side = "o que" if confirmed else "o contrário do que"
+    above = threshold["positive_fraction_above_article_threshold"]
+    up_to = threshold["positive_fraction_up_to_article_threshold"]
+    best = threshold["best_threshold_seconds"]
+    observed = "é observada" if above > 0.5 > up_to else "não é observada"
     return (
-        f"**Veredito: o limiar de {seconds} s {'é' if confirmed else 'não é'} confirmado nesta "
-        f"amostra.** A direção que o artigo descreve {'aparece' if direction else 'não aparece'}: "
-        f"acima de {seconds} s, {threshold['positive_fraction_above_article_threshold']:.2%} dos "
-        f"fluxos têm valor SHAP positivo. O ponto de corte medido é "
-        f"{threshold['best_threshold_seconds']:.2f} s, que deixa "
-        f"{threshold['best_threshold_agreement']:.2%} dos fluxos do lado esperado; o corte em "
-        f"{seconds} s deixa {threshold['article_threshold_agreement']:.2%}. Entre os dois cortes "
+        f"**Dois fatos medidos nesta amostra.** Primeiro, a direção que o artigo descreve "
+        f"{observed}: acima de {seconds} s, {above:.2%} dos fluxos têm valor SHAP positivo; até "
+        f"{seconds} s, {up_to:.2%}. Segundo, o ponto em que o sinal troca na amostra é "
+        f"{best:.2f} s, e o artigo lê {seconds} s: o corte em {best:.2f} s deixa "
+        f"{threshold['best_threshold_agreement']:.2%} dos fluxos do lado esperado, e o corte em "
+        f"{seconds} s, {threshold['article_threshold_agreement']:.2%}. Entre os dois cortes "
         f"ficam {threshold['rows_between_cuts']} fluxos, {malicious['rows_between_cuts']} deles "
         f"{CLASS_NAMES[MALICIOUS]} ({malicious['fraction_between_cuts']:.2%} dos maliciosos da "
         f"amostra), e {share_text(threshold['positive_fraction_between_cuts'])} têm valor SHAP "
-        f"positivo, {side} o limiar de {seconds} s prevê para eles. Critério do veredito: o "
-        "limiar do artigo é confirmado quando a maioria dos fluxos entre ele e o corte medido tem "
-        "o sinal que ele prevê. A amostra tem as três classes em partes iguais, e os "
-        "percentuais não são os do tráfego."
+        "positivo. O artigo lê o limiar a olho na figura e não informa a amostra; a diferença "
+        "não é atribuível. O corte medido é o que mais concorda com o sinal nesta amostra, por "
+        "construção, e por isso não confirma nem nega o limiar do artigo. A amostra tem as três "
+        "classes em partes iguais, e os percentuais não são os do tráfego."
     )
 
 
@@ -752,7 +749,7 @@ def threshold_text(threshold: dict) -> str:
         f"maior duração com valor não positivo: {threshold['longest_non_positive_seconds']:.2f} s."
         '\n\nPor classe real. "Entre os dois cortes" são os fluxos com duração entre o corte '
         f"medido e os {threshold['article_threshold_seconds']} s do artigo:\n\n"
-        f"{threshold_class_table(threshold)}\n\n{threshold_verdict(threshold)}"
+        f"{threshold_class_table(threshold)}\n\n{threshold_facts(threshold)}"
     )
 
 
@@ -1023,7 +1020,7 @@ def comparison_text(results: list[tuple[dict, dict]], e1_tests: dict) -> str:
             f"{metrics['fig5_comparison'][EXPLAINED_BASE]['spearman_all_features']:.3f}",
             metrics["fig5_comparison"][EXPLAINED_BASE]["top_shared_with_article"],
             f"{metrics['duration_threshold']['best_threshold_seconds']:.2f}",
-            "sim" if metrics["duration_threshold"]["article_threshold_confirmed"] else "não",
+            metrics["duration_threshold"]["rows_between_cuts"],
             f"{metrics['duration_threshold']['positive_fraction_above_article_threshold']:.2%}",
             f"{metrics['duration_threshold']['positive_fraction_up_to_article_threshold']:.2%}",
             f"{metrics['base_agrees_with_stacked_fraction']:.2%}",
@@ -1059,7 +1056,7 @@ Random Forest base {EXPLAINED_BASE_NUMBER} de cada leitura, na amostra do treino
                 f"Spearman com a Fig. 5 ({len(FEATURE_COLUMNS)} atributos)",
                 f"atributos em comum nos {SHAP_TOP_FEATURES} primeiros",
                 "corte que melhor separa o sinal do SHAP (s), amostra com classes em partes iguais",
-                f"limiar de {ARTICLE_DURATION_THRESHOLD_SECONDS} s confirmado",
+                f"fluxos entre o corte medido e {ARTICLE_DURATION_THRESHOLD_SECONDS} s",
                 f"SHAP positivo acima de {ARTICLE_DURATION_THRESHOLD_SECONDS} s",
                 f"SHAP positivo até {ARTICLE_DURATION_THRESHOLD_SECONDS} s",
                 "base concorda com o empilhado",
@@ -1069,10 +1066,11 @@ Random Forest base {EXPLAINED_BASE_NUMBER} de cada leitura, na amostra do treino
     }
 
 As medidas são do Random Forest base {EXPLAINED_BASE_NUMBER}, na amostra do teste com as classes
-em partes iguais. O limiar de {
+em partes iguais. O corte medido é o ponto em que o sinal do valor SHAP de
+`Duration` troca na amostra; o artigo lê {
         ARTICLE_DURATION_THRESHOLD_SECONDS
-    } s é dado como confirmado quando a maioria dos fluxos
-entre ele e o corte medido tem o sinal que ele prevê; o detalhe por classe está
+    } s a olho na Fig. 6a e não informa a
+amostra, e a diferença entre os dois não é atribuível. O detalhe por classe está
 no resumo de cada trilha. A última coluna diz em que fração da amostra a classe
 mais provável do base é a classe que o modelo empilhado devolve: é o alcance da
 explicação do base como explicação do sistema.
