@@ -86,18 +86,18 @@ Nada aqui é feito pelo assistente: são conferências, decisões e conversas da
 
 | # | Item | Detalhe |
 | --- | --- | --- |
-| 1 | `push` e pull requests | `origin/main` está em `6bf80bd`. As branches `tarefa/17-tabelas-figuras` e `tarefa/24-entregaveis` não estão no remoto, e `tarefa/16-robustez` está à frente da cópia remota. Abrir os pull requests na ordem das tarefas, cada um lido e aprovado por outro integrante, com o CI verde |
-| 2 | Conferência das transcrições por dois integrantes | Valores digitados do manuscrito em `project/src/doh_ids/config.py`: a metade inferior da Tabela II (`TABLE_II_LITERATURE`), a ordem dos atributos da Fig. 5 (`FIG5_RANKING`) e os valores das Figs. 7 e 8 (`FIG7_MALICIOUS`, `FIG8_NON_DOH`). Conferir contra o PDF e registrar quem conferiu |
-| 3 | Licença do repositório | Não há arquivo `LICENSE`, e o README de `project/` traz "Licença: [Preencher]". Proposta registrada: MIT, com nota de uso acadêmico e citação do artigo e dos datasets |
+| 1 | `push` e pull requests | **Fechado em 08/10/2026:** todas as branches estão no remoto e a versão final foi levada à `main` por avanço direto, a pedido de Breno (decisão 55) |
+| 2 | Conferência das transcrições | **Fechado em 08/10/2026:** feita pelo assistente em duas passagens independentes, a pedido de Breno, e não por dois integrantes (decisão 55): Tabela II contra a camada de texto da página 7; Figs. 5, 7 e 8 contra a imagem das páginas 8 e 9; sem divergência |
+| 3 | Licença do repositório | **Fechado em 08/10/2026:** MIT, arquivo `LICENSE` na raiz (decisão 55); proposta aplicada, sem escolha explícita |
 | 4 | DOI e conferência das referências | Cada referência do relatório conferida na fonte, com DOI. Inclui a citação do dataset CIRA, que diverge entre `docs/04-dados.md` e a lista do artigo: confirmar no IEEE Xplore |
 | 5 | Conferir o PPTX no Google Slides | Abrir `project/report/apresentacao.pptx` no Google Slides e conferir fontes, tabelas e imagens |
 | 6 | Ensaio | Cronometrado, em 15 minutos. O roteiro soma 11 min 55 s (`project/report/roteiro.md`) |
 | 7 | Confirmar a divisão da fala | O roteiro traz uma proposta por blocos de slides, em ordem alfabética (Amanda 1 a 4, Antonio 5 a 7, Breno 8 a 10, João 11 a 14); a equipe confirma ou troca |
 | 8 | Template no Overleaf | Subir `project/report/relatorio.tex` com `tables/` e `figures/` e compilar com **XeLaTeX**; conferir contra o template indicado pelo professor (idioma e limite de páginas: Q9) |
-| 9 | Conversa com o professor | (a) As duas leituras de profundidade e o resultado da profundidade 5. (b) O combinado como "outro conjunto de dados", com Non-DoH e Benign-DoH iguais aos do CIRA. (c) Q5: a explicação que ele pediu sobre a identificação da ferramenta de túnel, e o método adotado como leitura da equipe |
-| 10 | Perguntas sem resposta | Q9 (limite de páginas e idioma), Q10 (repositório público ou privado; hoje é público, decisão 43) e a parte em aberto de Q7 (frase de declaração do uso de IA). Q8 e Q11 são do seminário |
-| 11 | Tarefas do plano em aberto | 19 (README completo com a ordem dos scripts, execução limpa por quem não escreveu o código, checklist), 22 (padrões que nasceram na implementação) e 23 (acompanhamentos de 10/11 e 17/11) |
-| 12 | Login do quarto integrante | `CLAUDE.md` traz Antonio Gonzaga com "[Preencher: login]" |
+| 9 | Conversa com o professor | **Fechado pela equipe em 08/10/2026, sem resposta dele** (decisão 55): segue o que está implementado. A página `09-acompanhamento-professor.md` mantém os pontos para os encontros de 10/11 e 17/11 |
+| 10 | Perguntas sem resposta | **Fechado pela equipe em 08/10/2026** (decisão 55): relatório em português, até 8 páginas; repositório público; sem frase de declaração de IA. Não são respostas do professor |
+| 11 | Tarefas do plano em aberto | 22 e 23 concluídas em 08/10/2026; da 19 falta o resultado da execução limpa, em andamento |
+| 12 | Login do quarto integrante | **Fechado:** `agla` |
 | 13 | Ajustes do material do seminário | Tabela "Ajustes no material do seminário", acima; entrega dos slides em 14/10 |
 
 ## Mensagem enviada ao professor
@@ -106,14 +106,14 @@ Enviada por Breno em 07/10/2026 (informado por ele; canal `[Preencher]`). Nove p
 
 | Nº na mensagem | Pergunta | Corresponde a |
 | --- | --- | --- |
-| 1 | Reimplementar a partir do texto vale como reprodução? | Q1 |
-| 2 | Matriz de confusão (Fig. 4b) como alvo; existe tolerância? | Q2 |
-| 3 | HKD para transferência e combinado para retreino atendem a "outro conjunto de dados"? Com as duas ressalvas: classes Non-DoH e benigna iguais às do CIRA; fluxos do HKD repetidos 20 vezes no combinado | Q4 |
+| 1 | `push` e pull requests | **Fechado em 08/10/2026:** todas as branches estão no remoto e a versão final foi levada à `main` por avanço direto, a pedido de Breno (decisão 55) |
+| 2 | Conferência das transcrições | **Fechado em 08/10/2026:** feita pelo assistente em duas passagens independentes, a pedido de Breno, e não por dois integrantes (decisão 55): Tabela II contra a camada de texto da página 7; Figs. 5, 7 e 8 contra a imagem das páginas 8 e 9; sem divergência |
+| 3 | Licença do repositório | **Fechado em 08/10/2026:** MIT, arquivo `LICENSE` na raiz (decisão 55); proposta aplicada, sem escolha explícita |
 | 4 | Há requisito adicional para este artigo? | Q3 |
 | 5 | A identificação da ferramenta de túnel entra na reprodução? | Q5 |
 | 6 | O painel interativo precisa ser reproduzido? | Q6 |
 | 7 | Limite de páginas e idioma do relatório | Q9 |
 | 8 | Repositório público ou privado? | Q10 |
-| 9 | O uso de assistente de IA precisa ser declarado no relatório? | Q7 (parte em aberto) |
+| 9 | Conversa com o professor | **Fechado pela equipe em 08/10/2026, sem resposta dele** (decisão 55): segue o que está implementado. A página `09-acompanhamento-professor.md` mantém os pontos para os encontros de 10/11 e 17/11 |
 
 Não foram enviadas Q8 e Q11, que são do seminário. O rascunho citava o artigo do HKD como "IEEE TNSM, 2022"; a referência correta é de 2023 (ver [04-dados.md](04-dados.md)). `[Preencher: se a mensagem saiu com 2022 ou 2023]`

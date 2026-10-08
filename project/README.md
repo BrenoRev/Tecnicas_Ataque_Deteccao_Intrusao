@@ -270,4 +270,4 @@ Os 229 `run.json` versionados registram a mesma máquina (mesmo `hostname`), com
 
 ## Licença
 
-Licença: [Preencher]
+O código é distribuído sob a licença MIT (arquivo `LICENSE`, na raiz do repositório). A licença não cobre o artigo reproduzido, os conjuntos de dados nem o material da disciplina.
