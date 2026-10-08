@@ -40,3 +40,6 @@ report/*.synctex.gz
 project/data/raw/
 project/data/processed/
 *.parquet
+
+# Sobra da extração de zip no macOS
+__MACOSX/

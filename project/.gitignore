@@ -37,3 +37,6 @@ report/*.synctex.gz
 # Dados brutos e processados
 data/raw/
 data/processed/
+
+# Sobra da extração de zip no macOS
+__MACOSX/
