@@ -22,7 +22,13 @@ def trees(tmp_path):
     write_json(
         reference / AGGREGATE,
         {
-            "models": {"A": {"f1_macro": {"mean": 0.9656}, "train_seconds": {"mean": 161.0}}},
+            "models": {
+                "A": {
+                    "f1_macro": {"mean": 0.9656},
+                    "train_seconds": {"mean": 161.0},
+                    "commits": ["aaaaaaa"],
+                }
+            },
             "paired": [
                 {"metric": "f1_macro", "mean_difference": 0.005},
                 {"metric": "train_seconds", "mean_difference": 102.2},
@@ -56,6 +62,7 @@ def test_difference_only_in_time_is_not_a_failure(trees, capsys):
     reference, regenerated = trees
     aggregate = json.loads((regenerated / AGGREGATE).read_text(encoding="utf-8"))
     aggregate["models"]["A"]["train_seconds"]["mean"] = 112.5
+    aggregate["models"]["A"]["commits"] = ["bbbbbbb"]
     aggregate["paired"][1]["mean_difference"] = 150.7
     write_json(regenerated / AGGREGATE, aggregate)
     (regenerated / "e1/RESUMO.md").write_text("ajuste em 850 s\n", encoding="utf-8")
