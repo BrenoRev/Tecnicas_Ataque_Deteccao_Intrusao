@@ -24,7 +24,7 @@ Apresentam três integrantes, em blocos contíguos de slides (a divisão dos blo
 
 - Nada foi ajustado para aproximar número do artigo: seed, hiperparâmetro e limpeza ficaram fixos.
 - As duas leituras de profundidade têm apoio no texto; reportamos as duas.
-- Os experimentos seguintes usam a leitura de profundidade variável como base, porque a outra não prediz uma das classes.
+- Os experimentos seguintes usam a leitura de profundidade variável como base, porque a outra tem recall 0 em uma das classes.
 - Protocolo corrigido: dez seeds em vez de uma, comparação pareada no mesmo split, teste sem vetores repetidos e folds por máquina.
 - Um script por experimento; resultado gravado com seed, versões e commit.
 
@@ -82,7 +82,7 @@ Apresentam três integrantes, em blocos contíguos de slides (a divisão dos blo
 - A seleção escolheu a mesma combinação nas dez seeds, nos dois conjuntos: 100 árvores, sem limite de profundidade, raiz quadrada dos atributos por divisão.
 - M1 perde 0,50 ponto de recall de Benign-DoH e o FPR de Malicious-DoH vai de 0,0015% para 0,0048%.
 - Com profundidade 5, o modelo único recupera o recall de Benign-DoH (87,64%), mas com precisão de 26,23% e F1 macro de 78,66%.
-- Tempo: 1,6 vez no CIRA e 2,3 vezes no combinado; o tempo de A no CIRA foi medido sob outra carga e, reajustado, é 112,5 s (2,3 vezes).
+- Tempo: 1,6 vez no CIRA e cerca de 2,2 vezes no combinado; o tempo de A no CIRA foi medido sob outra carga e, reajustado, é 112,5 s (2,3 vezes).
 - Não dizemos que a modificação reduz falsos positivos: no CIRA é cerca de um fluxo por teste, e não se repete no combinado.
 - Os testes das seeds se sobrepõem: não usamos a palavra significativo.
 
