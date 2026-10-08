@@ -202,8 +202,20 @@ def evaluate_split(
     balanced, smote_seconds = None, None
     if any(not CORRIGIDA_MODELS[name]["stacked"] for name in names):
         start = time.perf_counter()
-        X_train = fit_scaler(train).transform(feature_matrix(train))
+        scaler = fit_scaler(train)
+        train_features = feature_matrix(train)
+        # Com o teste junto no ajuste, o normalizador teria mais linhas que o
+        # treino ou outro mínimo e máximo, e o treino balanceado teria mais
+        # que três vezes a maior classe do treino.
+        assert scaler.n_samples_seen_ == len(train), "O scaler viu linhas fora do treino."
+        assert np.array_equal(scaler.data_min_, train_features.min()), "Mínimo de outro conjunto."
+        assert np.array_equal(scaler.data_max_, train_features.max()), "Máximo de outro conjunto."
+        X_train = scaler.transform(train_features)
         balanced = balanced_train(X_train, train["label"].to_numpy(), seed)
+        balanced_rows = np.bincount(balanced[1], minlength=len(CLASS_NAMES)).tolist()
+        assert balanced_rows == [max(class_counts(train))] * len(CLASS_NAMES), (
+            "O SMOTE do treino inteiro recebeu linhas fora do treino."
+        )
         smote_seconds = round(time.perf_counter() - start, 1)
 
     metrics, records = {}, {}
