@@ -424,6 +424,14 @@ def proximity_text(proximity: dict) -> str:
         ]
         for name, entry in proximity["by_tool"].items()
     ]
+    # Cópia exata é distância zero: a frase segue a menor distância medida.
+    exact_copies = (
+        f"A menor distância ao HKD do treino é {near['min']:.6g}, maior que zero: nenhum fluxo "
+        "do HKD no teste é cópia exata de um do treino."
+        if near["min"] > 0
+        else "A menor distância ao HKD do treino é zero: ao menos um fluxo do HKD no teste é "
+        "cópia exata de um do treino."
+    )
     return f"""Split do retreino do sistema: seed {proximity["seed"]}, fração de teste
 {proximity["test_size"]}. Para cada um dos {proximity["hkd_test_rows"]} fluxos do HKD no teste, a
 distância euclidiana, nos 29 atributos normalizados pelo scaler do treino, até
@@ -449,9 +457,9 @@ Em {proximity["rows_closer_to_hkd_train"]} dos {proximity["hkd_test_rows"]} flux
 ({proximity["fraction_closer_to_hkd_train"]:.2%}), o fluxo do HKD mais próximo no treino está
 mais perto que qualquer fluxo malicioso do CIRA. A mediana da distância ao HKD do
 treino é {near["median"] / far["median"]:.2%} da mediana da distância ao malicioso do CIRA.
-Nenhum fluxo do HKD no teste é cópia exata de um do treino; a medida diz o
-quanto os que não são cópia ficam perto. Ela não separa fluxos da mesma sessão
-de túnel, porque as tabelas não trazem a sessão."""
+{exact_copies} A medida diz o quanto os fluxos que não são cópia ficam perto. Ela
+não separa fluxos da mesma sessão de túnel, porque as tabelas não trazem a
+sessão."""
 
 
 def count_tables(metrics: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
