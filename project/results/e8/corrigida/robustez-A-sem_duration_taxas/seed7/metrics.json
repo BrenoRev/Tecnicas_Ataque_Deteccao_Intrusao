@@ -1,0 +1,258 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "dropped_features": [
+    "Duration",
+    "FlowSentRate",
+    "FlowReceivedRate"
+  ],
+  "fit_rows": [
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266942,
+      224598,
+      224598
+    ]
+  ],
+  "fragmentation": {
+    "1": {
+      "malicious": {
+        "detected": 24946,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 3,
+          "Malicious-DoH": 24946,
+          "Non-DoH": 6
+        },
+        "recall": 0.9996393508314967
+      },
+      "perturbation": {
+        "median_duration_seconds": 34.071615,
+        "outside_train_range": {
+          "by_column": {
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 4.007212983370066e-05,
+          "rows": 1,
+          "values": 1
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.0,
+          "rows": 0
+        },
+        "rows": 24955
+      }
+    },
+    "16": {
+      "malicious": {
+        "detected": 23076,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 1044,
+          "Malicious-DoH": 23076,
+          "Non-DoH": 835
+        },
+        "recall": 0.9247044680424764
+      },
+      "perturbation": {
+        "median_duration_seconds": 2.1294759375,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 2118,
+            "FlowBytesSent": 1934,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.08727709877780004,
+          "rows": 2178,
+          "values": 4053
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9988379082348227,
+          "rows": 24926
+        },
+        "rows": 24955
+      }
+    },
+    "2": {
+      "malicious": {
+        "detected": 23679,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 804,
+          "Malicious-DoH": 23679,
+          "Non-DoH": 472
+        },
+        "recall": 0.948867962332198
+      },
+      "perturbation": {
+        "median_duration_seconds": 17.0358075,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 62,
+            "FlowBytesSent": 12,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.0025245441795231417,
+          "rows": 63,
+          "values": 75
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.29497094770587057,
+          "rows": 7361
+        },
+        "rows": 24955
+      }
+    },
+    "4": {
+      "malicious": {
+        "detected": 23475,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 923,
+          "Malicious-DoH": 23475,
+          "Non-DoH": 557
+        },
+        "recall": 0.9406932478461231
+      },
+      "perturbation": {
+        "median_duration_seconds": 8.51790375,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 150,
+            "FlowBytesSent": 128,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.0060909637347225,
+          "rows": 152,
+          "values": 279
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.6920056100981767,
+          "rows": 17269
+        },
+        "rows": 24955
+      }
+    },
+    "8": {
+      "malicious": {
+        "detected": 23176,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 1106,
+          "Malicious-DoH": 23176,
+          "Non-DoH": 673
+        },
+        "recall": 0.9287116810258466
+      },
+      "perturbation": {
+        "median_duration_seconds": 4.258951875,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 491,
+            "FlowBytesSent": 345,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.022039671408535362,
+          "rows": 550,
+          "values": 837
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9663394109396914,
+          "rows": 24115
+        },
+        "rows": 24955
+      }
+    }
+  },
+  "n_features": 26,
+  "split_index_sha256": {
+    "test": "e1ee3ca2302bace8574c564fbb9153c30ed2c7365f4d632f8949dc2e3bbd2253",
+    "train": "4b4e29823fb811c21427d9cc561d06d5c3664119375a318533ff0ac1a403f719"
+  },
+  "test": {
+    "accuracy": 0.9961694748557083,
+    "confusion_matrix": [
+      [
+        88686,
+        292,
+        3
+      ],
+      [
+        140,
+        1835,
+        0
+      ],
+      [
+        6,
+        3,
+        24946
+      ]
+    ],
+    "macro_f1": 0.9637703577955824,
+    "macro_precision": 0.9532461834147429,
+    "macro_recall": 0.9751459867922619,
+    "malicious_vs_rest": {
+      "false_positives": 3,
+      "fpr": 3.298298078191653e-05,
+      "fpr_ci_high": 9.638721050947424e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 6.801935229928487e-06,
+      "negatives": 90956,
+      "recall": 0.9996393508314967
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.8940316686967112,
+        "pr_auc": 0.8222669656091534,
+        "pr_auc_base_mean": 0.9323938337489992,
+        "precision": 0.8615023474178404,
+        "recall": 0.9291139240506329,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9997595383135621,
+        "pr_auc": 0.9997156543273686,
+        "pr_auc_base_mean": 0.9999673579915777,
+        "precision": 0.9998797546995871,
+        "recall": 0.9996393508314967,
+        "support": 24955
+      },
+      "Non-DoH": {
+        "f1": 0.9975198663764742,
+        "pr_auc": 0.9988439858131837,
+        "pr_auc_base_mean": 0.9996203459482078,
+        "precision": 0.9983564481268011,
+        "recall": 0.9966846854946562,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9895583734522084,
+    "roc_auc_ovr_macro_base_mean": 0.9977277679554956,
+    "total": 115911,
+    "weighted_f1": 0.9962387267328898,
+    "weighted_precision": 0.9963525595107394,
+    "weighted_recall": 0.9961694748557083
+  },
+  "test_rows": [
+    88981,
+    1975,
+    24955
+  ],
+  "train_rows": [
+    800828,
+    17771,
+    224598
+  ]
+}

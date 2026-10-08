@@ -1,0 +1,67 @@
+{
+  "commit": "1529734bcd559f048b33527edea9ad0717b9a29b",
+  "config": {
+    "balancing": "peso de classe no Random Forest; sem SMOTE e sem subconjuntos",
+    "class_weight": "balanced",
+    "columns": "sem_duration_taxas",
+    "criterion": "gini",
+    "dataset": "cira",
+    "dropped_features": [
+      "Duration",
+      "FlowSentRate",
+      "FlowReceivedRate"
+    ],
+    "features_examined_per_split": 5,
+    "fragmentation_factors": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ],
+    "fragmented_columns": [
+      "Duration",
+      "FlowBytesSent",
+      "FlowBytesReceived"
+    ],
+    "hyperparameter_search": "nenhuma nesta execução: combinação escolhida pela seleção já gravada, no treino da mesma seed e com os 29 atributos",
+    "max_depth": null,
+    "max_features": "sqrt",
+    "model": "M1M2",
+    "n_base_models": 1,
+    "n_estimators": 100,
+    "n_features": 26,
+    "n_jobs": -1,
+    "scaler": "MinMaxScaler como primeiro passo do Pipeline, ajustado com o Random Forest",
+    "stacked": false,
+    "test_size": 0.1
+  },
+  "cpu_count": 10,
+  "data_sha256": "7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3",
+  "dirty": false,
+  "experiment": "e8",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 2,
+  "slice": "robustez-M1M2-sem_duration_taxas",
+  "timestamp": "2026-10-08T01:05:16-03:00",
+  "timings": {
+    "evaluation_seconds": 2.9,
+    "fit_seconds": 79.7,
+    "total_seconds": 82.6
+  },
+  "track": "corrigida"
+}
