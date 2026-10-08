@@ -731,6 +731,13 @@ def main() -> None:
     tables, metrics = {}, {}
     for name, _, parquet_path in SLICES:
         tables[name], removed = cleaned_table(raw[name])
+        if parquet_path == COMBINED_UNIQUE_PARQUET_PATH:
+            # O arquivo sem réplicas não pode ser gravado com um fluxo do HKD
+            # repetido: cópias do mesmo fluxo cairiam no treino e no teste.
+            from_hkd = tables[name][tables[name]["origin"] == "HKD"]
+            assert not from_hkd.duplicated(subset=FEATURE_COLUMNS + ["tool"]).any(), (
+                "Réplica do HKD na tabela sem réplicas."
+            )
         metrics[name] = table_metrics(raw[name], tables[name], removed, parquet_path)
     check_combined(raw["combinado"], tables["combinado"])
     # O README do HKD dá as contagens do arquivo replicado: as de Total-48h.csv

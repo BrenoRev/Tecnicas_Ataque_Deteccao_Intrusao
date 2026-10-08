@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import scripts.e6_dados as e6_dados
 from doh_ids.config import (
     CIRA_LOCAL_PREFIX,
     CIRA_TOOLS,
@@ -225,6 +226,31 @@ def test_without_replicas_keeps_one_row_per_hkd_flow_and_all_cira_rows(second_da
     assert len(unique_hkd) * SYNTHETIC_REPLICAS == from_hkd.sum()
     assert not unique_hkd.duplicated(subset=FEATURE_COLUMNS + ["tool"]).any()
     pd.testing.assert_frame_equal(unique[unique["origin"] == "CIRA"], combined[~from_hkd])
+
+
+def test_script_table_without_replicas_has_each_hkd_flow_once(second_dataset_paths, monkeypatch):
+    hkd_path, level_paths = second_dataset_paths
+    # Nos arquivos reais nenhum fluxo do HKD tem valor ausente, e a conferência
+    # das réplicas conta com isso: as linhas sintéticas com ausente ficam de fora.
+    hkd = load_hkd(hkd_path).dropna(subset=FEATURE_COLUMNS)
+    combined = load_combined(level_paths).dropna(subset=FEATURE_COLUMNS)
+
+    def synthetic_hkd(path=None):
+        # Com caminho, o script pede o arquivo replicado do HKD.
+        return hkd if path is None else pd.concat([hkd] * SYNTHETIC_REPLICAS, ignore_index=True)
+
+    # O script lê os arquivos de data/raw/ pelos caminhos padrão: aqui ele
+    # recebe as tabelas sintéticas e o número de cópias delas.
+    monkeypatch.setattr(e6_dados, "load_hkd", synthetic_hkd)
+    monkeypatch.setattr(e6_dados, "load_combined", lambda: combined)
+    monkeypatch.setattr(e6_dados, "HKD_REPLICAS", SYNTHETIC_REPLICAS)
+    tables, _ = e6_dados.load_checked_sources()
+
+    unique = tables["combinado_sem_replicas"]
+    unique_hkd = unique[unique["origin"] == "HKD"]
+    assert len(unique_hkd) == len(hkd)
+    assert not unique_hkd.duplicated(subset=FEATURE_COLUMNS + ["tool"]).any()
+    assert len(tables["combinado"]) == len(unique) + (SYNTHETIC_REPLICAS - 1) * len(hkd)
 
 
 def test_second_dataset_load_does_not_create_group_or_time_window(second_dataset_paths):
