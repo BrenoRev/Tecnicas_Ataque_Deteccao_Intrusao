@@ -1,0 +1,53 @@
+{
+  "commit": "5165fd37f8e39f718520dee6b9a15d75c4a778a1",
+  "config": {
+    "balancing": "SMOTE em cada subconjunto: Benign-DoH aumentada até o tamanho de Malicious-DoH",
+    "class_weight": null,
+    "criterion": "gini",
+    "depth_reading": "profundidade máxima 5",
+    "hyperparameter_search": "nenhuma: configuração fixada antes da execução",
+    "max_depth": 5,
+    "max_features": 28,
+    "model": "A-prof5",
+    "n_base_models": 3,
+    "n_estimators": 10,
+    "n_jobs": -1,
+    "smote_seeds": [
+      700,
+      701,
+      702
+    ],
+    "stacked": true,
+    "test_size": 0.1
+  },
+  "cpu_count": 10,
+  "data_sha256": "7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3",
+  "dirty": false,
+  "experiment": "e4",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 7,
+  "slice": "A-prof5",
+  "timestamp": "2026-10-07T20:41:40-03:00",
+  "timings": {
+    "base_fit_seconds": 41.1,
+    "evaluation_seconds": 0.9,
+    "meta_fit_seconds": 4.8,
+    "subsets_seconds": 1.6,
+    "total_seconds": 48.6
+  },
+  "track": "corrigida"
+}
