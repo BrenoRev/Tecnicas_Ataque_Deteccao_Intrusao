@@ -167,9 +167,9 @@ Em 505 dos 513 fluxos
 (98.44%), o fluxo do HKD mais próximo no treino está
 mais perto que qualquer fluxo malicioso do CIRA. A mediana da distância ao HKD do
 treino é 5.00% da mediana da distância ao malicioso do CIRA.
-Nenhum fluxo do HKD no teste é cópia exata de um do treino; a medida diz o
-quanto os que não são cópia ficam perto. Ela não separa fluxos da mesma sessão
-de túnel, porque as tabelas não trazem a sessão.
+A menor distância ao HKD do treino é 8.35436e-06, maior que zero: nenhum fluxo do HKD no teste é cópia exata de um do treino. A medida diz o quanto os fluxos que não são cópia ficam perto. Ela
+não separa fluxos da mesma sessão de túnel, porque as tabelas não trazem a
+sessão.
 
 ## Justificativa da escolha do segundo dataset
 

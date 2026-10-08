@@ -1,7 +1,10 @@
 # E7: identificação da ferramenta de túnel (Seção VI-D e Fig. 9 do artigo)
 
-Gerado por `scripts/e7_ferramenta.py`. Uma única execução de cada leitura, com a
-seed 42: não há média nem desvio padrão.
+Gerado por `scripts/e7_resumo.py`, que não treina: lê os arquivos gravados por
+`scripts/e7_ferramenta.py`. Uma única execução de cada leitura, com a seed 42:
+não há média nem desvio padrão.
+
+O método e a regra que dá o papel de cada ferramenta nos subconjuntos foram fixados no código em commit anterior à execução: os `run.json` registram o commit `ff039fa`, com a árvore limpa. Não houve hipótese escrita antes de rodar, e isso não se conserta depois: nenhum número desta pasta foi confrontado com uma expectativa declarada antes de ser visto.
 
 ## O método é leitura nossa
 
@@ -74,8 +77,6 @@ dos bases.
 
 O erro aqui é de atribuição: quem investiga o alerta parte da ferramenta errada. A detecção do túnel não é medida, porque todos os fluxos do conjunto são maliciosos.
 
-
-
 Recall de cada Random Forest base sozinho no teste, na ordem dos subconjuntos:
 dns2tcp 98.06%, dnscat2 93.06%, iodine 92.84%; dns2tcp 98.13%, dnscat2 93.65%, iodine 92.86%; dns2tcp 98.04%, dnscat2 93.76%, iodine 92.99%.
 
@@ -124,8 +125,6 @@ dos bases.
 
 O erro aqui é de atribuição: quem investiga o alerta parte da ferramenta errada. A detecção do túnel não é medida, porque todos os fluxos do conjunto são maliciosos.
 
-
-
 Recall de cada Random Forest base sozinho no teste, na ordem dos subconjuntos:
 dns2tcp 91.38%, dnscat2 97.17%, iodine 72.53%; dns2tcp 91.40%, dnscat2 97.23%, iodine 72.23%; dns2tcp 91.37%, dnscat2 97.17%, iodine 72.15%.
 
@@ -157,24 +156,33 @@ histograma dos mesmos fluxos, em 100 intervalos. O eixo vertical do artigo é
 é comparável à do artigo. A figura descreve os dados e usa todos os
 249553 fluxos limpos, do treino e do teste; nenhum modelo é ajustado com ela.
 
-| atributo | ferramenta | fluxos | média | desvio padrão | média no artigo | desvio padrão no artigo | fração no eixo | fração com -10 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ResponseTimeTimeSkewFromMode | dns2tcp | 167287 | 1.09866 | 0.607149 | 1.09728 | 0.607949 | 100.00% | 0.10% |
-| ResponseTimeTimeSkewFromMode | dnscat2 | 35742 | 0.504119 | 1.13847 | 0.504178 | 1.13836 | 100.00% | 0.75% |
-| ResponseTimeTimeSkewFromMode | iodine | 46524 | 0.521273 | 1.08435 | 0.520797 | 1.08367 | 100.00% | 0.78% |
-| PacketTimeVariance | dns2tcp | 167287 | 197.603 | 290.947 | 197.345 | 290.832 | 100.00% | – |
-| PacketTimeVariance | dnscat2 | 35742 | 857.581 | 432.252 | 854.902 | 434.215 | 100.00% | – |
-| PacketTimeVariance | iodine | 46524 | 880.865 | 429.092 | 879.466 | 430.179 | 100.00% | – |
+A legenda da Fig. 9 foi medida de duas formas. Com todas as 249969 linhas dos três arquivos `all.csv` do zip, sem o filtro da coluna `DoH` e sem a limpeza, e com o desvio padrão populacional, 12 das 12 médias e desvios padrão saem iguais aos da legenda nos seis algarismos que ela imprime. Com os 249553 fluxos limpos da reprodução e o desvio padrão amostral, 0 das 12. Isso é indício, e não demonstração, de que a Seção VI-D do artigo usou os arquivos por ferramenta como publicados, sem a limpeza que leva à Tabela I: os arquivos têm 249969 linhas, 249836 delas com `DoH` verdadeiro, e a Tabela I traz 249553 fluxos Malicious-DoH. O artigo não diz que dados a figura usa.
 
-O artigo afirma que o dns2tcp tem desvio padrão menor nos dois atributos. Medido:
+| versão | atributo | ferramenta | fluxos | média | desvio padrão | média no artigo | desvio padrão no artigo | média menos artigo | desvio padrão menos artigo | fração no eixo | fração com -10 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| como o artigo: todas as linhas, desvio populacional | ResponseTimeTimeSkewFromMode | dns2tcp | 167517 | 1.09728 | 0.607949 | 1.09728 | 0.607949 | 3.91586e-06 | -2.1576e-07 | 100.00% | 0.10% |
+| como o artigo: todas as linhas, desvio populacional | ResponseTimeTimeSkewFromMode | dnscat2 | 35854 | 0.504178 | 1.13836 | 0.504178 | 1.13836 | 4.07963e-07 | -2.42787e-07 | 100.00% | 0.75% |
+| como o artigo: todas as linhas, desvio populacional | ResponseTimeTimeSkewFromMode | iodine | 46598 | 0.520797 | 1.08367 | 0.520797 | 1.08367 | -3.59687e-07 | -3.39073e-06 | 100.00% | 0.77% |
+| como o artigo: todas as linhas, desvio populacional | PacketTimeVariance | dns2tcp | 167517 | 197.345 | 290.832 | 197.345 | 290.832 | -6.38352e-05 | 5.762e-05 | 100.00% | – |
+| como o artigo: todas as linhas, desvio populacional | PacketTimeVariance | dnscat2 | 35854 | 854.902 | 434.215 | 854.902 | 434.215 | 2.987e-05 | 3.86086e-05 | 100.00% | – |
+| como o artigo: todas as linhas, desvio populacional | PacketTimeVariance | iodine | 46598 | 879.466 | 430.179 | 879.466 | 430.179 | 0.000322475 | 0.000146735 | 100.00% | – |
+| dados limpos da reprodução, desvio amostral | ResponseTimeTimeSkewFromMode | dns2tcp | 167287 | 1.09866 | 0.607149 | 1.09728 | 0.607949 | 0.00138314 | -0.00080049 | 100.00% | 0.10% |
+| dados limpos da reprodução, desvio amostral | ResponseTimeTimeSkewFromMode | dnscat2 | 35742 | 0.504119 | 1.13847 | 0.504178 | 1.13836 | -5.8969e-05 | 0.000111189 | 100.00% | 0.75% |
+| dados limpos da reprodução, desvio amostral | ResponseTimeTimeSkewFromMode | iodine | 46524 | 0.521273 | 1.08435 | 0.520797 | 1.08367 | 0.000475729 | 0.000682331 | 100.00% | 0.78% |
+| dados limpos da reprodução, desvio amostral | PacketTimeVariance | dns2tcp | 167287 | 197.603 | 290.947 | 197.345 | 290.832 | 0.258328 | 0.114896 | 100.00% | – |
+| dados limpos da reprodução, desvio amostral | PacketTimeVariance | dnscat2 | 35742 | 857.581 | 432.252 | 854.902 | 434.215 | 2.6789 | -1.96344 | 100.00% | – |
+| dados limpos da reprodução, desvio amostral | PacketTimeVariance | iodine | 46524 | 880.865 | 429.092 | 879.466 | 430.179 | 1.39918 | -1.08671 | 100.00% | – |
+
+O artigo afirma que o dns2tcp tem desvio padrão menor nos dois atributos. Medido
+nos dados limpos:
 
 - `ResponseTimeTimeSkewFromMode`: o menor desvio padrão é o de dns2tcp.
 - `PacketTimeVariance`: o menor desvio padrão é o de dns2tcp.
 
 `ResponseTimeTimeSkewFromMode` é uma coluna de assimetria, em que o extrator grava
--10 quando o desvio padrão do fluxo é zero. Fração dos fluxos com esse marcador:
-dns2tcp 0.10%, dnscat2 0.75%, iodine 0.78%. O marcador entra na média e no desvio padrão da tabela, como
-qualquer outro valor.
+-10 quando o desvio padrão do fluxo é zero. Fração dos fluxos limpos com esse
+marcador: dns2tcp 0.10%, dnscat2 0.75%, iodine 0.78%. O marcador entra na média e no desvio padrão da tabela,
+como qualquer outro valor.
 
 ## O que não foi feito
 
@@ -186,8 +194,15 @@ qualquer outro valor.
 
 ## Onde os valores diferem dos do artigo
 
-O artigo não informa o modelo, os dados de treino, o split, a seed nem a
-definição de "accuracy" por ferramenta; as versões das bibliotecas são outras.
-Qualquer um desses pontos pode explicar a diferença, e os dados não permitem
-dizer qual. Nenhuma seed, hiperparâmetro, papel de ferramenta ou regra de
-limpeza foi ajustado para aproximar o resultado.
+As três acurácias da Seção VI-D: o artigo não informa o modelo, os dados de
+treino, o split, a seed nem a definição de "accuracy" por ferramenta; as
+versões das bibliotecas são outras. Qualquer um desses pontos pode explicar a
+diferença nas acurácias, e os dados não permitem dizer qual.
+
+A média e o desvio padrão da Fig. 9: a diferença para os dados limpos tem
+explicação medida, descrita na seção da figura. Se o modelo da Seção VI-D
+também usou os arquivos sem a limpeza, os dados dele não são os desta
+reprodução; isso é hipótese, e nada aqui a testa.
+
+Nenhuma seed, hiperparâmetro, papel de ferramenta ou regra de limpeza foi
+ajustado para aproximar o resultado.

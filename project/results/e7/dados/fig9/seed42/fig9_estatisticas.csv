@@ -1,7 +1,13 @@
-atributo,ferramenta,fluxos,média,desvio padrão,média no artigo,desvio padrão no artigo,fração no eixo,fração com -10
-ResponseTimeTimeSkewFromMode,dns2tcp,167287,1.09866,0.607149,1.09728,0.607949,1,0.00104013
-ResponseTimeTimeSkewFromMode,dnscat2,35742,0.504119,1.13847,0.504178,1.13836,1,0.00752616
-ResponseTimeTimeSkewFromMode,iodine,46524,0.521273,1.08435,0.520797,1.08367,1,0.00775944
-PacketTimeVariance,dns2tcp,167287,197.603,290.947,197.345,290.832,1,
-PacketTimeVariance,dnscat2,35742,857.581,432.252,854.902,434.215,1,
-PacketTimeVariance,iodine,46524,880.865,429.092,879.466,430.179,1,
+versão,atributo,ferramenta,fluxos,média,desvio padrão,média no artigo,desvio padrão no artigo,média menos artigo,desvio padrão menos artigo,fração no eixo,fração com -10
+"como o artigo: todas as linhas, desvio populacional",ResponseTimeTimeSkewFromMode,dns2tcp,167517,1.09728,0.607949,1.09728,0.607949,3.91586e-06,-2.1576e-07,1,0.0010387
+"como o artigo: todas as linhas, desvio populacional",ResponseTimeTimeSkewFromMode,dnscat2,35854,0.504178,1.13836,0.504178,1.13836,4.07963e-07,-2.42787e-07,1,0.00753054
+"como o artigo: todas as linhas, desvio populacional",ResponseTimeTimeSkewFromMode,iodine,46598,0.520797,1.08367,0.520797,1.08367,-3.59687e-07,-3.39073e-06,1,0.00774711
+"como o artigo: todas as linhas, desvio populacional",PacketTimeVariance,dns2tcp,167517,197.345,290.832,197.345,290.832,-6.38352e-05,5.762e-05,1,
+"como o artigo: todas as linhas, desvio populacional",PacketTimeVariance,dnscat2,35854,854.902,434.215,854.902,434.215,2.987e-05,3.86086e-05,1,
+"como o artigo: todas as linhas, desvio populacional",PacketTimeVariance,iodine,46598,879.466,430.179,879.466,430.179,0.000322475,0.000146735,1,
+"dados limpos da reprodução, desvio amostral",ResponseTimeTimeSkewFromMode,dns2tcp,167287,1.09866,0.607149,1.09728,0.607949,0.00138314,-0.00080049,1,0.00104013
+"dados limpos da reprodução, desvio amostral",ResponseTimeTimeSkewFromMode,dnscat2,35742,0.504119,1.13847,0.504178,1.13836,-5.8969e-05,0.000111189,1,0.00752616
+"dados limpos da reprodução, desvio amostral",ResponseTimeTimeSkewFromMode,iodine,46524,0.521273,1.08435,0.520797,1.08367,0.000475729,0.000682331,1,0.00775944
+"dados limpos da reprodução, desvio amostral",PacketTimeVariance,dns2tcp,167287,197.603,290.947,197.345,290.832,0.258328,0.114896,1,
+"dados limpos da reprodução, desvio amostral",PacketTimeVariance,dnscat2,35742,857.581,432.252,854.902,434.215,2.6789,-1.96344,1,
+"dados limpos da reprodução, desvio amostral",PacketTimeVariance,iodine,46524,880.865,429.092,879.466,430.179,1.39918,-1.08671,1,

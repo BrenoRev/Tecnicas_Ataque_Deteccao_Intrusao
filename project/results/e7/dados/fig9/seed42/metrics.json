@@ -1,71 +1,188 @@
 {
+  "clean_rows_by_tool": {
+    "dns2tcp": 167287,
+    "dnscat2": 35742,
+    "iodine": 46524
+  },
   "fig9_statistics": [
     {
       "atributo": "ResponseTimeTimeSkewFromMode",
+      "desvio padrão": 0.6079487842402663,
+      "desvio padrão menos artigo": -2.1575973363496814e-07,
+      "desvio padrão no artigo": 0.607949,
+      "ferramenta": "dns2tcp",
+      "fluxos": 167517,
+      "fração com -10": 0.0010387005497949462,
+      "fração no eixo": 1.0,
+      "média": 1.0972839158615668,
+      "média menos artigo": 3.915861566783363e-06,
+      "média no artigo": 1.09728,
+      "versão": "como o artigo: todas as linhas, desvio populacional"
+    },
+    {
+      "atributo": "ResponseTimeTimeSkewFromMode",
+      "desvio padrão": 1.1383597572127087,
+      "desvio padrão menos artigo": -2.4278729138238475e-07,
+      "desvio padrão no artigo": 1.13836,
+      "ferramenta": "dnscat2",
+      "fluxos": 35854,
+      "fração com -10": 0.0075305405254643834,
+      "fração no eixo": 1.0,
+      "média": 0.5041784079634103,
+      "média menos artigo": 4.0796341027604655e-07,
+      "média no artigo": 0.504178,
+      "versão": "como o artigo: todas as linhas, desvio populacional"
+    },
+    {
+      "atributo": "ResponseTimeTimeSkewFromMode",
+      "desvio padrão": 1.0836666092703788,
+      "desvio padrão menos artigo": -3.3907296210777815e-06,
+      "desvio padrão no artigo": 1.08367,
+      "ferramenta": "iodine",
+      "fluxos": 46598,
+      "fração com -10": 0.007747113610026181,
+      "fração no eixo": 1.0,
+      "média": 0.5207966403128297,
+      "média menos artigo": -3.596871702704618e-07,
+      "média no artigo": 0.520797,
+      "versão": "como o artigo: todas as linhas, desvio populacional"
+    },
+    {
+      "atributo": "PacketTimeVariance",
+      "desvio padrão": 290.83205762002035,
+      "desvio padrão menos artigo": 5.76200203568078e-05,
+      "desvio padrão no artigo": 290.832,
+      "ferramenta": "dns2tcp",
+      "fluxos": 167517,
+      "fração com -10": null,
+      "fração no eixo": 1.0,
+      "média": 197.34493616477772,
+      "média menos artigo": -6.383522227793037e-05,
+      "média no artigo": 197.345,
+      "versão": "como o artigo: todas as linhas, desvio populacional"
+    },
+    {
+      "atributo": "PacketTimeVariance",
+      "desvio padrão": 434.21503860859957,
+      "desvio padrão menos artigo": 3.860859959559093e-05,
+      "desvio padrão no artigo": 434.215,
+      "ferramenta": "dnscat2",
+      "fluxos": 35854,
+      "fração com -10": null,
+      "fração no eixo": 1.0,
+      "média": 854.9020298700038,
+      "média menos artigo": 2.9870003800169798e-05,
+      "média no artigo": 854.902,
+      "versão": "como o artigo: todas as linhas, desvio populacional"
+    },
+    {
+      "atributo": "PacketTimeVariance",
+      "desvio padrão": 430.1791467352472,
+      "desvio padrão menos artigo": 0.00014673524719910347,
+      "desvio padrão no artigo": 430.179,
+      "ferramenta": "iodine",
+      "fluxos": 46598,
+      "fração com -10": null,
+      "fração no eixo": 1.0,
+      "média": 879.4663224754563,
+      "média menos artigo": 0.0003224754563007082,
+      "média no artigo": 879.466,
+      "versão": "como o artigo: todas as linhas, desvio populacional"
+    },
+    {
+      "atributo": "ResponseTimeTimeSkewFromMode",
       "desvio padrão": 0.6071485096346455,
+      "desvio padrão menos artigo": -0.000800490365354456,
       "desvio padrão no artigo": 0.607949,
       "ferramenta": "dns2tcp",
       "fluxos": 167287,
       "fração com -10": 0.001040128641197463,
       "fração no eixo": 1.0,
       "média": 1.0986631429003229,
-      "média no artigo": 1.09728
+      "média menos artigo": 0.0013831429003228202,
+      "média no artigo": 1.09728,
+      "versão": "dados limpos da reprodução, desvio amostral"
     },
     {
       "atributo": "ResponseTimeTimeSkewFromMode",
       "desvio padrão": 1.1384711887670613,
+      "desvio padrão menos artigo": 0.00011118876706128766,
       "desvio padrão no artigo": 1.13836,
       "ferramenta": "dnscat2",
       "fluxos": 35742,
       "fração com -10": 0.007526159700072744,
       "fração no eixo": 1.0,
       "média": 0.5041190309942278,
-      "média no artigo": 0.504178
+      "média menos artigo": -5.896900577218034e-05,
+      "média no artigo": 0.504178,
+      "versão": "dados limpos da reprodução, desvio amostral"
     },
     {
       "atributo": "ResponseTimeTimeSkewFromMode",
       "desvio padrão": 1.0843523313860937,
+      "desvio padrão menos artigo": 0.0006823313860937485,
       "desvio padrão no artigo": 1.08367,
       "ferramenta": "iodine",
       "fluxos": 46524,
       "fração com -10": 0.007759435990026653,
       "fração no eixo": 1.0,
       "média": 0.5212727293026436,
-      "média no artigo": 0.520797
+      "média menos artigo": 0.0004757293026436127,
+      "média no artigo": 0.520797,
+      "versão": "dados limpos da reprodução, desvio amostral"
     },
     {
       "atributo": "PacketTimeVariance",
       "desvio padrão": 290.9468958640598,
+      "desvio padrão menos artigo": 0.1148958640598039,
       "desvio padrão no artigo": 290.832,
       "ferramenta": "dns2tcp",
       "fluxos": 167287,
       "fração com -10": null,
       "fração no eixo": 1.0,
       "média": 197.60332786649096,
-      "média no artigo": 197.345
+      "média menos artigo": 0.2583278664909585,
+      "média no artigo": 197.345,
+      "versão": "dados limpos da reprodução, desvio amostral"
     },
     {
       "atributo": "PacketTimeVariance",
       "desvio padrão": 432.2515609087501,
+      "desvio padrão menos artigo": -1.9634390912498816,
       "desvio padrão no artigo": 434.215,
       "ferramenta": "dnscat2",
       "fluxos": 35742,
       "fração com -10": null,
       "fração no eixo": 1.0,
       "média": 857.580899577409,
-      "média no artigo": 854.902
+      "média menos artigo": 2.67889957740897,
+      "média no artigo": 854.902,
+      "versão": "dados limpos da reprodução, desvio amostral"
     },
     {
       "atributo": "PacketTimeVariance",
       "desvio padrão": 429.0922894753033,
+      "desvio padrão menos artigo": -1.0867105246966844,
       "desvio padrão no artigo": 430.179,
       "ferramenta": "iodine",
       "fluxos": 46524,
       "fração com -10": null,
       "fração no eixo": 1.0,
       "média": 880.865181113565,
-      "média no artigo": 879.466
+      "média menos artigo": 1.399181113564964,
+      "média no artigo": 879.466,
+      "versão": "dados limpos da reprodução, desvio amostral"
     }
   ],
-  "flows": 249553
+  "flows": 249553,
+  "published_rows_by_tool": {
+    "dns2tcp": 167517,
+    "dnscat2": 35854,
+    "iodine": 46598
+  },
+  "raw_rows_by_tool": {
+    "dns2tcp": 167486,
+    "dnscat2": 35770,
+    "iodine": 46580
+  }
 }
