@@ -186,7 +186,15 @@ def experiment_metrics(
     cv_confusion: list[list[int]],
 ) -> dict:
     """Avalia o sistema ajustado e monta o dicionário gravado em metrics.json."""
-    X_train = scaler.transform(feature_matrix(train))
+    # O normalizador que transforma o teste é o ajustado só com o treino
+    # (Seção III-C do artigo): reajustado com a tabela inteira, ele levaria o
+    # mínimo e o máximo do teste para a avaliação.
+    train_features = feature_matrix(train)
+    assert scaler.n_samples_seen_ == len(train), "O scaler viu linhas fora do treino."
+    assert np.array_equal(scaler.data_min_, train_features.min()), "Mínimo de outro conjunto."
+    assert np.array_equal(scaler.data_max_, train_features.max()), "Máximo de outro conjunto."
+
+    X_train = scaler.transform(train_features)
     y_train = train["label"].to_numpy()
     X_test = scaler.transform(feature_matrix(test))
     y_test = test["label"].to_numpy()
