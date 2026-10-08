@@ -608,6 +608,81 @@ HYPOTHETICAL_PREVALENCES = [1e-3, 1e-4, 1e-5]
 GROUP_FOLDS = 4
 GROUP_FOLD_SEED = SEEDS_CORRIGIDA[0]
 
+# Modificação proposta pela equipe: um Random Forest único, sem SMOTE e sem
+# empilhamento, com peso de classe (class_weight="balanced") no lugar das
+# amostras sintéticas. Tudo abaixo foi fixado antes da primeira execução.
+
+# Modelos com hiperparâmetros fixos, para medir o efeito de trocar o
+# empilhamento com SMOTE pelo Random Forest único com peso de classe sem mudar
+# mais nada: M1 tem os hiperparâmetros dos bases de A e é comparado com A;
+# M1-prof5 tem os de A-prof5 e é comparado com A-prof5.
+MODIFIED_MODELS = {
+    "M1": {
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH_VARIABLE,
+        "max_features": MAX_FEATURES,
+    },
+    "M1-prof5": {
+        "n_estimators": N_ESTIMATORS,
+        "max_depth": MAX_DEPTH,
+        "max_features": MAX_FEATURES,
+    },
+}
+
+# Nome do modelo proposto: o mesmo Random Forest único, com os hiperparâmetros
+# escolhidos em MODIFIED_GRID por validação cruzada dentro do treino de cada seed.
+MODIFIED_SELECTED_MODEL = "M1M2"
+
+# Grade da seleção: árvores, profundidade máxima e atributos por divisão. Com
+# "sqrt", o padrão do scikit-learn, cada divisão sorteia 5 dos 29 atributos, o
+# que devolve ao Random Forest a aleatorização que 28 de 29 quase anula
+# (Seção IV-A do artigo). As seis primeiras combinações cruzam 10 e 100
+# árvores com profundidade 5, 10 e sem limite; as duas últimas são as
+# configurações do artigo nas duas leituras de profundidade, para a seleção
+# poder ficar com elas. Os valores 100 e 10 são escolha nossa.
+MODIFIED_GRID = [
+    {"n_estimators": 10, "max_depth": 5, "max_features": "sqrt"},
+    {"n_estimators": 100, "max_depth": 5, "max_features": "sqrt"},
+    {"n_estimators": 10, "max_depth": 10, "max_features": "sqrt"},
+    {"n_estimators": 100, "max_depth": 10, "max_features": "sqrt"},
+    {"n_estimators": 10, "max_depth": None, "max_features": "sqrt"},
+    {"n_estimators": 100, "max_depth": None, "max_features": "sqrt"},
+    {"n_estimators": N_ESTIMATORS, "max_depth": MAX_DEPTH, "max_features": MAX_FEATURES},
+    {"n_estimators": N_ESTIMATORS, "max_depth": MAX_DEPTH_VARIABLE, "max_features": MAX_FEATURES},
+]
+
+# Validação cruzada da seleção: 5 folds estratificados e embaralhados com a
+# seed, dentro do treino. Escolha nossa; não é a validação de 10 folds da
+# Fig. 4a do artigo, que é CV_FOLDS. Vence a combinação de maior F1 macro
+# médio nos folds; no empate, a que vem antes na grade.
+MODIFIED_CV_FOLDS = 5
+
+# Fração do treino de cada seed, sorteada por classe, em que a seleção é
+# feita. Escolha nossa, pelo custo: no treino inteiro a seleção das dez seeds
+# nos dois conjuntos de dados levaria cerca de oito horas. O modelo final é
+# ajustado no treino inteiro. Limitação: a seleção vê um quarto dos fluxos de
+# Benign-DoH do treino.
+MODIFIED_SELECTION_FRACTION = 0.25
+
+# Modelos ajustados em cada conjunto de dados. No CIRA-CIC-DoHBrw-2020, A e
+# A-prof5 já foram medidos nas mesmas dez seeds pelo protocolo corrigido e são
+# lidos dos resultados dele. No combinado sem réplicas, A é ajustado aqui.
+MODIFIED_RUNS = {
+    "cira": ["M1", "M1-prof5", MODIFIED_SELECTED_MODEL],
+    "combinado_sem_replicas": ["A", MODIFIED_SELECTED_MODEL],
+}
+
+# Pares comparados seed a seed em cada conjunto de dados, a modificação
+# primeiro, e as métricas da comparação: recall de Benign-DoH, F1 macro e FPR
+# de Malicious-DoH contra o resto. O tempo de treino entra na mesma comparação
+# e é lido do registro de cada execução. Método e ressalva são os de
+# PAIRED_COMPARISONS.
+MODIFIED_COMPARISONS = {
+    "cira": [("M1", "A"), ("M1-prof5", "A-prof5"), (MODIFIED_SELECTED_MODEL, "A")],
+    "combinado_sem_replicas": [(MODIFIED_SELECTED_MODEL, "A")],
+}
+MODIFIED_PAIRED_METRICS = ["benign_doh_recall", "macro_f1", "malicious_fpr"]
+
 # Trilhas aceitas no registro de resultados. As duas primeiras são a reprodução
 # como o artigo descreve e o protocolo consertado; "variante" é para leituras
 # alternativas do texto do artigo e "dados" para etapas que não treinam modelo.

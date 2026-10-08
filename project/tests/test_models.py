@@ -6,6 +6,7 @@ import scripts.e3_sensibilidade as e3
 from doh_ids.config import (
     MAX_DEPTH,
     MAX_FEATURES,
+    MODIFIED_GRID,
     N_ESTIMATORS,
     TABLE_II_FOREST_TREES,
     TABLE_II_TREE_DEPTH,
@@ -196,3 +197,10 @@ def test_meta_on_subsets_changes_the_meta_classifier_and_keeps_the_bases(synthet
     assert system_configuration(fiel) == system_configuration(variant)
     assert np.array_equal(fiel.predict_meta_features(X_test), variant.predict_meta_features(X_test))
     assert not np.array_equal(fiel.meta_clf_.coef_, variant.meta_clf_.coef_)
+
+
+def test_selection_grid_has_at_most_eight_combinations_and_the_one_of_the_article():
+    assert len(MODIFIED_GRID) <= 8
+    assert {"n_estimators": 10, "max_depth": 5, "max_features": 28} in MODIFIED_GRID
+    # Combinação repetida seria avaliada duas vezes sem mudar a escolha.
+    assert len({tuple(combination.items()) for combination in MODIFIED_GRID}) == len(MODIFIED_GRID)
