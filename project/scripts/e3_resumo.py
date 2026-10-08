@@ -224,7 +224,10 @@ def distance_reading_text(frame: pd.DataFrame, results: dict, seed_sums: list[in
     ]
     spread = max(seed_sums) - min(seed_sums)
     public = f"{e3.SINGLE_FOREST}{e3.STARTS[1]['suffix']}"
-    position = "tem a maior soma" if sums[public] == sums.max() else "não tem a maior soma"
+    if sums[public] == sums.max():
+        position, values = "tem a maior soma", f"{sums[public]}"
+    else:
+        position, values = "não tem a maior soma", f"{sums[public]}; a maior é {sums.max()}"
     benign = CLASS_NAMES.index("Benign-DoH")
     never = [
         f"`{slice_name}`"
@@ -240,7 +243,7 @@ def distance_reading_text(frame: pd.DataFrame, results: dict, seed_sums: list[in
         f"até {spread} linhas. Diferença entre recortes menor que essa não ordena as leituras, "
         f"e nenhum recorte é apontado como o mais próximo da Fig. 4b. O recorte que corresponde "
         f"ao script publicado pelos autores, `{public}`, {position} entre os {len(measured)} "
-        f"recortes medidos ({sums[public]}; a maior é {sums.max()}).\n\n"
+        f"recortes medidos ({values}).\n\n"
     )
     if never:
         text += (
