@@ -42,7 +42,7 @@ Antes de implementar qualquer tarefa: ler [../MEMORY/00-decisoes-travadas.md](..
 | [20](20-entrega-slides-projeto.md) | Entrega | Slides do projeto | apresentação | 15, 17 | **cumprida pela 24**; resta, de pessoa: conferir no Google Slides, confirmar a divisão da fala, ensaio |
 | [21](21-condicional-ferramenta-tunel.md) | Reprodução | Ferramenta de túnel (E7), Seção VI-D e Fig. 9 | P1 | 08, 13 (lê a etapa de dados da 13) | pronta e executada em `1a0e041`; resumo separado em `d86b0b5`, refeito em `38809c1` |
 | [22](22-padronizacao-doc-padrao.md) | Padronização | Registrar padrões (anti-recorrência) | — | 08, 11 | concluída em 08/10/2026: sete padrões registrados em `.claude/rules/experimentos.md`, dois dispensados com motivo |
-| [23](23-acompanhamento-professor.md) | Acompanhamento | Perguntas ao professor e material de 10/11 e 17/11 | — | — (material: 08) | em andamento: Q1 a Q6 respondidas em 07/10/2026; Q9, Q10 e parte de Q7 sem resposta; o material de 10/11 já pode sair de `report/` |
+| [23](23-acompanhamento-professor.md) | Acompanhamento | Perguntas ao professor e material de 10/11 e 17/11 | — | — (material: 08) | página de status pronta em `docs/09-acompanhamento-professor.md` (08/10/2026); falta preencher a execução limpa e registrar o retorno dos encontros de 10/11 e 17/11, que são de pessoa |
 | [24](24-entrega-pdfs-finais.md) | Entrega | Relatório em PDF e apresentação em PPTX, pelos modelos de `geracao_latex_and_pdf/` | relatório e slides | 17 | executada em `759ec29` pelo agente `gerador-entregaveis`: `relatorio.pdf` (8 páginas), `apresentacao.pptx` (14 slides), `roteiro.md` (11 min 55 s); revista pelo `revisor-de-texto` |
 
 ## Grafo de dependência

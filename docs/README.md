@@ -39,3 +39,5 @@ Reconciliado com o repositório no commit `759ec29` (branch `tarefa/24-entregave
 - Colunas do dataset: lidas do código-fonte do DoHLyzer (`meter/flow.py`) e conferidas contra o cabeçalho dos CSVs em 07/10/2026.
 - Medições nos dados e resultados de modelo: arquivo em `project/results/`, gerado por script versionado, com o commit e a seed no `run.json` ao lado. Todo número citado nesta central traz o caminho do arquivo.
 - O que não pôde ser verificado está marcado como `[A verificar]`.
+
+- [09-acompanhamento-professor.md](09-acompanhamento-professor.md): página de status e perguntas para os encontros de 10/11 e 17/11.
