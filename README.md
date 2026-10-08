@@ -9,7 +9,7 @@
 ![uv](https://img.shields.io/badge/ambiente-uv-purple)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
 
-[Relatório (PDF)](project/report/relatorio.pdf) · [Apresentação (PPTX)](project/report/apresentacao.pptx) · [Guia técnico](project/README.md) · [Resultados](project/results/)
+[Relatório (PDF)](entregaveis-apresentacao/relatorio.pdf) · [Apresentação (PPTX)](entregaveis-apresentacao/apresentacao.pptx) · [Roteiro da fala](entregaveis-apresentacao/roteiro.md) · [Guia técnico](project/README.md) · [Resultados](project/results/)
 
 </div>
 
@@ -109,6 +109,7 @@ bash scripts/execucao_limpa.sh logs/       # todos os passos, em ordem
 │   └── report/               relatório, apresentação, tabelas e figuras
 ├── docs/                     estudo do artigo, dos dados e da disciplina
 ├── planejamento/             plano de implementação e decisões da equipe
+├── entregaveis-apresentacao/ cópia final do relatório, da apresentação e do roteiro
 ├── geracao_latex_and_pdf/    modelos do relatório e dos slides
 └── .github/, .githooks/      integração contínua e hooks de commit
 ```

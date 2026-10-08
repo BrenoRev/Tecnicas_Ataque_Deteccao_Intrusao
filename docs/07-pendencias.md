@@ -89,11 +89,11 @@ Nada aqui é feito pelo assistente: são conferências, decisões e conversas da
 | 1 | `push` e pull requests | **Fechado em 08/10/2026:** todas as branches estão no remoto e a versão final foi levada à `main` por avanço direto, a pedido de Breno (decisão 55) |
 | 2 | Conferência das transcrições | **Fechado em 08/10/2026:** feita pelo assistente em duas passagens independentes, a pedido de Breno, e não por dois integrantes (decisão 55): Tabela II contra a camada de texto da página 7; Figs. 5, 7 e 8 contra a imagem das páginas 8 e 9; sem divergência |
 | 3 | Licença do repositório | **Fechado em 08/10/2026:** MIT, arquivo `LICENSE` na raiz (decisão 55); proposta aplicada, sem escolha explícita |
-| 4 | DOI e conferência das referências | Cada referência do relatório conferida na fonte, com DOI. Inclui a citação do dataset CIRA, que diverge entre `docs/04-dados.md` e a lista do artigo: confirmar no IEEE Xplore |
-| 5 | Conferir o PPTX no Google Slides | Abrir `project/report/apresentacao.pptx` no Google Slides e conferir fontes, tabelas e imagens |
+| 4 | DOI das referências | **Fechado em 08/10/2026** por Breno: fica como está (DOI só nas duas referências conferidas); a especificação pede só o formato IEEE |
+| 5 | Conferir o PPTX no Google Slides | **Fechado em 08/10/2026:** conferido por Breno |
 | 6 | Ensaio | Cronometrado, em 15 minutos. O roteiro soma 11 min 55 s (`project/report/roteiro.md`) |
-| 7 | Confirmar a divisão da fala | O roteiro traz uma proposta por blocos de slides, em ordem alfabética (Amanda 1 a 4, Antonio 5 a 7, Breno 8 a 10, João 11 a 14); a equipe confirma ou troca |
-| 8 | Template no Overleaf | Subir `project/report/relatorio.tex` com `tables/` e `figures/` e compilar com **XeLaTeX**; conferir contra o template indicado pelo professor (idioma e limite de páginas: Q9) |
+| 7 | Divisão da fala | **Fechado em 08/10/2026:** apresentam três integrantes, definidos por Breno: Amanda (slides 1 a 5), Antonio (6 a 10) e João (11 a 14); o ponto de corte dos blocos é proposta (`project/report/roteiro.md`) |
+| 8 | Template no Overleaf | **Fechado em 08/10/2026** por Breno; se for usar, compilar com XeLaTeX |
 | 9 | Conversa com o professor | **Fechado pela equipe em 08/10/2026, sem resposta dele** (decisão 55): segue o que está implementado. A página `09-acompanhamento-professor.md` mantém os pontos para os encontros de 10/11 e 17/11 |
 | 10 | Perguntas sem resposta | **Fechado pela equipe em 08/10/2026** (decisão 55): relatório em português, até 8 páginas; repositório público; sem frase de declaração de IA. Não são respostas do professor |
 | 11 | Tarefas do plano em aberto | 22 e 23 concluídas em 08/10/2026; da 19 falta o resultado da execução limpa, em andamento |
@@ -109,11 +109,11 @@ Enviada por Breno em 07/10/2026 (informado por ele; canal `[Preencher]`). Nove p
 | 1 | `push` e pull requests | **Fechado em 08/10/2026:** todas as branches estão no remoto e a versão final foi levada à `main` por avanço direto, a pedido de Breno (decisão 55) |
 | 2 | Conferência das transcrições | **Fechado em 08/10/2026:** feita pelo assistente em duas passagens independentes, a pedido de Breno, e não por dois integrantes (decisão 55): Tabela II contra a camada de texto da página 7; Figs. 5, 7 e 8 contra a imagem das páginas 8 e 9; sem divergência |
 | 3 | Licença do repositório | **Fechado em 08/10/2026:** MIT, arquivo `LICENSE` na raiz (decisão 55); proposta aplicada, sem escolha explícita |
-| 4 | Há requisito adicional para este artigo? | Q3 |
-| 5 | A identificação da ferramenta de túnel entra na reprodução? | Q5 |
+| 4 | DOI das referências | **Fechado em 08/10/2026** por Breno: fica como está (DOI só nas duas referências conferidas); a especificação pede só o formato IEEE |
+| 5 | Conferir o PPTX no Google Slides | **Fechado em 08/10/2026:** conferido por Breno |
 | 6 | O painel interativo precisa ser reproduzido? | Q6 |
-| 7 | Limite de páginas e idioma do relatório | Q9 |
-| 8 | Repositório público ou privado? | Q10 |
+| 7 | Divisão da fala | **Fechado em 08/10/2026:** apresentam três integrantes, definidos por Breno: Amanda (slides 1 a 5), Antonio (6 a 10) e João (11 a 14); o ponto de corte dos blocos é proposta (`project/report/roteiro.md`) |
+| 8 | Template no Overleaf | **Fechado em 08/10/2026** por Breno; se for usar, compilar com XeLaTeX |
 | 9 | Conversa com o professor | **Fechado pela equipe em 08/10/2026, sem resposta dele** (decisão 55): segue o que está implementado. A página `09-acompanhamento-professor.md` mantém os pontos para os encontros de 10/11 e 17/11 |
 
 Não foram enviadas Q8 e Q11, que são do seminário. O rascunho citava o artigo do HKD como "IEEE TNSM, 2022"; a referência correta é de 2023 (ver [04-dados.md](04-dados.md)). `[Preencher: se a mensagem saiu com 2022 ou 2023]`
