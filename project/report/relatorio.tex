@@ -5,7 +5,8 @@
 %% adjustbox e tikz.
 %% As tabelas numéricas entram por \input dos arquivos gerados por
 %% scripts/make_report_assets.py; não edite os números aqui.
-%% Compilação: tectonic relatorio.tex (dentro de report/).
+%% Compilação: XeLaTeX ou tectonic (tectonic relatorio.tex, dentro de report/).
+%% No Overleaf, escolher XeLaTeX no menu do compilador.
 
 \documentclass[conference]{IEEEtran}
 
@@ -14,7 +15,7 @@
 \usepackage{mathptmx}
 \usepackage{fontspec}
 \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
-\setmonofont{texgyrecursor}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic, Scale=0.9]
+\setmonofont{texgyrecursor}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic, Scale=0.9, Ligatures=NoCommon]
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{adjustbox}
@@ -31,6 +32,8 @@
 % Tabela gerada, reduzida só se passar da largura disponível.
 \newcommand{\tabelacoluna}[1]{{\footnotesize\setlength{\tabcolsep}{3pt}%
   \begin{adjustbox}{max width=\columnwidth}\input{tables/#1}\end{adjustbox}}}
+% Sublinhado em nome de arquivo, com quebra de linha permitida depois dele.
+\newcommand{\us}{\_\allowbreak}
 \newcommand{\tabelapagina}[1]{{\footnotesize\setlength{\tabcolsep}{3pt}%
   \begin{adjustbox}{max width=\textwidth}\input{tables/#1}\end{adjustbox}}}
 
@@ -70,7 +73,7 @@ agla@cin.ufpe.br}
 \maketitle
 
 \begin{abstract}
-O protocolo DNS over HTTPS (DoH) cifra as consultas DNS e esconde do administrador da rede os túneis DNS usados para comando e controle e para exfiltração. Zebin, Rezvy e Luo propõem um sistema de detecção de intrusão que classifica fluxos em Non-DoH, Benign-DoH e Malicious-DoH com três Random Forests empilhados e explica as decisões com SHAP. Este trabalho reimplementa o sistema a partir do texto do artigo, reproduz as tabelas e figuras de resultado no CIRA-CIC-DoHBrw-2020, repete a avaliação em um segundo conjunto de dados com três ferramentas de túnel novas e avalia uma modificação. O artigo admite duas leituras da profundidade das árvores: com profundidade máxima 5, o sistema empilhado não prediz nenhum fluxo Benign-DoH; com profundidade variável, a matriz de confusão do teste fica a 553 fluxos da publicada. Treinado no conjunto original, o sistema detecta 1,81\% dos fluxos das ferramentas novas. Um Random Forest único com peso de classe, sem amostras sintéticas, supera o sistema empilhado em 0,5 ponto percentual de F1 macro nos dois conjuntos.
+O protocolo DNS over HTTPS (DoH) cifra as consultas DNS e esconde do administrador da rede os túneis DNS usados para comando e controle e para exfiltração. Os trabalhos anteriores no mesmo conjunto de dados, como o artigo de referência os transcreve, reportam acurácia de até 99,98\%, sem métricas por classe nem explicação da decisão. Zebin, Rezvy e Luo propõem um sistema de detecção de intrusão que classifica fluxos em Non-DoH, Benign-DoH e Malicious-DoH com três Random Forests empilhados e explica as decisões com SHAP. Este trabalho reimplementa o sistema a partir do texto do artigo, reproduz todas as tabelas e figuras de resultado no CIRA-CIC-DoHBrw-2020 (as principais estão neste relatório e as demais no repositório), repete a avaliação em um segundo conjunto de dados com três ferramentas de túnel novas e avalia uma modificação. O artigo admite duas leituras da profundidade das árvores: com profundidade máxima 5, o sistema empilhado não prediz nenhum fluxo Benign-DoH; com profundidade variável, a matriz de confusão do teste fica a 553 fluxos da publicada. Treinado no conjunto original, o sistema detecta 1,81\% dos fluxos das ferramentas novas. Um Random Forest único com peso de classe, sem amostras sintéticas, supera o sistema empilhado em 0,5 ponto percentual de F1 macro nos dois conjuntos.
 \end{abstract}
 
 \IEEEpeerreviewmaketitle
@@ -79,12 +82,12 @@ O protocolo DNS over HTTPS (DoH) cifra as consultas DNS e esconde do administrad
 
 O DoH envia a consulta DNS dentro de uma conexão HTTPS a um resolvedor público. A cifra protege a privacidade do usuário e, ao mesmo tempo, tira do firewall e do IDS o nome consultado, que era o que permitia reconhecer um túnel DNS \cite{zebin2022}. O problema investigado é detectar, só com estatísticas de fluxo e sem decifrar o TLS, o tráfego DoH gerado por ferramentas de túnel. Ele interessa porque um host comprometido passa a ter um canal de saída que se confunde com navegação comum.
 
-Segundo o artigo de referência, as soluções anteriores ou dependem de limiares ajustados ao ambiente, ou reportam só acurácia, ou não descrevem o pré-processamento (Seção II de \cite{zebin2022}; Tabela \ref{tab:relacionados}), e nenhuma explica a decisão ao analista. O artigo propõe o \textit{Balanced Stacked Random Forest}: três Random Forests treinados em subconjuntos balanceados, combinados por regressão logística, com explicações SHAP \cite{lundberg2017} em um painel interativo.
+Segundo o artigo de referência, as soluções anteriores ou dependem de limiares ajustados ao ambiente, ou reportam só acurácia, ou não descrevem o pré-processamento (Seção II de \cite{zebin2022}; Tabela \ref{tab:relacionados}); o artigo se apresenta como uma das primeiras soluções explicáveis para o problema (Seção I). Ele propõe o \textit{Balanced Stacked Random Forest}: três Random Forests treinados em subconjuntos balanceados, combinados por regressão logística, com explicações SHAP \cite{lundberg2017} em um painel interativo.
 
 As contribuições deste trabalho são:
 \begin{itemize}
     \item reimplementação do sistema a partir do texto, com as duas leituras da profundidade das árvores que o artigo admite, reportadas lado a lado;
-    \item reprodução de todas as tabelas e figuras de resultado do artigo, com a diferença para o valor publicado;
+    \item reprodução de todas as tabelas e figuras de resultado do artigo, com a diferença para o valor publicado: as principais neste relatório, as demais no repositório;
     \item avaliação em um segundo conjunto de dados, com ferramentas de túnel ausentes do original;
     \item avaliação com dez seeds, sem os vetores do teste repetidos no treino e com separação por máquina de origem;
     \item uma modificação do sistema e uma avaliação de robustez à fragmentação do fluxo.
@@ -92,7 +95,7 @@ As contribuições deste trabalho são:
 
 \section{Trabalhos relacionados}
 
-A Tabela \ref{tab:relacionados} resume os trabalhos que o artigo de referência discute, com a caracterização que ele dá a cada um. Aiello et al. \cite{aiello2013} e Preston \cite{preston2019} tratam do túnel sobre DNS em claro. MontazeriShatoori et al. \cite{montazeri2020} publicam o CIRA-CIC-DoHBrw-2020 e o extrator de atributos DoHLyzer. Banadaki \cite{banadaki2020}, Jafar et al. \cite{jafar2021} e Ahakonye et al. \cite{ahakonye2022} classificam o mesmo conjunto de dados e são os trabalhos com que o artigo compara seus números (Tabela II de \cite{zebin2022}). Vekshin et al. \cite{vekshin2020} e Behnke et al. \cite{behnke2021} são citados pelo artigo só na introdução e nos trabalhos futuros.
+A Tabela \ref{tab:relacionados} resume os trabalhos que o artigo de referência discute, com a caracterização que ele dá a cada um. Aiello et al. \cite{aiello2013} e Preston \cite{preston2019} tratam do túnel sobre DNS em claro. MontazeriShatoori et al. \cite{montazeri2020} publicam o CIRA-CIC-DoHBrw-2020 e o extrator de atributos DoHLyzer. Banadaki \cite{banadaki2020}, Jafar et al. \cite{jafar2021} e Ahakonye et al. \cite{ahakonye2022} classificam o mesmo conjunto de dados e são os trabalhos com que o artigo compara seus números (Tabela II de \cite{zebin2022}). Ramakrishnan e Rajan \cite{ramakrishnan2022} propõem um IDS com rede neural. Vekshin et al. \cite{vekshin2020} e Behnke et al. \cite{behnke2021} são citados pelo artigo só na introdução e nos trabalhos futuros.
 
 \begin{table}[!t]
 \centering
@@ -104,9 +107,9 @@ A Tabela \ref{tab:relacionados} resume os trabalhos que o artigo de referência 
 \textbf{Trabalho} & \textbf{Contribuição} & \textbf{Limitação} \\ \hline
 Aiello et al. \cite{aiello2013} & PCA e informação mútua para identificar túnel DNS & Limiar depende do ambiente \\
 Preston \cite{preston2019} & Aprendizado supervisionado sobre o domínio primário & Não detecta consulta maliciosa no domínio principal \\
-Banadaki \cite{banadaki2020} & XGBoost, Gradient Boosting e LightGBM no mesmo dataset & Pré-processamento não descrito; teste com 4000 amostras \\
+Banadaki \cite{banadaki2020} & XGBoost, Gradient Boosting e LightGBM no mesmo conjunto & Pré-processamento não descrito; teste com 4000 amostras \\
 Ramakrishnan e Rajan \cite{ramakrishnan2022} & IDS com rede neural e poucos atributos & Cerca de 90\% de acurácia \\
-Jafar et al. \cite{jafar2021} & Oito algoritmos clássicos no mesmo dataset & Só acurácia e tempo, sem métricas por classe \\
+Jafar et al. \cite{jafar2021} & Oito algoritmos clássicos no mesmo conjunto & Só acurácia e tempo, sem métricas por classe \\
 Ahakonye et al. \cite{ahakonye2022} & Ensemble com tempo de processamento reduzido & Não apontada pelo artigo \\
 \hline
 \end{tabular}
@@ -181,13 +184,13 @@ x' = \frac{x - x_{\min}}{x_{\max} - x_{\min}}.
 \label{eq:minmax}
 \end{equation}
 
-\textbf{Balanceamento.} O Non-DoH do treino é dividido em três partes; cada subconjunto recebe uma parte, todos os fluxos Malicious-DoH e o Benign-DoH aumentado com SMOTE. O artigo justifica a divisão pelo desbalanceamento das classes e por um tempo de treino três vezes menor, que não mede (Seções I e III-B).
+\textbf{Balanceamento.} O Non-DoH do treino é dividido em três partes; cada subconjunto recebe uma parte, todos os fluxos Malicious-DoH e o Benign-DoH aumentado com SMOTE. O artigo justifica a divisão pelo desbalanceamento das classes e por um tempo de treino três vezes menor, que não mede (Seções I e III-B). Declara a razão 15:12:12 entre as classes de cada subconjunto; a obtida é 14,3:12:12.
 
-\textbf{Classificação.} Um Random Forest por subconjunto, com 10 árvores, 28 atributos candidatos por divisão e índice de Gini (Seção IV-A), e uma regressão logística que combina os três, com o \texttt{StackingClassifier} da biblioteca mlxtend (Seção IV-B). A escolha por árvores é justificada pela explicação exata com o \texttt{TreeExplainer}.
+\textbf{Classificação.} Um Random Forest por subconjunto, com 10 árvores, 28 atributos candidatos por divisão e índice de Gini (Seção IV-A), e uma regressão logística que combina os três, com o \texttt{StackingClassifier} da biblioteca mlxtend (Seção IV-B). O artigo escolhe o Random Forest por ser um dos métodos supervisionados mais acurados (Seção IV-A) e justifica a profundidade 5 pela rapidez na predição (Seção IV-B); o \texttt{TreeExplainer} aparece na linha 8 do Algoritmo 1.
 
 \textbf{Explicação.} Valores SHAP \cite{lundberg2017}: importância global, gráficos de dependência e explicações locais, em um painel interativo (Seção VI).
 
-\textbf{Pontos em aberto.} O artigo dá duas indicações para a profundidade das árvores: profundidade máxima 5 (Seção IV-B) e \textit{variable tree depth} (linha 3 do Algoritmo 1). Também não informa a limpeza dos dados, a seed, os parâmetros do SMOTE, com que dados e com que entrada o meta-classificador é treinado, nem a média usada nas métricas. O repositório público dos autores traz o painel e um script com um Random Forest único, sem o empilhamento; por isso o sistema foi reimplementado a partir do texto.
+\textbf{Pontos em aberto.} O artigo dá duas indicações para a profundidade das árvores: profundidade máxima 5 (Seção IV-B) e \textit{variable tree depth} (linha 3 do Algoritmo 1). Também não informa a limpeza dos dados, a seed, os parâmetros do SMOTE, com que dados e com que entrada o meta-classificador é treinado, nem a média usada nas métricas. Cita uma \textit{one-sided selection} com o SMOTE sem descrevê-la (Seção III-B), e ela não foi aplicada: o Non-DoH só é dividido em três partes. Cita uma busca de hiperparâmetros com \texttt{GridSearchCV} em 10 folds sem listar a grade (Seção III-D); a reprodução usa os hiperparâmetros finais que o artigo informa, sem busca. O repositório público dos autores traz o painel e um script com um Random Forest único, sem o empilhamento; por isso o sistema foi reimplementado a partir do texto.
 
 \section{Solução proposta pela equipe para melhorar a solução do artigo de referência}
 \label{sec:equipe}
@@ -199,7 +202,7 @@ x' = \frac{x - x_{\min}}{x_{\max} - x_{\min}}.
 w_c = \frac{n}{K\, n_c}.
 \label{eq:peso}
 \end{equation}
-Os hiperparâmetros (número de árvores, profundidade máxima e atributos por divisão) são escolhidos em cada seed entre oito combinações, por validação cruzada de 5 folds em uma subamostra de 25\% do treino, pelo maior F1 macro; o teste não participa. M1 é o passo intermediário: só troca o SMOTE e o empilhamento pelo peso de classe e mantém os hiperparâmetros do artigo. A entrada e a saída são as do sistema original.
+Os hiperparâmetros (número de árvores, profundidade máxima e atributos por divisão) são escolhidos em cada seed entre oito combinações, por validação cruzada de 5 folds em uma subamostra de 25\% do treino, pelo maior F1 macro; o teste não participa. M1 é o passo intermediário: só troca o SMOTE e o empilhamento pelo peso de classe e mantém os hiperparâmetros do artigo; M2 é a seleção de hiperparâmetros, e M1M2 reúne os dois. Nas tabelas e figuras, A é o sistema do artigo com profundidade variável, A-prof5 é o mesmo com profundidade 5, e M1-prof5 é M1 com profundidade 5. A entrada e a saída são as do sistema original.
 
 \textbf{Robustez.} O artigo publica que \texttt{Duration} é o atributo mais importante e que acima de cerca de 40~s ele empurra a decisão para Malicious-DoH (Fig. 5 e 6a). Um atacante que leia isso pode encerrar e reabrir a conexão do túnel. Simulamos esse atacante dividindo \texttt{Duration}, \texttt{FlowBytesSent} e \texttt{FlowBytesReceived} dos fluxos maliciosos do teste por um fator $k$, sem retreinar o modelo. É uma perturbação no espaço de atributos: nenhum tráfego foi gerado.
 
@@ -207,7 +210,7 @@ Os hiperparâmetros (número de árvores, profundidade máxima e atributos por d
 
 \subsection{Dados usados pelo artigo de referência}
 
-O CIRA-CIC-DoHBrw-2020 \cite{montazeri2020} é o conjunto do artigo e é público. Non-DoH é navegação HTTPS; Benign-DoH é a resolução DoH dos navegadores; Malicious-DoH são túneis de dns2tcp, DNSCat2 e iodine. O artigo não descreve a limpeza: remover as linhas com valor ausente reproduz as contagens da Tabela I nas três classes (Tabela \ref{tab:cira}). Os cinco identificadores (endereços, portas e horário) não entram no modelo.
+O CIRA-CIC-DoHBrw-2020 \cite{montazeri2020} é o conjunto do artigo e é público. Non-DoH é navegação HTTPS; Benign-DoH é a resolução DoH dos navegadores; Malicious-DoH são túneis de dns2tcp, DNSCat2 e iodine. O artigo não descreve a limpeza: remover os fluxos com valor ausente reproduz as contagens da Tabela I nas três classes (Tabela \ref{tab:cira}). Os cinco identificadores (endereços, portas e horário) não entram no modelo.
 
 O split é estratificado, com 10\% para teste e seed 42. Não há conjunto de validação separado: a validação é cruzada, com 10 folds estratificados dentro do treino, como no artigo; a Tabela \ref{tab:cira} traz o tamanho de um fold. O teste tem 115\,911 fluxos, um a mais que o do artigo, por arredondamento da biblioteca.
 
@@ -218,11 +221,11 @@ O split é estratificado, com 10\% para teste e seed 42. Não há conjunto de va
 \tabelacoluna{dados_cira_contagens}
 \end{table}
 
-Três características medidas limitam o que qualquer resultado neste conjunto permite concluir: (i) o Malicious-DoH foi capturado em 10 máquinas, de 18/03 a 01/04/2020, e as outras classes em outras 4, de 09/12/2019 a 14/01/2020, sem nenhuma máquina nem dia em comum; (ii) 13,67\% das linhas do teste têm vetor de atributos idêntico ao de uma linha do treino, e 326 vetores ocorrem em mais de uma classe; (iii) 298\,766 fluxos têm o valor $-10$ em alguma coluna de assimetria, marcador que o extrator grava quando o desvio padrão é zero.
+Três características medidas limitam o que qualquer resultado neste conjunto permite concluir: (i) o Malicious-DoH foi capturado em 10 máquinas, de 18/03 a 01/04/2020, e as outras classes em outras 4, de 09/12/2019 a 14/01/2020, sem nenhuma máquina nem dia em comum; (ii) 13,67\% dos fluxos do teste (seed 42) têm vetor de atributos idêntico ao de um fluxo do treino, e 326 vetores ocorrem em mais de uma classe; (iii) 298\,766 fluxos têm o valor $-10$ em alguma coluna de assimetria, marcador que o extrator grava quando o desvio padrão é zero.
 
 \subsection{Novo conjunto de dados escolhido}
 
-O segundo conjunto é o combinado CIRA-CIC-DoHBrw-2020 com DoH-Tunnel-Traffic-HKD \cite{mitsuhashi2023}. Foi escolhido por três motivos: tem os mesmos atributos, extraídos com o DoHLyzer, com as mesmas colunas; traz túneis de três ferramentas ausentes do CIRA (dnstt, tcp-over-dns e tuns), capturados em outras máquinas, em 2021; e é o único com as três classes, pois o HKD sozinho só tem tráfego malicioso e não permite treinar o sistema.
+O segundo conjunto é o combinado CIRA-CIC-DoHBrw-2020 com DoH-Tunnel-Traffic-HKD (HKD) \cite{mitsuhashi2023}, referência externa à bibliografia do artigo. Foi escolhido por três motivos: tem os mesmos atributos, extraídos com o DoHLyzer, com as mesmas colunas; traz túneis de três ferramentas ausentes do CIRA (dnstt, tcp-over-dns e tuns), capturados em outras máquinas, em 2021; e é o único com as três classes, pois o HKD sozinho só tem tráfego malicioso e não permite treinar o sistema.
 
 Duas ressalvas: Non-DoH e Benign-DoH do combinado são os do CIRA, de modo que só a classe maliciosa ganha tráfego novo; e o arquivo publicado repete 20 vezes cada fluxo do HKD, o que põe cópias idênticas no treino e no teste. Por isso o conjunto principal é o combinado sem réplicas (Tabela \ref{tab:segundo}), com o mesmo protocolo de split e validação. Ao lado ficam o combinado como publicado e a transferência, em que o sistema treinado no CIRA é avaliado nos 5258 fluxos do HKD.
 
@@ -247,9 +250,9 @@ F1_{\text{macro}} = \frac{1}{K}\sum_{c=1}^{K} F1_c .
 \end{equation}
 A acurácia é a fração de fluxos corretos. Com 1,70\% do teste em Benign-DoH, ela quase não registra a perda dessa classe; por isso as métricas por classe vêm antes das médias, e a média macro, que pesa as três classes por igual, é a principal. O recall de Malicious-DoH mede os túneis que passam sem alerta, e o FPR de Malicious-DoH contra o resto, os alarmes falsos. A AUC é a um-contra-o-resto com média macro. A distância à matriz do artigo é a soma das diferenças absolutas, célula a célula.
 
-Experimentos: (1) reprodução nas duas leituras de profundidade, chamadas trilha fiel (profundidade 5) e trilha variante (profundidade variável), com seed 42; (2) os três modelos de comparação da Tabela II; (3) sensibilidade a cinco pontos em aberto; (4) protocolo corrigido, com 10 seeds, SMOTE só no treino, teste sem vetores repetidos e folds por máquina; (5) explicabilidade com SHAP; (6) identificação da ferramenta de túnel; (7) os experimentos 1, 2 e 5 refeitos no segundo conjunto; (8) modificação e robustez, com 10 seeds. Nas comparações pareadas por seed, há diferença quando a média das diferenças passa, em módulo, do desvio padrão delas, regra fixada antes da execução. Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada para aproximar um número do artigo.
+Experimentos: (1) reprodução nas duas leituras de profundidade (5 e variável), com seed 42; (2) os três modelos de comparação da Tabela II; (3) sensibilidade a cinco pontos em aberto; (4) protocolo corrigido, que troca a execução única da reprodução por 10 seeds, com comparação pareada no mesmo split e sem nenhuma seleção de modelo, e acrescenta o teste sem vetores repetidos e os folds por máquina (o SMOTE já era ajustado só no treino na reprodução); (5) explicabilidade com SHAP; (6) identificação da ferramenta de túnel; (7) os experimentos 1, 2 e 5 refeitos no segundo conjunto; (8) modificação e robustez, com 10 seeds. Nas comparações pareadas por seed, há diferença quando a média das diferenças passa, em módulo, do desvio padrão delas, regra fixada antes da execução. Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada para aproximar um número do artigo.
 
-Leituras adotadas onde o artigo é omisso: SMOTE com os parâmetros padrão da biblioteca; meta-classificador treinado no treino original, com os rótulos preditos pelos três bases; \texttt{TreeExplainer} aplicado a cada Random Forest base, porque ele não aceita o modelo empilhado. As etapas 5 a 8 usam como base a leitura de profundidade variável, porque um sistema que não prediz uma das classes não sustenta explicação, segundo conjunto nem modificação; a leitura de profundidade 5 é reportada ao lado.
+Leituras adotadas onde o artigo é omisso: SMOTE com os parâmetros padrão da biblioteca; meta-classificador treinado no treino original, com os rótulos preditos pelos três bases; \texttt{TreeExplainer} aplicado a cada Random Forest base, porque ele não aceita o modelo empilhado. Os experimentos 5 a 8 usam como base a leitura de profundidade variável, porque um sistema que não prediz uma das classes não sustenta explicação, segundo conjunto nem modificação; a leitura de profundidade 5 é reportada ao lado.
 
 \section{Resultados e discussões}
 
@@ -272,7 +275,9 @@ Leituras adotadas onde o artigo é omisso: SMOTE com os parâmetros padrão da b
 \tabelacoluna{reproducao_metricas}
 \end{table}
 
-\textbf{Profundidade 5.} O sistema empilhado não prediz Benign-DoH em nenhuma linha do teste (Fig. \ref{fig:matriz}, Tabela \ref{tab:reproducao}), e o mesmo ocorre nas dez seeds do protocolo corrigido. A acurácia de 97,79\% esconde a perda. A causa está no meta-classificador, não nos bases: sozinhos, os três Random Forests têm recall de Benign-DoH de 85,16\% a 85,97\%, com precisão de 27,89\% a 30,06\%. No treino, a combinação em que os três dizem Benign-DoH ocorre em 49\,247 linhas, das quais 31\,025 são Non-DoH; a regressão logística aprende a devolver Non-DoH para ela, e no teste isso atinge 5473 linhas.
+Todas as tabelas e figuras de resultado do artigo foram reproduzidas; este relatório mostra as principais, e as demais estão em \texttt{report/figures/} no repositório\footnote{\texttt{github.com/BrenoRev/Tecnicas\_Ataque\_Deteccao\_Intrusao}}: Fig. 2 (\texttt{fig2\us densidades\us dupla}), Fig. 4a (\texttt{matriz\us confusao\us validacao\us dupla}), Fig. 6 (\texttt{shap\us dependencia\us cira\us dupla}), Figs. 7 e 8 (\texttt{shap\us local\us cira\us dupla}) e Fig. 9 (\texttt{fig9\us ferramentas\us dupla}). Na validação cruzada, ao lado da Fig. 4a, a soma das diferenças absolutas é 43\,275 com profundidade 5 e 5147 com profundidade variável, e o F1 macro é 65,75\% e 96,57\%, contra 97,66\% calculado da matriz do artigo.
+
+\textbf{Profundidade 5.} O sistema empilhado não prediz Benign-DoH em nenhum fluxo do teste (Fig. \ref{fig:matriz}, Tabela \ref{tab:reproducao}), e o mesmo ocorre nas dez seeds do protocolo corrigido. A acurácia de 97,79\% esconde a perda. A causa está no meta-classificador, não nos bases: sozinhos, os três Random Forests têm recall de Benign-DoH de 85,16\% a 85,97\%, com precisão de 27,89\% a 30,06\%. No treino, a combinação em que os três dizem Benign-DoH ocorre em 49\,247 fluxos, dos quais 31\,025 são Non-DoH; a regressão logística aprende a devolver Non-DoH para ela, e no teste isso atinge 5473 fluxos.
 
 \textbf{Profundidade variável.} A matriz fica a 553 fluxos da Fig. 4b, contra 4711 na outra leitura; o F1 macro é 96,56\%, a 1,26 ponto do artigo, com recall de Benign-DoH maior e precisão menor. A proximidade não identifica a configuração dos autores: as duas leituras têm apoio no texto, e na análise de sensibilidade as cinco leituras alternativas dão somas de 469 a 1061, enquanto só a troca de seed move a soma de 509 a 653.
 
@@ -285,23 +290,23 @@ Leituras adotadas onde o artigo é omisso: SMOTE com os parâmetros padrão da b
 
 \begin{table}[!t]
 \centering
-\caption{Metade inferior da Tabela II do artigo: resultados de outros trabalhos no mesmo dataset, em \%, como o artigo os imprime, com a referência da lista dele. O artigo declara que não são diretamente comparáveis.}
+\caption{Metade inferior da Tabela II do artigo: resultados de Banadaki \cite{banadaki2020}, Jafar et al. \cite{jafar2021} e Ahakonye et al. \cite{ahakonye2022} no mesmo conjunto de dados, em \%. O artigo imprime sete das oito linhas em fração, aqui multiplicadas por 100, e a última já em percentual. O artigo declara que não são diretamente comparáveis.}
 \label{tab:literatura}
 \tabelacoluna{tabela2_literatura}
 \end{table}
 
-\textbf{Tabela II.} A Tabela \ref{tab:tabela2} mostra que nenhuma média reproduz a linha do modelo proposto: a Tabela II do artigo dá acurácia de 99,98\%, e a matriz que o próprio artigo publica na Fig. 4b dá 99,78\%. As duas fontes do artigo divergem entre si, e reportamos a distância às duas. Entre os modelos de comparação, a ordem do artigo se mantém em F1 macro (árvore de decisão, XGBoost, Random Forest), com o sistema de profundidade variável à frente e o de profundidade 5 atrás de todos. Os trabalhos da Tabela \ref{tab:literatura} reportam acurácia de até 99,98\% no mesmo dataset; como o artigo, não os reproduzimos, e eles não informam a média nem métricas por classe que permitam comparar o Benign-DoH.
+\textbf{Tabela II.} A Tabela \ref{tab:tabela2} mostra que nenhuma média reproduz a linha do modelo proposto: a Tabela II do artigo dá acurácia de 99,98\%, e a matriz que o próprio artigo publica na Fig. 4b dá 99,78\%. As duas fontes do artigo divergem entre si, e reportamos a distância às duas. Entre os modelos de comparação, a ordem do artigo se mantém em F1 macro (árvore de decisão, XGBoost, Random Forest), com o sistema de profundidade variável à frente e o de profundidade 5 atrás de todos. Os trabalhos da Tabela \ref{tab:literatura} reportam acurácia de até 99,98\% no mesmo conjunto de dados; como o artigo, não os reproduzimos, e eles não informam a média nem métricas por classe que permitam comparar o Benign-DoH.
 
-\textbf{Protocolo corrigido.} Em dez seeds, o sistema de profundidade variável tem F1 macro de 96,56 $\pm$ 0,12\% e recall de Benign-DoH de 93,07 $\pm$ 0,52\%. Em média, 13,64\% do teste repete um vetor do treino; sem essas linhas o F1 macro é 96,75 $\pm$ 0,14\% e os vereditos das comparações não mudam. Com folds por máquina de origem, o recall de Benign-DoH cai para 31,10 $\pm$ 9,42\% e o F1 macro para 77,89 $\pm$ 5,99\% (4 folds): a separação entre Non-DoH e Benign-DoH aprendida em três máquinas não vale na quarta. Esses folds não medem a generalização da detecção de túnel, porque nenhuma máquina gerou tráfego legítimo e malicioso.
+\textbf{Protocolo corrigido.} Em dez seeds, o sistema de profundidade variável tem F1 macro de 96,56 $\pm$ 0,12\% e recall de Benign-DoH de 93,07 $\pm$ 0,52\%. Na média das dez seeds, 13,64\% do teste repete um vetor do treino; sem esses fluxos o F1 macro é 96,75 $\pm$ 0,14\% e os vereditos das comparações não mudam. Com folds por máquina de origem, o recall de Benign-DoH cai para 31,10 $\pm$ 9,42\% e o F1 macro para 77,89 $\pm$ 5,99\% (4 folds): a separação entre Non-DoH e Benign-DoH aprendida em três máquinas não vale na quarta. Esses folds não medem a generalização da detecção de túnel, porque nenhuma máquina gerou tráfego legítimo (Non-DoH e Benign-DoH) e malicioso.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.82\columnwidth]{figures/shap_importancia_cira.pdf}
-\caption{Importância global dos 10 atributos de maior média do valor absoluto de SHAP para Malicious-DoH, equivalente à Fig. 5 do artigo, no Random Forest base 1, CIRA. Amostra de 2000 fluxos por classe do treino; seed 42.}
+\caption{Importância global dos 10 atributos de maior média do valor absoluto de SHAP para Malicious-DoH, equivalente à Fig. 5 do artigo, no Random Forest base 1, CIRA, nas duas leituras de profundidade. Amostra de 2000 fluxos por classe do treino; seed 42.}
 \label{fig:shap}
 \end{figure}
 
-\textbf{Explicabilidade.} O artigo põe \texttt{Duration} em primeiro lugar na Fig. 5; aqui o primeiro é \texttt{PacketLengthMode}, com larga margem, e \texttt{Duration} é o segundo ou o terceiro (Fig. \ref{fig:shap}). A correlação de Spearman com o ranking do artigo é 0,62 (profundidade 5) e 0,51 (variável), com 5 e 7 atributos em comum entre os dez primeiros. O domínio de \texttt{PacketLengthMode} tem explicação nos dados: quatro valores do atributo cobrem 99,84\% do Malicious-DoH e ocorrem em 1 de 909\,555 fluxos legítimos. Uma regra com um só atributo teria esse recall, o que indica que o modelo pode separar as classes pela captura e não pelo túnel. Na dependência de \texttt{Duration}, a direção descrita pelo artigo se observa (97,37\% dos fluxos acima de 40~s têm SHAP positivo); o sinal troca em 33,13~s na nossa amostra, de classes em partes iguais, e a diferença para os 40~s que o artigo lê na figura não é atribuível. Os valores SHAP explicam os bases, não a saída do empilhamento; o painel interativo foi implementado como material de demonstração.
+\textbf{Explicabilidade.} O artigo põe \texttt{Duration} em primeiro lugar na Fig. 5; aqui o primeiro é \texttt{PacketLengthMode}, com larga margem, e \texttt{Duration} é o segundo ou o terceiro (Fig. \ref{fig:shap}). A correlação de Spearman com o ranking do artigo é 0,62 (profundidade 5) e 0,51 (variável), com 5 e 7 atributos em comum entre os dez primeiros. A predominância de \texttt{PacketLengthMode} tem explicação nos dados: quatro valores do atributo cobrem 99,84\% do Malicious-DoH e ocorrem em 1 de 909\,555 fluxos legítimos. Uma regra com um só atributo teria esse recall, o que indica que o modelo pode separar as classes pela captura e não pelo túnel. Na dependência de \texttt{Duration}, a direção descrita pelo artigo se observa (acima de 40~s, têm SHAP positivo 97,37\% dos fluxos com profundidade variável e 99,53\% com profundidade 5); o sinal troca em 33,13~s na nossa amostra, de classes em partes iguais, e a diferença para os 40~s que o artigo lê na figura não é atribuível. Os valores SHAP explicam os bases, não a saída do empilhamento; o painel interativo foi implementado como material de demonstração.
 
 \begin{table}[!t]
 \centering
@@ -330,13 +335,13 @@ Leituras adotadas onde o artigo é omisso: SMOTE com os parâmetros padrão da b
 
 \textbf{Transferência.} O sistema treinado no CIRA detecta 1,81\% dos 5258 fluxos do HKD (1,71\% com profundidade 5): nenhum de dnstt e 6,20\% de tuns (Tabela \ref{tab:recall-ferramenta}). É o achado principal do trabalho. A regra de quatro valores de \texttt{PacketLengthMode}, que detecta 99,84\% no CIRA, detecta 0\% no HKD: o valor mais frequente lá é o de tráfego legítimo no CIRA. O resultado é compatível com um detector que aprendeu a assinatura das três ferramentas e da captura do CIRA, e não o comportamento de túnel. O que não foi medido é quanto da decisão do sistema nos fluxos do HKD vem desse atributo.
 
-\textbf{Retreino.} No combinado sem réplicas, as métricas gerais repetem as do CIRA (Tabela \ref{tab:segundo-modelos}), o que é esperado, pois duas das três classes são as mesmas. Com profundidade 5, o sistema continua sem predizer Benign-DoH. O recall nas ferramentas do HKD é 99,42\% (510 de 513) com profundidade variável e 73,29\% com profundidade 5. Esse número mede as mesmas ferramentas em fluxos muito próximos dos do treino, não uma ferramenta nunca vista: em 505 dos 513 fluxos, o vizinho mais próximo no treino é outro fluxo do HKD. No combinado publicado, os 10\,490 fluxos do HKD no teste têm cópia idêntica no treino, e o recall de 100\% mede memorização. Os três modelos de comparação têm F1 macro abaixo do sistema de profundidade variável também aqui.
+\textbf{Retreino.} No combinado sem réplicas, as métricas gerais repetem as do CIRA (Tabela \ref{tab:segundo-modelos}), o que é esperado, pois duas das três classes são as mesmas. Com profundidade 5, o sistema continua sem predizer Benign-DoH. O recall nas ferramentas do HKD é 99,42\% (510 de 513) com profundidade variável e 73,29\% com profundidade 5. Esse número mede as mesmas ferramentas em fluxos muito próximos dos do treino, não uma ferramenta nunca vista: em 505 dos 513, o fluxo do HKD mais próximo no treino está mais perto que qualquer fluxo Malicious-DoH do CIRA. No combinado publicado, os 10\,490 fluxos do HKD no teste têm cópia idêntica no treino, e o recall de 100\% mede memorização. Os três modelos de comparação têm F1 macro abaixo do sistema de profundidade variável também aqui.
 
 \subsection{Resultados da proposta de melhoria do artigo de referência}
 
 \begin{table*}[!t]
 \centering
-\caption{Modificação da equipe (M1M2) e passo intermediário (M1) contra o sistema do artigo (A, profundidade variável; A-prof5, profundidade 5), no teste, em \%, com o tempo de treino em segundos. 10 seeds (0 a 9), média $\pm$ desvio padrão amostral; média macro.}
+\caption{Modificação da equipe (M1M2: Random Forest único com peso de classe e seleção de hiperparâmetros) e passo intermediário (M1: sem a seleção; M1-prof5: M1 com profundidade 5) contra o sistema do artigo (A: profundidade variável; A-prof5: profundidade 5), no teste, em \%, com o tempo de treino em segundos. 10 seeds (0 a 9), média $\pm$ desvio padrão amostral; média macro.}
 \label{tab:modificacao}
 \tabelapagina{modificacao_metricas_dupla}
 \end{table*}
@@ -344,25 +349,25 @@ Leituras adotadas onde o artigo é omisso: SMOTE com os parâmetros padrão da b
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.85\columnwidth]{figures/robustez_fragmentacao.pdf}
-\caption{Recall de Malicious-DoH sob fragmentação simulada do fluxo, no CIRA: duração e bytes dos fluxos maliciosos do teste divididos por $k$, sem retreino. 10 seeds, média $\pm$ desvio padrão amostral.}
+\caption{Recall de Malicious-DoH sob fragmentação simulada do fluxo, no CIRA: duração e bytes dos fluxos maliciosos do teste divididos por $k$, sem retreino. A e A-prof5: sistema do artigo com profundidade variável e com profundidade 5; M1M2: modificação da equipe. 10 seeds, média $\pm$ desvio padrão amostral.}
 \label{fig:robustez}
 \end{figure}
 
-\textbf{Nos dois conjuntos.} M1M2 tem F1 macro 0,50 ponto acima do sistema do artigo no CIRA e 0,57 no combinado, nas dez seeds de cada um, e precisão de Benign-DoH 2,19 e 2,72 pontos maior (Tabela \ref{tab:modificacao}). O custo é o tempo: a seleção de hiperparâmetros leva o treino a 263,2~s, contra 161,0~s do sistema do artigo no CIRA. O combinado não é réplica independente do CIRA, pois só acrescenta os fluxos do HKD.
+\textbf{Nos dados do artigo.} No CIRA, M1M2 tem F1 macro 0,50 ponto acima do sistema do artigo, nas dez seeds, e precisão de Benign-DoH 2,19 pontos maior (Tabela \ref{tab:modificacao}). A seleção escolheu a mesma combinação nas dez seeds, nos dois conjuntos: 100 árvores, sem limite de profundidade e raiz quadrada do número de atributos por divisão. O custo é o tempo de treino: 263,2~s contra 161,0~s do sistema do artigo (1,6 vez). O tempo do sistema do artigo no CIRA foi medido sob outra carga da máquina; reajustado nas mesmas seeds, é 112,5~s (2,3 vezes).
 
-\textbf{De onde vem o ganho.} M1, sem seleção de hiperparâmetros, já tem F1 macro 0,58 ponto acima do sistema do artigo, treina em 31,1~s e perde 0,50 ponto de recall de Benign-DoH. A diferença de F1 macro entre M1M2 e M1 é de $-$0,08 $\pm$ 0,15 ponto: os dois não se distinguem, e a seleção apenas troca precisão por recall de Benign-DoH. O ganho vem de retirar o SMOTE e o empilhamento, e não é possível separar o efeito de cada um. Com profundidade 5, o Random Forest único recupera o Benign-DoH (recall de 87,64\%) que o empilhamento perde. No FPR de Malicious-DoH, M1M2 soma 2 falsos positivos nas dez seeds do CIRA, contra 14 do sistema do artigo, cerca de um fluxo por teste; essa melhora e a do recall de Benign-DoH não se repetem no combinado.
+\textit{De onde vem o ganho.} M1, sem seleção de hiperparâmetros, já tem F1 macro 0,58 ponto acima do sistema do artigo, treina em 31,1~s e perde 0,50 ponto de recall de Benign-DoH; seu FPR de Malicious-DoH piora, de 0,0015\% para 0,0048\%. A diferença de F1 macro entre M1M2 e M1 é de $-$0,08 $\pm$ 0,15 ponto: os dois não se distinguem, e a seleção apenas troca precisão por recall de Benign-DoH. No protocolo corrigido, o modelo B, um Random Forest único com SMOTE, tem F1 macro de 95,71\%, abaixo dos 96,56\% do sistema do artigo: tirar só o empilhamento não deu ganho, e o ganho de M1 aparece quando o SMOTE sai e entra o peso de classe, com a ressalva de que o SMOTE de B age sobre o treino inteiro, e não sobre cada subconjunto. Com profundidade 5, o Random Forest único (M1-prof5) recupera o recall de Benign-DoH que o empilhamento perde (87,64\%), mas com precisão de 26,23\% e F1 macro de 78,66\%. No FPR de Malicious-DoH, M1M2 soma 2 falsos positivos nas dez seeds do CIRA, contra 14 do sistema do artigo, cerca de um fluxo por teste; essa melhora e a do recall de Benign-DoH não se repetem no combinado.
 
-\textbf{Ferramentas novas.} Treinado no CIRA, M1M2 detecta de 2,13\% a 42,96\% dos fluxos do HKD conforme a seed. A variação impede qualquer conclusão sobre generalização, e não há par do sistema do artigo nas mesmas seeds.
+\textit{Robustez.} Com $k=2$, em que a maioria dos vetores perturbados continua coerente, o recall do sistema do artigo cai 3,19 pontos e o de M1M2, 0,34 (Fig. \ref{fig:robustez}). De $k=4$ em diante, o recall do sistema do artigo varia pouco entre seeds (desvio de até 0,19 ponto) e fica de 4,53 a 5,24 pontos abaixo do valor sem perturbação; o de M1M2 cai abaixo de 90\% em duas seeds ($k=4$) ou três ($k=8$ e $16$), e o desvio chega a 10,90 pontos. Nos fatores 8 e 16, mais de 96\% dos vetores têm tempo médio de pacote maior que a duração, relação que nenhum fluxo real tem. O resultado mostra que os modelos dependem da duração e dos bytes do fluxo, mas não ordena os dois em robustez nem estima a evasão de um atacante real.
 
-\textbf{Robustez.} Com $k=2$, em que a maioria dos vetores perturbados continua coerente, o recall do sistema do artigo cai 3,19 pontos e o de M1M2, 0,34 (Fig. \ref{fig:robustez}). De $k=4$ em diante, o recall de M1M2 desaba em duas ou três seeds e o desvio chega a 10,90 pontos, enquanto o do sistema do artigo fica estável; nos fatores 8 e 16, mais de 96\% dos vetores têm tempo médio de pacote maior que a duração, relação que nenhum fluxo real tem. O resultado mostra que os modelos dependem da duração e dos bytes do fluxo, mas não ordena os dois em robustez nem estima a evasão de um atacante real.
+\textbf{No novo conjunto de dados.} No combinado sem réplicas, M1M2 tem F1 macro 0,57 ponto acima do sistema do artigo e precisão de Benign-DoH 2,72 pontos maior, nas dez seeds, a 2,3 vezes o tempo de treino (265,1 contra 117,8~s). O combinado não é réplica independente do CIRA, pois só acrescenta os fluxos do HKD. Treinado no CIRA, M1M2 detecta de 2,13\% a 42,96\% dos fluxos do HKD conforme a seed. A variação impede qualquer conclusão sobre generalização, e não há par do sistema do artigo nas mesmas seeds.
 
 \section{Conclusões e trabalhos futuros}
 
 A reprodução depende de uma escolha que o artigo deixa em aberto. Com profundidade máxima 5, o sistema perde uma classe inteira no meta-classificador; com profundidade variável, chega perto da Fig. 4b, a 1,26 ponto de F1 macro. Os valores da Tabela II e do resumo do artigo não foram reproduzidos por nenhuma leitura, e divergem da matriz que o próprio artigo publica.
 
-\textbf{Limitações do sistema do artigo.} (i) Não generaliza para ferramentas de túnel fora do treino: recall de 1,81\% no HKD. (ii) Um único atributo, \texttt{PacketLengthMode}, separa quase todo o tráfego malicioso do CIRA, cuja captura se confunde com a classe. (iii) A separação entre Non-DoH e Benign-DoH não se sustenta entre máquinas. (iv) Um Random Forest único com peso de classe tem F1 macro maior que o empilhamento, que com profundidade 5 anula uma classe. (v) A explicação SHAP se refere aos bases, não à decisão final.
+\textbf{Limitações do sistema do artigo.} (i) Não detectou as três ferramentas do HKD, de outra captura: recall de 1,81\%. (ii) Um único atributo, \texttt{PacketLengthMode}, separa quase todo o tráfego malicioso do CIRA, cuja captura se confunde com a classe. (iii) A separação entre Non-DoH e Benign-DoH não se sustenta entre máquinas. (iv) Um Random Forest único com peso de classe tem F1 macro maior que o empilhamento, que com profundidade 5 anula uma classe. (v) A explicação SHAP se refere aos bases, não à decisão final.
 
-\textbf{Limitações deste trabalho.} A reprodução e o segundo conjunto têm uma execução, com seed 42; só o protocolo corrigido e a modificação têm dez. Os testes das seeds se sobrepõem, e por isso não usamos significância estatística. O segundo conjunto compartilha duas classes com o primeiro. A fragmentação é simulada no espaço de atributos. A modificação melhora o F1 macro em meio ponto e não resolve nenhuma das limitações (i) a (iii).
+\textbf{Limitações deste trabalho.} A reprodução e o segundo conjunto têm uma execução, com seed 42; só o protocolo corrigido e a modificação têm dez. Os testes das seeds se sobrepõem, e por isso não usamos significância estatística. O segundo conjunto compartilha duas classes com o primeiro. A fragmentação é simulada no espaço de atributos. A modificação treina em 1,6 a 2,3 vezes o tempo do sistema do artigo e, sob fragmentação, seu recall cai abaixo de 90\% em duas ou três seeds. Ela melhora o F1 macro em meio ponto e não resolve nenhuma das limitações (i) a (iii).
 
 \textbf{Trabalhos futuros.} Gerar tráfego de túnel fragmentado e reextrair os atributos; avaliar com tráfego legítimo e malicioso capturados nas mesmas máquinas; treinar com ferramentas do HKD e testar em uma ferramenta deixada de fora; explicar o modelo único, em que o \texttt{TreeExplainer} cobre a decisão inteira.
 
