@@ -57,7 +57,7 @@ Leia antes de escrever:
 
 ## Cópia final
 
-Depois de regenerar, copie `relatorio.pdf`, `apresentacao.pptx` e `roteiro.md` de `project/report/` para `entregaveis-apresentacao/`, na raiz, e confira com `cmp` que estão idênticos. Essa pasta é o atalho de quem só quer os entregáveis; a fonte e o que compila ficam em `project/report/`.
+Depois de regenerar, copie `relatorio.pdf`, `apresentacao.pptx` e `roteiro.md` de `project/report/` para `entregaveis-apresentacao/`, na raiz, e confira com `cmp` que estão idênticos. Gere também `entregaveis-apresentacao/roteiro.pdf` a partir do roteiro atual: `pandoc project/report/roteiro.md -o entregaveis-apresentacao/roteiro.pdf --pdf-engine=tectonic -V geometry:margin=2.2cm -V fontsize=11pt`. Essa pasta é o atalho de quem só quer os entregáveis; a fonte e o que compila ficam em `project/report/`.
 
 ## Conferência antes de entregar
 
