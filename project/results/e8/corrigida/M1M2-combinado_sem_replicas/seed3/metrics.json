@@ -1,0 +1,356 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "fit_rows": [
+    [
+      800828,
+      17771,
+      229330
+    ]
+  ],
+  "selection": {
+    "folds": 5,
+    "sample_rows": [
+      200207,
+      4443,
+      57332
+    ],
+    "scores": [
+      {
+        "fold_macro_f1": [
+          0.7536300356796826,
+          0.75040027280949,
+          0.7441828882092363,
+          0.7471833562866957,
+          0.7514016765937158
+        ],
+        "max_depth": 5,
+        "max_features": "sqrt",
+        "mean_macro_f1": 0.7493596459157641,
+        "n_estimators": 10
+      },
+      {
+        "fold_macro_f1": [
+          0.7575560984951073,
+          0.7656010687259656,
+          0.768028529173764,
+          0.7615749486398903,
+          0.7594912956687992
+        ],
+        "max_depth": 5,
+        "max_features": "sqrt",
+        "mean_macro_f1": 0.7624503881407053,
+        "n_estimators": 100
+      },
+      {
+        "fold_macro_f1": [
+          0.8560903202494309,
+          0.8695917034361348,
+          0.8564612888950656,
+          0.8732684589551001,
+          0.845903805401438
+        ],
+        "max_depth": 10,
+        "max_features": "sqrt",
+        "mean_macro_f1": 0.8602631153874338,
+        "n_estimators": 10
+      },
+      {
+        "fold_macro_f1": [
+          0.8697638462055313,
+          0.8707955715793734,
+          0.8701865678590469,
+          0.8678696243053184,
+          0.865210092225384
+        ],
+        "max_depth": 10,
+        "max_features": "sqrt",
+        "mean_macro_f1": 0.8687651404349307,
+        "n_estimators": 100
+      },
+      {
+        "fold_macro_f1": [
+          0.9648163966782936,
+          0.9683854609425561,
+          0.9653362811754868,
+          0.9685045541235975,
+          0.969417388934474
+        ],
+        "max_depth": null,
+        "max_features": "sqrt",
+        "mean_macro_f1": 0.9672920163708817,
+        "n_estimators": 10
+      },
+      {
+        "fold_macro_f1": [
+          0.9683053469990647,
+          0.9720586526070308,
+          0.9673088308772501,
+          0.9675176308292942,
+          0.9696764428502128
+        ],
+        "max_depth": null,
+        "max_features": "sqrt",
+        "mean_macro_f1": 0.9689733808325706,
+        "n_estimators": 100
+      },
+      {
+        "fold_macro_f1": [
+          0.7716902575819153,
+          0.7866444809136385,
+          0.7574971441997101,
+          0.7691832920440455,
+          0.7675529913651206
+        ],
+        "max_depth": 5,
+        "max_features": 28,
+        "mean_macro_f1": 0.770513633220886,
+        "n_estimators": 10
+      },
+      {
+        "fold_macro_f1": [
+          0.9602229271936608,
+          0.9597411512912686,
+          0.9610088226005727,
+          0.9618232986949388,
+          0.9660366802551755
+        ],
+        "max_depth": null,
+        "max_features": 28,
+        "mean_macro_f1": 0.9617665760071233,
+        "n_estimators": 10
+      }
+    ],
+    "selected": {
+      "max_depth": null,
+      "max_features": "sqrt",
+      "n_estimators": 100
+    }
+  },
+  "split_index_sha256": {
+    "test": "4c0320f804c1f2318f6983a90badedf9aff5688ee412df6cbdb6281a3e18685c",
+    "train": "457114e7b7e7d56ac534f8e301969ae4ad6ed4fa86edb839e8e907ba1ebccf7a"
+  },
+  "test": {
+    "accuracy": 0.9970885543255151,
+    "confusion_matrix": [
+      [
+        88759,
+        221,
+        1
+      ],
+      [
+        115,
+        1860,
+        0
+      ],
+      [
+        2,
+        0,
+        25479
+      ]
+    ],
+    "macro_f1": 0.9717316230465814,
+    "macro_precision": 0.9641484566107668,
+    "macro_recall": 0.9797329157996163,
+    "malicious_vs_rest": {
+      "false_positives": 1,
+      "fpr": 1.0994326927305511e-05,
+      "fpr_ci_high": 6.125492954384143e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 2.7835221932204267e-07,
+      "negatives": 90956,
+      "recall": 0.9999215101448138
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.9171597633136095,
+        "pr_auc": 0.9609319820898822,
+        "precision": 0.8938010571840461,
+        "recall": 0.9417721518987342,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9999411314534644,
+        "pr_auc": 0.99999997383267,
+        "precision": 0.9999607535321821,
+        "recall": 0.9999215101448138,
+        "support": 25481
+      },
+      "Non-DoH": {
+        "f1": 0.9980939743726702,
+        "pr_auc": 0.9998263025119601,
+        "precision": 0.9986835591160719,
+        "recall": 0.9975050853553006,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9984642847396629,
+    "total": 116437,
+    "weighted_f1": 0.997125402035132,
+    "weighted_precision": 0.9971840465006759,
+    "weighted_recall": 0.9970885543255151
+  },
+  "test_recall_by_tool": {
+    "dns2tcp": {
+      "detected": 16748,
+      "n": 16749,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 16748,
+        "Non-DoH": 1
+      },
+      "recall": 0.9999402949429816,
+      "recall_ci_high": 0.9999984883999732,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.999667390109275
+    },
+    "dnscat2": {
+      "detected": 3561,
+      "n": 3561,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 3561,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9989646252630986
+    },
+    "dnstt": {
+      "detected": 254,
+      "n": 254,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 254,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9855818047557556
+    },
+    "iodine": {
+      "detected": 4606,
+      "n": 4607,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 4606,
+        "Non-DoH": 1
+      },
+      "recall": 0.9997829390058607,
+      "recall_ci_high": 0.9999945045065298,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9987912134284234
+    },
+    "tcp-over-dns": {
+      "detected": 153,
+      "n": 153,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 153,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9761780087065645
+    },
+    "tuns": {
+      "detected": 157,
+      "n": 157,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 157,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9767778353966748
+    }
+  },
+  "test_rows": [
+    88981,
+    1975,
+    25481
+  ],
+  "test_seen_in_train": {
+    "by_class": [
+      15556,
+      66,
+      2
+    ],
+    "fraction": 0.134184151085995,
+    "rows": 15624
+  },
+  "test_unseen": {
+    "accuracy": 0.9968654836181842,
+    "confusion_matrix": [
+      [
+        73219,
+        205,
+        1
+      ],
+      [
+        108,
+        1801,
+        0
+      ],
+      [
+        2,
+        0,
+        25477
+      ]
+    ],
+    "macro_f1": 0.9726129830388729,
+    "macro_precision": 0.9654224140229969,
+    "macro_recall": 0.980180599159076,
+    "malicious_vs_rest": {
+      "false_positives": 1,
+      "fpr": 1.32742188122229e-05,
+      "fpr_ci_high": 7.395696944684226e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 3.3607406655640636e-07,
+      "negatives": 75334,
+      "recall": 0.9999215039836729
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.9200510855683269,
+        "pr_auc": 0.97022793187945,
+        "precision": 0.8978065802592223,
+        "recall": 0.9434258774227344,
+        "support": 1909
+      },
+      "Malicious-DoH": {
+        "f1": 0.9999411268324272,
+        "pr_auc": 0.999999973828563,
+        "precision": 0.9999607504513698,
+        "recall": 0.9999215039836729,
+        "support": 25479
+      },
+      "Non-DoH": {
+        "f1": 0.9978467367158645,
+        "pr_auc": 0.9998547435588226,
+        "precision": 0.9984999113583984,
+        "recall": 0.9971944160708206,
+        "support": 73425
+      }
+    },
+    "roc_auc_ovr_macro": 0.9989792070800725,
+    "total": 100813,
+    "weighted_f1": 0.9969029206181317,
+    "weighted_precision": 0.9969623829660431,
+    "weighted_recall": 0.9968654836181842
+  },
+  "train_rows": [
+    800828,
+    17771,
+    229330
+  ]
+}

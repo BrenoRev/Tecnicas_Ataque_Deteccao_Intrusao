@@ -1,0 +1,255 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "fit_rows": [
+    [
+      266943,
+      229330,
+      229330
+    ],
+    [
+      266943,
+      229330,
+      229330
+    ],
+    [
+      266942,
+      229330,
+      229330
+    ]
+  ],
+  "split_index_sha256": {
+    "test": "689936e8c5245d590da5f76e7991cc11163638b1e8847785c23a339baa350948",
+    "train": "f97eaa989e01dfd676208b38a62146a24d1874cb60cd9fb4450a7bfa8409bd83"
+  },
+  "test": {
+    "accuracy": 0.9964272525056468,
+    "confusion_matrix": [
+      [
+        88713,
+        266,
+        2
+      ],
+      [
+        134,
+        1840,
+        1
+      ],
+      [
+        7,
+        6,
+        25468
+      ]
+    ],
+    "macro_f1": 0.9659340157525875,
+    "macro_precision": 0.9565024891195595,
+    "macro_recall": 0.9760411688736982,
+    "malicious_vs_rest": {
+      "false_positives": 3,
+      "fpr": 3.298298078191653e-05,
+      "fpr_ci_high": 9.638721050947424e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 6.801935229928487e-06,
+      "negatives": 90956,
+      "recall": 0.9994898159412896
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.9004159530217763,
+        "pr_auc": 0.8407480657113658,
+        "pr_auc_base_mean": 0.9417239361476202,
+        "precision": 0.8712121212121212,
+        "recall": 0.9316455696202531,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9996859789605904,
+        "pr_auc": 0.9998126328242027,
+        "pr_auc_base_mean": 0.9999686562324611,
+        "precision": 0.9998822189941502,
+        "recall": 0.9994898159412896,
+        "support": 25481
+      },
+      "Non-DoH": {
+        "f1": 0.9977001152753958,
+        "pr_auc": 0.9990560558147761,
+        "pr_auc_base_mean": 0.9996444464949623,
+        "precision": 0.9984131271524073,
+        "recall": 0.996988121059552,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9913697423560534,
+    "roc_auc_ovr_macro_base_mean": 0.9977385096876173,
+    "total": 116437,
+    "weighted_f1": 0.9964845701489459,
+    "weighted_precision": 0.9965770436264437,
+    "weighted_recall": 0.9964272525056468
+  },
+  "test_recall_by_tool": {
+    "dns2tcp": {
+      "detected": 16788,
+      "n": 16791,
+      "predicted_as": {
+        "Benign-DoH": 2,
+        "Malicious-DoH": 16788,
+        "Non-DoH": 1
+      },
+      "recall": 0.9998213328568876,
+      "recall_ci_high": 0.9999631530240874,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9994779484535067
+    },
+    "dnscat2": {
+      "detected": 3552,
+      "n": 3553,
+      "predicted_as": {
+        "Benign-DoH": 1,
+        "Malicious-DoH": 3552,
+        "Non-DoH": 0
+      },
+      "recall": 0.9997185477061638,
+      "recall_ci_high": 0.9999928742702561,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9984328566853059
+    },
+    "dnstt": {
+      "detected": 204,
+      "n": 204,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 204,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9820797693375605
+    },
+    "iodine": {
+      "detected": 4656,
+      "n": 4664,
+      "predicted_as": {
+        "Benign-DoH": 2,
+        "Malicious-DoH": 4656,
+        "Non-DoH": 6
+      },
+      "recall": 0.9982847341337907,
+      "recall_ci_high": 0.9992591882252234,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.99662305478007
+    },
+    "tcp-over-dns": {
+      "detected": 141,
+      "n": 142,
+      "predicted_as": {
+        "Benign-DoH": 1,
+        "Malicious-DoH": 141,
+        "Non-DoH": 0
+      },
+      "recall": 0.9929577464788732,
+      "recall_ci_high": 0.9998217214710814,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9613888953890118
+    },
+    "tuns": {
+      "detected": 127,
+      "n": 127,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 127,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9713714938656124
+    }
+  },
+  "test_rows": [
+    88981,
+    1975,
+    25481
+  ],
+  "test_seen_in_train": {
+    "by_class": [
+      15700,
+      85,
+      2
+    ],
+    "fraction": 0.1355840497436382,
+    "rows": 15787
+  },
+  "test_unseen": {
+    "accuracy": 0.9960158966716344,
+    "confusion_matrix": [
+      [
+        73017,
+        262,
+        2
+      ],
+      [
+        123,
+        1766,
+        1
+      ],
+      [
+        7,
+        6,
+        25466
+      ]
+    ],
+    "macro_f1": 0.9656990496325872,
+    "macro_precision": 0.9554482959988686,
+    "macro_recall": 0.9767595797865974,
+    "malicious_vs_rest": {
+      "false_positives": 3,
+      "fpr": 3.990900746298439e-05,
+      "fpr_ci_high": 0.00011662658144501188,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 8.230272409394681e-06,
+      "negatives": 75171,
+      "recall": 0.9994897758938733
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.9001019367991846,
+        "pr_auc": 0.8414951811500309,
+        "pr_auc_base_mean": 0.9470660288019771,
+        "precision": 0.8682399213372665,
+        "recall": 0.9343915343915344,
+        "support": 1890
+      },
+      "Malicious-DoH": {
+        "f1": 0.9996859543063515,
+        "pr_auc": 0.999817205778169,
+        "pr_auc_base_mean": 0.9999700001286735,
+        "precision": 0.9998822097451804,
+        "recall": 0.9994897758938733,
+        "support": 25479
+      },
+      "Non-DoH": {
+        "f1": 0.9973092577922256,
+        "pr_auc": 0.9989911490218228,
+        "pr_auc_base_mean": 0.999621990031689,
+        "precision": 0.9982227569141592,
+        "recall": 0.9963974290743849,
+        "support": 73281
+      }
+    },
+    "roc_auc_ovr_macro": 0.9920127657741374,
+    "roc_auc_ovr_macro_base_mean": 0.9981254023680971,
+    "total": 100650,
+    "weighted_f1": 0.9960855520178248,
+    "weighted_precision": 0.9962020280462135,
+    "weighted_recall": 0.9960158966716344
+  },
+  "train_rows": [
+    800828,
+    17771,
+    229330
+  ]
+}

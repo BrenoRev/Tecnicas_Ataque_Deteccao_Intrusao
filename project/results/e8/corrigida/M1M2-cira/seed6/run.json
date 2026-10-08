@@ -1,0 +1,49 @@
+{
+  "commit": "3ccd1c5d68b6bca6f498aa64cee324c742cb6793",
+  "config": {
+    "balancing": "peso de classe no Random Forest; sem SMOTE e sem subconjuntos",
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "dataset": "cira",
+    "evaluated_data_sha256": "86a363f2f07d7b88130dd2eecc43ae601638a108abe6d2bae2590eddd45a4779",
+    "hyperparameter_search": "validação cruzada estratificada de 5 folds em subamostra estratificada de 25% do treino da seed; F1 macro médio; grade de 8 combinações (MODIFIED_GRID); ajuste final no treino inteiro",
+    "max_depth": null,
+    "max_features": "sqrt",
+    "model": "M1M2",
+    "n_base_models": 1,
+    "n_estimators": 100,
+    "n_jobs": -1,
+    "scaler": "MinMaxScaler como primeiro passo do Pipeline, ajustado com o Random Forest",
+    "stacked": false,
+    "test_size": 0.1
+  },
+  "cpu_count": 10,
+  "data_sha256": "7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3",
+  "dirty": false,
+  "experiment": "e8",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 6,
+  "slice": "M1M2-cira",
+  "timestamp": "2026-10-07T22:42:57-03:00",
+  "timings": {
+    "evaluation_seconds": 2.4,
+    "fit_seconds": 88.2,
+    "selection_seconds": 182.7,
+    "total_seconds": 276.1
+  },
+  "track": "corrigida"
+}
