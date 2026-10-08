@@ -35,7 +35,7 @@ from doh_ids.config import (
     ROBUSTNESS_MODELS,
     SEEDS_CORRIGIDA,
 )
-from doh_ids.evaluate import aggregate_seeds, paired_comparison
+from doh_ids.evaluate import HIGHER, LOWER, aggregate_seeds, paired_comparison, paired_verdict
 from doh_ids.summary import markdown_table
 
 E8_DIR = RESULTS_DIR / rob.EXPERIMENT / rob.TRACK
@@ -54,7 +54,6 @@ MAIN_MODELS = list(ROBUSTNESS_MODEL_PAIR)[::-1]
 # Queda de F1 macro, em fração, que a hipótese declara como inesperada na ablação.
 UNEXPECTED_F1_DROP = 0.01
 
-HIGHER, LOWER, SAME = "maior", "menor", "não se distinguem"
 READING_RULE = (
     "uma diferença pareada conta quando a média é, em módulo, maior que o desvio padrão das "
     "diferenças entre as seeds; caso contrário os dois lados não se distinguem"
@@ -99,18 +98,10 @@ def clean_by_seed(runs: dict, metric: str) -> list[float]:
     return [e4r.flat_metrics(metrics["test"])[metric] for metrics, _ in runs.values()]
 
 
-def verdict(comparison: dict) -> str:
-    """Aplica a regra de leitura: diz se o primeiro lado do par é maior, menor ou igual."""
-    difference = comparison["mean_difference"]
-    if abs(difference) <= comparison["std_difference"]:
-        return SAME
-    return HIGHER if difference > 0 else LOWER
-
-
 def paired(values: list[float], reference: list[float], **labels) -> dict:
     """Compara dois lados seed a seed (`values` menos `reference`) e junta rótulos e veredito."""
     comparison = paired_comparison(values, reference)
-    return {**labels, **comparison, "verdict": verdict(comparison)}
+    return {**labels, **comparison, "verdict": paired_verdict(comparison)}
 
 
 def slice_summary(runs: dict) -> dict:

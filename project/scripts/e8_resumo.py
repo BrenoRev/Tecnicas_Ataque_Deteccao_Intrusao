@@ -37,7 +37,7 @@ from doh_ids.config import (
     SEED_FIEL,
     SEEDS_CORRIGIDA,
 )
-from doh_ids.evaluate import aggregate_seeds, paired_comparison
+from doh_ids.evaluate import HIGHER, SAME, aggregate_seeds, paired_comparison, paired_verdict
 from doh_ids.summary import markdown_table
 
 E8_DIR = RESULTS_DIR / e8.EXPERIMENT / e8.TRACK
@@ -73,7 +73,7 @@ FIT_STEPS = [
 # Métricas em que o valor menor é o melhor.
 LOWER_IS_BETTER = ["malicious_fpr", TRAIN_SECONDS]
 
-IMPROVES, WORSENS, SAME = "melhora", "piora", "não se distinguem"
+IMPROVES, WORSENS = "melhora", "piora"
 # Combinação que a hipótese diz ser a mais escolhida pela seleção.
 EXPECTED_SELECTION = {"n_estimators": 100, "max_depth": None, "max_features": "sqrt"}
 READING_RULE = (
@@ -200,10 +200,11 @@ def tool_recall_summary(entries: list[dict]) -> dict:
 
 def verdict(comparison: dict, metric: str) -> str:
     """Aplica a regra de leitura a uma comparação pareada da modificação com a referência."""
-    difference = comparison["mean_difference"]
-    if abs(difference) <= comparison["std_difference"]:
+    side = paired_verdict(comparison)
+    if side == SAME:
         return SAME
-    favourable = difference < 0 if metric in LOWER_IS_BETTER else difference > 0
+    # O lado favorável à modificação é o menor em FPR e tempo e o maior no resto.
+    favourable = (side == HIGHER) != (metric in LOWER_IS_BETTER)
     return IMPROVES if favourable else WORSENS
 
 

@@ -6,6 +6,9 @@ import pytest
 from doh_ids.config import CLASS_NAMES, FEATURE_COLUMNS, FIG4A_CONFUSION, FIG4B_CONFUSION
 from doh_ids.data import class_counts
 from doh_ids.evaluate import (
+    HIGHER,
+    LOWER,
+    SAME,
     aggregate_seeds,
     base_rate,
     compare_confusion,
@@ -14,6 +17,7 @@ from doh_ids.evaluate import (
     metrics_from_confusion,
     outside_unit_interval,
     paired_comparison,
+    paired_verdict,
     recall_by_tool,
 )
 from doh_ids.splits import stratified_split
@@ -295,6 +299,18 @@ def test_paired_comparison_of_equal_values_reports_ties_and_no_statistic():
     assert result["std_difference"] == 0.0
     assert result["wilcoxon_statistic"] is None
     assert result["wilcoxon_p_value"] is None
+
+
+def test_paired_verdict_needs_a_mean_difference_larger_than_the_deviation():
+    def verdict(mean, std):
+        return paired_verdict({"mean_difference": mean, "std_difference": std})
+
+    assert verdict(0.6, 0.5) == HIGHER
+    assert verdict(-0.6, 0.5) == LOWER
+    # No caso limite, a média igual ao desvio não conta, em nenhum dos sinais.
+    assert verdict(0.5, 0.5) == SAME
+    assert verdict(-0.5, 0.5) == SAME
+    assert verdict(0.0, 0.0) == SAME
 
 
 def test_aggregate_seeds_gives_mean_and_sample_standard_deviation():
