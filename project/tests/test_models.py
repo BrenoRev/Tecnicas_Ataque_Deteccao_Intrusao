@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pytest
 from sklearn.ensemble import RandomForestClassifier
@@ -5,11 +7,14 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 
 import scripts.e3_sensibilidade as e3
+import scripts.e8_modificacao as e8
 from doh_ids.config import (
     MAX_DEPTH,
     MAX_FEATURES,
     MODIFIED_GRID,
     MODIFIED_MODELS,
+    MODIFIED_SELECTED_MODEL,
+    MODIFIED_SELECTION_FRACTION,
     N_ESTIMATORS,
     TABLE_II_FOREST_TREES,
     TABLE_II_TREE_DEPTH,
@@ -223,3 +228,38 @@ def test_modified_model_is_a_pipeline_with_the_scaler_first_and_a_class_weighted
     forest = model.steps[-1][1]
     assert isinstance(forest, RandomForestClassifier)
     assert forest.class_weight == "balanced"
+
+
+def test_modified_model_is_fitted_on_the_rows_of_the_original_train(synthetic_flows):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    model, _, _ = e8.fit_modification("M1", train, SEED)
+
+    # O normalizador é ajustado junto com o Random Forest, nas mesmas linhas:
+    # com SMOTE ou subconjuntos ele veria outro número de linhas.
+    assert model.named_steps["scaler"].n_samples_seen_ == len(train)
+
+
+def test_hyperparameter_selection_only_receives_train_rows_of_the_seed(
+    synthetic_flows, tmp_path, monkeypatch
+):
+    seed = 1
+    samples = []
+    select = e8.select_hyperparameters
+
+    def recording_select(sample, seed):
+        samples.append(sample)
+        return select(sample, seed)
+
+    monkeypatch.setattr(e8, "select_hyperparameters", recording_select)
+    e8.run_dataset("cira", synthetic_flows, {"cira": "0" * 64}, tmp_path, [seed])
+
+    train, test = stratified_split(synthetic_flows, seed)
+    assert len(samples) == 1
+    assert samples[0].index.isin(train.index).all()
+    assert samples[0].index.intersection(test.index).empty
+    assert len(samples[0]) == int(MODIFIED_SELECTION_FRACTION * len(train))
+    # A combinação escolhida fica gravada no resultado da seed.
+    run_dir = tmp_path / "e8" / "corrigida" / f"{MODIFIED_SELECTED_MODEL}-cira" / f"seed{seed}"
+    selected = json.loads((run_dir / "metrics.json").read_text())["selection"]["selected"]
+    assert selected in MODIFIED_GRID
