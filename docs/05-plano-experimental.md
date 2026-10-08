@@ -5,6 +5,8 @@ O que rodar, em que ordem, com que protocolo, e o que cada experimento precisa p
 > O desenho de E3, E4 e E8 foi refinado no plano de implementação, depois de uma revisão adversarial: E4 passou a ser avaliação em dez seeds com configurações fixas, sem busca; a única busca de hiperparâmetros é a de M2, em E8; o ajuste de limiar saiu de M1; E3 tem quatro variantes obrigatórias e três opcionais. Onde este documento e o plano divergirem, vale [../planejamento/MEMORY/00-decisoes-travadas.md](../planejamento/MEMORY/00-decisoes-travadas.md) (decisões 23 a 26).
 >
 > **Estado em 08/10/2026 (commit `759ec29`): E0 a E8 foram executados com os dados reais em 07 e 08/10/2026**, nesta máquina (decisão 44), com a árvore limpa e o commit gravado em cada `run.json`. A seção "Como foi executado" diz, por experimento, o script, o caminho em `project/results/` e o que ficou de fora. As seções por experimento, mais abaixo, guardam o desenho original; onde ele mudou, há uma nota. Este documento não copia resultados: os números estão nos `RESUMO.md`.
+>
+> **Fechamento em 08/10/2026 (commit `5999c1b`).** A execução limpa refez os 22 passos em um clone novo, em 7 h 30 min: 260 de 260 arquivos de `results/` e 56 de 56 de `report/` conferem com os versionados. A revisão final em código recalculou 362 matrizes e 11.266 métricas, sem divergência, e não achou bloqueante; os achados foram tratados com asserções nos scripts de E1, E2, E4 e E6 e cinco testes novos, sem mudar a lógica numérica. A suíte tem 118 testes. Fonte: `planejamento/plan/REVISAO-FINAL.md`. A ordem de execução está em `project/README.md`, "Ordem dos scripts", e em `project/scripts/execucao_limpa.sh`.
 
 ## Princípio
 

@@ -5,7 +5,7 @@
 **Depende de:** 04
 **Demonstra:** `split_counts.json`: amostras por classe em treino, nos dez folds de validação e no teste, ao lado dos valores da Fig. 4. Seção 6: pergunta explícita da especificação.
 
-> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta e executada em `0ae2d49`** (branch `tarefa/05-split-scaler`, nascida de `tarefa/04-carga-limpeza`; código em `56db5fb` e `121cde9`, resultado em `0ae2d49`). Aguarda integração por pessoa (G10).
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta e executada em `0ae2d49`** (branch `tarefa/05-split-scaler`, nascida de `tarefa/04-carga-limpeza`; código em `56db5fb` e `121cde9`, resultado em `0ae2d49`). **Concluída.** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Como ficou (conferido no código em `0ae2d49`)
 

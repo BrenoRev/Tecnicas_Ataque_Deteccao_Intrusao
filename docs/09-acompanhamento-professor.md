@@ -1,13 +1,14 @@
 # Acompanhamento com o professor — página de status
 
-Preparada em 08/10/2026 para o encontro de 10/11/2026. Atualizar a data e a seção "Execução limpa" na véspera. Todo número abaixo vem de um arquivo de `project/results/`, indicado entre parênteses; antes do encontro, conferir de novo contra o arquivo.
+Preparada em 08/10/2026 para o encontro de 10/11/2026, e conferida no commit `5999c1b`. Atualizar a data na véspera. Todo número abaixo vem de um arquivo de `project/results/`, indicado entre parênteses; antes do encontro, conferir de novo contra o arquivo.
 
 ## O que está pronto
 
 - **Reprodução (objetivo 1).** O sistema foi reimplementado a partir do texto do artigo, porque o repositório dos autores não contém o modelo. Todas as tabelas e figuras de resultado foram reproduzidas: Tabela I, Fig. 2, Figs. 4a e 4b, Tabela II, Figs. 5 a 8, Seção VI-D e Fig. 9. Os arquivos estão em `project/report/` e o índice em `project/report/INDICE.md`.
 - **Segundo dataset (objetivo 2).** DoH-Tunnel-Traffic-HKD e o combinado CIRA + HKD: transferência do modelo treinado no CIRA, retreino, modelos de comparação e SHAP (`project/results/e6/RESUMO.md`).
 - **Modificação (objetivo 3).** Random Forest único sem SMOTE, com peso de classe, e seleção de hiperparâmetros; comparação pareada em dez seeds nos dois datasets e um teste de robustez à duração do fluxo (`project/results/e8/corrigida/`).
-- **Entregáveis.** Relatório em PDF (8 páginas, template da disciplina) e apresentação (14 slides, roteiro de 11 min 55 s) em `project/report/`.
+- **Entregáveis.** Relatório em PDF (8 páginas, template da disciplina) e apresentação (14 slides, roteiro de 11 min 55 s) em `project/report/`, com cópia em `entregaveis-apresentacao/`.
+- **Repositório.** README com a ordem dos 22 passos (`project/README.md`), licença MIT (`LICENSE`), execução limpa e revisão final em código (seção "Execução limpa", abaixo).
 
 ## Resultados principais
 
@@ -26,7 +27,10 @@ Preparada em 08/10/2026 para o encontro de 10/11/2026. Atualizar a data e a seç
 1. **Duas leituras da profundidade das árvores.** A Seção IV-B diz profundidade máxima 5; a linha 3 do Algoritmo 1 diz "variable tree depth". Com 5, o sistema nunca prediz Benign-DoH; com profundidade variável, fica a 0,15 ponto de acurácia da Fig. 4b. Reportamos as duas lado a lado e usamos a variável como base das etapas seguintes. Está de acordo?
 2. **O combinado como "outro conjunto de dados".** O HKD sozinho só tem a classe maliciosa; para refazer tudo com três classes usamos o combinado CIRA + HKD sem as réplicas, em que Non-DoH e Benign-DoH são os do CIRA. Isso atende ao requisito?
 3. **Ferramenta de túnel (Seção VI-D).** O artigo dá três valores e nenhum método. Aplicamos o mesmo sistema aos fluxos maliciosos, com as três ferramentas como classes, e declaramos que é leitura nossa. Serve?
-4. **Formato.** Limite de páginas e idioma do relatório; repositório público ou privado; se o uso de assistente de IA precisa ser declarado no texto.
+4. **Formato.** Limite de páginas e idioma do relatório; repositório público ou privado; se o uso de assistente de IA precisa ser declarado no texto. Sem resposta até aqui, seguimos com: português, 8 páginas, repositório público, sem frase de declaração.
+5. **Apresentação de 19/11.** O que ela deve cobrir.
+
+Os pontos 1 a 4 foram fechados pela equipe em 08/10/2026, sem resposta do professor (decisão 55): o projeto segue o que está implementado. Se ele disser outra coisa, a resposta é registrada em `docs/07-pendencias.md`, com a data, e a decisão afetada é marcada para revisão.
 
 ## Achados que vão para a discussão do relatório
 
@@ -37,13 +41,15 @@ Preparada em 08/10/2026 para o encontro de 10/11/2026. Atualizar a data e a seç
 
 ## O que falta
 
-- Conferência por dois integrantes das transcrições do artigo (metade inferior da Tabela II; valores das Figs. 5, 7 e 8).
-- Integração dos pull requests e licença do repositório.
-- Ensaio da apresentação e divisão final da fala.
+Só o que é de pessoa; a lista completa está em `docs/07-pendencias.md`, seção "O que resta de pessoa".
+
+- Ensaio cronometrado da apresentação pelos três que apresentam.
+- Leitura do relatório pelos quatro integrantes.
+- Entrega em 18/11 e apresentação em 19/11.
 
 ## Execução limpa
 
-Feita em 08/10/2026, em um clone novo do repositório, com os dados extraídos do zip: os 22 passos rodaram sem erro em 7 h 30 min, em uma máquina de 10 núcleos. Os 229 arquivos de métricas regenerados conferem com os versionados (227 idênticos byte a byte; 2 ganharam chaves novas, com os valores comuns iguais), e as tabelas do relatório saíram idênticas. Depois dela, uma revisão em código recalculou todas as métricas a partir das matrizes de confusão, sem divergência, e mediu por mutação quais quebras de vazamento os testes pegam (`planejamento/plan/REVISAO-FINAL.md`).
+Feita em 08/10/2026, em um clone novo do repositório, com os dados extraídos do zip: os 22 passos rodaram sem erro em 7 h 30 min, em uma máquina de 10 núcleos. Os 229 arquivos de métricas regenerados conferem com os versionados (227 idênticos byte a byte; 2 ganharam chaves novas, com os valores comuns iguais, e foram regravados), e as tabelas do relatório saíram idênticas: no total, 260 de 260 arquivos de `results/` e 56 de 56 de `report/`. Uma revisão em código recalculou todas as métricas a partir das matrizes de confusão, sem divergência, e mediu por mutação quais quebras de vazamento os testes pegam; as oito que escapavam passaram a derrubar um teste, e a suíte tem 118 testes (`planejamento/plan/REVISAO-FINAL.md`).
 
 ## Para 17/11
 

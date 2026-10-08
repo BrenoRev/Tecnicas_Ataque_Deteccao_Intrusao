@@ -14,7 +14,7 @@
 - **Comando real:** `uv run python scripts/e6_dados.py`. Lê `data/raw/hkd/`, `data/raw/combinado/` e `cira.parquet` (para comparar faixas): roda depois de `e0_dados.py`. Grava `data/processed/{hkd,combinado,combinado_sem_replicas}.parquet`. Tempo medido: 18 s em cada `run.json`.
 - **Resultados:** `results/e6/dados/{hkd,combinado,combinado_sem_replicas}/seed42/` (no do HKD, também `faixa_por_atributo.csv` e `medianas_malicioso.csv`) e `results/e6/dados/RESUMO.md`, escrito pelo próprio script.
 - **Quem lê estes resultados:** `e5_xai.py` (o do HKD), `e6_dataset2.py` e `e7_ferramenta.py` (o do combinado sem réplicas, para conferir as contagens por ferramenta).
-- **Pendente de pessoa:** a integração (G10). `docs/04-dados.md` é do agente `cin0114-doc-sync`.
+- **Concluída (08/10/2026).** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
@@ -54,7 +54,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 - O HKD tem só duas máquinas (`192.168.11.12` e `.16`), capturas de 27/10 a 04/11/2021.
 - `group` não se aplica ao HKD: todas as 5.258 linhas têm as duas máquinas locais, uma na origem e outra no destino (medido em 07/10/2026). O esquema do segundo dataset não tem `group` nem `time_window` (decisão 40).
 - A justificativa da escolha (passo 8) precisa dizer que o combinado, como publicado, replica o HKD e por que a equipe avalia também sem as réplicas.
-- Cluster, opcional (decisão 42): se a execução for no Apuana, os arquivos são copiados à mão para o Apuana e conferidos lá com `data/verify.py`; o `data/README.md` diz onde ficam no servidor `[Preencher: caminho]`.
+- Cluster: não se aplica. Nada rodou no Apuana; a execução foi nesta máquina (decisão 44), e o `data/README.md` não precisa de caminho no servidor.
 
 ## Arquivos
 
@@ -101,14 +101,14 @@ Objetivo P2 e decisão 11. A especificação exige que a escolha do segundo data
 
 - [x] `data/README.md` e o manifesto cobrem os novos arquivos; `uv run python data/verify.py` passa. Executado em `759ec29`: "OK: 8 de 8 arquivos do manifesto conferidos."
 - [x] Relatório de compatibilidade em `results/e6/dados/<dataset>/seed42/` (um por Parquet): 29 colunas presentes, diferenças registradas; justificativa em `results/e6/dados/RESUMO.md`. Lido: os três diretórios e o resumo.
-- [ ] Contagens por classe, por origem e por ferramenta gravadas e comparadas com o README do dataset. Os arquivos existem e `e7_ferramenta.py` confere `clean_rows_by_tool` contra eles por asserção; a comparação com o README do dataset não foi relida aqui.
+- [x] Contagens por classe, por origem e por ferramenta gravadas e comparadas com o README do dataset. **Fechado em 08/10/2026:** lido em `5999c1b`: `results/e6/dados/RESUMO.md`, seção "Fluxos por classe, origem e ferramenta" (linhas 40 a 62), com a coluna "README do combinado" nas duas tabelas e a frase "O combinado bruto tem as contagens do README, por classe e por ferramenta"; `e7_ferramenta.py` confere `clean_rows_by_tool` por asserção, e a execução limpa rodou essas asserções com os dados reais.
 - [x] Os três Parquets existem e passam pelas asserções de 29 colunas, sem NaN, sem infinito e `label` em {0, 1, 2}; o esquema é 29 atributos + `label` + `origin` + `tool`. Executado: esquema dos três Parquets do disco lido com `pyarrow`, 32 colunas, as três últimas `label`, `origin` e `tool`. As asserções de NaN e infinito são do script e não foram rodadas de novo.
-- [ ] Parágrafo de justificativa escrito, sem afirmar nada que não esteja nos arquivos de resultado ou nas fontes citadas. Existe em `results/e6/dados/RESUMO.md` (linha 194 em diante); a conferência afirmação a afirmação não foi feita aqui.
-- [ ] `docs/04-dados.md` atualizado pelo `cin0114-doc-sync` no fechamento, sem `[A verificar]` nos itens resolvidos. É do outro agente; não conferido.
+- [x] Parágrafo de justificativa escrito, sem afirmar nada que não esteja nos arquivos de resultado ou nas fontes citadas. **Fechado em 08/10/2026:** lido em `5999c1b`, `results/e6/dados/RESUMO.md`, linhas 174 a 210: cada afirmação aponta para uma contagem do próprio resumo, para o `README.txt` do HKD ou para `results/e0/dados/RESUMO.md`. Os números do parágrafo que entram no relatório foram recalculados dos Parquets na revisão final (`REVISAO-FINAL.md`, item 2 de "O que a revisão não verificou": o resumo em si não se regenera sem treinar).
+- [x] `docs/04-dados.md` atualizado pelo `cin0114-doc-sync` no fechamento, sem `[A verificar]` nos itens resolvidos. **Fechado em 08/10/2026:** executado: `grep -n "A verificar" docs/04-dados.md` devolve duas linhas, a 3 (o aviso de que o inventário medido prevalece) e a 152 (um dataset alternativo, não lido e não usado); nenhum item do HKD ou do combinado.
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e6_dados.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
+O script rodou na própria sessão de implementação, nesta máquina (decisão 44). **Não se aplica:** o Apuana e o script de submissão em `jobs/` (decisão 44: nada rodou no cluster, a pasta não existe); a saída colada no pull request (decisão 55f: não houve pull request por tarefa). A evidência é a que está versionada: resultados em `results/`, `run.json` com a máquina, os núcleos, as versões, o commit e `dirty: false`, e a execução limpa de 08/10/2026, que regenerou os mesmos `metrics.json` em um clone novo (`REVISAO-FINAL.md`, "Execução limpa"). Os dois fechamentos, "pronta" e "executada", aconteceram na mesma sessão.
 
 ## Testes
 

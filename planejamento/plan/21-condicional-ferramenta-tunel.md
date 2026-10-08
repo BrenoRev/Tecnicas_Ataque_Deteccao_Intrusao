@@ -17,7 +17,7 @@
 - **Resultados:** `results/e7/variante/ferramenta/seed42/`, `results/e7/fiel/ferramenta/seed42/`, `results/e7/dados/fig9/seed42/` (`fig9_distribuicao.png`, `fig9_curvas.csv`, `fig9_estatisticas.csv`) e `results/e7/RESUMO.md`.
 - **Os pontos sem valor declarado foram fechados pela decisão 51 (a, e):** a trilha nomeia a leitura de profundidade e o recorte é `ferramenta`; dns2tcp é a classe dividida em três partes, dnscat2 a reamostrada com SMOTE até igualar iodine; os papéis saem das contagens do treino (`metrics.roles`).
 - **Desvios que ficaram:** a Fig. 9 fica na trilha `dados`, recorte `fig9`, porque não treina modelo; o resumo traz as curvas normais com a média e o desvio medidos, como o artigo, e o histograma embaixo; as estatísticas da legenda da Fig. 9 são medidas também nos arquivos sem a limpeza. O resumo chama o método de "leitura nossa".
-- **Pendente de pessoa:** a conversa com o professor sobre o método (Q5, tarefa 23); a integração (G10).
+- **Concluída (08/10/2026).** A conversa com o professor sobre o método (Q5) foi fechada pela equipe, sem resposta dele (decisão 55a): fica o método implementado, e o ponto continua na página dos encontros. Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
@@ -80,9 +80,9 @@ A seção VI-D faz parte do artigo, mas é a mais mal especificada (ambiguidade 
 - [x] Os três pontos sem valor declarado do bloco de reconciliação (papel de cada ferramenta nos subconjuntos, leitura de profundidade, caminho em `results/e7/`) e a forma de avaliar com nomes de classe próprios estão decididos antes da primeira execução. Lido: decisão 51, itens (a) e (e), por recomendação do assistente, que o usuário pode rever; `83df7c1` vem antes de `b459e2a`.
 - [x] Conjunto só com fluxos maliciosos e rótulo em {dns2tcp, dnscat2, iodine}; total depois da limpeza conferido por asserção. Lido: `e7_ferramenta.py:178`, contra a contagem de Malicious-DoH da Tabela I; executado: `test_tool_load_keeps_only_doh_rows_with_the_tool_of_the_folder`.
 - [x] Métricas por ferramenta (precisão, recall, F1, com o suporte) ao lado dos três valores do artigo, que o artigo chama de acurácia, com a diferença. Lido: `article_comparison` em `metrics.json`, por ferramenta, com `article_accuracy`, `precision`, `recall`, `f1`, `support` e `difference_pp`.
-- [ ] Figura equivalente à Fig. 9, com eixos rotulados e unidade. Lido: `fig9_distribuicao.png` existe; não aberta nesta reconciliação.
+- [x] Figura equivalente à Fig. 9, com eixos rotulados e unidade. **Fechado em 08/10/2026:** `results/e7/dados/fig9/seed42/fig9_distribuicao.png` aberta em `5999c1b`: quatro painéis, eixo x "ResponseTimeTimeSkewFromMode (sem unidade)" e "PacketTimeVariance (s²)", eixo y "Densidade" e "Densidade (1/s²)", legenda por ferramenta com média e desvio.
 - [x] `RESUMO.md` declara que o método é leitura da equipe e por quê. Lido: seção "O método é leitura nossa", `results/e7/RESUMO.md:9`.
-- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`d86b0b5`, `38809c1`).
+- [x] Revisor metodológico sem achado bloqueante. **Fechado em 08/10/2026:** `REVISAO-FINAL.md`: nenhum achado bloqueante; V3 a V6. Commits anteriores: `d86b0b5`, `38809c1`.
 
 ## Testes
 

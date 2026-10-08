@@ -39,7 +39,7 @@ O item 6 está em negrito na especificação. É o único trecho destacado do se
 | P2 | Obter resultados do sistema do artigo em outro dataset | Sim | "a escolha do novo conjunto de dados deve ser devidamente justificada no relatório" |
 | P3 | Propor, implementar e avaliar modificações no sistema | Não, vale ponto extra | Se feito, obriga slides e apresentação em 19/11 |
 
-A especificação avisa que requisitos adicionais podem ser exigidos por artigo. Ainda não sabemos se há algum para o nosso (ver [07-pendencias.md](07-pendencias.md)).
+A especificação avisa que requisitos adicionais podem ser exigidos por artigo. O professor respondeu em 07/10/2026 que, por enquanto, não há (Q3 em [07-pendencias.md](07-pendencias.md)); a equipe fechou sem requisito adicional (decisão 48).
 
 ### Entregáveis
 
@@ -81,10 +81,14 @@ O arquivo de instruções gerais que a equipe vinha usando lista itens que não 
 
 ## Rastreabilidade: requisito, evidência, responsável
 
+Situação em 08/10/2026, no commit `5999c1b`. A coluna de responsável diz quem produziu: a implementação e a execução ficaram na sessão de implementação (decisão 44), com uma só identidade Git no histórico (decisão 55d). Quem defende cada parte na apresentação está em `project/report/roteiro.md`.
+
 | Requisito | Evidência que fecha o item | Responsável |
 | --- | --- | --- |
-| P1 reprodução | Matriz de confusão e métricas no CIRA-CIC-DoHBrw-2020 ao lado dos valores do artigo, com a diferença calculada. Gerado em 07 e 08/10/2026: `project/results/e0/dados/RESUMO.md`, `e1/RESUMO.md`, `e2/fiel/RESUMO.md`, `e5/RESUMO.md`, `e7/RESUMO.md` | [Preencher] |
-| P2 segundo dataset | Mesmas métricas no segundo dataset + parágrafo de justificativa da escolha. Gerado em 08/10/2026: `project/results/e6/RESUMO.md`; justificativa em `project/results/e6/dados/RESUMO.md` | [Preencher] |
-| P3 modificação | Mesma tabela, sistema original contra modificado, nos dois datasets. Gerado em 08/10/2026: `project/results/e8/corrigida/RESUMO.md` e `RESUMO-ROBUSTEZ.md` | [Preencher] |
-| Código comentado | Revisão pelo agente `revisor-metodologico` e leitura cruzada entre integrantes | [Preencher] |
-| Relatório | PDF no template, 9 seções, checklist rodada. Gerado em 08/10/2026: `project/report/relatorio.pdf`; a checklist de entrega ainda não foi rodada | [Preencher] |
+| P1 reprodução | Matriz de confusão e métricas no CIRA-CIC-DoHBrw-2020 ao lado dos valores do artigo, com a diferença calculada: `project/results/e0/dados/RESUMO.md`, `project/results/e1/RESUMO.md`, `project/results/e2/fiel/RESUMO.md`, `project/results/e5/RESUMO.md`, `project/results/e7/RESUMO.md` | sessão de implementação (decisão 44) |
+| P2 segundo dataset | Mesmas métricas no segundo dataset e parágrafo de justificativa da escolha: `project/results/e6/RESUMO.md`; justificativa em `project/results/e6/dados/RESUMO.md` | sessão de implementação (decisão 44) |
+| P3 modificação | Sistema original contra modificado, nos dois datasets: `project/results/e8/corrigida/RESUMO.md` e `project/results/e8/corrigida/RESUMO-ROBUSTEZ.md` | sessão de implementação (decisão 44) |
+| Código comentado | `project/src/`, `project/scripts/` e `project/README.md`; docstring em função pública exigida pelo lint (regra `D1` em `project/pyproject.toml`); revisão final em código pelo agente `revisor-metodologico`, sem achado bloqueante (`planejamento/plan/REVISAO-FINAL.md`). A leitura cruzada entre integrantes por pull request não foi feita (decisão 55f) | sessão de implementação (decisão 44) |
+| Reprodução do zero | Execução limpa em clone novo, 08/10/2026: 260 de 260 arquivos de `results/` e 56 de 56 de `report/` conferem (`planejamento/plan/REVISAO-FINAL.md`, "Execução limpa") | sessão de implementação (decisão 44) |
+| Relatório | PDF no template, nove seções: `project/report/relatorio.pdf` (8 páginas) e `project/report/relatorio.tex`; cópia em `entregaveis-apresentacao/`. A checklist de entrega ainda não foi rodada e a leitura pelos quatro integrantes está por fazer ([07-pendencias.md](07-pendencias.md), itens 5 e 7) | sessão de implementação (decisão 44) |
+| Slides e apresentação (há P3) | `project/report/apresentacao.pptx` (14 slides, modelo do CIn) e `project/report/roteiro.md` (11 min 55 s) | sessão de implementação (decisão 44); apresentam Amanda, Antonio e João |

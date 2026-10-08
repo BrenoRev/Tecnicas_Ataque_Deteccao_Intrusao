@@ -5,7 +5,7 @@
 **Depende de:** 05
 **Demonstra:** resumo dos três subconjuntos: contagens, razão obtida contra 15:12:12, fração sintética (gravado pela tarefa 08). Seções 4 e 6.
 
-> **Situação (07/10/2026, reconciliação no commit `360c3d3`): pronta em `a4ba0e5`** (branch `tarefa/07-subconjuntos`, nascida de `tarefa/06-avaliacao-metricas`). Executada com os dados reais dentro da tarefa 08 (`798ecd3`). Aguarda integração por pessoa (G10).
+> **Situação (07/10/2026, reconciliação no commit `360c3d3`): pronta em `a4ba0e5`** (branch `tarefa/07-subconjuntos`, nascida de `tarefa/06-avaliacao-metricas`). Executada com os dados reais dentro da tarefa 08 (`798ecd3`). **Concluída.** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Como ficou (conferido no código em `360c3d3`)
 

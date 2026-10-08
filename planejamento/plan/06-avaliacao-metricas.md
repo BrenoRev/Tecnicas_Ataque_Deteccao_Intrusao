@@ -5,7 +5,7 @@
 **Depende de:** 02
 **Demonstra:** testes que recalculam as métricas da Fig. 4b (acurácia 99,78%, recall de Benign-DoH 90,23%) a partir da matriz publicada. Define o alvo de P1.
 
-> **Situação (07/10/2026, reconciliação no commit `360c3d3`): pronta em `21171f4`** (branch `tarefa/06-avaliacao-metricas`, nascida de `tarefa/05-split-scaler`; tipos anotados em `fdbdeb9`, já na branch da 08). Aguarda integração por pessoa (G10). A metade inferior da Tabela II não foi registrada e passa para a tarefa 09 (decisão 46).
+> **Situação (07/10/2026, reconciliação no commit `360c3d3`): pronta em `21171f4`** (branch `tarefa/06-avaliacao-metricas`, nascida de `tarefa/05-split-scaler`; tipos anotados em `fdbdeb9`, já na branch da 08). **Concluída.** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f). A metade inferior da Tabela II não foi registrada e passa para a tarefa 09 (decisão 46).
 
 ## Como ficou (conferido no código em `360c3d3`)
 
@@ -28,7 +28,7 @@
 - `save_run` grava em `metrics.json` só o dicionário de métricas. Tempo, leitura adotada e qualquer valor que varie entre execuções vão pelos argumentos `timings` e `config`.
 - Referência do total do teste para a comparação célula a célula: `results/e0/dados/cira/seed42/split_counts.json`, chave `test.total`, 115.911.
 - Fixture para os testes: `synthetic_flows`, 2.340 linhas (1.800 / 60 / 480).
-- Pendente da equipe antes desta tarefa: a metade inferior da Tabela II, copiada do manuscrito e conferida por dois integrantes.
+- (Resolvido.) A metade inferior da Tabela II foi copiada na tarefa 09 (`config.TABLE_II_LITERATURE`) e conferida pelo assistente em duas passagens independentes, não por dois integrantes (decisão 55b).
 
 ## Verificado nos dados (07/10/2026)
 
@@ -50,7 +50,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 2. Visão "malicioso contra o resto": falsos positivos, FPR com intervalo de confiança binomial exato, recall da classe maliciosa.
 3. Função de taxa base: dada uma prevalência, devolve a precisão operacional e os alarmes falsos por dez milhões de fluxos. A prevalência é parâmetro obrigatório, sem valor padrão, para ninguém tratar um número hipotético como medido.
 4. Função de comparação: recebe a matriz obtida e a do artigo e devolve a diferença célula a célula, a soma das diferenças absolutas e a diferença em pontos percentuais de cada métrica.
-5. Registrar em `config.py` os alvos: as duas matrizes da Fig. 4 e as quatro linhas da Tabela II, com comentário indicando figura e tabela. As matrizes ficam na ordem da codificação do projeto (0 = Non-DoH, 1 = Benign-DoH, 2 = Malicious-DoH), que difere da ordem do script (`Benign-DoH, Malicious-DoH, Non-DoH`): o teste T06-2 permuta antes de comparar, porque uma comparação célula a célula sem essa permutação daria distâncias erradas sem nenhum erro aparente. Registrar também as linhas de outros trabalhos da metade inferior da Tabela II, copiadas do manuscrito com a referência de cada uma `[Preencher: copiar do PDF, conferido por dois integrantes]`, para a tabela de comparação com a literatura da tarefa 17.
+5. Registrar em `config.py` os alvos: as duas matrizes da Fig. 4 e as quatro linhas da Tabela II, com comentário indicando figura e tabela. As matrizes ficam na ordem da codificação do projeto (0 = Non-DoH, 1 = Benign-DoH, 2 = Malicious-DoH), que difere da ordem do script (`Benign-DoH, Malicious-DoH, Non-DoH`): o teste T06-2 permuta antes de comparar, porque uma comparação célula a célula sem essa permutação daria distâncias erradas sem nenhum erro aparente. Registrar também as linhas de outros trabalhos da metade inferior da Tabela II, copiadas do manuscrito com a referência de cada uma (feito na tarefa 09: `config.TABLE_II_LITERATURE`, oito linhas; conferência pelo assistente em duas passagens, decisão 55b), para a tabela de comparação com a literatura da tarefa 17.
 6. Testes: aplicada à matriz da Fig. 4b, `metrics_from_confusion` devolve acurácia 99,78%, recall de Benign-DoH 90,23%, macro 99,01 / 96,72 / 97,82 e FPR de 3 em 90.955; matriz perfeita dá 1,0 em tudo; as chaves de média contêm "macro" ou "weighted"; a Fig. 4b montada a partir de rótulos na ordem 0, 1, 2 comparada com o alvo de `config.py` dá distância zero.
 
 ## Por quê

@@ -1,6 +1,6 @@
 # 03 · dados · aquisição do CIRA-CIC-DoHBrw-2020
 
-> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta e executada em `acc297a`** (branch `tarefa/03-dados-cira`, nascida de `tarefa/02-config-runlog`; commits `c2b69e0` e `acc297a`). Aguarda integração por pessoa (G10).
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta e executada em `acc297a`** (branch `tarefa/03-dados-cira`, nascida de `tarefa/02-config-runlog`; commits `c2b69e0` e `acc297a`). **Concluída.** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 >
 > O ⚠️ REVISAR de `5e11d56` (zips do CIRA ausentes) foi **resolvido em 07/10/2026**: os três zips originais e os três `.md5` foram repostos em `project/data/raw/cira/` a partir do zip da equipe, e a decisão 34 vale como escrita. Conferido nesta reconciliação: `uv run python data/verify.py` devolve "OK: 3 de 3 arquivos do manifesto conferidos" e o MD5 de cada zip é o do `.md5` correspondente. As pastas extraídas `Total_CSVs/`, `CSVs/` e `CSVs 2/` continuam no disco ao lado dos zips; o projeto não as lê e elas podem ser apagadas.
 
@@ -26,10 +26,10 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 - Linhas por membro: `l1-nondoh.csv` 897.493; `l1-doh.csv` 269.643; `l2-benign.csv` 19.807; `l2-malicious.csv` 249.836.
 - Coluna de rótulo: `Label`, em texto. Cabeçalho idêntico ao previsto.
 - O plano B (extrair o CIRA de dentro do combinado) não é mais necessário, e seria pior: o combinado arredonda os números para 8 casas.
-- Falta desta tarefa: `data/manifest.json`, `data/verify.py` e o teste dele, e completar o `data/README.md` (passos 2 e 5). Os passos 3 e 7 já estão feitos.
-- **`data/README.md` já existe** (tarefa 01, commit `5e11d56`), com o link do drive e o tutorial: o zip da equipe contém a pasta `data/` e é extraído dentro de `project/`. O passo 6 está feito. Esta tarefa acrescenta ao arquivo origem, data do download, citação exigida, registro do cabeçalho e da coluna de rótulo, e troca a linha `Manifesto de hashes dos arquivos: [Preencher]` pelo apontamento para `data/manifest.json`. O arquivo passa pela checagem de referência interna do CI: não cita `docs/`.
+- (Feito em `c2b69e0` e `acc297a`.) Faltava desta tarefa: `data/manifest.json`, `data/verify.py` e o teste dele, e completar o `data/README.md` (passos 2 e 5). Os passos 3 e 7 já estão feitos.
+- **`data/README.md` já existe** (tarefa 01, commit `5e11d56`), com o link do drive e o tutorial: o zip da equipe contém a pasta `data/` e é extraído dentro de `project/`. O passo 6 está feito. Esta tarefa acrescenta ao arquivo origem, data do download, citação exigida, registro do cabeçalho e da coluna de rótulo, e troca a linha do manifesto de hashes, que estava por preencher, pelo apontamento para `data/manifest.json`. O arquivo passa pela checagem de referência interna do CI: não cita `docs/`.
 - O zip da equipe traz também `hkd/` e `combinado/`; o registro deles no manifesto é da tarefa 13.
-- Cluster, opcional (decisão 42): se a execução for no Apuana, os arquivos são copiados à mão para o Apuana e conferidos lá com `data/verify.py`; o `data/README.md` diz onde ficam no servidor `[Preencher: caminho]`.
+- Cluster: não se aplica. Nada rodou no Apuana; a execução foi nesta máquina (decisão 44), e o `data/README.md` não precisa de caminho no servidor.
 
 ## Arquivos
 

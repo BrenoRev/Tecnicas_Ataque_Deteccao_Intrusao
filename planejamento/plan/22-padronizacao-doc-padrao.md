@@ -67,10 +67,10 @@ O projeto é tocado por quatro pessoas e por agentes; padrão que vive só na ca
 
 ## Critério de aceite
 
-- [ ] Para cada padrão da tabela, a decisão está escrita: **REGISTRAR** (com o caminho da regra, conferível por `grep`) ou **DISPENSAR** (com a justificativa).
-- [ ] Toda regra registrada tem anti-padrão, padrão correto e exemplo.
-- [ ] Nenhuma regra duplica ou contradiz `CLAUDE.md`, `docs/06-padroes.md` ou os agentes existentes.
-- [ ] `docs/` reflete o que foi de fato implementado.
+- [x] Para cada padrão da tabela, a decisão está escrita: **REGISTRAR** (com o caminho da regra, conferível por `grep`) ou **DISPENSAR** (com a justificativa). **Fechado em 08/10/2026:** tabela no topo deste arquivo; `.claude/rules/experimentos.md` (`e2e0015`, ajustado em `3da178e`) tem seis regras e a seção "Dispensados, com o motivo", com os dois dispensados (lido).
+- [x] Toda regra registrada tem anti-padrão, padrão correto e exemplo. **Fechado em 08/10/2026:** lido: as seis regras de `.claude/rules/experimentos.md` têm os itens "Errado", "Certo" e "Exemplo".
+- [x] Nenhuma regra duplica ou contradiz `CLAUDE.md`, `docs/06-padroes.md` ou os agentes existentes. **Fechado em 08/10/2026:** lido contra o `CLAUDE.md` e as outras quatro regras de `.claude/rules/`: as regras 2 e 3 estendem o que já existia (tempo fora do `metrics.json`; hipótese antes da execução) com o caso novo, sem contradizer. `docs/06-padroes.md` não foi relido aqui: é do `cin0114-doc-sync`, que o reconciliou em `0ca5dcf` e `3da178e`.
+- [x] `docs/` reflete o que foi de fato implementado. **Fechado em 08/10/2026:** reconciliado pelo `cin0114-doc-sync` em `0ca5dcf`, `3da178e` e `5999c1b` (lido no histórico), e de novo neste fechamento, em paralelo; `docs/02-artigo.md` tem a coluna "Onde no código" (lido).
 
 ## Testes
 
