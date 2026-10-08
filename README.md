@@ -19,7 +19,7 @@ Projeto da disciplina **CIN0114, Técnicas de Ataque e Detecção de Intrusão**
 
 ## Em uma frase
 
-Reimplementamos o sistema a partir do texto do artigo, porque o repositório dos autores não contém o modelo, medimos tudo em dez seeds e mostramos que o detector aprende um artefato da captura dos dados: treinado no conjunto original, ele deixa passar 98% dos túneis de três ferramentas que não viu.
+Reimplementamos o sistema a partir do texto do artigo, porque o repositório dos autores não contém o modelo, medimos a variância em dez seeds e encontramos um resultado compatível com um detector que aprendeu um artefato da captura dos dados: treinado no conjunto original, ele deixa passar 98% dos túneis de três ferramentas que não viu.
 
 ## O que foi feito
 
@@ -70,7 +70,7 @@ O artigo traz duas passagens sobre a profundidade das árvores: profundidade má
   <img src="project/report/figures/segundo_recall_ferramenta.png" width="70%" alt="Recall por ferramenta de túnel: transferência e retreino">
 </p>
 
-**O que explica a queda.** Uma regra com quatro valores de um único atributo, `PacketLengthMode`, tem recall de 99,84% no conjunto original, com 1 falso positivo em 909.555 fluxos, e 0% no HKD. O tráfego malicioso do conjunto original foi capturado em outras máquinas e em outro período.
+**Um indício do porquê.** Uma regra com quatro valores de um único atributo, `PacketLengthMode`, tem recall de 99,84% no conjunto original, com 1 falso positivo em 909.555 fluxos, e 0% no HKD. O tráfego malicioso do conjunto original foi capturado em outras máquinas e em outro período.
 
 **Modificação da equipe.** Um Random Forest único, sem SMOTE e com peso de classe, ganha cerca de 0,5 ponto de F1 macro sobre o sistema do artigo nas dez seeds, nos dois conjuntos. A seleção de hiperparâmetros não acrescenta F1 sobre essa troca e custa mais tempo de treino.
 
@@ -124,7 +124,7 @@ O desenvolvimento usou um assistente de IA, com uso aprovado na disciplina; as r
 - **Ambiente fixado:** Python 3.12, dependências com versão exata no `uv.lock`.
 - **Rastro de cada número:** todo resultado tem um `run.json` com seed, versões, hash dos dados e o commit do código, gerado com a árvore do Git limpa.
 - **Determinismo:** duas execuções produzem `metrics.json` idênticos.
-- **Sem vazamento:** o teste é separado antes de qualquer ajuste; normalização e reamostragem só veem o treino. Há testes para cada invariante.
+- **Sem vazamento:** o teste é separado antes de qualquer ajuste; normalização e reamostragem só veem o treino. Testes e asserções nos scripts conferem cada invariante, e uma revisão por mutação mediu quais quebras os testes pegam.
 - **Dados fora do Git:** os conjuntos ficam em um arquivo externo, conferido por hash.
 
 ## Limitações
