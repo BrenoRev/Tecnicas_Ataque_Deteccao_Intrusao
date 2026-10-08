@@ -122,6 +122,9 @@ def slice_summary(runs: dict) -> dict:
         entries = [metrics["fragmentation"][str(factor)]["malicious"] for metrics in all_metrics]
         fragmentation[str(factor)] = {
             "recall": aggregate_seeds([{"recall": entry["recall"]} for entry in entries])["recall"],
+            # O menor recall entre as seeds fica ao lado da média: uma seed em
+            # que o modelo cede muito mais que nas outras some na média.
+            "recall_min": min(entry["recall"] for entry in entries),
             "rows": aggregate_seeds([{"n": entry["n"]} for entry in entries])["n"],
             "predicted_as": aggregate_seeds([entry["predicted_as"] for entry in entries]),
         }
@@ -360,17 +363,15 @@ def ablation_table(rows: list[dict]) -> str:
 
 def recall_table(summary: dict) -> str:
     """Escreve o recall de Malicious-DoH de cada modelo em cada fator de fragmentação."""
-    rows = [
-        [
-            model,
-            f"`{columns}`",
-            *[
-                e4r.mean_std(entry["fragmentation"][str(factor)]["recall"])
-                for factor in FRAGMENTATION_FACTORS
-            ],
-        ]
-        for model, columns, entry in slices(summary)
-    ]
+    rows = []
+    for model, columns, entry in slices(summary):
+        cells = []
+        for factor in FRAGMENTATION_FACTORS:
+            fragment = entry["fragmentation"][str(factor)]
+            cells.append(
+                f"{e4r.mean_std(fragment['recall'])} (mín. {100 * fragment['recall_min']:.3f})"
+            )
+        rows.append([model, f"`{columns}`", *cells])
     factors = ["fator 1 (sem perturbação)", *[f"fator {factor}" for factor in PERTURBED]]
     return markdown_table(["modelo", "colunas", *factors], rows)
 
@@ -710,6 +711,12 @@ tempo médio de pacote não passa da duração. Como as estatísticas por pacote
 não foram recalculadas, o vetor perturbado deixa de respeitar isso.
 
 ## Parte B: recall de Malicious-DoH por fator de fragmentação
+
+Média ± desvio padrão entre as seeds e, entre parênteses, o menor valor entre
+as seeds. Onde o mínimo fica longe da média, o modelo cede em algumas seeds
+muito mais que nas outras, e a regra de leitura, que compara a média com o
+desvio, pode dizer "não se distinguem" para uma queda que existe em todas as
+seeds: as colunas de contagem de seeds das tabelas pareadas mostram isso.
 
 {recall_table(summary)}
 
