@@ -44,6 +44,7 @@ Antes de implementar qualquer tarefa: ler [../MEMORY/00-decisoes-travadas.md](..
 | [22](22-padronizacao-doc-padrao.md) | Padronização | Registrar padrões (anti-recorrência) | — | 08, 11 | concluída em 08/10/2026: sete padrões registrados em `.claude/rules/experimentos.md`, dois dispensados com motivo |
 | [23](23-acompanhamento-professor.md) | Acompanhamento | Perguntas ao professor e material de 10/11 e 17/11 | — | — (material: 08) | página de status pronta em `docs/09-acompanhamento-professor.md` (08/10/2026); falta preencher a execução limpa e registrar o retorno dos encontros de 10/11 e 17/11, que são de pessoa |
 | [24](24-entrega-pdfs-finais.md) | Entrega | Relatório em PDF e apresentação em PPTX, pelos modelos de `geracao_latex_and_pdf/` | relatório e slides | 17 | executada em `759ec29` pelo agente `gerador-entregaveis`: `relatorio.pdf` (8 páginas), `apresentacao.pptx` (14 slides), `roteiro.md` (11 min 55 s); revista pelo `revisor-de-texto` |
+| [25](25-revisao-final-em-codigo.md) | Fechamento | Revisão final em código: rastro, recomputação, mutação e leitura, sem treinar | todos | 19 | a fazer; começa quando a execução limpa terminar |
 
 ## Grafo de dependência
 
