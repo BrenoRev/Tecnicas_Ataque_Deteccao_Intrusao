@@ -1,5 +1,22 @@
 # 22 · padronização · registrar os padrões que nasceram na implementação (anti-recorrência)
 
+> **Fechada em 08/10/2026.** Decisão por padrão levantado na implementação:
+>
+> | Padrão | Decisão | Onde ou por quê |
+> | --- | --- | --- |
+> | Resumo separado do treino | REGISTRAR | `.claude/rules/experimentos.md`, regra 1; vale para experimento novo e para o que treina por minutos; os scripts antigos e rápidos não são reescritos |
+> | Tempo fora do que se compara (agregados de E8 guardam tempo) | REGISTRAR | `.claude/rules/experimentos.md`, regra 2 |
+> | Hipótese antes da execução; nome do segundo arquivo | REGISTRAR | regra 3 (já estava na decisão 38 e na skill `experimento`; a regra acrescenta o sufixo e a imutabilidade) |
+> | Análise posterior marcada como tal | REGISTRAR | regra 3; depende só de disciplina |
+> | Duas leituras lado a lado | REGISTRAR | regra 4 (decisões 45, 51, 52) |
+> | "Pode e não pode afirmar" | REGISTRAR | regra 5 (nasceu na tarefa 24) |
+> | Segunda execução em diretório temporário | REGISTRAR | regra 6 |
+> | `python -m` para script que importa script | DISPENSAR | o erro de importação é claro e o README traz o comando |
+> | Retomada por commit em execução longa | DISPENSAR | dois casos; exigir em todos acrescenta código sem proteger resultado |
+>
+> `docs/06-padroes.md` e `docs/02-artigo.md` foram atualizados pelo `cin0114-doc-sync` em `0ca5dcf`. O `CLAUDE.md` aponta para `.claude/rules/`, que já inclui o arquivo novo.
+
+
 **Onde:** raiz do repositório, fora de `project/` (versionados desde a decisão 43) — `.claude/rules/`, `CLAUDE.md`, `docs/06-padroes.md`
 **Objetivo:** os padrões que o plano define ficam escritos onde os próximos agentes e integrantes leem, para os erros que eles evitam não voltarem. Ou fica justificado por que não é preciso.
 **Depende de:** 08, 11 (as duas prontas e executadas em `759ec29`). Não bloqueia nenhuma outra tarefa. `docs/` é editado pelo agente `cin0114-doc-sync`
