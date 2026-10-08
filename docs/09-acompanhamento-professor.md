@@ -43,7 +43,7 @@ Preparada em 08/10/2026 para o encontro de 10/11/2026. Atualizar a data e a seç
 
 ## Execução limpa
 
-`[Preencher na véspera: data, máquina, tempo total e resultado da comparação dos arquivos regenerados com os versionados (saída de scripts/comparar_resultados.py)]`
+Feita em 08/10/2026, em um clone novo do repositório, com os dados extraídos do zip: os 22 passos rodaram sem erro em 7 h 30 min, em uma máquina de 10 núcleos. Os 229 arquivos de métricas regenerados conferem com os versionados (227 idênticos byte a byte; 2 ganharam chaves novas, com os valores comuns iguais), e as tabelas do relatório saíram idênticas. Depois dela, uma revisão em código recalculou todas as métricas a partir das matrizes de confusão, sem divergência, e mediu por mutação quais quebras de vazamento os testes pegam (`planejamento/plan/REVISAO-FINAL.md`).
 
 ## Para 17/11
 

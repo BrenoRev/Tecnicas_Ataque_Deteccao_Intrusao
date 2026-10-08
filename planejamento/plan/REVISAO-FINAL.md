@@ -86,11 +86,26 @@ Preenchido depois da revisão, à medida que cada achado é tratado.
 
 | Achado | Situação |
 | --- | --- |
-| I1, I2 | `[preencher ao tratar]` |
-| I3 | `[preencher ao tratar]` |
-| I4 | `[preencher ao tratar]` |
-| I5 | `[preencher ao tratar]` |
-| M1 a M5 | `[preencher ao tratar]` |
-| M6 a M8 | `[preencher ao tratar]` |
-| M9 | registrado; não se corrige |
-| V1 | `[preencher com o resultado da execução limpa]` |
+| I1, I2 | **Corrigido** em `3725f27`: as duas frases do relatório dizem "recall 0" e a primeira traz os 147 fluxos preditos e errados em 8 seeds; PDF recompilado, 8 páginas |
+| I3 | **Corrigido** em `3e42795`: README da raiz diz "medimos a variância em dez seeds", "resultado compatível com" e "um indício do porquê" |
+| I4 | **Corrigido** em `2686b80`, `7200be7`, `bf19a11`, `2be47e9`, `80111aa`: asserções nos scripts de E1, E2, E4 e E6 e cinco testes novos; as oito mutações agora derrubam um teste (provado aplicando cada uma). Suíte com 118 testes. As asserções novas só rodaram com dados sintéticos; a lógica numérica não mudou |
+| I5 | **Corrigido** em `97b2c8c`: os dois `metrics.json` de SHAP do segundo conjunto foram trocados pelos da execução limpa, depois de conferir que as 521 chaves comuns saíram iguais |
+| M1 a M5 | **Corrigido** em `3725f27` e `c74fc3f`: 2,2 vezes no combinado; "cerca de meio ponto"; regra "fixada antes da execução da modificação e da robustez, e aplicada do mesmo modo ao protocolo corrigido"; "não mede a detecção de fluxo novo"; as três leituras que faltavam entraram no parágrafo de leituras adotadas |
+| M6 | **Registrado** em `2622ea3`: comentário no teste explica por que a fixture copia a pasta `results/` versionada |
+| M7, M8 | **Corrigido** na reconciliação final do plano e de `docs/` |
+| M9 | registrado; histórico publicado não se reescreve |
+| V1 | **Fechado pela execução limpa** (ver abaixo) |
+
+## Execução limpa (tarefa 19)
+
+Rodada em 08/10/2026, de 04:54 a 12:24 (7 h 30 min), em um clone novo fora do repositório, no commit `e2379b7`, com os dados extraídos do zip da equipe e a árvore limpa: os 22 passos de `scripts/execucao_limpa.sh`, sem erro. Os 229 `run.json` regenerados registram `dirty: false`.
+
+Comparação com `scripts/comparar_resultados.py` contra o repositório:
+
+- `results/`: 260 arquivos comparados (229 `metrics.json`, `split_counts.json`, 3 agregados e 27 CSV). 256 saíram idênticos na primeira comparação. Os quatro restantes:
+  - dois `metrics.json` de SHAP do segundo conjunto, com 21 chaves novas e as 521 chaves comuns iguais (achado I5, corrigido);
+  - os dois agregados de E8, diferentes só no campo `commits`, que registra o commit de cada execução, e nas entradas de tempo. O script passou a ignorar `commits` (`47cdabe`).
+- `report/`: 56 arquivos (27 tabelas em `.tex` e `.csv`, o índice e o `relatorio.tex`), todos idênticos.
+- Depois das duas correções, a comparação dá 260 de 260 e 56 de 56, com código de saída 0.
+
+Com isso, todo número versionado foi regenerado do zero pelo código da `main` daquele commit. Os commits posteriores só acrescentaram asserções, testes e texto.
