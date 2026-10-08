@@ -1,7 +1,7 @@
 PROJETO CIN0114 - IDS EXPLICÁVEL PARA ATAQUES DNS OVER HTTPS
 Técnicas de Ataque e Detecção de Intrusão, 2026.2, Prof. Paulo Freitas de Araujo Filho
 Equipe: Amanda Arruda, Antonio Gonzaga, Breno Silva, João Henrique Portela
-Atualizado em 07/10/2026
+Atualizado em 08/10/2026
 
 
 1. O QUE É O PROJETO
@@ -43,15 +43,17 @@ Projeto (70% da nota), entrega em 18/11/2026
 
 O código que os autores publicaram não contém o sistema do artigo. É um
 painel de visualização e um script de 25 linhas que treina um Random Forest
-único. Vamos ter que reimplementar tudo a partir do texto.
+único. O sistema foi reimplementado a partir do texto, e o professor
+aceitou isso como reprodução (resposta de 07/10).
 
 Os dados já estão baixados e conferidos. Remover as linhas com valor
 ausente reproduz exatamente as contagens da Tabela I do artigo, então a
 limpeza dos autores está identificada. O nosso conjunto de teste fica com
 uma amostra a mais que o do artigo, por arredondamento da biblioteca.
 
-Cerca de 14% dos fluxos do teste têm uma cópia idêntica no treino. Isso
-infla o resultado da classe mais comum e será reportado.
+13,67% dos fluxos do teste têm os mesmos 29 atributos de algum fluxo do
+treino (project/results/e0/dados/RESUMO.md). Isso infla o resultado da
+classe mais comum e é reportado, com a avaliação repetida sem essas linhas.
 
 O tráfego malicioso foi capturado em outras máquinas e dois meses depois
 do restante. É uma limitação do dataset que vai para o relatório.
@@ -63,17 +65,22 @@ as repetições.
 O artigo deixa 18 pontos sem especificar: como os dados foram limpos, como
 os três modelos entram no empilhamento, com que dados a regressão logística
 é treinada, quais parâmetros do SMOTE, qual a grade de busca, entre outros.
-Para cada um já escolhemos uma leitura e registramos o motivo.
+Para cada um escolhemos uma leitura e registramos o motivo e o lugar do
+código (docs/02-artigo, seção 5). A implementação achou mais um ponto, o
+que mais pesa: o artigo dá duas profundidades para as árvores, 5 em uma
+seção e "variável" no algoritmo. Com profundidade 5, o modelo empilhado não
+prediz nenhum fluxo de DoH benigno no teste; sem limite, fica perto do
+artigo. As duas leituras são reportadas lado a lado.
 
 Os números do artigo não fecham entre si. A matriz de confusão do teste dá
 251 erros e acurácia de 99,78%. A tabela de resultados diz 0,9998, que
 seriam uns 23 erros. O resumo fala em 99,91% de precisão, valor que nenhuma
-média reproduz. Vamos usar a matriz de confusão como alvo principal, porque
-é o único dado bruto.
+média reproduz. O professor pediu todas as tabelas e gráficos de resultado
+e não disse qual das duas referências vale: comparamos com as duas.
 
-O ponto fraco do modelo é a classe de DoH benigno: o recall é de 90% no
-teste e também no treino. Isso indica que o modelo é simples demais para
-essa classe, não que decorou os dados.
+O ponto fraco do modelo do artigo é a classe de DoH benigno: o recall
+publicado é de 90% no teste e também no treino. Isso indica que o modelo é
+simples demais para essa classe, não que decorou os dados.
 
 Cerca de 92% dos exemplos de DoH benigno usados no treino são sintéticos,
 criados por SMOTE.
@@ -83,76 +90,62 @@ dataset, o rótulo DoH é definido pelo IP de destino; usar essas colunas
 seria aprender a regra de rotulagem.
 
 Testamos as bibliotecas: Python 3.12 com scikit-learn, imbalanced-learn,
-mlxtend, shap e xgboost instalam juntos, o empilhamento com três modelos
-pré-treinados funciona, e um treino em escala real leva segundos.
+mlxtend, shap e xgboost instalam juntos, e o empilhamento com três modelos
+pré-treinados funciona. Os tempos medidos de cada execução estão no arquivo
+run.json ao lado de cada resultado.
+
+O modelo treinado no CIRA quase não detecta as ferramentas de túnel do
+segundo dataset. Um atributo sozinho, a moda do comprimento de pacote,
+separa quase todo o tráfego malicioso do CIRA, e os valores dele não
+aparecem no segundo dataset (project/results/e6/RESUMO.md).
 
 
-4. O QUE FALTA PARA FECHAR O PROJETO
+4. O QUE JÁ FOI FEITO E O QUE FALTA
 
-O plano tem 23 tarefas. Nenhuma linha de código do sistema foi escrita
-ainda. A ordem abaixo é a de execução.
+O plano tem 24 tarefas. Em 07 e 08/10/2026 o código foi escrito e todos os
+experimentos rodaram com os dados reais. Os resultados estão em
+project/results, um resumo (RESUMO.md) por experimento.
 
-Agora, sem código
-  - Feito em 07/10: os três datasets estão em project/data/raw e foram
-    conferidos (docs/08-inventario-dados).
-  - Abrir o template do relatório no Overleaf e ver idioma, limite de
-    páginas e estilo de citação.
-  - Enviar as perguntas ao professor até 13/10 (lista na seção 6).
+Feito
+  - Ambiente com versões fixadas, lint, testes, hooks de commit e a
+    verificação automática no GitHub.
+  - Dados carregados e limpos; contagens da Tabela I reproduzidas.
+  - Reprodução do modelo proposto, nas duas leituras de profundidade, ao
+    lado das matrizes de confusão do artigo.
+  - Os três modelos de comparação do artigo e a tabela de resultados
+    inteira.
+  - Sensibilidade às leituras alternativas do artigo.
+  - Avaliação com dez seeds, com média e desvio, e por máquina.
+  - Figuras de explicabilidade com SHAP e o painel interativo.
+  - Segundo dataset: tudo refeito no conjunto combinado sem repetições; o
+    combinado como publicado e a transferência para o HKD ficam ao lado.
+  - Identificação da ferramenta de túnel (seção VI-D do artigo).
+  - P3: Random Forest único, sem dados sintéticos, com ponderação de classe
+    e hiperparâmetros selecionados dentro do treino, nos dois datasets; e a
+    robustez à duração do fluxo, como perturbação dos atributos.
+  - Tabelas e figuras geradas por script, relatório em PDF (8 páginas) e
+    apresentação em PPTX (14 slides), em project/report.
 
-Até 21/10: fundação
-  - Criar a pasta project/, iniciar o Git dentro dela e ligar ao
-    repositório no GitHub com os quatro integrantes.
-  - Montar o ambiente com versões fixadas, lint, testes, hooks de commit
-    e a verificação automática no GitHub.
+Falta, e é quase tudo de pessoa
+  - Enviar as branches e abrir os pull requests, na ordem das tarefas;
+    outro integrante lê e aprova cada um. Nada está na main ainda.
+  - Dois integrantes conferem, contra o PDF do artigo, os valores que foram
+    digitados a partir dele (metade de baixo da Tabela II e os valores
+    lidos das Figuras 5, 7 e 8).
+  - Escolher a licença do repositório.
+  - Conferir cada referência na fonte, com DOI.
+  - Abrir a apresentação no Google Slides e conferir; confirmar quem fala
+    o quê; ensaiar com cronômetro.
+  - Subir o relatório no Overleaf e compilar com XeLaTeX.
+  - Conversar com o professor: as duas leituras de profundidade; o
+    conjunto combinado como "outro dataset"; a ferramenta de túnel.
+  - Completar o README com a ordem dos scripts e rodar tudo do zero em uma
+    máquina limpa, por quem não escreveu o código.
+  - Rodar a checklist do projeto e enviar o PDF e o link do GitHub (18/11).
+  - Apresentar em 19/11. É obrigatório, porque P3 foi feito.
 
-De 21/10 a 30/10: dados e reprodução
-  - Carregar e limpar os dados, tentando reproduzir as contagens da
-    Tabela I do artigo. É o primeiro marco verificável.
-  - Separar treino e teste (90/10, estratificado) e normalizar só com o
-    treino.
-  - Escrever o módulo de métricas, que compara nosso resultado com o do
-    artigo célula a célula.
-  - Construir os três subconjuntos balanceados e treinar o modelo proposto.
-  - Treinar os três modelos de comparação do artigo: árvore de decisão,
-    XGBoost e Random Forest.
-
-De 30/10 a 09/11: fechar P1 e P2
-  - Medir quanto o resultado muda com cada leitura alternativa do artigo.
-  - Repetir a avaliação com dez seeds, para ter média e desvio, e comparar
-    o modelo proposto com um Random Forest simples em condições iguais.
-  - Reproduzir as figuras de explicabilidade com SHAP.
-  - Rodar o sistema no segundo dataset: primeiro o modelo treinado no CIRA
-    diante de ferramentas de túnel que ele nunca viu; depois o sistema
-    retreinado no dataset combinado.
-  - Começar a escrever as seções 1 a 4 do relatório, que não dependem de
-    resultado.
-
-09/11: decidir se P3 continua. Se a reprodução não estiver fechada, corta.
-
-De 10/11 a 17/11: P3 e relatório
-  - P3: um Random Forest único, sem dados sintéticos, com ponderação de
-    classe e hiperparâmetros selecionados dentro do treino. Comparar com o
-    original nos dois datasets.
-  - Extra, só se sobrar tempo: medir quanto o detector depende da duração
-    do fluxo, que é um atributo que o atacante controla.
-  - Gerar por script todas as tabelas e figuras do relatório.
-  - Escrever as seções 5 a 8, o resumo e as referências.
-  - Preparar os slides do projeto, se P3 foi feito.
-  - 13/11: experimentos congelados. Depois disso, só correção.
-
-Até 18/11: entrega
-  - Completar o README com as instruções de reprodução.
-  - Rodar tudo do zero em uma máquina limpa, de preferência por quem não
-    escreveu o código, e conferir que os números batem.
-  - Rodar a checklist do projeto.
-  - Enviar o PDF e o link do GitHub.
-
-19/11: apresentação, se P3 foi feito.
-
-O que cortar se o prazo apertar, nesta ordem: o extra de robustez; as
-variantes opcionais do estudo de sensibilidade; P3 inteiro, com seus
-slides. Não se corta: dados, reprodução, modelos de comparação,
-explicabilidade, segundo dataset, relatório e README.
+A lista completa, com a evidência de cada item, está em
+POS-IMPLEMENTACAO.md e em docs/07-pendencias.
 
 
 5. REGRAS QUE VALEM PARA TODO O CÓDIGO
@@ -181,33 +174,40 @@ explicabilidade, segundo dataset, relatório e README.
     caminho de ponta a ponta, com dados sintéticos, rodando no GitHub.
 
 
-6. PERGUNTAS EM ABERTO PARA O PROFESSOR
+6. PERGUNTAS AO PROFESSOR
 
-  1. O repositório dos autores não tem o modelo proposto. Reimplementar a
-     partir do texto vale como reprodução?
-  2. A tabela de resultados e a matriz de confusão do artigo divergem. Qual
-     vale como referência, e existe tolerância para "resultados próximos"?
-  3. Há requisito adicional específico para este artigo?
-  4. O dataset combinado (CIRA mais HKD) conta como "outro conjunto de
-     dados", já que duas das três classes são as mesmas do CIRA?
-  5. A identificação da ferramenta de túnel, que o artigo relata sem
-     descrever o método, entra na reprodução?
-  6. O painel interativo precisa ser reproduzido ou bastam as figuras?
-  7. Uso de assistentes de IA: aprovado (07/10). Falta saber se o relatório
-     precisa de uma frase de declaração.
+Respondidas em 07/10/2026 (texto das respostas em docs/07-pendencias)
+  1. Reimplementar a partir do texto vale como reprodução? Sim.
+  2. Qual referência vale e qual a tolerância? Obter todas as tabelas e
+     gráficos de resultado; pequenas diferenças são aceitáveis. Ele não
+     disse qual das duas referências vale.
+  3. Há requisito adicional para este artigo? Por enquanto não.
+  4. O conjunto combinado conta como "outro conjunto de dados"? Ele pediu
+     para refazer tudo em outro dataset e não comentou que duas das três
+     classes são as mesmas do CIRA. Levar à conversa.
+  5. A identificação da ferramenta de túnel entra? Ele pediu uma conversa
+     depois da aula. A equipe fez sem esperar.
+  6. O painel interativo precisa ser reproduzido? Não é necessário. A
+     equipe fez.
+
+Sem resposta
+  7. O relatório precisa de uma frase declarando o uso de assistente de IA?
+     (O uso está aprovado.)
   8. O relatório tem limite de páginas? Pode ser em português?
-
-As respostas 1, 2 e 4 podem mudar o escopo. Uma resposta negativa à 4 em
-novembro não deixa tempo para trocar de dataset, por isso a pressa.
+  9. O repositório deve ser público ou privado? Hoje está público.
 
 
 7. ONDE ESTÁ CADA COISA
 
-  project/                     o repositório Git entregue ao professor:
-                               código, testes, README, resultados e
-                               relatório. Já existe, com Git iniciado; o
-                               primeiro commit é da primeira tarefa.
-                               Tudo o que está abaixo fica FORA dele.
+  (esta pasta)                 é o repositório Git, público no GitHub.
+                               Tudo o que está listado abaixo é
+                               versionado junto. Ficam fora do Git os
+                               datasets e o PDF do artigo.
+
+  project/                     código, testes, README, resultados
+                               (results/) e relatório, slides, tabelas e
+                               figuras (report/). Os comandos rodam
+                               dentro dela.
 
   docs/                        central de conhecimento
     01-requisitos              o que é cobrado e as seções do relatório
@@ -225,14 +225,14 @@ novembro não deixa tempo para trocar de dataset, por isso a pressa.
                                que o código estiver pronto, até a entrega
 
   planejamento/                plano de implementação
-    plan/00-README             índice das 23 tarefas, ordem e cortes
-    plan/01 a 23               uma tarefa por arquivo
+    plan/00-README             índice das 24 tarefas, ordem e cortes
+    plan/01 a 24               uma tarefa por arquivo
     plan/VERIFICACAO           o que conferir antes de dar uma tarefa
                                como pronta
     plan/PLANO-DE-TESTES       os testes de cada tarefa e o que roda no CI
     plan/ENTREGAS-DEMONSTRAVEIS  requisito do professor → tarefa → artefato
                                demonstrável, e o que mostrar em cada marco
-    MEMORY/00-decisoes-travadas   as 41 decisões já tomadas e as pendências
+    MEMORY/00-decisoes-travadas   as 54 decisões já tomadas e as pendências
                                   da equipe
     MEMORY/STATUS              onde paramos e o próximo passo
 
@@ -243,18 +243,21 @@ novembro não deixa tempo para trocar de dataset, por isso a pressa.
                                (.claude/rules), agente implementador,
                                agentes de revisão e checklists
 
+  geracao_latex_and_pdf/       modelos do relatório (LaTeX) e dos slides
+                               (PPTX do CIn)
+
 
 8. DATAS
 
-  07/10   perguntas enviadas ao professor (feito)
-  21/10   repositório e ambiente prontos
-  30/10   primeira matriz de confusão ao lado da do artigo
-  09/11   decisão sobre P3
+  07/10   perguntas enviadas ao professor e seis respondidas (feito)
+  07 e 08/10   código, experimentos, relatório e slides (feito)
+  14/10   slides do seminário no Classroom
+  15/10 e 20/10   apresentação do seminário
   10/11   acompanhamento com o professor
-  13/11   experimentos congelados
+  13/11   experimentos congelados: depois disso, só correção
   17/11   acompanhamento com o professor
   18/11   entrega do relatório e do link do GitHub
-  19/11   apresentação do projeto, se houver modificação
+  19/11   apresentação do projeto (há modificação)
 
-As datas de 21/10, 30/10, 09/11 e 13/11 são metas internas. As demais são
-do calendário da disciplina.
+A data de 13/11 é meta interna. As de 14/10 em diante são do calendário da
+disciplina.

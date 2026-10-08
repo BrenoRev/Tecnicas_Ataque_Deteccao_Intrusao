@@ -5,7 +5,20 @@
 **Depende de:** 11, 12, 14
 **Demonstra:** `results/e8/corrigida/summary.json`: original contra modificado nos dois datasets, dez seeds, com `HIPOTESE.md` anterior aos números. P3 (seções 5 e 7).
 
-> ⚠️ REVISAR (07/10/2026, reconciliação no commit `360c3d3`), **antes de escrever a grade e a hipótese:** a decisão 45 põe esta tarefa sobre a variante de profundidade variável; a decisão 25 e a tabela do passo 5 foram escritas com "os valores do artigo" significando (10, 5, 28). Três pontos ficam sem definição e são do usuário, antes de qualquer execução (invariante I5): (1) o modelo A de referência passa a ser o de profundidade variável, e o de profundidade 5 entra ao lado onde o custo permitir; os dois saem de `results/e4/`, que depende do ⚠️ REVISAR da tarefa 11; (2) M1, "Random Forest único, `class_weight`, hiperparâmetros do artigo (10, 5, 28)", mede o efeito de tirar o SMOTE em relação a qual A; (3) a grade proposta de M2 inclui "a combinação do artigo (10 árvores, profundidade 5, 28)" e não inclui (10, sem limite, 28), que é a configuração dos bases do A de profundidade variável. Nenhuma decisão foi reescrita; a tabela do passo 5 e a grade ficaram como estavam.
+> **O aviso de revisão desta tarefa foi resolvido pelas decisões 52 e 54 (07/10/2026)** e não está mais aberto: a referência é o A de profundidade variável; M1 tem os hiperparâmetros do A, com `M1-prof5` ao lado; a grade ganhou (10, sem limite, 28). O que foi implementado está em "Como ficou".
+
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** Grade, modelos e pares em `2a5fce5`; hipótese em `1728539`; `fit_modified_forest` em `7902322`; script em `3ccd1c5`; `a1fb756` (só o resumo: tempo de treino pelas etapas de ajuste); resultados em `713e650`; análise posterior em `b6ccf81` e `2313597`. Os 50 `run.json` trazem o commit `3ccd1c5` e `dirty: false` (lido).
+- **Arquivos:** `src/doh_ids/models.py` (`fit_modified_forest`), `src/doh_ids/config.py` (`MODIFIED_GRID`, `MODIFIED_SELECTION_FRACTION`, `MODIFIED_RUNS`), `scripts/e8_modificacao.py` (só treina e grava), `scripts/e8_resumo.py` (agregação e resumo), `tests/test_models.py`.
+- **Comando real:** `uv run python -m scripts.e8_modificacao` e, depois de `e8_robustez`, `uv run python -m scripts.e8_resumo`. O treino importa os scripts de E4 e da 14a, lê os três Parquets (`cira`, `combinado_sem_replicas`, `hkd`) e **`results/e4/corrigida/{A,A-prof5}/`**, para conferir por asserção que o split de cada seed é o mesmo. O resumo lê também `results/e6/variante/transferencia/` e os recortes `robustez-<modelo>-todos` da tarefa 16. Execução já gravada pelo mesmo commit, com a árvore limpa, não é refeita: o script pode ser interrompido e retomado. Tempo medido: M1 342 s, M1-prof5 179 s, M1M2 no CIRA 2.683 s (1.782 s de seleção), A no combinado 1.223 s, M1M2 no combinado 2.716 s (1.800 s de seleção); 7.143 s, cerca de 2 horas.
+- **Resultados:** `results/e8/corrigida/{M1-cira,M1-prof5-cira,M1M2-cira,A-combinado_sem_replicas,M1M2-combinado_sem_replicas}/seed<0..9>/`, `summary.json`, `RESUMO.md` e `HIPOTESE.md`. No CIRA, A e A-prof5 são lidos de `results/e4/corrigida/`.
+- **O ⚠️ REVISAR está resolvido pelas decisões 52 e 54:** referência é o A de profundidade variável; M1 usa (10, sem limite, 28) e `M1-prof5` vai ao lado, contra `A-prof5`; a grade tem oito combinações, com (10, sem limite, 28).
+- **Desvios que ficaram:** a seleção usa 25% do treino de cada seed, estratificada (decisão 54a), e o resumo declara; o passo 8, a explicabilidade do modelo modificado, **não foi feito** e está declarado assim em `RESUMO.md:501`; a transferência de M1M2 ao HKD foi medida nas dez seeds (`hkd_transfer`); o resumo e as tabelas trazem uma análise acrescentada depois da execução, marcada como posterior e fora dos pares fixados antes dela.
+- **`summary.json` traz tempos** (`train_seconds`, `selection_seconds`, `time_checks`), lidos dos `run.json`: não repete entre execuções. A comparação da execução limpa (tarefa 19) ignora essas chaves.
+- **Pendente de pessoa:** a integração (G10).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
@@ -88,14 +101,14 @@ Objetivo P3 e decisões 02 e 25. M1 responde à crítica de que cerca de 92% da 
 
 ## Critério de aceite
 
-- [ ] Hipótese e grade em commit anterior ao da primeira execução.
-- [ ] A seleção de hiperparâmetros de cada seed usa só o treino daquela seed (revisão; asserção de que os índices do teste não entram no ajuste).
-- [ ] `summary.json` com média e desvio de A, M1 e M1+M2 no CIRA, e de A e M1+M2 no combinado, em dez seeds.
-- [ ] Hiperparâmetros selecionados em cada seed gravados, com a frequência de cada combinação.
-- [ ] Comparação pareada com A gravada, com método e ressalva.
-- [ ] Nenhuma amostra sintética no treino de M1 e M1+M2 (asserção de tamanho).
-- [ ] Métricas com e sem duplicatas em toda seed, nos dois datasets.
-- [ ] Texto de resultado não afirma melhora que os números não mostram (revisor metodológico).
+- [x] Hipótese e grade em commit anterior ao da primeira execução. Lido no histórico: `2a5fce5` (grade) e `1728539` (hipótese) vêm antes de `3ccd1c5`, o commit dos `run.json`, e de `713e650`, o dos resultados.
+- [x] A seleção de hiperparâmetros de cada seed usa só o treino daquela seed (revisão; asserção de que os índices do teste não entram no ajuste). Executado: `test_hyperparameter_selection_only_receives_train_rows_of_the_seed`.
+- [x] `summary.json` com média e desvio de A, M1 e M1+M2 no CIRA, e de A e M1+M2 no combinado, em dez seeds. Lido: `datasets.cira.models` com A, A-prof5, M1, M1-prof5 e M1M2; `datasets.combinado_sem_replicas.models` com A e M1M2; `seeds` de 0 a 9.
+- [x] Hiperparâmetros selecionados em cada seed gravados, com a frequência de cada combinação. Lido: `selection.selected` em cada `metrics.json` de M1M2; `selection.grid[].seeds_selected` no `summary.json`.
+- [x] Comparação pareada com A gravada, com método e ressalva. Lido: `paired.method`, `paired.caveat` e `paired.reading_rule`.
+- [x] Nenhuma amostra sintética no treino de M1 e M1+M2 (asserção de tamanho). Lido: `fit_rows` igual a `train_rows` (800.828 / 17.771 / 224.598 na seed 3). Executado: `test_modified_model_is_fitted_on_the_rows_of_the_original_train`.
+- [x] Métricas com e sem duplicatas em toda seed, nos dois datasets. Lido: `scopes` com `test` e `test_unseen`; `test_unseen` em cada `metrics.json`.
+- [ ] Texto de resultado não afirma melhora que os números não mostram (revisor metodológico). Informado pela sessão principal como revisto; a lista do que pode e do que não pode ser afirmado está na tarefa 24 (`c715add`). Sem artefato da revisão para conferir aqui.
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
@@ -107,4 +120,4 @@ Seção "Tarefa 15" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e8_modificacao.py`.
+Gate de experimento completo: G1–G10, com G5 = `uv run python -m scripts.e8_modificacao`; o resumo sai de `uv run python -m scripts.e8_resumo`, depois de `e8_robustez`.

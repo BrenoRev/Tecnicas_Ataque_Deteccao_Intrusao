@@ -5,6 +5,17 @@
 **Depende de:** 08
 **Demonstra:** `results/e3/variante/`: distância à Fig. 4b por leitura alternativa. Seção 7: discussão das ambiguidades.
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** Código em `ceb6ea0` (os pontos em aberto viram argumentos de `fit_system`, `base_forests` e `stacked_forest`) e `d774223`; resultados em `7b3ddaf`; `320a2a5` separou a tabela e o resumo do treino; `c64832b` corrigiu o resumo; resumos refeitos em `38809c1` e `2313597`. Os dez `run.json` trazem o commit `d774223` e `dirty: false` (lido).
+- **Arquivos:** `scripts/e3_sensibilidade.py` (só treina, avalia e grava), `scripts/e3_resumo.py` (tabela e resumo, sem treinar), `src/doh_ids/models.py`, `src/doh_ids/system.py`, `tests/test_models.py`.
+- **Comando real:** `uv run python scripts/e3_sensibilidade.py` e, depois, `uv run python -m scripts.e3_resumo`. O treino lê `cira.parquet` e `results/e0/`. O resumo lê `results/e1/` (as duas configurações de partida) e **`results/e4/corrigida/A/`** (a variação entre seeds do modelo de partida): roda depois de `e4_corrigido.py`. Tempo medido do treino: 535 s nas dez execuções, cerca de 9 minutos.
+- **Resultados:** `results/e3/variante/<variante>/seed42/` e `results/e3/variante/<variante>-prof5/seed42/`, `results/e3/variante/comparacao.csv` e `results/e3/variante/RESUMO.md`.
+- **Desvios que ficaram:** as variantes partem das duas leituras de profundidade (decisão 51d): cinco variantes em dez recortes, com o sufixo `-prof5` para a partida de profundidade 5. Feitas: as quatro do núcleo e a opcional `meta_uniao`. Não feitas, e listadas assim no resumo: `stacking_cv` e `oss`.
+- **Pendente de pessoa:** a integração (G10).
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
@@ -71,11 +82,11 @@ Risco R2. Como o artigo não especifica vários pontos, "a reprodução" é uma 
 
 ## Critério de aceite
 
-- [ ] Um diretório de resultado para cada variante do núcleo (quatro) e para cada opcional feita, com `run.json` de trilha `variante` nomeando a variante e o ponto que ela muda. Opcional não feita está listada como não feita no resumo.
-- [ ] Tabela comparativa gerada por script em `results/e3/variante/`.
-- [ ] Todas as variantes avaliadas no mesmo teste (asserção de total).
-- [ ] Texto de interpretação em `RESUMO.md` separa o que foi medido do que é hipótese.
-- [ ] Revisor metodológico sem achado bloqueante.
+- [x] Um diretório de resultado para cada variante do núcleo (quatro) e para cada opcional feita, com `run.json` de trilha `variante` nomeando a variante e o ponto que ela muda. Opcional não feita está listada como não feita no resumo. Lido: dez diretórios (`class_weight`, `use_probas`, `max_features_padrao`, `rf_unico`, `meta_uniao`, e os cinco com `-prof5`); `config.changed_point` e `config.changed_arguments` no `run.json`; `RESUMO.md`, linhas 126 a 131, lista `StackingCVClassifier` e one-sided selection como não feitas.
+- [x] Tabela comparativa gerada por script em `results/e3/variante/`. Lido: `comparacao.csv`, escrita por `scripts/e3_resumo.py`.
+- [x] Todas as variantes avaliadas no mesmo teste (asserção de total). Lido: a matriz de teste soma 115.911 nos dez `metrics.json`.
+- [ ] Texto de interpretação em `RESUMO.md` separa o que foi medido do que é hipótese. O arquivo existe; a separação não foi relida frase a frase nesta reconciliação.
+- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`320a2a5`, `c64832b`, `38809c1`).
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
@@ -87,4 +98,4 @@ Seção "Tarefa 10" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e3_sensibilidade.py`.
+Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e3_sensibilidade.py` e, depois de `e4_corrigido.py`, `uv run python -m scripts.e3_resumo`.

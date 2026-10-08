@@ -20,11 +20,15 @@ Material de origem, em `docs/referencias/`:
 - `docs/referencias/Guia de estudo do seminário CIN0114.md`: guia por bloco e divisão de fala.
 - `docs/referencias/zebin2022_manuscrito_aceito.pdf`: manuscrito aceito do artigo, obtido do repositório institucional da Brunel University (https://bura.brunel.ac.uk/handle/2438/27256). A paginação e pequenos detalhes de edição podem diferir da versão final do IEEE Xplore; ao citar no relatório, confira na versão publicada.
 
-## Estado em 06/10/2026
+## Estado em 08/10/2026
+
+Reconciliado com o repositório no commit `759ec29` (branch `tarefa/24-entregaveis`).
 
 - Lidos e conferidos: especificação, artigo completo, repositório dos autores, página do dataset, código do extrator de atributos (DoHLyzer).
 - Dados baixados e inventariados em 07/10/2026 ([08-inventario-dados.md](08-inventario-dados.md)).
-- Não feito ainda: montagem do ambiente, qualquer linha do sistema.
+- Sistema implementado e todos os experimentos (E0 a E8) executados com os dados reais em 07 e 08/10/2026. Os resultados e a interpretação de cada um estão em `project/results/e<k>/`, no `RESUMO.md`; esta central aponta para eles e não os copia.
+- Relatório, apresentação, tabelas e figuras gerados em `project/report/`; o índice que liga cada item à origem é `project/report/INDICE.md`.
+- Não feito ainda: integração na `main`, conferências de pessoa, README completo e execução limpa. A lista está em [07-pendencias.md](07-pendencias.md), seção "O que resta de pessoa".
 - Próxima entrega: slides do seminário em 14/10/2026.
 
 ## Como as afirmações desta central foram verificadas
@@ -32,5 +36,6 @@ Material de origem, em `docs/referencias/`:
 - Texto do artigo: leitura integral do manuscrito aceito. As citações trazem seção, tabela ou figura.
 - Números recalculados: `cd project && python3 scripts/metricas_fig4.py`, a partir das contagens da Figura 4.
 - Repositório dos autores: clone em 06/10/2026, commit `38e2f23`, leitura dos arquivos e do histórico git. Nenhum pickle foi carregado.
-- Colunas do dataset: lidas do código-fonte do DoHLyzer (`meter/flow.py`), não do CSV. Conferir de novo quando os dados forem baixados.
+- Colunas do dataset: lidas do código-fonte do DoHLyzer (`meter/flow.py`) e conferidas contra o cabeçalho dos CSVs em 07/10/2026.
+- Medições nos dados e resultados de modelo: arquivo em `project/results/`, gerado por script versionado, com o commit e a seed no `run.json` ao lado. Todo número citado nesta central traz o caminho do arquivo.
 - O que não pôde ser verificado está marcado como `[A verificar]`.

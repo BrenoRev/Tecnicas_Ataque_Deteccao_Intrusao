@@ -6,6 +6,17 @@
 **Demonstra:** `project/report/relatorio.pdf` e `project/report/apresentacao.pptx`. São os entregáveis "relatório em PDF" e "slides" da especificação.
 **Quem executa:** o agente `gerador-entregaveis`. É a última tarefa do plano; a 19 (README e execução limpa) pode correr em paralelo.
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: executada.** Dependência em `7dd89c0`; `make_slides.py` em `ae38e76`; relatório em `2c6e3da`; apresentação e roteiro em `938de1c`; depois da revisão de texto, `30a7985`, `16b7f39`, `17a278b`, `dc5fb1c` e `759ec29`.
+- **Arquivos:** `report/relatorio.tex`, `report/relatorio.pdf` (8 páginas), `report/apresentacao.pptx` (14 slides), `report/roteiro.md` (11 min 55 s), `scripts/make_slides.py`, `pyproject.toml` e `uv.lock` (grupo `slides`, com `python-pptx==1.0.2`; não entra no `requirements.txt`). Agente em `.claude/agents/gerador-entregaveis.md`.
+- **Comandos reais:** `uv run --group slides python scripts/make_slides.py`, que não treina nem lê `results/`: parte do modelo em `geracao_latex_and_pdf/` (fora de `project/`), das figuras `.png` de `report/figures/` e dos `.csv` de `report/tables/`, e escreve `apresentacao.pptx` e `roteiro.md`. Relatório: `tectonic relatorio.tex`, dentro de `report/` (XeLaTeX também serve). Os dois vêm depois de `make_report_assets.py`.
+- **Desvios que ficaram:** o relatório tem 8 páginas, o teto, e não as 6 do alvo; as tabelas entram por uma macro com `\input{tables/#1}` e as figuras por `\includegraphics` de `report/figures/`; as duas figuras que nenhum script gera são `tikzpicture` no próprio `.tex`; `apresentacao.pdf` não foi versionado; o roteiro propõe a divisão da fala entre os quatro.
+- **Com isto as tarefas 18 e 20 estão cumpridas.** O que resta delas é de pessoa, abaixo.
+- **Pendente de pessoa:** abrir o `.pptx` no Google Slides e conferir o layout; confirmar a divisão da fala proposta no roteiro; ensaio cronometrado; leitura cruzada do relatório; conferir o DOI de cada referência; subir o `.tex` no template do Overleaf com XeLaTeX; a integração (G10).
+
 ## Pedido do usuário (07/10/2026)
 
 - Relatório bem resumido e direto, sem enrolação, o mais breve possível, deixando claro tudo o que foi construído.
@@ -82,15 +93,15 @@ Cada número abaixo é conferido contra o arquivo de origem antes de entrar no t
 
 ## Critério de aceite
 
-- [ ] `relatorio.pdf` compila sem erro, sem referência indefinida, com as seções do template, em até 8 páginas.
-- [ ] Lista de conferência da tarefa 18 preenchida: cada pergunta da especificação com seção e parágrafo.
-- [ ] Nenhum número digitado: tabelas por `\input`; números em frase conferidos contra a origem, com a lista no relato.
-- [ ] As duas leituras de profundidade aparecem lado a lado onde a reprodução é citada.
-- [ ] `apresentacao.pptx` com 12 a 14 slides no modelo do CIn, sem os slides de exemplo; `roteiro.md` com soma de tempos de até 13 minutos.
+- [x] `relatorio.pdf` compila sem erro, sem referência indefinida, com as seções do template, em até 8 páginas. Executado em `759ec29`: `tectonic relatorio.tex` com saída em diretório temporário, em 1,5 s, sem erro e sem referência indefinida (só avisos de `Underfull \hbox`). Lido: o PDF versionado tem 8 páginas; as oito seções do template estão no `.tex`.
+- [ ] Lista de conferência da tarefa 18 preenchida: cada pergunta da especificação com seção e parágrafo. Não está em arquivo versionado; não conferida aqui.
+- [ ] Nenhum número digitado: tabelas por `\input`; números em frase conferidos contra a origem, com a lista no relato. Lido: as tabelas entram por `\input{tables/#1}`. A conferência dos números em frase foi informada pela sessão principal; sem artefato aqui.
+- [ ] As duas leituras de profundidade aparecem lado a lado onde a reprodução é citada. Lido: a figura `matriz_confusao_teste_dupla` está no relatório; o texto não foi relido.
+- [x] `apresentacao.pptx` com 12 a 14 slides no modelo do CIn, sem os slides de exemplo; `roteiro.md` com soma de tempos de até 13 minutos. Lido: 14 arquivos de slide no `.pptx`; `roteiro.md:5`, "Soma dos tempos: 11 min 55 s". Os slides não foram abertos.
 - [ ] **Pessoa:** o `.pptx` abre no Google Slides sem quebra de layout.
-- [ ] Páginas do relatório e do PDF de conferência dos slides olhadas uma a uma em imagem.
-- [ ] `revisor-de-texto` sem achado grave em aberto.
-- [ ] Nenhum arquivo de `project/results/` alterado; lint e testes verdes.
+- [ ] Páginas do relatório e do PDF de conferência dos slides olhadas uma a uma em imagem. Informado pela sessão principal; não refeito aqui.
+- [ ] `revisor-de-texto` sem achado grave em aberto. Informado pela sessão principal como feito, com os achados tratados (`17a278b`, `dc5fb1c`, `759ec29`); sem artefato para conferir.
+- [x] Nenhum arquivo de `project/results/` alterado; lint e testes verdes. Lido: `git diff --stat 2313597..759ec29 -- project/results` não devolve nada a partir do início desta tarefa. Executado: lint, formatação e 110 testes verdes.
 
 ## Verificação ao concluir
 

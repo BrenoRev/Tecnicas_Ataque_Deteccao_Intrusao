@@ -5,6 +5,17 @@
 **Depende de:** 05, 06, 08 (a 08 cria `models.py`; esta tarefa pode começar da branch da 08)
 **Demonstra:** `results/e2/fiel/<modelo>/seed42/`: três baselines ao lado das linhas da Tabela II; a metade inferior da Tabela II em `config.py`, com a referência de cada linha. Seção 7: comparação com outros trabalhos.
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** Código em `4277e33` e `00e50b6`; `3c4611f` separou treino e avaliação da gravação (a função `evaluate_baselines` passou a ser usada também pela 14b); `18f0024` corrigiu o resumo. Resultados em `c7190e7`, refeitos em `076fbe1`: os três `run.json` trazem o commit `18f0024` e `dirty: false` (lido).
+- **Arquivos:** `src/doh_ids/models.py` (`fit_baseline`), `src/doh_ids/splits.py` (`balanced_train`, o SMOTE do treino inteiro), `src/doh_ids/config.py` (`TABLE_II_LITERATURE`, a metade inferior), `scripts/e2_baselines.py`, `tests/test_models.py`.
+- **Comando real:** `uv run python scripts/e2_baselines.py`. Lê `data/processed/cira.parquet`, `results/e0/` (hash do Parquet e total do teste) e `results/e1/` (o modelo proposto nas duas leituras, só para o resumo): roda depois de `e0_dados.py` e de `e1_reproducao.py`. Tempo medido (`timings` dos `run.json`): SMOTE 45,9 s, uma vez; ajuste 61,7 s (árvore), 38,9 s (Random Forest) e 24,2 s (XGBoost); cerca de 3 minutos no total.
+- **Resultados:** `results/e2/fiel/{decision_tree,xgboost,random_forest}/seed42/` e `results/e2/fiel/RESUMO.md`. Aqui o resumo é escrito pelo próprio script; não existe `e2_resumo`.
+- **Desvios que ficaram:** a seed do SMOTE do treino inteiro é `smote_seed(seed, N_SUBSETS)`, 4203 com a seed 42 (decisão 51c; lido no `run.json`). O resumo destaca a árvore de decisão muito acima da linha da Tabela II, sem ajuste (`18f0024`, `076fbe1`). O script lê `results/e1/` para o resumo, ao contrário do passo 6, que deixava a leitura para a tarefa 17: a tabela inteira aparece nos dois lugares.
+- **Pendente de pessoa:** a conferência da metade inferior da Tabela II por dois integrantes, célula a célula (T09-6); a integração (G10).
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
@@ -64,12 +75,12 @@ P1: a Tabela II é metade dos resultados do artigo. A comparação que o artigo 
 
 ## Critério de aceite
 
-- [ ] Três diretórios de resultado, um por baseline, com métricas e `run.json`.
-- [ ] Todos avaliados sobre o mesmo teste: o total da matriz é igual ao de `results/e0/dados/cira/seed42/split_counts.json` (asserção).
-- [ ] Cada baseline tem métricas macro e ponderada nomeadas e a diferença para a sua linha da Tabela II.
-- [ ] Hiperparâmetros não informados pelo artigo estão comentados como padrão da biblioteca.
-- [ ] Metade inferior da Tabela II em `config.py`: oito linhas copiadas do artigo como impressas, com a referência de cada uma e as células ausentes marcadas como ausentes, conferidas por dois integrantes (decisão 46). Bloqueia o fechamento, não o início.
-- [ ] Revisor metodológico sem achado bloqueante.
+- [x] Três diretórios de resultado, um por baseline, com métricas e `run.json`. Lido: `results/e2/fiel/{decision_tree,xgboost,random_forest}/seed42/`, trilha `fiel` e `dirty: false` nos três.
+- [x] Todos avaliados sobre o mesmo teste: o total da matriz é igual ao de `results/e0/dados/cira/seed42/split_counts.json` (asserção). Lido: a matriz de teste soma 115.911 nos três `metrics.json`, igual a `split_counts.json["test"]["total"]`.
+- [x] Cada baseline tem métricas macro e ponderada nomeadas e a diferença para a sua linha da Tabela II. Lido: chaves `macro_*`, `weighted_*`, `roc_auc_ovr_macro` e `table_ii_comparison` nos três.
+- [x] Hiperparâmetros não informados pelo artigo estão comentados como padrão da biblioteca. Lido: `models.py:95` e `models.py:118`; a mesma declaração em `config.readings` dos `run.json`.
+- [ ] Metade inferior da Tabela II em `config.py`: oito linhas copiadas do artigo como impressas, com a referência de cada uma e as células ausentes marcadas como ausentes, conferidas por dois integrantes (decisão 46). Lido: `TABLE_II_LITERATURE` tem oito entradas, cada uma com `reference`. **Falta a conferência por dois integrantes** `[Preencher: quem copiou e quem conferiu]`; não cabe a esta reconciliação.
+- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`3c4611f`, `18f0024`, `076fbe1`).
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 

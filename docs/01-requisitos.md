@@ -83,8 +83,8 @@ O arquivo de instruções gerais que a equipe vinha usando lista itens que não 
 
 | Requisito | Evidência que fecha o item | Responsável |
 | --- | --- | --- |
-| P1 reprodução | Matriz de confusão e métricas no CIRA-CIC-DoHBrw-2020 ao lado dos valores do artigo, com a diferença calculada | [Preencher] |
-| P2 segundo dataset | Mesmas métricas no segundo dataset + parágrafo de justificativa da escolha | [Preencher] |
-| P3 modificação | Mesma tabela, sistema original contra modificado, nos dois datasets | [Preencher] |
+| P1 reprodução | Matriz de confusão e métricas no CIRA-CIC-DoHBrw-2020 ao lado dos valores do artigo, com a diferença calculada. Gerado em 07 e 08/10/2026: `project/results/e0/dados/RESUMO.md`, `e1/RESUMO.md`, `e2/fiel/RESUMO.md`, `e5/RESUMO.md`, `e7/RESUMO.md` | [Preencher] |
+| P2 segundo dataset | Mesmas métricas no segundo dataset + parágrafo de justificativa da escolha. Gerado em 08/10/2026: `project/results/e6/RESUMO.md`; justificativa em `project/results/e6/dados/RESUMO.md` | [Preencher] |
+| P3 modificação | Mesma tabela, sistema original contra modificado, nos dois datasets. Gerado em 08/10/2026: `project/results/e8/corrigida/RESUMO.md` e `RESUMO-ROBUSTEZ.md` | [Preencher] |
 | Código comentado | Revisão pelo agente `revisor-metodologico` e leitura cruzada entre integrantes | [Preencher] |
-| Relatório | PDF no template, 9 seções, checklist rodada | [Preencher] |
+| Relatório | PDF no template, 9 seções, checklist rodada. Gerado em 08/10/2026: `project/report/relatorio.pdf`; a checklist de entrega ainda não foi rodada | [Preencher] |

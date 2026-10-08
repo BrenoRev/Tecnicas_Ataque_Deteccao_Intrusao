@@ -5,6 +5,17 @@
 **Depende de:** 08, 13 (parte 14a); 09, 12 e a 14a (parte 14b)
 **Demonstra:** `results/e6/`: no combinado sem réplicas, as matrizes de teste e de validação cruzada do sistema nas duas leituras, os três baselines e as figuras SHAP, com as tabelas de amostras por conjunto e o recall por ferramenta; ao lado, o retreino no combinado publicado e a transferência. Evidência de P2 (seções 6 e 7.2).
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: 14a e 14b prontas e executadas.** 14a: hipótese em `c2cb4fc`, funções de avaliação em `e858fc3`, script em `887774c`, resultados em `bc5e510`. 14b: script em `bf593ad` e `3e5aac5` (roda como módulo), resumos e tabela final em `883faca`, fração do HKD na amostra do SHAP em `ac3323e`, resultados em `b32e4f8`. Depois da revisão: `fd253d9`, `15ca118`, `4253571`, `ff039fa` e `38809c1`. Os `run.json` trazem `887774c` (14a) e `3e5aac5` (14b), com `dirty: false` (lido).
+- **Arquivos:** `scripts/e6_dataset2.py` (14a), `scripts/e6_baselines_xai.py` (14b), `scripts/e6_resumo.py` (todos os `RESUMO.md` de `results/e6/`, sem treinar), `src/doh_ids/system.py` (`fit_system` e `cross_validated_confusion`, levadas do script de E1 para o pacote em `472bb79`, decisão 51b), `src/doh_ids/evaluate.py` (`recall_by_tool`, `malicious_only_metrics`, `outside_unit_interval`), `tests/test_evaluate.py`, `tests/test_pipeline.py`.
+- **Comandos reais, nesta ordem:** `uv run python scripts/e6_dataset2.py`; `uv run python -m scripts.e6_baselines_xai`; `uv run python -m scripts.e6_resumo`. A 14a lê os Parquets, `results/e0/`, `results/e1/` e `results/e6/dados/`. A 14b importa os scripts de E2, E5 e da 14a e lê `results/e6/variante/retreino_sem_replicas/` (o split) e `results/e5/` (o ranking do CIRA). O resumo lê `results/e1/`, `results/e2/`, `results/e5/` e `results/e6/`. Tempo medido: 14a, 2.512 s (42 minutos: 1.488 s e 484 s nos retreinos sem réplicas com validação cruzada, 256 s e 59 s no publicado, 175 s e 50 s na transferência); 14b, 1.839 s (31 minutos: SMOTE 56 s, baselines 610 s, SHAP 1.106 s e 60 s).
+- **Resultados:** `results/e6/{fiel,variante}/{transferencia,retreino_publicado,retreino_sem_replicas}/seed42/`; `results/e6/fiel/retreino_sem_replicas-{decision_tree,xgboost,random_forest}/seed42/`; `results/e6/{fiel,variante}/retreino_sem_replicas-shap/seed42/`; `results/e6/RESUMO.md` (tabela final, CIRA ao lado), `results/e6/fiel/RESUMO.md`, `results/e6/variante/RESUMO.md` e `results/e6/fiel/HIPOTESE.md`.
+- **Desvios que ficaram:** a trilha nomeia a leitura de profundidade e o recorte, o cenário (decisão 51a); os baselines ficam só na trilha `fiel`, com o modelo no sufixo do recorte; o SHAP, no recorte `-shap`. Não há validação cruzada no publicado nem na transferência. O teste do combinado sem réplicas tem 513 fluxos do HKD (o plano estimava cerca de 526). A hipótese é uma só, em `fiel/`, e vale para as duas trilhas.
+- **Pendente de pessoa:** a integração (G10); as duas ressalvas de Q4 seguem para o professor (tarefa 23).
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos) divergirem, vale este bloco.**
@@ -105,19 +116,19 @@ Objetivo P2 da especificação. O artigo avalia só com as três ferramentas pre
 
 ## Critério de aceite
 
-- [ ] `results/e6/fiel/transferencia/seed42/metrics.json` com recall por ferramenta (`n` e intervalo), destino dos erros, contagem de valores fora de faixa e a tabela do HKD por ferramenta.
-- [ ] `results/e6/fiel/retreino_publicado/seed42/metrics.json` e `results/e6/fiel/retreino_sem_replicas/seed42/metrics.json` com as métricas completas, o recall por ferramenta e a tabela de amostras por classe em treino, por fold de validação e no teste.
-- [ ] Nenhuma precisão ou FPR reportada para o recorte só de maliciosos.
-- [ ] Asserção da versão sem réplicas verde, com a saída colada no pull request.
-- [ ] Tabela comparativa dos quatro cenários gerada por script.
-- [ ] 14a: no combinado sem réplicas, matriz de teste e matriz de validação cruzada de 10 folds para as duas leituras de profundidade; a de validação soma o treino (asserção).
-- [ ] 14a: o resumo declara que o HKD sozinho só tem a classe maliciosa, e as duas ressalvas sobre o combinado.
-- [ ] 14b: três baselines no combinado sem réplicas, avaliados no mesmo teste da 14a (asserção de total), com métricas macro e ponderada nomeadas.
-- [ ] 14b: figuras SHAP e tabela de importância dos Random Forests base treinados no combinado sem réplicas, com o tamanho da amostra registrado.
-- [ ] Tabela final de P2 (CIRA ao lado do combinado sem réplicas) gerada por script.
-- [ ] Todo resultado diz, no caminho e no `run.json`, a leitura de profundidade e o dataset.
-- [ ] `HIPOTESE.md` em commit anterior à primeira execução; interpretação em `RESUMO.md`, com uma linha por número principal.
-- [ ] Revisor metodológico sem achado bloqueante.
+- [x] `results/e6/fiel/transferencia/seed42/metrics.json` com recall por ferramenta (`n` e intervalo), destino dos erros, contagem de valores fora de faixa e a tabela do HKD por ferramenta. Lido: chaves `hkd.by_tool`, `hkd.malicious`, `hkd_outside_unit_interval`, `hkd_rows_by_tool`; 5.258 fluxos. O mesmo em `variante/`.
+- [x] `results/e6/fiel/retreino_publicado/seed42/metrics.json` e `results/e6/fiel/retreino_sem_replicas/seed42/metrics.json` com as métricas completas, o recall por ferramenta e a tabela de amostras por classe em treino, por fold de validação e no teste. Lido: chaves `test`, `test_recall_by_tool`, `test_recall_by_origin`, `split`.
+- [x] Nenhuma precisão ou FPR reportada para o recorte só de maliciosos. Executado: `test_malicious_only_evaluation_reports_no_precision_fpr_or_accuracy`. Lido: `hkd.negatives` registra a ausência de negativos.
+- [ ] Asserção da versão sem réplicas verde, com a saída colada no pull request. Lido: `hkd_test_rows_seen_in_train` é 0 nas duas trilhas. O pull request é de pessoa.
+- [x] Tabela comparativa dos quatro cenários gerada por script. Lido: `results/e6/RESUMO.md`, escrito por `scripts/e6_resumo.py`.
+- [x] 14a: no combinado sem réplicas, matriz de teste e matriz de validação cruzada de 10 folds para as duas leituras de profundidade; a de validação soma o treino (asserção). Lido: nas duas trilhas a matriz de validação soma 1.047.929, o treino, e a de teste, 116.437.
+- [x] 14a: o resumo declara que o HKD sozinho só tem a classe maliciosa, e as duas ressalvas sobre o combinado. Lido: `results/e6/fiel/RESUMO.md:14` e `:29`; `results/e6/RESUMO.md:25`.
+- [x] 14b: três baselines no combinado sem réplicas, avaliados no mesmo teste da 14a (asserção de total), com métricas macro e ponderada nomeadas. Lido: as três matrizes somam 116.437.
+- [x] 14b: figuras SHAP e tabela de importância dos Random Forests base treinados no combinado sem réplicas, com o tamanho da amostra registrado. Lido: os nove arquivos nos dois recortes `-shap`; `sample_per_class_requested` 2.000.
+- [x] Tabela final de P2 (CIRA ao lado do combinado sem réplicas) gerada por script. Lido: `results/e6/RESUMO.md`.
+- [x] Todo resultado diz, no caminho e no `run.json`, a leitura de profundidade e o dataset. Lido: `config.max_depth`, `config.dataset` e `config.readings.base_depth`.
+- [ ] `HIPOTESE.md` em commit anterior à primeira execução; interpretação em `RESUMO.md`, com uma linha por número principal. Primeira metade lida no histórico: `c2cb4fc` vem antes de `887774c`, o commit dos `run.json`. A segunda não foi relida.
+- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`ac3323e`, `fd253d9`, `15ca118`, `ff039fa`, `38809c1`).
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
@@ -129,4 +140,4 @@ Seção "Tarefa 14" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e6_dataset2.py` na 14a e os scripts dos baselines e do SHAP no combinado na 14b. O gate é aplicado a cada parte.
+Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e6_dataset2.py` na 14a e `uv run python -m scripts.e6_baselines_xai` na 14b; os resumos saem de `uv run python -m scripts.e6_resumo`. O gate é aplicado a cada parte.

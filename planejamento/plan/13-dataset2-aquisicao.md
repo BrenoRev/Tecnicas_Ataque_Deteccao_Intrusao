@@ -5,6 +5,17 @@
 **Depende de:** — para o download e o registro (passos 2 e 3, onda 0); 04 para a carga e a limpeza (passos 4 a 8)
 **Demonstra:** `results/e6/dados/`: compatibilidade de colunas, contagens por classe, origem e ferramenta, e o parágrafo de justificativa. P2 e seção 6.
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** Carga em `89e3914`; manifesto e README dos dados em `c12f66f`; script em `c7503f4`; resultados em `fa320d6`; `fd253d9`, `15ca118` e `4253571` acrescentaram a medida de `PacketLengthMode` e a distância do HKD ao treino; refeito em `38809c1`, com os três `metrics.json` idênticos (só os `run.json` mudaram naquele commit: é a evidência de G6 desta tarefa). Os `run.json` trazem o commit `ff039fa` e `dirty: false` (lido).
+- **Arquivos:** `src/doh_ids/data.py` (`load_hkd`, `load_combined`, `without_replicas`, `column_differences`, `read_header`, `read_flow_csv`), `src/doh_ids/config.py` (`TOOL_ORIGIN`, `README_TOOL_ROWS`, caminhos dos três Parquets), `scripts/e6_dados.py`, `data/manifest.json`, `data/README.md`, `tests/test_data.py`.
+- **Comando real:** `uv run python scripts/e6_dados.py`. Lê `data/raw/hkd/`, `data/raw/combinado/` e `cira.parquet` (para comparar faixas): roda depois de `e0_dados.py`. Grava `data/processed/{hkd,combinado,combinado_sem_replicas}.parquet`. Tempo medido: 18 s em cada `run.json`.
+- **Resultados:** `results/e6/dados/{hkd,combinado,combinado_sem_replicas}/seed42/` (no do HKD, também `faixa_por_atributo.csv` e `medianas_malicioso.csv`) e `results/e6/dados/RESUMO.md`, escrito pelo próprio script.
+- **Quem lê estes resultados:** `e5_xai.py` (o do HKD), `e6_dataset2.py` e `e7_ferramenta.py` (o do combinado sem réplicas, para conferir as contagens por ferramenta).
+- **Pendente de pessoa:** a integração (G10). `docs/04-dados.md` é do agente `cin0114-doc-sync`.
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
@@ -88,12 +99,12 @@ Objetivo P2 e decisão 11. A especificação exige que a escolha do segundo data
 
 ## Critério de aceite
 
-- [ ] `data/README.md` e o manifesto cobrem os novos arquivos; `uv run python data/verify.py` passa.
-- [ ] Relatório de compatibilidade em `results/e6/dados/<dataset>/seed42/` (um por Parquet): 29 colunas presentes, diferenças registradas; justificativa em `results/e6/dados/RESUMO.md`.
-- [ ] Contagens por classe, por origem e por ferramenta gravadas e comparadas com o README do dataset.
-- [ ] Os três Parquets existem e passam pelas asserções de 29 colunas, sem NaN, sem infinito e `label` em {0, 1, 2}; o esquema é 29 atributos + `label` + `origin` + `tool`.
-- [ ] Parágrafo de justificativa escrito, sem afirmar nada que não esteja nos arquivos de resultado ou nas fontes citadas.
-- [ ] `docs/04-dados.md` atualizado pelo `cin0114-doc-sync` no fechamento, sem `[A verificar]` nos itens resolvidos.
+- [x] `data/README.md` e o manifesto cobrem os novos arquivos; `uv run python data/verify.py` passa. Executado em `759ec29`: "OK: 8 de 8 arquivos do manifesto conferidos."
+- [x] Relatório de compatibilidade em `results/e6/dados/<dataset>/seed42/` (um por Parquet): 29 colunas presentes, diferenças registradas; justificativa em `results/e6/dados/RESUMO.md`. Lido: os três diretórios e o resumo.
+- [ ] Contagens por classe, por origem e por ferramenta gravadas e comparadas com o README do dataset. Os arquivos existem e `e7_ferramenta.py` confere `clean_rows_by_tool` contra eles por asserção; a comparação com o README do dataset não foi relida aqui.
+- [x] Os três Parquets existem e passam pelas asserções de 29 colunas, sem NaN, sem infinito e `label` em {0, 1, 2}; o esquema é 29 atributos + `label` + `origin` + `tool`. Executado: esquema dos três Parquets do disco lido com `pyarrow`, 32 colunas, as três últimas `label`, `origin` e `tool`. As asserções de NaN e infinito são do script e não foram rodadas de novo.
+- [ ] Parágrafo de justificativa escrito, sem afirmar nada que não esteja nos arquivos de resultado ou nas fontes citadas. Existe em `results/e6/dados/RESUMO.md` (linha 194 em diante); a conferência afirmação a afirmação não foi feita aqui.
+- [ ] `docs/04-dados.md` atualizado pelo `cin0114-doc-sync` no fechamento, sem `[A verificar]` nos itens resolvidos. É do outro agente; não conferido.
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 

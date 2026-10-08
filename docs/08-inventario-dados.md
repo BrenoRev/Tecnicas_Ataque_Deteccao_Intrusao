@@ -4,6 +4,8 @@ O que existe em `project/data/raw/`, conferido arquivo a arquivo em 07/10/2026. 
 
 Como foi medido: leitura com pandas 3.0.6 em ambiente descartável, direto dos zips, sem extrair. Os scripts de análise ficaram fora do repositório; a tarefa 04 refaz as contagens por script versionado, e são esses os números que vão para o relatório.
 
+> Reconciliado em 08/10/2026, no commit `759ec29`, com as medições por script versionado: `project/results/e0/dados/RESUMO.md` (CIRA: limpeza, split, captura), `project/results/e6/dados/RESUMO.md` (HKD e combinado) e `project/results/e7/RESUMO.md` (arquivos por ferramenta). Três pontos deste inventário mudaram: o BOM por arquivo (seção 2), a fração do teste repetida no treino, agora com duas casas e o detalhe por rótulo (seção 3), e a hipótese sobre valores fora da faixa na transferência, que não se confirmou (seção 4). O resto foi confirmado.
+
 ## 1. Arquivos e integridade
 
 | Arquivo | Tamanho (bytes) | SHA-256 | Uso |
@@ -20,6 +22,8 @@ Como foi medido: leitura com pandas 3.0.6 em ambiente descartável, direto dos z
 - Os três zips do CIRA vieram com arquivos `.md5` do próprio CIC, e os três conferem. Os `.md5` citam os nomes originais no servidor (`DoH_Dataset_CSVs.zip`, `DoHBenign-NonDoH-CSVs.zip`, `Mal-CSVs.zip`); os arquivos foram renomeados no download.
 - `hkd/DoH-Pcaps/` tem 765 MB de PCAPs. Não são usados. Ficam em `data/raw/`, fora do Git.
 - `hkd/DoH-CSVs/` tem ainda um CSV por ferramenta em `DoH-CSVs-48h/` e 48 CSVs horários por ferramenta. Não são usados: `Total-48h.csv` já os reúne.
+- Em disco, `cira/` tem, além dos três zips e dos três `.md5`, as pastas extraídas `CSVs/`, `CSVs 2/` e `Total_CSVs/`. **Não são fonte** e não estão no manifesto: a carga lê direto dos zips, e a integridade conferida é a do zip (`project/data/README.md`).
+- Os oito arquivos da tabela estão em `project/data/manifest.json`, com tamanho, linhas e SHA-256, e são conferidos por `project/data/verify.py`.
 
 ## 2. Esquema comum
 
@@ -37,7 +41,7 @@ Diferenças de formato que quebram a leitura se ignoradas:
 
 | Item | CIRA (zips) | Combinado e HKD |
 | --- | --- | --- |
-| Codificação | UTF-8 | UTF-8 **com BOM**: ler com `encoding="utf-8-sig"`, senão a primeira coluna vira `﻿SourceIP` |
+| Codificação | UTF-8 | UTF-8, **com BOM em parte dos arquivos**. Medido por arquivo (`project/results/e6/dados/RESUMO.md`, "Compatibilidade de colunas"): têm BOM `hkd/.../Total-48h.csv`, `hkd/Total-48h-Augmentation.csv` e `combinado/l3-total-add.csv`; **não têm** `combinado/l1-total-add.csv` e `combinado/l2-total-add.csv`. A versão anterior deste inventário dizia que todos tinham. A carga lê todos com `encoding="utf-8-sig"` (`config.SECOND_DATASET_ENCODING`), que descarta a marca onde existe e lê igual o arquivo que não a tem; sem isso a primeira coluna vira `﻿SourceIP` |
 | `TimeStamp` | `2020-01-14 15:49:11`, com segundos | `2020/1/14 15:49`, sem segundos e sem zero à esquerda |
 | Precisão numérica | até cerca de 28 casas | arredondada para 8 casas (em `l2`, de 5 a 8), com espaço depois do número em `l3` |
 
@@ -70,6 +74,7 @@ Os 29 atributos são lidos como numéricos em todos os arquivos, sem conversão 
 | Remover NaN e duplicatas nos 29 atributos | 750.456 | 18.797 | 249.538 |
 
 - **Remover as linhas com NaN reproduz a Tabela I exatamente, nas três classes.** Resolve a ambiguidade A1.
+- Refeito por script (`project/results/e0/dados/RESUMO.md`): diferença para a Tabela I de [0, 0, 0]. Quatro regras empatam com diferença zero (NaN; NaN e infinito; NaN e duplicatas exatas; NaN, infinito e duplicatas exatas), porque não há infinito nem duplicata exata; a adotada é a mais simples, só NaN. Remover só as duplicatas nos 29 atributos, sem tirar os NaN, deixa 753.560 / 18.804 / 249.712.
 - Os NaN estão em duas colunas só, `ResponseTimeTimeMedian` e `ResponseTimeTimeSkewFromMedian`, e sempre juntos: 8.028 linhas (7.684 + 61 + 283). A causa está no extrator: em fluxo sem nenhum par requisição-resposta, a mediana é calculada sobre uma lista vazia (`response_time.py`, `get_median`, sem proteção), enquanto variância, média e moda devolvem o sentinela `-1`. As linhas removidas são, portanto, os fluxos sem tempo de resposta medido.
 - Não há infinitos nem duplicata exata nas 35 colunas.
 - As 4.719 linhas com `Duration == 0`, que têm taxas negativas, estão todas dentro das linhas com NaN e saem com elas.
@@ -80,7 +85,8 @@ Os 29 atributos são lidos como numéricos em todos os arquivos, sem conversão 
 | Fato medido | Valor | Consequência |
 | --- | --- | --- |
 | Linhas com o mesmo vetor de 29 atributos | 139.353 em Non-DoH, 949 em Benign-DoH, 15 em Malicious-DoH | O split aleatório põe cópias em treino e teste |
-| Fração do teste (seed 42) cujo vetor também está no treino | 13,7% no total; 17,7% em Non-DoH, 5,4% em Benign-DoH, 0,01% em Malicious-DoH | A métrica do teste é otimista para Non-DoH; a trilha corrigida reporta também sem essas linhas |
+| Fração do teste (seed 42) cujo vetor também está no treino | 13,67% no total (15.842 de 115.911); 17,68% em Non-DoH (15.733 de 88.981), 5,42% em Benign-DoH (107 de 1.975), 0,01% em Malicious-DoH (2 de 24.955). Fonte: `project/results/e0/dados/RESUMO.md` | A métrica do teste é otimista para Non-DoH; a trilha corrigida reporta também sem essas linhas (`project/results/e4/corrigida/RESUMO.md`; nas dez seeds a fração média é 13,64 ± 0,08%) |
+| O mesmo, pelo rótulo com que o vetor aparece no treino | Non-DoH: 15.722 com o mesmo rótulo, 2.358 com outro, 2.347 com os dois. Benign-DoH: 82, 48 e 23. Malicious-DoH: 2, 0 e 0 | Parte das linhas repetidas do teste tem o vetor no treino sob outra classe: nelas o modelo não tem como acertar as duas |
 | Vetores de 29 atributos que aparecem em mais de uma classe | 326 | Ruído de rótulo irredutível; teto para qualquer modelo |
 | Valor `-10` em colunas de assimetria | 298.766 linhas: 294.474 em `ResponseTimeTimeSkew...` (290.123 Non-DoH, 3.547 Benign-DoH, 804 Malicious-DoH) e 4.928 em `PacketLengthSkew...` (4.616 Malicious-DoH, 312 Non-DoH); nenhuma em `PacketTimeSkew...` | **É valor sentinela do extrator, confirmado em 07/10/2026**: o DoHLyzer devolve `-10` quando o desvio padrão é zero (`meter/features/packet_length.py` e `response_time.py`, métodos `get_skew` e `get_skew2`), e nos dados todo `-10` coincide com desvio padrão zero, sem exceção. Marca fluxos com no máximo um tempo de resposta: um terço do Non-DoH e 0,3% do malicioso. É um atributo binário disfarçado, que separa classes; pesa no `MinMaxScaler` e precisa de ressalva na leitura do SHAP |
 | Colunas com valor negativo legítimo | as seis de assimetria | Esperado; não é erro |
@@ -96,18 +102,22 @@ O scikit-learn arredonda o tamanho do teste para cima (10% de 1.159.108 é 115.9
 
 Com 800.828 Non-DoH no treino, as três partes dos subconjuntos têm 266.943, 266.943 e 266.942 amostras.
 
+Confirmado por script (`project/results/e0/dados/RESUMO.md`, "Treino, validação e teste"): treino 800.828 / 17.771 / 224.598 e teste 88.981 / 1.975 / 24.955; a diferença para a Fig. 4 é de uma amostra de Non-DoH, a menos no treino e a mais no teste. No teste normalizado com o scaler do treino, 3 valores em 3 linhas ficam fora de [0, 1], um em cada uma das colunas `FlowSentRate`, `PacketLengthMean` e `ResponseTimeTimeCoefficientofVariation`.
+
 ### Máquinas e período de captura
 
-| Classe | Máquinas locais (`192.168.20.x`) | Período |
-| --- | --- | --- |
-| Non-DoH | `.111`, `.112`, `.113`, `.191` | 09/12/2019 a 14/01/2020 |
-| Benign-DoH | `.111`, `.112`, `.113`, `.191` | 09/12/2019 a 14/01/2020 |
-| Malicious-DoH | `.144` e `.204` a `.212` (dez máquinas) | 18/03/2020 a 01/04/2020 |
+| Classe | Máquinas locais (`192.168.20.x`) | Período | Dias com captura |
+| --- | --- | --- | --- |
+| Non-DoH | `.111`, `.112`, `.113`, `.191` | 09/12/2019 a 14/01/2020 | 13 |
+| Benign-DoH | `.111`, `.112`, `.113`, `.191` | 09/12/2019 a 14/01/2020 | 13 |
+| Malicious-DoH | `.144` e `.204` a `.212` (dez máquinas) | 18/03/2020 a 01/04/2020 | 15 |
+
+Dias com captura e fluxos por máquina: `project/results/e0/dados/RESUMO.md`, "Máquinas e período de captura". Máquinas em comum entre a classe maliciosa e as outras: 0; dias em comum: 0.
 
 - O tráfego malicioso foi capturado em **outras máquinas e dois meses depois** do benigno e do Non-DoH. Não há máquina nem dia em comum. `TimeStamp` e os IPs separam a classe maliciosa sozinhos: confirma, nos dados, por que os identificadores ficam fora do modelo.
 - É também uma limitação a declarar no relatório: qualquer diferença sistemática entre as duas campanhas de captura se confunde com "ser malicioso".
 - Os fluxos são bidirecionais: `SourceIP` às vezes é o resolvedor. O grupo de um fluxo é o endereço `192.168.20.x` que aparece na origem **ou** no destino, não a coluna `SourceIP`.
-- Split por grupo: há só quatro máquinas para Non-DoH e Benign-DoH, e dez para Malicious-DoH. É viável em poucas dobras (deixar uma máquina de fora), não em dez.
+- Split por grupo: há só quatro máquinas para Non-DoH e Benign-DoH, e dez para Malicious-DoH. É viável em poucas dobras (deixar uma máquina de fora), não em dez. Foi feito com quatro dobras, no modelo A e na seed 0: `project/results/e4/corrigida/RESUMO.md`, "Avaliação por máquina".
 
 ## 4. DoH-Tunnel-Traffic-HKD
 
@@ -120,7 +130,9 @@ Com 800.828 Non-DoH no treino, as três partes dos subconjuntos têm 266.943, 26
 - Para avaliar transferência, usa-se `Total-48h.csv`: 5.258 fluxos reais. O recall por ferramenta é o mesmo nos dois arquivos, mas reportar 105.160 fluxos de teste seria inflar o tamanho da amostra por vinte.
 - Sem NaN, sem infinito. Só fluxos maliciosos: três rótulos de ferramenta, nenhum negativo.
 - Duas máquinas apenas (`192.168.11.12` e `192.168.11.16`), capturas de 27/10 a 04/11/2021.
-- Os fluxos do HKD são muito diferentes dos maliciosos do CIRA. Medianas, HKD contra CIRA: `Duration` 120,1 s contra 34,1 s; `FlowBytesSent` 21.375 contra 1.807; `FlowBytesReceived` 21.724 contra 4.896; `PacketLengthMean` 148,6 contra 223,4. A mediana de duração colada em 120 s sugere fluxos cortados pelo tempo limite do extrator. Isso antecipa a interpretação da transferência: o modelo treinado no CIRA verá valores fora da faixa em que foi normalizado. No CIRA limpo, a mediana de `Duration` por classe é 0,31 s (Non-DoH), 4,1 s (Benign-DoH) e 34,07 s (Malicious-DoH), medida em 07/10/2026.
+- Os fluxos do HKD são muito diferentes dos maliciosos do CIRA. Medianas, HKD contra CIRA: `Duration` 120,1 s contra 34,1 s; `FlowBytesSent` 21.375 contra 1.807; `FlowBytesReceived` 21.724 contra 4.896; `PacketLengthMean` 148,6 contra 223,4. A mediana de duração colada em 120 s sugere fluxos cortados pelo tempo limite do extrator. Isso antecipava a interpretação da transferência: o modelo treinado no CIRA veria valores fora da faixa em que foi normalizado. No CIRA limpo, a mediana de `Duration` por classe é 0,31 s (Non-DoH), 4,1 s (Benign-DoH) e 34,07 s (Malicious-DoH), medida em 07/10/2026.
+- **A hipótese "o modelo verá valores fora da faixa" não se confirmou.** Nenhum fluxo do HKD fica abaixo do mínimo ou acima do máximo do CIRA em nenhum dos 29 atributos (`project/results/e6/dados/RESUMO.md`, "HKD ao lado do tráfego malicioso do CIRA"; faixas em `project/results/e6/dados/hkd/seed42/faixa_por_atributo.csv`), e na transferência há 0 valores fora de [0, 1] em 0 fluxos (`project/results/e6/RESUMO.md`, "Números ao lado das hipóteses"). As medianas diferem, mas dentro da faixa do CIRA. A queda de recall na transferência não vem de extrapolação do normalizador.
+- **`PacketLengthMode` separa as duas capturas.** Fato medido nos conjuntos limpos inteiros (`project/results/e6/dados/RESUMO.md`, "`PacketLengthMode` no CIRA e no HKD"; números em `project/results/e6/dados/hkd/seed42/metrics.json`). Valores mais frequentes, com a fração dos fluxos: CIRA Non-DoH, 54 (33,57%), 66 (28,09%), 55 (22,63%); CIRA Benign-DoH, 66 (50,70%), 105 (22,12%), 54 (12,21%); CIRA Malicious-DoH, 68 (88,09%), 56 (7,56%), 62 (2,20%), 87 (1,99%); HKD, 66 (99,90%) e 285 (0,10%). A regra de um só atributo "malicioso se `PacketLengthMode` está em {56, 62, 68, 87}" tem, no próprio CIRA, recall de 99,84% e 1 falso positivo em 909.555 fluxos legítimos; nos 5.258 fluxos do HKD detecta 0. O valor dominante no HKD, 66, é no CIRA um valor de tráfego legítimo e de 0,00% do malicioso. A regra descreve os dados, não é modelo avaliado em teste; os dois limites que a definem são escolha nossa (`config.RULE_MIN_MALICIOUS_FRACTION`, `config.RULE_MAX_LEGITIMATE_FRACTION`). Não foi medido quanto da decisão do sistema nos fluxos do HKD vem desse atributo, nem a causa da diferença entre as capturas.
 
 ## 5. Combinado (CIRA + HKD)
 
@@ -145,10 +157,11 @@ Com 800.828 Non-DoH no treino, as três partes dos subconjuntos têm 266.943, 26
 | Rótulo em texto (`NonDoH`, `Benign`, `Malicious`) | O mapa para 0, 1, 2 fica em `config.py` | 02, 04 |
 | Leitura direto do zip | Sem etapa de extração; a integridade é o hash do zip | 03, 04 |
 | Teste com 115.911 amostras, não 115.910 | A comparação com a Fig. 4b tem diferença mínima de 1; não se força o tamanho | 05, 06, 08 |
-| 13,7% do teste repetido no treino | A métrica "sem duplicatas" da trilha corrigida deixa de ser detalhe: muda o Non-DoH | 05, 11 |
+| 13,67% do teste repetido no treino | A métrica "sem duplicatas" da trilha corrigida deixa de ser detalhe: muda o Non-DoH. Medida em E0 e E4 | 05, 11 |
 | Malicioso capturado em outras máquinas e outro período | Limitação a declarar; grupo = máquina local, poucas dobras | 04, 11, 18 |
 | Sentinela `-10` nas assimetrias (confirmado no extrator) | Ressalva na leitura do SHAP; contagem por classe gravada em E0 | 04, 12 |
 | HKD aumentado é replicação de 20 vezes | Transferência usa `Total-48h.csv`; retreino no combinado é reportado como publicado **e** sem as réplicas | 13, 14, 15 |
-| BOM e `TimeStamp` diferente no combinado e no HKD | A carga do segundo dataset trata os dois | 13 |
-| HKD com duração e bytes muito maiores | Hipótese para a transferência, escrita antes de rodar | 14 |
-| Rótulo de ferramenta existe | A tarefa 21 é viável com `l3` ou com o zip de maliciosos, se o professor pedir | 21 |
+| BOM em parte dos arquivos (HKD e `l3` do combinado; `l1` e `l2` não têm) e `TimeStamp` diferente no combinado e no HKD | A carga do segundo dataset lê todos com `utf-8-sig` e não copia os identificadores | 13 |
+| HKD com duração e bytes muito maiores | Hipótese para a transferência, escrita antes de rodar (`project/results/e6/fiel/HIPOTESE.md`). Não se confirmou a parte dos valores fora da faixa: zero fluxos do HKD fora da faixa do CIRA | 14 |
+| `PacketLengthMode`: valores do malicioso do CIRA ausentes do HKD | Achado da execução; explica por que colunas iguais não bastam para comparar as capturas. Vai ao relatório como limitação, com a causa declarada como não medida | 13, 14, 18 |
+| Rótulo de ferramenta existe | A tarefa 21 foi feita (decisão 49) com `MaliciousDoH-CSVs.zip`: os três `all.csv` têm 249.969 linhas, 249.836 com `DoH` verdadeiro e 249.553 depois da limpeza (`project/results/e7/RESUMO.md`) | 21 |
