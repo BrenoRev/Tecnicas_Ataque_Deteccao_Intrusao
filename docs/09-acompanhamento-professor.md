@@ -23,7 +23,7 @@ Preparada em 08/10/2026 para o encontro de 10/11/2026. Atualizar a data e a seç
 
 ## O que queremos confirmar com o senhor
 
-1. **Duas leituras da profundidade das árvores.** A Seção IV-B diz profundidade máxima 5; a linha 3 do Algoritmo 1 diz "variable tree depth". Com 5, o sistema nunca prediz Benign-DoH; com profundidade variável, fica a 0,14 ponto de acurácia da Fig. 4b. Reportamos as duas lado a lado e usamos a variável como base das etapas seguintes. Está de acordo?
+1. **Duas leituras da profundidade das árvores.** A Seção IV-B diz profundidade máxima 5; a linha 3 do Algoritmo 1 diz "variable tree depth". Com 5, o sistema nunca prediz Benign-DoH; com profundidade variável, fica a 0,15 ponto de acurácia da Fig. 4b. Reportamos as duas lado a lado e usamos a variável como base das etapas seguintes. Está de acordo?
 2. **O combinado como "outro conjunto de dados".** O HKD sozinho só tem a classe maliciosa; para refazer tudo com três classes usamos o combinado CIRA + HKD sem as réplicas, em que Non-DoH e Benign-DoH são os do CIRA. Isso atende ao requisito?
 3. **Ferramenta de túnel (Seção VI-D).** O artigo dá três valores e nenhum método. Aplicamos o mesmo sistema aos fluxos maliciosos, com as três ferramentas como classes, e declaramos que é leitura nossa. Serve?
 4. **Formato.** Limite de páginas e idioma do relatório; repositório público ou privado; se o uso de assistente de IA precisa ser declarado no texto.
