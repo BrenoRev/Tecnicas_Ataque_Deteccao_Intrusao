@@ -281,6 +281,8 @@ def test_paired_comparison_matches_a_hand_made_example():
     result = paired_comparison([5, 5, 5, 5, 5], [4, 3, 2, 1, 10])
 
     assert result["mean_difference"] == pytest.approx(1.0)
+    # Desvios da média: 0, 1, 2, 3 e -6. A soma dos quadrados é 50, sobre 4.
+    assert result["std_difference"] == pytest.approx(12.5**0.5)
     assert (result["first_wins"], result["second_wins"], result["ties"]) == (4, 1, 0)
     assert result["wilcoxon_statistic"] == pytest.approx(5.0)
     assert result["wilcoxon_p_value"] == pytest.approx(0.625)
@@ -290,6 +292,7 @@ def test_paired_comparison_of_equal_values_reports_ties_and_no_statistic():
     result = paired_comparison([0.5, 0.7, 0.9], [0.5, 0.7, 0.9])
 
     assert (result["first_wins"], result["second_wins"], result["ties"]) == (0, 0, 3)
+    assert result["std_difference"] == 0.0
     assert result["wilcoxon_statistic"] is None
     assert result["wilcoxon_p_value"] is None
 
