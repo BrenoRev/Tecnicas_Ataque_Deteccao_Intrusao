@@ -149,7 +149,14 @@ def evaluate_baselines(table: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     assert train.index.intersection(test.index).empty, "Linha no treino e no teste."
 
     scaler = fit_scaler(train)
-    X_train = scaler.transform(feature_matrix(train))
+    # O normalizador que transforma o teste é o ajustado só com o treino:
+    # ajustado com a tabela inteira, ele levaria o mínimo e o máximo do teste
+    # para o treino e para a avaliação dos três modelos.
+    train_features = feature_matrix(train)
+    assert scaler.n_samples_seen_ == len(train), "O scaler viu linhas fora do treino."
+    assert np.array_equal(scaler.data_min_, train_features.min()), "Mínimo de outro conjunto."
+    assert np.array_equal(scaler.data_max_, train_features.max()), "Máximo de outro conjunto."
+    X_train = scaler.transform(train_features)
     X_test = scaler.transform(feature_matrix(test))
 
     # O SMOTE só enxerga o treino. As amostras sintéticas ficam no treino dos
