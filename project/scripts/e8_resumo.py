@@ -62,6 +62,14 @@ METRIC_TITLES = {
     "malicious_fpr": "FPR de Malicious-DoH",
     TRAIN_SECONDS: "tempo de treino",
 }
+# Etapas de ajuste gravadas nos tempos de cada execução; cada modelo tem as suas.
+FIT_STEPS = [
+    "subsets_seconds",
+    "base_fit_seconds",
+    "meta_fit_seconds",
+    "selection_seconds",
+    "fit_seconds",
+]
 # Métricas em que o valor menor é o melhor.
 LOWER_IS_BETTER = ["malicious_fpr", TRAIN_SECONDS]
 
@@ -127,11 +135,14 @@ def load_dataset(dataset: str, e8_dir: Path, e4_dir: Path, seeds: list[int]) -> 
 
 
 def train_seconds(run: dict) -> float:
-    """Devolve o tempo de treino de uma execução: o total menos a avaliação.
+    """Devolve o tempo de treino de uma execução: a soma das etapas de ajuste.
 
-    No modelo selecionado, o tempo da seleção de hiperparâmetros está incluído.
+    No sistema empilhado são os subconjuntos com SMOTE, os Random Forests base
+    e o meta-classificador; na modificação, a seleção de hiperparâmetros,
+    quando há, e o ajuste do `Pipeline`. Ficam de fora o split, a busca de
+    vetores repetidos e a avaliação, que não são do modelo.
     """
-    return run["timings"]["total_seconds"] - run["timings"]["evaluation_seconds"]
+    return sum(run["timings"][key] for key in FIT_STEPS if key in run["timings"])
 
 
 def model_config(name: str) -> dict:
@@ -663,6 +674,11 @@ def hypothesis_text(datasets: dict) -> str:
     for number, dataset in enumerate(datasets.values(), start=4):
         expected += proposed_lines(number, dataset)
     expected += scope_and_time_lines(datasets)
+    keys = ("macro_f1", "benign_doh_recall", "benign_doh_precision")
+    fixed, selected = (
+        {key: e4r.mean_std(datasets["cira"]["models"][name]["test"][key]) for key in keys}
+        for name in ("M1", SELECTED)
+    )
     return f"""## Hipótese ao lado do resultado
 
 A hipótese está em `HIPOTESE.md`, escrita antes da primeira execução e não
@@ -686,7 +702,11 @@ Forest em vez de três e um meta-classificador), o balanceamento (peso de
 classe em vez de SMOTE) e os hiperparâmetros. A diferença entre os dois não
 pode ser atribuída a nenhuma das três em separado. M1 contra A, no CIRA, mede
 a arquitetura e o balanceamento juntos, com os hiperparâmetros iguais; a
-diferença entre M1 e {SELECTED} não foi comparada seed a seed aqui.
+diferença entre M1 e {SELECTED} não foi comparada seed a seed aqui. Médias dos dois
+no teste inteiro do CIRA: F1 macro de {fixed["macro_f1"]}% em M1 e de
+{selected["macro_f1"]}% em {SELECTED}; recall de Benign-DoH de
+{fixed["benign_doh_recall"]}% e de {selected["benign_doh_recall"]}%; precisão de
+Benign-DoH de {fixed["benign_doh_precision"]}% e de {selected["benign_doh_precision"]}%.
 
 ### O que a hipótese listava como resultado inesperado
 
@@ -772,9 +792,11 @@ sem essas linhas.
 
 ### Tempo de treino
 
-Média ± desvio padrão entre as seeds, em segundos: o tempo total da execução
-menos o da avaliação. Em {SELECTED} inclui a seleção de hiperparâmetros. O tempo
-depende da carga da máquina e não é reprodutível como as métricas.
+Média ± desvio padrão entre as seeds, em segundos: a soma das etapas de ajuste
+de cada modelo (subconjuntos com SMOTE, Random Forests base e meta-classificador
+no empilhado; seleção de hiperparâmetros e ajuste do `Pipeline` na
+modificação). Split, busca de vetores repetidos e avaliação ficam de fora. O
+tempo depende da carga da máquina e não é reprodutível como as métricas.
 
 {seconds_table(dataset)}
 
