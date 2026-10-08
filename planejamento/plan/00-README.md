@@ -41,6 +41,7 @@ Antes de implementar qualquer tarefa: ler [../MEMORY/00-decisoes-travadas.md](..
 | [21](21-condicional-ferramenta-tunel.md) | Reprodução | Ferramenta de túnel (E7), Seção VI-D e Fig. 9 | P1 | 08, 13 | a fazer; obrigatória desde a decisão 49; três pontos sem valor declarado no arquivo |
 | [22](22-padronizacao-doc-padrao.md) | Padronização | Registrar padrões (anti-recorrência) | — | 08, 11 | a fazer |
 | [23](23-acompanhamento-professor.md) | Acompanhamento | Perguntas ao professor e material de 10/11 e 17/11 | — | — (material: 08) | em andamento: perguntas enviadas e Q1 a Q6 respondidas em 07/10/2026; Q9, Q10 e parte de Q7 sem resposta |
+| [24](24-entrega-pdfs-finais.md) | Entrega | Relatório em PDF e apresentação em PPTX, pelos modelos de `geracao_latex_and_pdf/` | relatório e slides | 17 (e 15, 16 se feitas) | a fazer; última tarefa; executada pelo agente `gerador-entregaveis`; cumpre as tarefas 18 e 20 |
 
 ## Grafo de dependência
 

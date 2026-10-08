@@ -78,6 +78,7 @@ As regras completas estão em `.claude/rules/` e valem para qualquer código ou 
 | skill `checklist-entrega` | Antes de submeter slides, relatório ou repositório |
 | agente `revisor-metodologico` | Revisão independente de código e protocolo experimental |
 | agente `revisor-de-texto` | Revisão de relatório e slides contra a especificação e as fontes |
+| agente `gerador-entregaveis` | No fim do plano: gera o relatório em PDF (template LaTeX) e a apresentação em PPTX (modelo do CIn) a partir dos resultados; modelos em `geracao_latex_and_pdf/` |
 | agente `cin0114-plan-sync` | Depois de concluir uma tarefa: reconcilia `planejamento/plan/` com o que foi implementado |
 | agente `cin0114-doc-sync` | Quando código, dados ou resposta do professor mudam o que `docs/` afirma |
 

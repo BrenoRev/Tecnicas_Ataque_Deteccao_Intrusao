@@ -1,5 +1,7 @@
 # 20 · entrega · slides e apresentação do projeto (só com P3)
 
+> **Execução (07/10/2026):** a apresentação é produzida pela tarefa [24](24-entrega-pdfs-finais.md), com o agente `gerador-entregaveis` e os modelos de `geracao_latex_and_pdf/`. Este arquivo continua valendo para o conteúdo exigido e a lista de conferência; em tamanho e formato vale a tarefa 24 (relatório: alvo de 6 páginas, teto de 8; apresentação: 12 a 14 slides em PPTX, para o Google Slides; a apresentação é feita mesmo sem a modificação).
+
 **Onde:** modelo de apresentação do CIn (Google Slides); PDF em `report/`
 **Objetivo:** apresentação de 15 minutos em 19/11/2026, exigida das equipes que modificaram o artigo original.
 **Depende de:** 15, 17
