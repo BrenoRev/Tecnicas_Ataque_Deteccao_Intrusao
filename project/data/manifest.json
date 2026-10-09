@@ -1,0 +1,37 @@
+{
+  "files": [
+    {
+      "path": "cira/Total_CSVs.zip",
+      "size_bytes": 309971509,
+      "sha256": "6f939eff75dfc05b192cf1392df582c77bfa08065836226cba7c35d42d806b41",
+      "required": true,
+      "rows": {
+        "l1-nondoh.csv": 897493,
+        "l1-doh.csv": 269643,
+        "l2-benign.csv": 19807,
+        "l2-malicious.csv": 249836
+      }
+    },
+    {
+      "path": "cira/BenignDoH-NonDoH-CSVs.zip",
+      "size_bytes": 368599172,
+      "sha256": "2e86a58edc88137320df51b4aa607119022a3e0cb8313d634b851b71ae3c0f0a",
+      "required": false,
+      "rows": {
+        "CSVs/Chrome/all.csv": 545464,
+        "CSVs/Firefox/all.csv": 371836
+      }
+    },
+    {
+      "path": "cira/MaliciousDoH-CSVs.zip",
+      "size_bytes": 132326153,
+      "sha256": "a4b3e546a9a4b9d307af6bf86d5bd60ba14db110ebd09e27b9da524c6b55deb1",
+      "required": false,
+      "rows": {
+        "CSVs/dns2tcp/all.csv": 167517,
+        "CSVs/dnscat2/all.csv": 35854,
+        "CSVs/iodine/all.csv": 46598
+      }
+    }
+  ]
+}
