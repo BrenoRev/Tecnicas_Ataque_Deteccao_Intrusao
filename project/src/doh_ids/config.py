@@ -59,6 +59,90 @@ FEATURE_COLUMNS = [
 # fluxos sem nenhum par requisição-resposta, em que o extrator não calcula a mediana.
 NAN_COLUMNS = ["ResponseTimeTimeMedian", "ResponseTimeTimeSkewFromMedian"]
 
+# As seis colunas de assimetria. Nelas o extrator DoHLyzer grava -10 quando o
+# desvio padrão é zero (métodos get_skew e get_skew2 de packet_length.py e
+# response_time.py): o valor marca o fluxo, não mede assimetria.
+SKEW_COLUMNS = [column for column in FEATURE_COLUMNS if "Skew" in column]
+SKEW_SENTINEL = -10
+
+# Fluxos por classe na Tabela I do artigo, na ordem de CLASS_NAMES.
+TABLE_I_COUNTS = [889809, 19746, 249553]
+
+# Alvos do artigo.
+
+# Matrizes de confusão da Fig. 4 do artigo: (a) treino, em validação cruzada de
+# 10 folds; (b) teste. Linha é a classe real e coluna a classe predita, as duas
+# na ordem de CLASS_NAMES. A figura desenha as classes em outra ordem (Benign-DoH,
+# Malicious-DoH, Non-DoH): as contagens foram reordenadas para a codificação do
+# projeto, porque comparar matrizes em ordens diferentes dá distância errada
+# sem erro aparente.
+FIG4A_CONFUSION = [
+    [800316, 503, 10],
+    [1816, 15946, 9],
+    [93, 9, 224496],
+]
+FIG4B_CONFUSION = [
+    [88928, 50, 2],
+    [192, 1782, 1],
+    [6, 0, 24949],
+]
+
+# Amostras por classe no treino e no teste do artigo, na ordem de CLASS_NAMES:
+# soma de cada linha das matrizes da Fig. 4a e da Fig. 4b.
+FIG4_TRAIN_COUNTS = [sum(row) for row in FIG4A_CONFUSION]
+FIG4_TEST_COUNTS = [sum(row) for row in FIG4B_CONFUSION]
+
+# Tabela II do artigo, metade superior: os três modelos de comparação e o modelo
+# proposto, avaliados no teste. O artigo não diz que média (macro, ponderada ou
+# micro) usa em F1, precisão e recall, nem como calcula a AUC com três classes.
+TABLE_II = {
+    "decision_tree": {
+        "auc": 0.8617,
+        "accuracy": 0.9770,
+        "f1": 0.8197,
+        "precision": 0.9658,
+        "recall": 0.7120,
+    },
+    "xgboost": {
+        "auc": 0.9986,
+        "accuracy": 0.9927,
+        "f1": 0.9843,
+        "precision": 0.9956,
+        "recall": 0.9732,
+    },
+    "random_forest": {
+        "auc": 0.9999,
+        "accuracy": 0.9998,
+        "f1": 0.9987,
+        "precision": 0.9989,
+        "recall": 0.9985,
+    },
+    "balanced_stacked_rf": {
+        "auc": 0.9999,
+        "accuracy": 0.9998,
+        "f1": 0.9991,
+        "precision": 0.9991,
+        "recall": 0.9992,
+    },
+}
+
+# Avaliação.
+
+# Nível do intervalo de confiança da taxa de falsos positivos. O artigo não
+# reporta intervalo: 95% é escolha nossa.
+CONFIDENCE_LEVEL = 0.95
+
+# Tamanho do tráfego em que os alarmes falsos da conta de taxa base são contados.
+BASE_RATE_FLOWS = 10_000_000
+
+# Membros de Total_CSVs.zip que formam as três classes, na ordem de CLASS_NAMES.
+# O quarto membro, l1-doh.csv, é a união dos dois l2: lê-lo contaria o DoH em dobro.
+CIRA_ZIP_MEMBERS = ["l1-nondoh.csv", "l2-benign.csv", "l2-malicious.csv"]
+
+# Rede das máquinas que geraram o tráfego do CIRA-CIC-DoHBrw-2020. O endereço
+# dessa rede que aparece no fluxo identifica a máquina local.
+CIRA_LOCAL_PREFIX = "192.168.20."
+
 # Hiperparâmetros da trilha fiel.
 
 # 10% dos fluxos para teste, Seção III-B do artigo.
@@ -66,6 +150,15 @@ TEST_SIZE = 0.10
 
 # Três subconjuntos balanceados de treino, um por Random Forest, Seção III-B.
 N_SUBSETS = 3
+
+# Validação cruzada de 10 folds sobre o treino (Seção III-B e legenda da
+# Fig. 4a do artigo). O artigo não tem conjunto de validação separado e não diz
+# se os folds são estratificados nem se as linhas são embaralhadas. Leitura
+# adotada: folds estratificados, para a classe benigna, a menor, ter a mesma
+# proporção em todos; com embaralhamento e seed, para os folds dependerem só
+# da seed e não da ordem das linhas da tabela.
+CV_FOLDS = 10
+CV_SHUFFLE = True
 
 # 10 árvores por Random Forest, Seção IV-A do artigo.
 N_ESTIMATORS = 10
@@ -75,6 +168,10 @@ MAX_FEATURES = 28
 
 # Profundidade máxima 5, Seção IV-B do artigo.
 MAX_DEPTH = 5
+
+# Núcleos usados no treino: -1 pede todos os da máquina. Não altera o
+# resultado, porque cada árvore recebe a própria seed; muda só o tempo.
+N_JOBS = -1
 
 # Seeds. O artigo não informa a seed. Na trilha fiel usamos 42, a que aparece
 # no script publicado pelos autores. Na trilha corrigida usamos dez seeds, de
@@ -93,6 +190,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
+CIRA_ZIP_PATH = DATA_RAW_DIR / "cira" / "Total_CSVs.zip"
+CIRA_PARQUET_PATH = DATA_PROCESSED_DIR / "cira.parquet"
 
 
 def smote_seed(seed: int, subset_index: int) -> int:
