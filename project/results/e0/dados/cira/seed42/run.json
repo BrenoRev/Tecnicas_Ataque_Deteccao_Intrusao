@@ -1,0 +1,33 @@
+{
+  "commit": "0dd87bb99ec7ee2d1b758f7ddaaa2a1b70a9bdcf",
+  "config": {
+    "adopted_rule": "NaN",
+    "zip_members": [
+      "l1-nondoh.csv",
+      "l2-benign.csv",
+      "l2-malicious.csv"
+    ]
+  },
+  "cpu_count": 10,
+  "data_sha256": "6f939eff75dfc05b192cf1392df582c77bfa08065836226cba7c35d42d806b41",
+  "dirty": false,
+  "experiment": "e0",
+  "hostname": "ip-192-168-1-35.ec2.internal",
+  "libraries": {
+    "imbalanced-learn": "0.14.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 42,
+  "slice": "cira",
+  "timestamp": "2026-10-07T03:09:59-03:00",
+  "timings": {
+    "total_seconds": 26.3
+  },
+  "track": "dados"
+}
