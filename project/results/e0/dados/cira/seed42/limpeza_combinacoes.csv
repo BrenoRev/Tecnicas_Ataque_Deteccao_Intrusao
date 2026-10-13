@@ -1,0 +1,11 @@
+regra,Non-DoH,Benign-DoH,Malicious-DoH,removidas Non-DoH,removidas Benign-DoH,removidas Malicious-DoH,diferença Non-DoH,diferença Benign-DoH,diferença Malicious-DoH
+nenhuma (bruto),897493,19807,249836,0,0,0,7684,61,283
+NaN,889809,19746,249553,7684,61,283,0,0,0
+infinito,897493,19807,249836,0,0,0,7684,61,283
+duplicatas exatas,897493,19807,249836,0,0,0,7684,61,283
+duplicatas nos 29 atributos,753560,18804,249712,143933,1003,124,-136249,-942,159
+NaN e infinito,889809,19746,249553,7684,61,283,0,0,0
+NaN e duplicatas exatas,889809,19746,249553,7684,61,283,0,0,0
+NaN e duplicatas nos 29 atributos,750456,18797,249538,147037,1010,298,-139353,-949,-15
+"NaN, infinito e duplicatas exatas",889809,19746,249553,7684,61,283,0,0,0
+"NaN, infinito e duplicatas nos 29 atributos",750456,18797,249538,147037,1010,298,-139353,-949,-15
