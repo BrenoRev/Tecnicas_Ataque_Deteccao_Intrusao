@@ -5,6 +5,16 @@
 **Depende de:** 04
 **Demonstra:** `split_counts.json`: amostras por classe em treino, nos dez folds de validação e no teste, ao lado dos valores da Fig. 4. Seção 6: pergunta explícita da especificação.
 
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta e executada em `0ae2d49`** (branch `tarefa/05-split-scaler`, nascida de `tarefa/04-carga-limpeza`; código em `56db5fb` e `121cde9`, resultado em `0ae2d49`). Aguarda integração por pessoa (G10).
+
+## Como ficou (conferido no código em `0ae2d49`)
+
+- `splits.py`: `stratified_split(flows, seed)` recebe a tabela com `label` e devolve `(train, test)`, dois DataFrames com o índice original. `fit_scaler(train)` devolve o `MinMaxScaler` ajustado em `feature_matrix(train)`; a transformação é `scaler.transform(feature_matrix(...))`, que devolve um array sem nomes de coluna, na ordem de `FEATURE_COLUMNS`. `seen_in_train(train, test)` devolve o vetor booleano, na ordem de `test`, das linhas cujo vetor de 29 atributos existe no treino.
+- Os folds de validação são `StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED_FIEL)` sobre `train` e `train["label"]`, em `validation_fold_rows` de `scripts/e0_dados.py:189-195`. `CV_FOLDS = 10` é constante local do script (`:80`), não de `config.py`. Também são locais do script `FIG4_TRAIN_COUNTS`, `FIG4_TEST_COUNTS` (somas por linha das matrizes da Fig. 4) e `outside_unit_interval(train, test)`.
+- `split_counts.json` é gravado pelo script ao lado do `metrics.json`, sem passar por `save_run`. Chaves: `classes`, `seed`, `test_size`, `train` e `test` (cada um com `rows`, `total`, `difference` e `fig4a` ou `fig4b`), `validation_folds` (`n_folds`, `validation_rows`, `train_rows`), `test_outside_unit_interval` (`values`, `rows`, `by_column`) e `test_seen_in_train` (`rows`, `total`, `fraction`, `fraction_total`).
+- Medido e gravado (passo 4): três valores do teste normalizado fora de [0, 1], em três linhas, um em cada coluna: `FlowSentRate`, `PacketLengthMean` e `ResponseTimeTimeCoefficientofVariation`. É a referência da tarefa 14.
+- Medido e gravado (passo 6): 15.842 linhas do teste com vetor presente no treino, 13,67% do total; por classe 15.733 / 107 / 2, ou 17,68% / 5,42% / 0,008%. Confere com o bloco abaixo.
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
@@ -49,10 +59,12 @@ Decisão 12 e risco R1. A especificação pede, na seção 6 do relatório, como
 
 ## Critério de aceite
 
-- [ ] Testes dos invariantes I1 e I2 verdes.
-- [ ] `results/e0/dados/cira/seed42/split_counts.json` traz treino e teste por classe, os valores da Fig. 4 e a diferença, o tamanho por classe de cada fold, e a fração do teste duplicada no treino.
-- [ ] As contagens são idênticas às da Fig. 4 em Benign-DoH e Malicious-DoH e diferem em uma amostra de Non-DoH (teste com 115.911 contra 115.910), com a diferença registrada. Qualquer outra diferença para a tarefa e é investigada antes de seguir.
-- [ ] Nenhuma função de `splits.py` recebe o teste para ajustar qualquer coisa (revisão).
+Conferido em 07/10/2026 no commit `0ae2d49`. O script de E0 não foi rodado nesta reconciliação: os itens de dados reais foram confirmados pelo arquivo versionado.
+
+- [x] Testes dos invariantes I1 e I2 verdes. Executado: `test_train_and_test_indices_are_disjoint_and_cover_all_rows` e `test_scaler_is_fitted_on_train_only`, na suíte de 23 testes.
+- [x] `results/e0/dados/cira/seed42/split_counts.json` traz treino e teste por classe, os valores da Fig. 4 e a diferença, o tamanho por classe de cada fold, e a fração do teste duplicada no treino. Lido no arquivo.
+- [x] As contagens são idênticas às da Fig. 4 em Benign-DoH e Malicious-DoH e diferem em uma amostra de Non-DoH (teste com 115.911 contra 115.910), com a diferença registrada. Qualquer outra diferença para a tarefa e é investigada antes de seguir. Lido: `train.difference` é `[-1, 0, 0]` e `test.difference` é `[1, 0, 0]`; as asserções de `e0_dados.py:214-215` interrompem o script com qualquer outro valor.
+- [x] Nenhuma função de `splits.py` recebe o teste para ajustar qualquer coisa (revisão). Lido: `fit_scaler` recebe só o treino; `seen_in_train` recebe o teste para comparar, sem ajustar nada. A revisão humana no pull request continua devida.
 
 ## Testes
 

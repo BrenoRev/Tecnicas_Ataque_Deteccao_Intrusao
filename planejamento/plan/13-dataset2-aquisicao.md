@@ -5,6 +5,17 @@
 **Depende de:** — para o download e o registro (passos 2 e 3, onda 0); 04 para a carga e a limpeza (passos 4 a 8)
 **Demonstra:** `results/e6/dados/`: compatibilidade de colunas, contagens por classe, origem e ferramenta, e o parágrafo de justificativa. P2 e seção 6.
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- **`load_cira` não serve para o segundo dataset.** Ela lê os membros de `CIRA_ZIP_MEMBERS` de um zip, mapeia o rótulo com `LABEL_ENCODING` e levanta `ValueError` com rótulo fora do mapa ou com fluxo sem endereço `192.168.20.x`, que é o caso de todo o HKD. A carga do segundo dataset é função nova em `data.py`; reutiliza `feature_matrix`, `class_counts` e `clean_flows`.
+- "A mesma função de limpeza da tarefa 04" (passo 6) é `clean_flows(flows, drop_nan=True, drop_inf=False, duplicate_columns=None)`, que devolve `(fluxos que ficaram, removidas por classe)`. O nome da regra adotada mora em `scripts/e0_dados.py` (`ADOPTED_RULE`), não no pacote: o script novo passa os mesmos três argumentos.
+- **Teste herdado da tarefa 04:** a segunda metade do T04-9, "a carga do segundo dataset não cria `group`", não foi escrita, porque a carga não existia. É escrita aqui, em `tests/test_data.py`, junto com o T13-1.
+- `data/manifest.json` tem o formato `{"files": [{"path", "size_bytes", "sha256", "required", "rows"}]}`, com `path` relativo a `data/raw/` e `rows` como dicionário arquivo → linhas. `data/verify.py` lê o manifesto de forma genérica: confirmado que nada muda no script ao acrescentar entradas.
+- `data/README.md` tem hoje a seção do CIRA; as seções do HKD e do combinado são desta tarefa.
+- Resultado: `save_run(experiment="e6", track="dados", slice_name=<hkd | combinado | combinado_sem_replicas>, seed=SEED_FIEL, ...)`, com o SHA-256 do arquivo bruto lido do manifesto, como o script de E0 faz em `read_manifest_entry`.
+- As 8.028 linhas com NaN do bloco abaixo estão confirmadas em `results/e0/dados/cira/seed42/metrics.json`, chave `nan_by_column`; a mediana de 34,1 s de `Duration` do malicioso do CIRA, em `estatisticas_descritivas.csv`.
+- Em `tests/test_data.py` já existe o auxiliar `write_cira_zip`, que grava a fixture `synthetic_raw_csv` no formato do zip.
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
