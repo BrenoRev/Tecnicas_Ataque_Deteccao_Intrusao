@@ -17,10 +17,10 @@ Antes de implementar qualquer tarefa: ler [../MEMORY/00-decisoes-travadas.md](..
 | # | Fluxo | Tarefa | Objetivo da especificação | Depende de | Situação |
 | --- | --- | --- | --- | --- | --- |
 | [01](01-fundacao-repositorio-ambiente.md) | Fundação | Repositório e ambiente | — | — | pronta em `5e11d56` (branch `tarefa/01-prova-ci`); aguarda integração por pessoa: `push`, pull request de prova, CI verde, proteção da `main`; licença pendente |
-| [02](02-fundacao-config-runlog.md) | Fundação | Configuração e registro de execução | — | 01 | a fazer |
-| [03](03-dados-aquisicao-cira.md) | Dados | Aquisição do CIRA-CIC-DoHBrw-2020 | P1 | — (script: 01) | a fazer — ⚠️ REVISAR (zips do CIRA extraídos no disco) |
-| [04](04-dados-carga-limpeza.md) | Dados | Carga, limpeza e reconciliação com a Tabela I (E0) | P1 | 02, 03 | a fazer — ⚠️ REVISAR (mesma causa da 03) |
-| [05](05-dados-split-scaler.md) | Dados | Split, normalização e contagens | P1 | 04 | a fazer |
+| [02](02-fundacao-config-runlog.md) | Fundação | Configuração e registro de execução | — | 01 | pronta em `b1434ab` (branch `tarefa/02-config-runlog`); aguarda integração por pessoa; passo 5a (`N_JOBS`) em aberto, pendência da equipe |
+| [03](03-dados-aquisicao-cira.md) | Dados | Aquisição do CIRA-CIC-DoHBrw-2020 | P1 | — (script: 01) | pronta e executada em `acc297a` (branch `tarefa/03-dados-cira`); aguarda integração por pessoa; ⚠️ REVISAR de `5e11d56` resolvido (zips repostos) |
+| [04](04-dados-carga-limpeza.md) | Dados | Carga, limpeza e reconciliação com a Tabela I (E0) | P1 | 02, 03 | pronta e executada em `9e7563f` (branch `tarefa/04-carga-limpeza`); aguarda integração por pessoa; `docs/04-dados.md` a atualizar pelo `cin0114-doc-sync` |
+| [05](05-dados-split-scaler.md) | Dados | Split, normalização e contagens | P1 | 04 | pronta e executada em `0ae2d49` (branch `tarefa/05-split-scaler`); aguarda integração por pessoa |
 | [06](06-avaliacao-metricas.md) | Avaliação | Métricas e comparação com o artigo | P1 | 02 | a fazer |
 | [07](07-reproducao-subconjuntos.md) | Reprodução | Três subconjuntos balanceados | P1 | 05 | a fazer |
 | [08](08-reproducao-stacked-rf.md) | Reprodução | Balanced Stacked Random Forest (E1) | P1 | 06, 07 | a fazer |

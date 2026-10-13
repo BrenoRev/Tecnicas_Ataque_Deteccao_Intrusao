@@ -5,6 +5,13 @@
 **Depende de:** 08
 **Demonstra:** `results/e3/variante/`: distância à Fig. 4b por leitura alternativa. Seção 7: discussão das ambiguidades.
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- Cada variante é uma chamada `save_run(experiment="e3", track="variante", slice_name=<variante>, seed=SEED_FIEL, ...)`. No `run.json` o nome da variante aparece na chave `slice`; o ponto que ela muda entra no dicionário `config`, que é o que o critério de aceite pede "por nome".
+- Asserção de total, com a chave real: `split_counts.json["test"]["total"]`, 115.911.
+- `metrics.json` só com tipos nativos do Python; a tabela comparativa é arquivo auxiliar, gravado pelo script em `results/e3/variante/`.
+- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+
 ## Arquivos
 
 - `scripts/e3_sensibilidade.py` — novo.

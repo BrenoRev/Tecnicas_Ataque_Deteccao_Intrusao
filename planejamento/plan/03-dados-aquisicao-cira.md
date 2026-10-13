@@ -1,6 +1,15 @@
 # 03 · dados · aquisição do CIRA-CIC-DoHBrw-2020
 
-> ⚠️ REVISAR (07/10/2026, reconciliação no commit `5e11d56`): **o disco não tem mais os zips do CIRA que esta tarefa registra.** Em `project/data/raw/cira/` há três pastas extraídas, `Total_CSVs/` (os quatro CSVs), `CSVs/` (`Chrome`, `Firefox`) e `CSVs 2/` (`dns2tcp`, `dnscat2`, `iodine`), e nenhum `.zip` nem `.md5`. O zip da equipe (`data-ml-tadi.zip`, o do link do drive) contém os três zips e os três `.md5`: quem seguir o tutorial de `project/data/README.md` fica com zips, e a máquina onde a reconciliação rodou ficou com pastas. Consequências: (a) os SHA-256 de `docs/08-inventario-dados.md`, seção 1, são dos zips e não podem ser recalculados nesta máquina, como o bloco abaixo manda; (b) a decisão 34 e a tarefa 04 leem `Total_CSVs.zip` "direto do zip", e `data/verify.py` falharia aqui por arquivo obrigatório ausente; (c) `CSVs 2/` é nome gerado pela extração, não existe no dataset. Conferido no disco: as contagens de linhas dos quatro CSVs extraídos são as do bloco abaixo (`wc -l` menos o cabeçalho). **Decisão do usuário antes de implementar:** repor os zips nesta máquina, extraindo o zip da equipe de novo sem abrir os zips internos (o plano fica como está), ou mudar a fonte para as pastas extraídas, o que reabre a decisão 34 e exige novo inventário de hashes por CSV. A decisão não foi reescrita.
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta e executada em `acc297a`** (branch `tarefa/03-dados-cira`, nascida de `tarefa/02-config-runlog`; commits `c2b69e0` e `acc297a`). Aguarda integração por pessoa (G10).
+>
+> O ⚠️ REVISAR de `5e11d56` (zips do CIRA ausentes) foi **resolvido em 07/10/2026**: os três zips originais e os três `.md5` foram repostos em `project/data/raw/cira/` a partir do zip da equipe, e a decisão 34 vale como escrita. Conferido nesta reconciliação: `uv run python data/verify.py` devolve "OK: 3 de 3 arquivos do manifesto conferidos" e o MD5 de cada zip é o do `.md5` correspondente. As pastas extraídas `Total_CSVs/`, `CSVs/` e `CSVs 2/` continuam no disco ao lado dos zips; o projeto não as lê e elas podem ser apagadas.
+
+## Como ficou (conferido no código em `0ae2d49`)
+
+- `data/manifest.json`: `{"files": [...]}`; cada entrada tem `path` (relativo a `data/raw/`), `size_bytes`, `sha256`, `required` e `rows` (dicionário membro do zip → linhas sem o cabeçalho). Três entradas, todas do CIRA; `hkd/` e `combinado/` são da tarefa 13.
+- `data/verify.py`: `check_files(manifest, raw_dir)` devolve `(erros, avisos)`; `main()` termina com código 1 se houver erro. Lê o manifesto de forma genérica: entrada nova não exige mudança no script.
+- `sha256_of(path)` existe em `data/verify.py` e, igual, em `scripts/e0_dados.py`. O terceiro chamador leva a função para `src/`, pela regra de `.claude/rules/codigo.md`.
+- `data/README.md` registra também o nome de cada zip no servidor do CIC e que os `all.csv` dos dois zips opcionais não têm `Label`: a última coluna é `DoH`, booleana.
 
 **Onde:** `data/README.md`, `data/manifest.json`, `data/verify.py`, `tests/test_verify.py`, `data/raw/cira/` (fora do Git)
 **Objetivo:** os CSVs do dataset do artigo estão na máquina de quem vai rodar, com origem e integridade registradas.
@@ -57,11 +66,13 @@ Decisão 17. É a primeira tarefa do caminho crítico: sem dados não há E0, e 
 
 ## Critério de aceite
 
-- [ ] `data/manifest.json` lista cada arquivo com nome, tamanho, linhas, SHA-256 e obrigatoriedade; `data/README.md` traz origem, citação, data e o local do compartilhamento.
-- [ ] `uv run python data/verify.py` termina com código 0 na máquina de quem baixou e falha quando um arquivo obrigatório é alterado ou removido; opcional ausente só avisa.
-- [ ] As contagens de linhas por classe estão registradas e comparadas com as de `docs/04-dados.md:26-31`.
-- [ ] O cabeçalho real está registrado, com a coluna de rótulo identificada.
-- [ ] `git status` não mostra nenhum arquivo de `data/raw/`. (Em 07/10/2026, no commit `5e11d56`: `git status` limpo e `git ls-files` sem nada de `project/data/raw/`; o item fecha com a tarefa.)
+Conferido em 07/10/2026 no commit `0ae2d49`.
+
+- [x] `data/manifest.json` lista cada arquivo com nome, tamanho, linhas, SHA-256 e obrigatoriedade; `data/README.md` traz origem, citação, data e o local do compartilhamento. Lido nos dois arquivos.
+- [x] `uv run python data/verify.py` termina com código 0 na máquina de quem baixou e falha quando um arquivo obrigatório é alterado ou removido; opcional ausente só avisa. Executado: o script com os dados reais (código 0, três arquivos conferidos) e os quatro testes de `tests/test_verify.py`.
+- [x] As contagens de linhas por classe estão registradas e comparadas com as de `docs/04-dados.md:26-31`. Lido: tabela "Linhas por arquivo" de `data/README.md` e campo `rows` do manifesto, com 897.493 / 19.807 / 249.836 ao lado da Tabela I. `results/e0/dados/cira/seed42/metrics.json` traz os mesmos três números em `raw_rows`, e o script de E0 falha se o bruto lido diferir do manifesto.
+- [x] O cabeçalho real está registrado, com a coluna de rótulo identificada. Lido: seção "Cabeçalho e coluna de rótulo" de `data/README.md`.
+- [x] `git status` não mostra nenhum arquivo de `data/raw/`. Executado: `git status` limpo e `git ls-files` sem nada de `project/data/raw/` nem de `project/data/processed/`.
 
 ## Testes
 

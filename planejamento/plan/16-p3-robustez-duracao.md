@@ -7,6 +7,14 @@
 
 > **Tarefa cortável.** É a primeira a sair se o prazo apertar (decisão 02). Só começa com a 15 fechada e o rascunho do relatório em andamento.
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- Os três atributos da ablação têm estes nomes em `FEATURE_COLUMNS`: `Duration`, `FlowSentRate`, `FlowReceivedRate`.
+- `feature_matrix` devolve sempre as 29 colunas e `fit_scaler` ajusta nas 29. A ablação (T16-1) seleciona o subconjunto de colunas depois; como o `MinMaxScaler` normaliza cada coluna em separado, ajustar nas 29 e descartar colunas dá o mesmo resultado que ajustar só nas que ficam.
+- A matriz normalizada é um array sem nomes: a posição de cada coluna é a de `FEATURE_COLUMNS`.
+- `save_run(experiment="e8", track="corrigida", slice_name="robustez-<variante>", seed=k, ...)`.
+- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+
 ## Arquivos
 
 - `src/doh_ids/robustness.py` — novo: ablação de colunas e transformação de fragmentação.
