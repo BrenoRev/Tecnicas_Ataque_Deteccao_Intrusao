@@ -1,0 +1,4 @@
+classe,máquinas,dias,primeiro dia,último dia
+Non-DoH,4,13,2019-12-09,2020-01-14
+Benign-DoH,4,13,2019-12-09,2020-01-14
+Malicious-DoH,10,15,2020-03-18,2020-04-01
