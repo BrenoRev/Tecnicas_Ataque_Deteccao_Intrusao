@@ -5,6 +5,16 @@
 **Depende de:** 08, 13
 **Demonstra:** `results/e6/fiel/`: recall por ferramenta na transferência e métricas completas nos dois retreinos, com as tabelas de amostras por conjunto. Evidência de P2 (seção 7.2).
 
+## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
+
+- **Referência da contagem fora de [0, 1] (passo 2):** `results/e0/dados/cira/seed42/split_counts.json`, chave `test_outside_unit_interval`. No teste do CIRA são três valores, em três linhas: um em `FlowSentRate`, um em `PacketLengthMean` e um em `ResponseTimeTimeCoefficientofVariation`.
+- A contagem fora de faixa hoje só existe dentro de `scripts/e0_dados.py` (`outside_unit_interval(train, test)`, que ajusta o scaler internamente). A função prevista aqui para `evaluate.py` (T14-3) fica sendo a segunda implementação da mesma conta. Fazer o script de E0 usar a nova toca um arquivo fora da lista desta tarefa: combinar com o usuário.
+- **Tabela por fold (passo 3):** a construção é a de `validation_fold_rows` em `scripts/e0_dados.py:189-195`, `StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED_FIEL)` sobre o treino. `CV_FOLDS` é local daquele script, salvo se a tarefa 08 a tiver levado para `config.py`. O formato de `split_counts.json` (chaves `train`, `test`, `validation_folds`) serve de modelo para as tabelas dos dois retreinos.
+- Scaler da transferência: `fit_scaler(train)` com o treino do CIRA de `stratified_split(table, SEED_FIEL)`; no HKD, `scaler.transform(feature_matrix(hkd))`.
+- A asserção da versão sem réplicas pode usar `seen_in_train`, de `splits.py`, restrita às linhas do HKD de cada lado.
+- `save_run(experiment="e6", track="fiel", slice_name=<transferencia | retreino_publicado | retreino_sem_replicas>, seed=SEED_FIEL, ...)`; `metrics.json` só com tipos nativos do Python.
+- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+
 ## Verificado nos dados (07/10/2026)
 
 Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados.md`. **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos, evidência) divergirem, vale este bloco.**
