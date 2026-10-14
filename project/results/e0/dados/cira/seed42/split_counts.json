@@ -33,15 +33,30 @@
     "values": 3
   },
   "test_seen_in_train": {
+    "both_labels_rows": [
+      2347,
+      23,
+      0
+    ],
     "fraction": [
       0.17681302750025285,
       0.054177215189873416,
       8.014425966740132e-05
     ],
     "fraction_total": 0.13667382733304,
+    "other_label_rows": [
+      2358,
+      48,
+      0
+    ],
     "rows": [
       15733,
       107,
+      2
+    ],
+    "same_label_rows": [
+      15722,
+      82,
       2
     ],
     "total": 15842
@@ -67,6 +82,7 @@
   },
   "validation_folds": {
     "n_folds": 10,
+    "shuffle": true,
     "train_rows": [
       [
         720745,
