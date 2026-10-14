@@ -1,7 +1,10 @@
 {
-  "commit": "0dd87bb99ec7ee2d1b758f7ddaaa2a1b70a9bdcf",
+  "commit": "4746c22f7dccc81974784480fad1fcfc34bef094",
   "config": {
     "adopted_rule": "NaN",
+    "cv_folds": 10,
+    "cv_shuffle": true,
+    "test_size": 0.1,
     "zip_members": [
       "l1-nondoh.csv",
       "l2-benign.csv",
@@ -18,6 +21,7 @@
     "mlxtend": "0.25.0",
     "numpy": "2.3.5",
     "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
     "scikit-learn": "1.9.1",
     "shap": "0.52.0",
     "xgboost": "3.4.1"
@@ -25,9 +29,9 @@
   "python": "3.12.13",
   "seed": 42,
   "slice": "cira",
-  "timestamp": "2026-10-07T03:09:59-03:00",
+  "timestamp": "2026-10-07T03:29:50-03:00",
   "timings": {
-    "total_seconds": 26.3
+    "total_seconds": 38.3
   },
   "track": "dados"
 }
