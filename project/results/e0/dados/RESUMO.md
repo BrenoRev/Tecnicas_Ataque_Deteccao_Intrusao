@@ -1,7 +1,7 @@
 # E0: dados do CIRA-CIC-DoHBrw-2020
 
-Gerado por `scripts/e0_dados.py`. Os números vêm de `cira/seed42/metrics.json`
-e dos arquivos CSV da mesma pasta.
+Gerado por `scripts/e0_dados.py`. Os números vêm de `cira/seed42/metrics.json`,
+de `cira/seed42/split_counts.json` e dos arquivos CSV da mesma pasta.
 
 ## Fonte
 
@@ -93,3 +93,63 @@ também fluxo de outra classe: 0.
 
 `data/processed/cira.parquet`, com os 29 atributos, `label` e `group`.
 SHA-256: `7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3`.
+
+## Treino, validação e teste
+
+Gerado de `cira/seed42/split_counts.json`. Sorteio estratificado por classe,
+seed 42, fração de teste 0.1. Treino:
+1043197 fluxos; teste: 115911.
+
+| classe | treino | Fig. 4a | diferença no treino | teste | Fig. 4b | diferença no teste |
+| --- | --- | --- | --- | --- | --- | --- |
+| Non-DoH | 800828 | 800829 | -1 | 88981 | 88980 | 1 |
+| Benign-DoH | 17771 | 17771 | 0 | 1975 | 1975 | 0 |
+| Malicious-DoH | 224598 | 224598 | 0 | 24955 | 24955 | 0 |
+
+As matrizes da Fig. 4 somam 1043198 fluxos no treino e
+115910 no teste. A fração 0.1 de 1159108
+fluxos não é um número inteiro, e a biblioteca arredonda o tamanho do teste
+para cima: o teste fica com 115911 fluxos, e o fluxo que passa do
+treino para o teste é Non-DoH. O tamanho não é forçado para igualar a figura.
+
+### Validação
+
+O artigo não tem conjunto de validação separado: a validação é cruzada, com
+10 folds estratificados sorteados só dentro do treino
+(embaralhamento: True, seed 42). O teste não entra
+em nenhum fold. Amostras por classe no fold de validação de cada rodada:
+
+| fold | Non-DoH | Benign-DoH | Malicious-DoH |
+| --- | --- | --- | --- |
+| 1 | 80083 | 1777 | 22460 |
+| 2 | 80083 | 1777 | 22460 |
+| 3 | 80083 | 1777 | 22460 |
+| 4 | 80083 | 1777 | 22460 |
+| 5 | 80083 | 1777 | 22460 |
+| 6 | 80083 | 1777 | 22460 |
+| 7 | 80083 | 1778 | 22459 |
+| 8 | 80083 | 1777 | 22459 |
+| 9 | 80082 | 1777 | 22460 |
+| 10 | 80082 | 1777 | 22460 |
+
+### Teste com vetor de atributos presente no treino
+
+Linhas do teste cujos 29 atributos são iguais aos de alguma linha do treino:
+15842 de 115911 (13.67%). Os índices
+de treino e teste são disjuntos; o que se repete é o vetor de atributos, porque
+o conjunto limpo mantém as linhas repetidas. "Com o mesmo rótulo" conta a linha
+do teste cujo vetor está no treino com a classe dela; "com outro rótulo", a que
+tem o vetor no treino com classe diferente; "com os dois", a que está nos dois
+casos.
+
+| classe | linhas do teste | vetor presente no treino | fração | com o mesmo rótulo | com outro rótulo | com os dois |
+| --- | --- | --- | --- | --- | --- | --- |
+| Non-DoH | 88981 | 15733 | 17.68% | 15722 | 2358 | 2347 |
+| Benign-DoH | 1975 | 107 | 5.42% | 82 | 48 | 23 |
+| Malicious-DoH | 24955 | 2 | 0.01% | 2 | 0 | 0 |
+
+### Teste normalizado
+
+O normalizador é ajustado só no treino. No teste normalizado,
+3 valores em 3 linhas ficam fora do
+intervalo de 0 a 1, nas colunas {'FlowSentRate': 1, 'PacketLengthMean': 1, 'ResponseTimeTimeCoefficientofVariation': 1}.
