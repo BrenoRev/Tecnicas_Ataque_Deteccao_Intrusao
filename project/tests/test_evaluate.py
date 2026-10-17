@@ -3,9 +3,21 @@ import json
 import numpy as np
 import pytest
 
-from doh_ids.config import CLASS_NAMES, FIG4A_CONFUSION, FIG4B_CONFUSION
-from doh_ids.evaluate import base_rate, compare_confusion, evaluate, metrics_from_confusion
-from scripts import metricas_fig4
+from doh_ids.config import CLASS_NAMES, FEATURE_COLUMNS, FIG4A_CONFUSION, FIG4B_CONFUSION
+from doh_ids.data import class_counts
+from doh_ids.evaluate import (
+    aggregate_seeds,
+    base_rate,
+    compare_confusion,
+    evaluate,
+    malicious_only_metrics,
+    metrics_from_confusion,
+    outside_unit_interval,
+    paired_comparison,
+    recall_by_tool,
+)
+from doh_ids.splits import stratified_split
+from scripts import e4_corrigido, metricas_fig4
 
 # O script da Fig. 4 só imprime porcentagens com duas casas: 5e-5 é meia
 # unidade da quarta casa decimal da fração.
@@ -176,3 +188,133 @@ def test_evaluate_result_is_json_serializable():
     metrics = evaluate(y_true, y_pred, one_hot(y_pred), base_mean_proba=one_hot(y_pred))
 
     assert json.loads(json.dumps(metrics)) == metrics
+
+
+def keys_in(result):
+    """Devolve todas as chaves de um dicionário aninhado."""
+    if not isinstance(result, dict):
+        return set()
+    return set(result).union(*(keys_in(value) for value in result.values()))
+
+
+def test_malicious_only_evaluation_reports_no_precision_fpr_or_accuracy():
+    tool = ["dnstt", "dnstt", "tuns", "tuns"]
+    y_pred = np.array([2, 0, 2, 1])
+
+    result = malicious_only_metrics(tool, y_pred)
+
+    assert result["negatives"] == 0
+    assert result["malicious"]["recall"] == 0.5
+    assert result["malicious"]["predicted_as"] == {
+        "Non-DoH": 1,
+        "Benign-DoH": 1,
+        "Malicious-DoH": 2,
+    }
+    forbidden = ("precision", "fpr", "accuracy", "f1")
+    assert not [key for key in keys_in(result) if any(word in key for word in forbidden)]
+    assert json.loads(json.dumps(result)) == result
+
+
+def test_recall_by_tool_matches_a_hand_made_example():
+    # Quatro fluxos de dnstt, três detectados; dois de tuns, nenhum detectado.
+    # As duas linhas sem ferramenta não são de túnel e não entram na conta,
+    # nem a que foi classificada como maliciosa.
+    tool = ["dnstt", "dnstt", "dnstt", "dnstt", "tuns", "tuns", None, None]
+    y_pred = np.array([2, 2, 2, 0, 1, 0, 2, 0])
+
+    result = recall_by_tool(tool, y_pred)
+
+    assert list(result) == ["dnstt", "tuns"]
+    assert (result["dnstt"]["n"], result["dnstt"]["detected"]) == (4, 3)
+    assert result["dnstt"]["recall"] == 0.75
+    assert result["dnstt"]["predicted_as"]["Non-DoH"] == 1
+    assert (result["tuns"]["n"], result["tuns"]["recall"]) == (2, 0.0)
+    assert result["tuns"]["predicted_as"] == {"Non-DoH": 1, "Benign-DoH": 1, "Malicious-DoH": 0}
+    # Com dois fluxos, o intervalo exato de um recall zero ainda vai longe.
+    assert result["tuns"]["recall_ci_low"] == 0.0
+    assert 0.5 < result["tuns"]["recall_ci_high"] < 1.0
+
+
+def test_outside_unit_interval_finds_the_planted_values():
+    X_scaled = np.full((5, len(FEATURE_COLUMNS)), 0.5)
+    # Os extremos 0 e 1 pertencem ao intervalo.
+    X_scaled[0, 0], X_scaled[1, 0] = 0.0, 1.0
+    X_scaled[2, 0], X_scaled[3, 0] = 1.5, -0.1
+    X_scaled[3, 4] = 7.0
+
+    result = outside_unit_interval(X_scaled)
+
+    assert result["values"] == 3
+    assert result["rows"] == 2
+    assert result["by_column"] == {FEATURE_COLUMNS[0]: 2, FEATURE_COLUMNS[4]: 1}
+
+
+def test_metrics_are_keyed_by_the_class_names_given():
+    tools = ["dns2tcp", "dnscat2", "iodine"]
+    confusion = [[5, 1, 0], [1, 4, 1], [0, 1, 5]]
+    y_true, y_pred = labels_from_confusion(confusion)
+
+    metrics = evaluate(y_true, y_pred, one_hot(y_pred), one_hot(y_pred), class_names=tools)
+
+    assert list(metrics["per_class"]) == tools
+    assert set(metrics["per_class"]["dnscat2"]) == {
+        "support",
+        "precision",
+        "recall",
+        "f1",
+        "pr_auc",
+        "pr_auc_base_mean",
+    }
+    # Entre ferramentas não há tráfego legítimo: a visão binária não é devolvida.
+    assert "malicious_vs_rest" not in metrics
+    # Só os nomes mudam: os números são os da mesma matriz com os nomes padrão.
+    default = metrics_from_confusion(confusion)
+    assert metrics["accuracy"] == default["accuracy"]
+    assert metrics["macro_f1"] == default["macro_f1"]
+    assert metrics["per_class"]["dnscat2"]["recall"] == default["per_class"]["Benign-DoH"]["recall"]
+
+
+def test_paired_comparison_matches_a_hand_made_example():
+    # Diferenças 1, 2, 3, 4 e -5: os postos são 1 a 5, a soma dos positivos é
+    # 10 e a dos negativos é 5. A estatística é a menor das duas, e 10 das 32
+    # combinações de sinais dão uma soma de até 5 em um dos lados: p = 20/32.
+    result = paired_comparison([5, 5, 5, 5, 5], [4, 3, 2, 1, 10])
+
+    assert result["mean_difference"] == pytest.approx(1.0)
+    assert (result["first_wins"], result["second_wins"], result["ties"]) == (4, 1, 0)
+    assert result["wilcoxon_statistic"] == pytest.approx(5.0)
+    assert result["wilcoxon_p_value"] == pytest.approx(0.625)
+
+
+def test_paired_comparison_of_equal_values_reports_ties_and_no_statistic():
+    result = paired_comparison([0.5, 0.7, 0.9], [0.5, 0.7, 0.9])
+
+    assert (result["first_wins"], result["second_wins"], result["ties"]) == (0, 0, 3)
+    assert result["wilcoxon_statistic"] is None
+    assert result["wilcoxon_p_value"] is None
+
+
+def test_aggregate_seeds_gives_mean_and_sample_standard_deviation():
+    runs = [{"recall": 1.0, "fpr": 0.0}, {"recall": 2.0, "fpr": 0.0}, {"recall": 3.0, "fpr": 3.0}]
+
+    result = aggregate_seeds(runs)
+
+    assert result["recall"] == {"mean": pytest.approx(2.0), "std": pytest.approx(1.0), "n": 3}
+    # Com n - 1 no denominador: a soma dos quadrados dos desvios é 6, sobre 2.
+    assert result["fpr"] == {"mean": pytest.approx(1.0), "std": pytest.approx(3**0.5), "n": 3}
+
+
+def test_unseen_scope_drops_exactly_the_planted_test_rows_that_exist_in_train(synthetic_flows):
+    seed, planted = 0, 7
+    train, test = stratified_split(synthetic_flows, seed)
+    test = test.copy()
+    # As primeiras linhas do teste recebem os 29 atributos de linhas do treino.
+    test.iloc[:planted, : len(FEATURE_COLUMNS)] = train[FEATURE_COLUMNS].iloc[:planted].to_numpy()
+
+    metrics, _ = e4_corrigido.evaluate_split(["B-prof5"], train, test, seed)
+    result = metrics["B-prof5"]
+
+    assert result["test_seen_in_train"]["rows"] == planted
+    assert result["test"]["total"] == len(test)
+    unseen_rows = [sum(row) for row in result["test_unseen"]["confusion_matrix"]]
+    assert unseen_rows == class_counts(test.iloc[planted:])
