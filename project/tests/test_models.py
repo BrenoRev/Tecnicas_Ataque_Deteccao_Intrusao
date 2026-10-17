@@ -15,7 +15,7 @@ def fitted_model(flows, seed):
     X_train = scaler.transform(feature_matrix(train))
     y_train = train["label"].to_numpy()
     subsets, _ = balanced_subsets(X_train, y_train, seed)
-    stacked = stacked_forest(base_forests(subsets, seed), X_train, y_train, seed)
+    stacked = stacked_forest(base_forests(subsets, seed, MAX_DEPTH), X_train, y_train, seed)
     return stacked, scaler.transform(feature_matrix(test))
 
 
