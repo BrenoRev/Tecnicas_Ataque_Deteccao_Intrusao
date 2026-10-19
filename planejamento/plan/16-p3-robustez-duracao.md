@@ -7,13 +7,23 @@
 
 > **Tarefa cortável.** É a primeira a sair se o prazo apertar (decisão 02). Só começa com a 15 fechada e o rascunho do relatório em andamento.
 
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- **Sistema base (decisão 45):** o "original" desta tarefa é o empilhado de profundidade variável; o de profundidade 5 entra ao lado onde o custo permitir. O "modificado" é o que sair da tarefa 15, que tem um ⚠️ REVISAR aberto.
+- A ablação tira colunas da matriz normalizada antes de `balanced_subsets` e de `base_forests`, que aceitam qualquer número de colunas; a asserção de 29 colunas de `fit_system` (`scripts/e1_reproducao.py:103`) não vale para os modelos da ablação e não pode ser reaproveitada sem ajuste.
+- **Custo estimado, sem cortar nada.** Parte A: original e modificado, duas ablações, dez seeds. Só o original são 20 ajustes do sistema inteiro: cerca de 65 minutos na profundidade variável (194 s por ajuste, medido na tarefa 08 com 29 colunas e a máquina carregada; com menos colunas o tempo deve cair, não medido), mais 37 minutos se a profundidade 5 for rodada ao lado. O modificado não foi medido. A parte B não treina modelo novo.
+- **Ponto sem valor declarado:** o nome dos recortes `robustez-<variante>` com duas leituras de profundidade. Ver "Pendências abertas pela decisão 45" em `00-README.md`.
+- Execução com dados reais na própria sessão (decisão 44).
+
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
 - Os três atributos da ablação têm estes nomes em `FEATURE_COLUMNS`: `Duration`, `FlowSentRate`, `FlowReceivedRate`.
 - `feature_matrix` devolve sempre as 29 colunas e `fit_scaler` ajusta nas 29. A ablação (T16-1) seleciona o subconjunto de colunas depois; como o `MinMaxScaler` normaliza cada coluna em separado, ajustar nas 29 e descartar colunas dá o mesmo resultado que ajustar só nas que ficam.
 - A matriz normalizada é um array sem nomes: a posição de cada coluna é a de `FEATURE_COLUMNS`.
 - `save_run(experiment="e8", track="corrigida", slice_name="robustez-<variante>", seed=k, ...)`.
-- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+- `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45; não altera resultado, só o tempo.
 
 ## Arquivos
 
@@ -57,9 +67,9 @@ A crítica 10 do seminário diz que a explicação publicada indica ao atacante 
 - [ ] A simplificação está declarada no arquivo de resultado.
 - [ ] Nenhuma frase do resumo chama a parte B de ataque adversarial sem a ressalva (revisor metodológico).
 
-## Execução com dados reais: local ou Apuana (decisão 42)
+## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e8_robustez.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e8_robustez.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
 
 ## Testes
 

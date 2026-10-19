@@ -5,14 +5,31 @@
 **Depende de:** 11, 12, 14
 **Demonstra:** `results/e8/corrigida/summary.json`: original contra modificado nos dois datasets, dez seeds, com `HIPOTESE.md` anterior aos números. P3 (seções 5 e 7).
 
+> ⚠️ REVISAR (07/10/2026, reconciliação no commit `360c3d3`), **antes de escrever a grade e a hipótese:** a decisão 45 põe esta tarefa sobre a variante de profundidade variável; a decisão 25 e a tabela do passo 5 foram escritas com "os valores do artigo" significando (10, 5, 28). Três pontos ficam sem definição e são do usuário, antes de qualquer execução (invariante I5): (1) o modelo A de referência passa a ser o de profundidade variável, e o de profundidade 5 entra ao lado onde o custo permitir; os dois saem de `results/e4/`, que depende do ⚠️ REVISAR da tarefa 11; (2) M1, "Random Forest único, `class_weight`, hiperparâmetros do artigo (10, 5, 28)", mede o efeito de tirar o SMOTE em relação a qual A; (3) a grade proposta de M2 inclui "a combinação do artigo (10 árvores, profundidade 5, 28)" e não inclui (10, sem limite, 28), que é a configuração dos bases do A de profundidade variável. Nenhuma decisão foi reescrita; a tabela do passo 5 e a grade ficaram como estavam.
+
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- Dependências: 11, 12 e 14 a fazer. Da 14 basta a parte 14a (o sistema no combinado sem réplicas); a 14b não é pré-requisito.
+- **Sistema base (decisão 45):** o "original" é o empilhado de profundidade variável. Efeito sobre M1 e a grade: ver o ⚠️ REVISAR acima.
+- `CV_FOLDS = 10` e `CV_SHUFFLE` estão em `config.py` desde `4746c22` e são da validação cruzada da Fig. 4a. Os 5 folds de M2 (decisão 25) são outra constante, com outro nome.
+- O cuidado de `base_forests` vale para o modelo modificado: `n_jobs=1` depois do ajuste, para `predict_proba` repetir entre execuções (G6).
+- **Ponto sem valor declarado:** o nome dos recortes `<modelo>-<dataset>` quando A existe em duas leituras de profundidade. Ver "Pendências abertas pela decisão 45" em `00-README.md`.
+- **Custo estimado, sem cortar nada.**
+  - Modelo A no combinado sem réplicas, dez seeds: cerca de 32 minutos na profundidade variável (194 s por ajuste, medido na tarefa 08 com a máquina carregada), mais 19 minutos se a profundidade 5 for rodada ao lado (112 s por ajuste). No CIRA, A é lido de `results/e4/`.
+  - Seleção de M2, com a grade proposta de sete combinações: 35 ajustes por seed (7 × 5 folds) mais o ajuste final, em dez seeds e dois datasets: 700 ajustes de validação e 20 finais. Cada um é um Random Forest único, sem SMOTE, sobre quatro quintos de um treino de cerca de 1,04 milhão de linhas. **O custo por ajuste não foi medido.** As combinações com 100 árvores e sem limite de profundidade são as mais caras. Única referência: três Random Forests de 10 árvores sem limite, cada um em 716 mil linhas, levaram 187 s juntos.
+  - O passo 4 já manda cronometrar uma combinação em uma seed antes de lançar tudo, e a subamostra de 25% continua sendo a saída prevista se não couber. Nada é cortado sem essa medida e sem o usuário.
+- Execução com dados reais na própria sessão (decisão 44).
+
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
 - Seeds: `SEEDS_CORRIGIDA`. Split por seed: `stratified_split(table, seed)`, o mesmo da tarefa 11.
 - Métrica sem duplicatas (passo 7a): `test[~seen_in_train(train, test)]`, com `seen_in_train` de `splits.py`. Os 13,7% citados no passo estão confirmados em `split_counts.json["test_seen_in_train"]["fraction_total"]`, 0,1367 com a seed 42.
 - O modelo modificado normaliza dentro do `Pipeline`; `fit_scaler` não entra nele. A matriz de atributos continua vindo de `feature_matrix`.
-- A validação cruzada de M2 tem 5 folds (decisão 25); a da Fig. 4a tem 10 e hoje é `CV_FOLDS` em `scripts/e0_dados.py`. São duas constantes, com nomes diferentes.
+- A validação cruzada de M2 tem 5 folds (decisão 25); a da Fig. 4a tem 10 e é `CV_FOLDS`, em `config.py` desde `4746c22`. São duas constantes, com nomes diferentes.
 - `save_run(experiment="e8", track="corrigida", slice_name=<modelo>-<dataset>, seed=k, ...)`; os hiperparâmetros selecionados na seed são resultado determinístico e vão em `metrics`; `summary.json` é arquivo auxiliar.
-- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+- `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45; não altera resultado, só o tempo.
 
 ## Verificado nos dados (07/10/2026)
 
@@ -80,9 +97,9 @@ Objetivo P3 e decisões 02 e 25. M1 responde à crítica de que cerca de 92% da 
 - [ ] Métricas com e sem duplicatas em toda seed, nos dois datasets.
 - [ ] Texto de resultado não afirma melhora que os números não mostram (revisor metodológico).
 
-## Execução com dados reais: local ou Apuana (decisão 42)
+## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e8.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). As dez seeds podem ser um job por seed, em paralelo; para isso o script aceita a seed como argumento e a agregação do `summary.json` roda depois, em um passo próprio. Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e8.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). As dez seeds podem ser um job por seed, em paralelo; para isso o script aceita a seed como argumento e a agregação do `summary.json` roda depois, em um passo próprio. A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
 
 ## Testes
 

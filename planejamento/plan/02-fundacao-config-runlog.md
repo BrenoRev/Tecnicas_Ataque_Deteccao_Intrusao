@@ -5,7 +5,7 @@
 **Depende de:** 01
 **Demonstra:** `config.py` com cada hiperparâmetro e a seção do artigo de origem; formato único de resultado em `results/`. Base da seção 4 do relatório e da rastreabilidade de todo número.
 
-> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta em `b1434ab`** (branch `tarefa/02-config-runlog`, nascida de `tarefa/01-prova-ci`; commits `412c097` e `b1434ab`). Aguarda integração por pessoa (G10). **Em aberto: o passo 5a.** `N_JOBS` não existe em `config.py`, porque o valor é pendência da equipe; precisa existir antes da tarefa 08.
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta em `b1434ab`** (branch `tarefa/02-config-runlog`, nascida de `tarefa/01-prova-ci`; commits `412c097` e `b1434ab`). Aguarda integração por pessoa (G10). **Passo 5a fechado em 07/10/2026 (reconciliação no commit `360c3d3`):** `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45.
 
 ## Como ficou (conferido no código em `0ae2d49`)
 
@@ -24,7 +24,7 @@ Nomes públicos que as tarefas seguintes consomem.
 - Dependência: a 01 está pronta e ainda não integrada. A branch desta tarefa nasce da `main` depois da integração ou, em execução encadeada, de `tarefa/01-prova-ci`, com isso dito no relato.
 - O que a 01 deixou e esta tarefa usa, conferido no código: pacote `doh_ids` instalável (`src/doh_ids/__init__.py`), `pythonpath = ["."]` no pytest, lint com `D1`, `ERA` e `C90`, `tests/test_smoke.py`. `tests/conftest.py`, `config.py` e `runlog.py` não existem: são desta tarefa.
 - O repositório é a raiz (decisão 43): o hash do commit é lido com o Git a partir de `project/` sem mudança, mas `dirty` passa a refletir a árvore inteira, inclusive `docs/` e `planejamento/`. Um documento editado e não commitado marca `dirty: true`; o resultado versionado exige árvore limpa (decisão 38).
-- `jobs/` não existe (passo 5a): só é criada se a equipe executar no Apuana. `N_JOBS` continua `[Decidir: valor]`.
+- `jobs/` não existe (passo 5a): só é criada se a equipe executar no Apuana. `N_JOBS = -1` foi declarado em `4746c22` (decisão 45).
 - A constante dos membros de `Total_CSVs.zip` (bloco abaixo) é `CIRA_ZIP_MEMBERS`. O ⚠️ REVISAR das tarefas 03 e 04 foi resolvido em 07/10/2026: os zips originais foram repostos em `project/data/raw/cira/` e a decisão 34 vale como escrita.
 
 ## Verificado nos dados (07/10/2026)
@@ -79,7 +79,7 @@ Conferido em 07/10/2026 no commit `0ae2d49`. "Executado" quer dizer `uv run pyte
 - [x] `run.json` contém trilha, seed, versões, hash dos dados e commit (teste; invariante I6). Executado: `test_run_json_declares_track_seed_versions_data_hash_commit_and_machine`. Lido no arquivo real `results/e0/dados/cira/seed42/run.json`.
 - [x] Trilha inválida é rejeitada (teste). Executado: `test_save_run_rejects_unknown_track`.
 - [x] `save_run` monta o caminho `results/<experimento>/<trilha>/<recorte>/seed<k>/` (teste). Executado: `test_save_run_writes_both_files_in_the_standard_path`; o caminho real `results/e0/dados/cira/seed42/` existe.
-- [ ] Passo 5a, fora da lista original de critérios: `N_JOBS` em `config.py`. Não feito; espera o valor da equipe.
+- [x] Passo 5a, fora da lista original de critérios: `N_JOBS` em `config.py`. Lido em `360c3d3`: `N_JOBS = -1`, com o comentário de que cada árvore recebe a própria seed e o valor só muda o tempo; valor confirmado pela decisão 45.
 
 ## Testes
 

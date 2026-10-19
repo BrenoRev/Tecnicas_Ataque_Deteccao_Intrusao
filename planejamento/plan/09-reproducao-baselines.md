@@ -1,9 +1,23 @@
 # 09 · reprodução · baselines do artigo (E2)
 
 **Onde:** `src/doh_ids/models.py`, `scripts/e2_baselines.py`, `results/e2/fiel/`
-**Objetivo:** os três modelos de comparação da Tabela II, no mesmo split e no mesmo teste do modelo proposto.
+**Objetivo:** a Tabela II inteira (decisão 46): os três modelos de comparação da metade superior, no mesmo split e no mesmo teste do modelo proposto, e a metade inferior, com os resultados da literatura que o artigo cita, registrada para a tabela de comparação.
 **Depende de:** 05, 06, 08 (a 08 cria `models.py`; esta tarefa pode começar da branch da 08)
-**Demonstra:** `results/e2/fiel/<modelo>/seed42/`: três baselines ao lado das linhas da Tabela II. Seção 7: comparação com outros trabalhos.
+**Demonstra:** `results/e2/fiel/<modelo>/seed42/`: três baselines ao lado das linhas da Tabela II; a metade inferior da Tabela II em `config.py`, com a referência de cada linha. Seção 7: comparação com outros trabalhos.
+
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- Dependências 05, 06 e 08 prontas (a 08 executada em `798ecd3`), nenhuma integrada: em execução encadeada, a branch nasce de `tarefa/08-stacked-rf`.
+- **Tabela II inteira (decisão 46).** A metade inferior deixa de ser opcional. `config.py` só tem a metade superior (`TABLE_II`, chaves `decision_tree`, `xgboost`, `random_forest`, `balanced_stacked_rf`). A metade inferior tem oito linhas no manuscrito, das referências [10], [12] e [22]; várias células são "–", e a última linha está impressa em escala percentual (99.5 / 99.4 / 99.6) enquanto as outras estão entre 0 e 1. Os valores são copiados do artigo como impressos, com a referência de cada linha, e conferidos por dois integrantes `[Preencher: quem copiou e quem conferiu]`. **É bloqueio para fechar a tarefa, não para começar:** o código e a execução dos três baselines não dependem dela.
+- **As duas leituras de profundidade (decisão 45) não mudam os baselines.** Árvore, XGBoost e Random Forest seguem a Tabela II e ficam na trilha `fiel`. O que muda é a comparação: o modelo proposto aparece ao lado deles nas duas leituras, lidas de `results/e1/fiel/` e de `results/e1/variante/` pela tarefa 17. Esta tarefa continua sem ler resultado da 08.
+- Recortes: usar como `slice_name` as chaves de `TABLE_II` (`decision_tree`, `xgboost`, `random_forest`), para a linha do artigo de cada modelo ser `TABLE_II[slice_name]`.
+- `table_ii_comparison(test_metrics)` existe em `scripts/e1_reproducao.py`, fixa na linha `balanced_stacked_rf`. Este script é o segundo chamador da mesma conta com outra linha; dois scripts parecidos são aceitos pela regra de código, e mexer no de E1 sai da lista de arquivos desta tarefa.
+- `N_JOBS` existe. O Random Forest da Tabela II precisa do mesmo cuidado de `base_forests`: `n_jobs=1` depois do ajuste, para `predict_proba` repetir entre execuções. O determinismo do XGBoost com `n_jobs` maior que um não foi verificado: conferir no G6 antes de fechar.
+- **Continua sem valor declarado:** a seed do SMOTE do treino inteiro (item do bloco abaixo). Confirmar com o usuário.
+- **Custo: não medido.** O SMOTE do treino inteiro gera 2.402.484 linhas. Única referência disponível: os três Random Forests base sem limite de profundidade, cada um em cerca de 716 mil linhas, levaram 187 s juntos na tarefa 08, com a máquina carregada. Cronometrar o primeiro baseline antes de lançar os três e registrar o tempo no `run.json`.
+- Execução com dados reais na própria sessão (decisão 44).
 
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
@@ -11,7 +25,7 @@
 - Asserção do critério de aceite, com a chave real: total da matriz igual a `split_counts.json["test"]["total"]`, 115.911.
 - As contagens do risco (783.057 e 576.230 sintéticas; 2.402.484 linhas) conferem com `split_counts.json["train"]["rows"]`, 800.828 / 17.771 / 224.598.
 - `save_run(..., slice_name=<modelo>, ...)`: tempo de treino em `timings`; `metrics.json` só com tipos nativos.
-- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+- `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45; não altera resultado, só o tempo.
 - **Ponto sem valor declarado:** `smote_seed(seed, subset_index)` é a seed do SMOTE de cada subconjunto do modelo proposto (decisão 41). A seed do SMOTE do treino inteiro dos baselines não está em nenhuma decisão. Confirmar com o usuário; o implementador não escolhe.
 
 ## Arquivos
@@ -54,11 +68,12 @@ P1: a Tabela II é metade dos resultados do artigo. A comparação que o artigo 
 - [ ] Todos avaliados sobre o mesmo teste: o total da matriz é igual ao de `results/e0/dados/cira/seed42/split_counts.json` (asserção).
 - [ ] Cada baseline tem métricas macro e ponderada nomeadas e a diferença para a sua linha da Tabela II.
 - [ ] Hiperparâmetros não informados pelo artigo estão comentados como padrão da biblioteca.
+- [ ] Metade inferior da Tabela II em `config.py`: oito linhas copiadas do artigo como impressas, com a referência de cada uma e as células ausentes marcadas como ausentes, conferidas por dois integrantes (decisão 46). Bloqueia o fechamento, não o início.
 - [ ] Revisor metodológico sem achado bloqueante.
 
-## Execução com dados reais: local ou Apuana (decisão 42)
+## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e2.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e2.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
 
 ## Testes
 

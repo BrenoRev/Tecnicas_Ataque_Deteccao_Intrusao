@@ -28,6 +28,12 @@ Como ficou, onde difere do texto abaixo:
 | Passo 7: só entra o que está em `project/` | Superado pela decisão 43: `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` são versionados; `README.md` curto na raiz |
 | `jobs/` | Não criada; só passa a existir se a equipe executar no Apuana (tarefas 08 a 16) |
 
+## Dependência nova prevista (decisão 50, registrada em 07/10/2026 no commit `360c3d3`)
+
+- O conjunto de dependências fixado por esta tarefa ganha uma: `explainerdashboard==0.5.8`, para o painel interativo. Ela **não está** no `pyproject.toml` (conferido em `360c3d3`: dez dependências, de `scikit-learn` a `scipy`); entra na tarefa 12, com `uv.lock` e `requirements.txt` regenerados no mesmo commit.
+- Não verificado: se a 0.5.8 resolve junto com as versões já fixadas. Se não resolver, a tarefa 12 para e relata; nenhuma outra versão é trocada sem o usuário.
+- O README ganha o comando que sobe o painel localmente; isso é da tarefa 19.
+
 ## Estrutura do repositório (decisão 43, 07/10/2026)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
