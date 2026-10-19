@@ -5,6 +5,20 @@
 **Depende de:** 02
 **Demonstra:** testes que recalculam as métricas da Fig. 4b (acurácia 99,78%, recall de Benign-DoH 90,23%) a partir da matriz publicada. Define o alvo de P1.
 
+> **Situação (07/10/2026, reconciliação no commit `360c3d3`): pronta em `21171f4`** (branch `tarefa/06-avaliacao-metricas`, nascida de `tarefa/05-split-scaler`; tipos anotados em `fdbdeb9`, já na branch da 08). Aguarda integração por pessoa (G10). A metade inferior da Tabela II não foi registrada e passa para a tarefa 09 (decisão 46).
+
+## Como ficou (conferido no código em `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- `evaluate.py`: `metrics_from_confusion(confusion)`, `evaluate(y_true, y_pred, proba, base_mean_proba=None)`, `malicious_vs_rest(confusion)`, `base_rate(fpr, recall, prevalence)` e `compare_confusion(obtained, target)`. Tudo devolve só tipos nativos.
+- Chaves de `metrics_from_confusion`: `confusion_matrix`, `total`, `accuracy`, `per_class` (pelo nome da classe: `support`, `precision`, `recall`, `f1`), `malicious_vs_rest` (`false_positives`, `negatives`, `fpr`, `fpr_ci_level`, `fpr_ci_low`, `fpr_ci_high`, `recall`) e `macro_*` e `weighted_*` de `precision`, `recall` e `f1`. `evaluate` acrescenta `roc_auc_ovr_macro` e `pr_auc` por classe; com `base_mean_proba`, também `roc_auc_ovr_macro_base_mean` e `pr_auc_base_mean`.
+- `compare_confusion` devolve `cell_difference`, `absolute_difference_sum`, `total_difference` e `metric_difference_pp`. `base_rate` devolve `prevalence`, `operational_precision` e `false_alarms_per_10_million`.
+- Classe que o modelo nunca prediz: a precisão entra como 0,0 (`_ratio`), em vez de a classe sair da média macro. É o caso da trilha fiel da tarefa 08, que não prediz Benign-DoH.
+- **As funções nomeiam as classes por `CLASS_NAMES` e fixam a classe maliciosa pelo índice.** Servem para qualquer conjunto com as três classes do projeto (CIRA, combinado). Não servem, como estão, para a tarefa 21, em que as classes são as três ferramentas de túnel.
+- `config.py` ganhou `FIG4A_CONFUSION`, `FIG4B_CONFUSION`, `FIG4_TRAIN_COUNTS` e `FIG4_TEST_COUNTS` (derivadas das matrizes; `scripts/e0_dados.py` passou a importá-las, e a duplicação apontada no bloco abaixo deixou de existir), `TABLE_II` (só a metade superior, chaves `decision_tree`, `xgboost`, `random_forest` e `balanced_stacked_rf`, cada uma com `auc`, `accuracy`, `f1`, `precision`, `recall`), `CONFIDENCE_LEVEL` e `BASE_RATE_FLOWS`.
+- **Não feito: a metade inferior da Tabela II** (final do passo 5). Não há nenhuma linha da literatura em `config.py`. Com a decisão 46 ela é obrigatória; o registro e a conferência por dois integrantes ficam como critério de fechamento da tarefa 09.
+
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
 - Dependência: a 02 está pronta e não integrada. Em execução encadeada, a branch nasce de `tarefa/05-split-scaler`, com isso dito no relato. `config.py` já foi escrito pelas tarefas 02, 03 e 04.
@@ -57,10 +71,12 @@ Decisões 10 e 16, ambiguidades A11 e A12. O artigo reporta médias sem nome e c
 
 ## Critério de aceite
 
-- [ ] Teste do invariante I8 verde: os valores batem com `scripts/metricas_fig4.py` até a quarta casa.
-- [ ] Teste do invariante I7 verde.
-- [ ] Teste confirma que as matrizes em `config.py` são idênticas às de `scripts/metricas_fig4.py`, e `python3 scripts/metricas_fig4.py` continua rodando sem o pacote instalado.
-- [ ] A função de taxa base falha se chamada sem prevalência.
+Conferido em 07/10/2026 no commit `360c3d3`. Executado: `tests/test_evaluate.py` inteiro, verde, pelo Python do ambiente do projeto (`-m pytest`), e `python3 scripts/metricas_fig4.py`, código 0.
+
+- [x] Teste do invariante I8 verde: os valores batem com `scripts/metricas_fig4.py` até a quarta casa. Executado: `test_fig4b_metrics_match_the_published_matrix` (tolerância na quarta casa), `test_fig4b_metrics_match_the_reference_script_per_class` (10⁻¹² contra o script) e `test_base_rate_matches_the_reference_script_for_fig4b`.
+- [x] Teste do invariante I7 verde. Executado: `test_every_aggregated_metric_key_names_its_average`.
+- [x] Teste confirma que as matrizes em `config.py` são idênticas às de `scripts/metricas_fig4.py`, e `python3 scripts/metricas_fig4.py` continua rodando sem o pacote instalado. Executado: `test_config_matrices_equal_the_script_matrices_after_reordering_classes`; o script rodou com o `python3` do sistema, fora do ambiente do projeto.
+- [x] A função de taxa base falha se chamada sem prevalência. Executado: `test_base_rate_fails_without_prevalence`.
 
 ## Testes
 

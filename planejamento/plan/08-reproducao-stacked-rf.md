@@ -1,13 +1,42 @@
 # 08 · reprodução · Balanced Stacked Random Forest (E1)
 
-**Onde:** `src/doh_ids/models.py`, `scripts/e1_reproducao.py`, `tests/test_models.py`, `tests/test_pipeline.py`, `results/e1/fiel/proposto/seed42/`
+**Onde:** `src/doh_ids/models.py`, `scripts/e1_reproducao.py`, `tests/test_models.py`, `tests/test_pipeline.py`, `results/e1/fiel/proposto/seed42/`, `results/e1/variante/profundidade_variavel/seed42/`
 **Objetivo:** o sistema proposto pelo artigo, treinado e avaliado como o texto descreve, com o resultado posto ao lado da Fig. 4 e da Tabela II. É a entrega central de P1.
 **Depende de:** 06, 07
-**Demonstra:** `results/e1/fiel/proposto/seed42/`: matriz de confusão da reprodução ao lado da Fig. 4b, célula a célula, com a diferença. Evidência central de P1 (seção 7.1).
+**Demonstra:** `results/e1/fiel/proposto/seed42/` e `results/e1/variante/profundidade_variavel/seed42/`: matriz de confusão da reprodução ao lado da Fig. 4b e da Fig. 4a, célula a célula, com a diferença, nas duas leituras de profundidade (decisão 45); `results/e1/RESUMO.md` com as duas lado a lado. Evidência central de P1 (seção 7.1).
+
+> **Situação (07/10/2026, reconciliação no commit `360c3d3`): pronta e executada em `798ecd3`** (branch `tarefa/08-stacked-rf`, nascida de `tarefa/07-subconjuntos`; código em `f1eba42`, `0a94b10`, `2732d0a`, `fdbdeb9` e `b00e471`; resultado em `798ecd3`, que substitui o de `753dea0`, só da trilha fiel). **Pendente: o G6 da execução atual** — a segunda execução do script, para comparar os `metrics.json`, estava rodando nesta reconciliação e não foi conferida. Revisão do `revisor-metodologico` sem bloqueante e com os achados importantes tratados: informado pela sessão principal; não há artefato versionado que esta reconciliação possa conferir. Aguarda integração por pessoa (G10).
+
+## Como ficou (conferido no código e em `results/` em `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- **Duas leituras de profundidade, uma execução de cada (decisão 45).** O script roda as duas entradas de `READINGS`: trilha `fiel`, recorte `proposto`, `MAX_DEPTH = 5` (Seção IV-B); trilha `variante`, recorte `profundidade_variavel`, `MAX_DEPTH_VARIABLE = None` (linha 3 do Algoritmo 1). Dados, seed, split, subconjuntos, SMOTE e meta são os mesmos nas duas.
+- `models.py`: `base_forests(subsets, seed, max_depth)`, com `max_depth` obrigatório, e `stacked_forest(forests, X_train, y_train, seed)`. Depois do ajuste, cada Random Forest fica com `n_jobs=1`: na predição em paralelo a soma das probabilidades depende da ordem das threads, e o G6 falharia na última casa. Todo modelo novo com `predict_proba` em paralelo (tarefas 09 e 15) precisa do mesmo cuidado.
+- `scripts/e1_reproducao.py`: `fit_system(train, seed, max_depth)` devolve `(scaler, stacked, summary, timings)`; `cross_validated_confusion(train, seed, max_depth)` refaz o sistema em cada fold e devolve a matriz somada; `run_experiment(table, data_sha256, results_dir, reading)` grava pelo `save_run`; `table_ii_comparison(test_metrics)` compara com a linha `balanced_stacked_rf`. **Essas funções moram no script, não no pacote.** As tarefas 10, 11, 12, 14, 15, 16 e 21 também ajustam o sistema inteiro: pela regra de código, o terceiro chamador leva `fit_system` (e, para a 14 e a 21, `cross_validated_confusion`) para `src/doh_ids/models.py`. Isso toca `scripts/e1_reproducao.py` e `tests/test_pipeline.py` (o T08-5 troca `e1.fit_system` por `monkeypatch`), fora da lista de arquivos da tarefa que fizer: combinar com o usuário na primeira que precisar.
+- `config.py` ganhou `CV_FOLDS`, `CV_SHUFFLE` e `N_JOBS` em `4746c22` (ainda na branch da 05), `ARTICLE_SUBSET_RATIO` e `FIEL_READINGS` em `2732d0a` e `MAX_DEPTH_VARIABLE` em `b00e471`. `sha256_of` foi para `doh_ids.data` (`f1eba42`), com `data/verify.py` e `scripts/e0_dados.py` importando de lá. As três propostas do bloco abaixo que tocavam arquivos fora da lista (`CV_FOLDS` em `config.py`, `sha256_of` no pacote, `N_JOBS`) foram feitas.
+- `metrics.json`, chaves: `classes`, `train_rows`, `test_rows`, `test` (saída de `evaluate`, com as duas AUC), `cross_validation` (só da matriz; a AUC é calculada só no teste), `fig4b_comparison`, `fig4a_comparison`, `table_ii_comparison`, `subsets`, `base_models_test` (cada base sozinho no teste), `meta_decision_table` (27 combinações, com `base_labels`, `meta_label`, `train_rows_by_class`, `test_rows`), `base_disagreement_test_rows` e `base_disagreement_test_fraction`.
+- `run.json`: `config` com `n_estimators`, `max_depth` (lido do modelo ajustado), `max_features`, `criterion`, `n_subsets`, `test_size`, `cv_folds`, `cv_shuffle`, `n_jobs`, `smote_seeds` e `readings` (as leituras de `FIEL_READINGS` mais `base_depth`). `data_sha256` é o do Parquet, conferido contra `parquet_sha256` de E0 antes de rodar.
+- Resumos: `results/e1/fiel/RESUMO.md` e `results/e1/variante/RESUMO.md`, um por trilha como manda a decisão 38, e `results/e1/RESUMO.md`, arquivo a mais, com as duas leituras lado a lado.
+
+Resultado com a seed 42, lido em `results/e1/` (uma execução de cada leitura; sem média nem desvio):
+
+| Medida no teste | Artigo, Fig. 4b | fiel (profundidade 5) | variante (profundidade variável) |
+| --- | --- | --- | --- |
+| Soma das diferenças absolutas para a Fig. 4b | 0 | 4.711 | 553 |
+| Acurácia | 99,78% | 97,79% | 99,64% |
+| Recall de Benign-DoH | 90,23% | 0,00% | 92,91% |
+| Precisão de Benign-DoH | 97,27% | 0,00% (classe nunca predita) | 87,13% |
+| F1 macro | 97,82% | 65,80% | 96,56% |
+| FPR de Malicious-DoH contra o resto | 0,0033% | 0,0649% | 0,0033% |
+
+- Na trilha fiel o modelo não prediz Benign-DoH em nenhuma linha do teste; na validação cruzada prediz a classe em 98 linhas e acerta uma. Os três bases isolados têm recall de Benign-DoH de 85% a 86% e precisão de 28% a 30%: a perda da classe acontece no meta. É esse o motivo, dado na decisão 45, de as tarefas seguintes usarem a variante como sistema base.
+- Validação cruzada ao lado da Fig. 4a: soma das diferenças absolutas 43.275 (fiel) e 5.147 (variante); as duas matrizes somam 1.043.197.
+- **Custo medido** (`run.json`, chave `timings`; 10 núcleos; a máquina estava carregada na execução da variante): um ajuste do sistema inteiro leva 112 s na fiel (4,3 de subconjuntos, 103,1 de bases, 4,9 de meta) e 194 s na variante (2,0 + 187,3 + 4,3); a validação cruzada de 10 folds, 785 s na fiel e 2.270 s na variante; o script inteiro, 902 s + 2.473 s, cerca de 56 minutos. O "são minutos" do item de risco abaixo e os "25 s" da evidência estão superados por estes números.
 
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
-- **Bloqueio antes de começar: `N_JOBS` não existe em `config.py`.** O passo 5a da tarefa 02 não foi feito porque o valor é pendência da equipe ("Pendentes da equipe" de `00-decisoes-travadas.md`). Esta tarefa para nesse ponto até a equipe decidir; o implementador não escolhe o valor.
+- (Resolvido em `4746c22`: `N_JOBS = -1`; ver o bloco acima.) **Bloqueio antes de começar: `N_JOBS` não existe em `config.py`.** O passo 5a da tarefa 02 não foi feito porque o valor é pendência da equipe ("Pendentes da equipe" de `00-decisoes-travadas.md`). Esta tarefa para nesse ponto até a equipe decidir; o implementador não escolhe o valor.
 - **Folds da validação cruzada (passo 5): usar a mesma construção de E0.** `StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED_FIEL)` sobre `train` e `train["label"]`, como em `scripts/e0_dados.py:189-195`. A tabela por fold de `split_counts.json`, que vai para a seção 6 do relatório, foi gerada com essa construção; folds montados de outro jeito deixam a tabela descrevendo uma validação que não foi a rodada.
 - `CV_FOLDS = 10` é constante local de `scripts/e0_dados.py:80`. Proposta, a confirmar com o usuário porque toca um arquivo fora da lista desta tarefa: subir `CV_FOLDS` para `config.py` aqui, com o script de E0 passando a importá-la, e rodar E0 de novo para mostrar que `metrics.json` e `split_counts.json` não mudam. A alternativa, repetir o número no script novo, cria duas fontes.
 - Carga (passo 4): não há função que leia o Parquet. `pd.read_parquet(CIRA_PARQUET_PATH)` devolve `FEATURE_COLUMNS + ["label", "group"]` com índice de 0 a n − 1. Depois `stratified_split(table, SEED_FIEL)`, `fit_scaler(train)` e `scaler.transform(feature_matrix(...))`.
@@ -71,17 +100,19 @@ Objetivo P1 da especificação. O repositório dos autores não contém este mod
 
 ## Critério de aceite
 
-- [ ] `results/e1/fiel/proposto/seed42/metrics.json` contém as duas matrizes, métricas por classe, macro e ponderada, as duas AUC nomeadas, a tabela de decisão do meta e a fração de desacordo entre bases.
-- [ ] O mesmo diretório contém a comparação com a Fig. 4a, a Fig. 4b e a Tabela II, com as diferenças.
-- [ ] `run.json` registra trilha `fiel`, seed 42 e, por nome, as leituras adotadas nos pontos omissos (dados de treino do meta, `use_probas`, alvo e parâmetros do SMOTE, origem dos hiperparâmetros). Correspondem às decisões 09, 13, 14 e 15, mas o arquivo não cita número de decisão.
-- [ ] Duas execuções produzem métricas idênticas.
-- [ ] Cada escolha em ponto omisso do artigo (A3, A4, A6, A8, A9, A10, A13, A14) tem comentário com a decisão, o motivo e a seção do artigo, sem identificador interno. Conferido um a um na revisão; no fechamento, o agente `cin0114-doc-sync` acrescenta à tabela de ambiguidades de `docs/02-artigo.md` uma coluna "onde no código" e a preenche.
-- [ ] Uma linha de interpretação por métrica principal está escrita em `results/e1/fiel/RESUMO.md` (o que significa para a detecção).
-- [ ] Revisor metodológico sem achado bloqueante.
+Conferido em 07/10/2026 no commit `360c3d3`. Nesta reconciliação não se rodou o script nem os testes que treinam modelo (`tests/test_models.py`, `tests/test_pipeline.py`), porque havia um treino em andamento na máquina; os itens abaixo foram confirmados pela leitura do código e dos arquivos versionados em `results/`, salvo onde se diz "executado".
 
-## Execução com dados reais: local ou Apuana (decisão 42)
+- [x] `results/e1/fiel/proposto/seed42/metrics.json` contém as duas matrizes, métricas por classe, macro e ponderada, as duas AUC nomeadas, a tabela de decisão do meta e a fração de desacordo entre bases. Lido: chaves `test`, `cross_validation`, `roc_auc_ovr_macro`, `roc_auc_ovr_macro_base_mean`, `meta_decision_table` e `base_disagreement_test_fraction`, nas duas leituras (`fiel/proposto` e `variante/profundidade_variavel`).
+- [x] O mesmo diretório contém a comparação com a Fig. 4a, a Fig. 4b e a Tabela II, com as diferenças. Lido: `fig4a_comparison`, `fig4b_comparison` e `table_ii_comparison`, nas duas leituras.
+- [x] `run.json` registra trilha `fiel`, seed 42 e, por nome, as leituras adotadas nos pontos omissos (dados de treino do meta, `use_probas`, alvo e parâmetros do SMOTE, origem dos hiperparâmetros). Correspondem às decisões 09, 13, 14 e 15, mas o arquivo não cita número de decisão. Lido: `track`, `seed`, `config.readings` (onze entradas, entre elas `meta_training_data`, `meta_input`, `smote_target`, `smote_parameters`, `hyperparameter_source` e `base_depth`), `commit` `b00e471` e `dirty: false`; o da variante tem `track: variante` e `max_depth` nulo. Executado: o grep do G7 sobre `src scripts tests data README.md results` não devolve linha.
+- [ ] Duas execuções produzem métricas idênticas. **Em aberto.** A segunda execução do script no commit atual estava rodando nesta reconciliação; o G6 das duas leituras não foi conferido, e o da variante não tem nenhuma evidência ainda. Evidência parcial, só da trilha fiel, pelo histórico: a execução de `753dea0` (código de `2732d0a`) e a de `798ecd3` (código de `b00e471`) gravaram `test`, `cross_validation`, `fig4a_comparison`, `fig4b_comparison` e `table_ii_comparison` idênticos; são duas versões do script, então não substituem o G6. N1 correspondente, lido e não executado: `test_end_to_end_run_writes_both_files_and_repeats_identically`, parametrizado nas duas leituras.
+- [ ] Cada escolha em ponto omisso do artigo (A3, A4, A6, A8, A9, A10, A13, A14) tem comentário com a decisão, o motivo e a seção do artigo, sem identificador interno. Conferido um a um na revisão; no fechamento, o agente `cin0114-doc-sync` acrescenta à tabela de ambiguidades de `docs/02-artigo.md` uma coluna "onde no código" e a preenche. Primeira metade lida e confirmada: one-sided selection em `scripts/e1_reproducao.py:105-107`; alvo e parâmetros do SMOTE e sorteio do Non-DoH em `splits.py` (`balanced_subsets`); bases pré-treinados, dados do meta, entrada do meta e ausência de `class_weight` em `models.py`; seed em `config.py`. Segunda metade em aberto: `docs/02-artigo.md` ainda não tem a coluna "onde no código" (`grep` sem resultado).
+- [x] Uma linha de interpretação por métrica principal está escrita em `results/e1/fiel/RESUMO.md` (o que significa para a detecção). Lido: seção "Métricas do teste" (acurácia, recall e precisão de Malicious-DoH, FPR com intervalo, recall de Benign-DoH, médias macro), com a mesma estrutura em `results/e1/variante/RESUMO.md`.
+- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal em 07/10/2026 como cumprido, com os achados importantes tratados; não marcado aqui porque não há artefato no repositório que esta reconciliação possa conferir.
 
-O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e1.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
+
+O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e1.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
 
 ## Testes
 
