@@ -4,6 +4,23 @@
 >
 > A tarefa 05 rodou o mesmo script de novo: os arquivos versionados hoje são os da execução de `0ae2d49`, com `run.json` apontando o commit `121cde9` e `dirty: false`.
 
+## Complemento aberto pela decisão 46: a Fig. 2 (07/10/2026, reconciliação no commit `360c3d3`)
+
+A tarefa continua pronta e executada no que já fazia. A decisão 46 põe a Fig. 2 do artigo entre os alvos de P1; o passo 7 a tratava como opcional e ela **não foi feita** (conferido: `results/e0/dados/cira/seed42/` só tem `.json` e `.csv`).
+
+- **Onde a Fig. 2 é gerada: aqui, em `scripts/e0_dados.py`.** É o script que lê os dados; a tarefa 17 só lê `results/` e não tem como calcular densidade. O script grava a figura como arquivo auxiliar em `results/e0/dados/cira/seed42/`, e a tarefa 17 a leva para `report/figures/`.
+- **O que a figura mostra, conferido na legenda do manuscrito:** densidade, por classe, de (a) `FlowBytesReceived`, (b) média e (c) variância do comprimento de pacote; o passo 7 já nomeava `PacketLengthMean` e `PacketLengthVariance`. Só a legenda foi lida; a escala dos eixos e o recorte de faixa da figura do artigo são conferidos no PDF por quem implementar.
+- A figura sai do conjunto limpo, antes do split e sem normalizar: é descrição dos dados, não entra em nenhum ajuste. Eixos rotulados, com unidade.
+- **Ciclo próprio**, em branch nova nascida da ponta da fila, porque as branches 04 a 08 estão encadeadas e nenhuma foi integrada. Não depende de modelo; cabe logo depois da tarefa 09 e precisa estar fechada antes da 17.
+- Rodar E0 de novo regenera `metrics.json`, `split_counts.json` e o Parquet: os três têm de sair idênticos aos versionados (o Parquet, pelo `parquet_sha256`), e o `run.json` passa a apontar o commit novo. O script de E0 mudou depois da última execução versionada (o `run.json` aponta `4746c22`; depois disso `f1eba42` mexeu no script e `21171f4`, `2732d0a` e `b00e471` em `config.py`), então essa comparação também confirma que essas mudanças não alteraram o resultado de E0.
+- Custo: a última execução de E0 levou 38,3 s (`run.json`, chave `timings`); o tempo da figura não foi medido.
+
+Critério de aceite do complemento:
+
+- [ ] Figura equivalente à Fig. 2 (três painéis, três classes) em `results/e0/dados/cira/seed42/`, gerada por `scripts/e0_dados.py`, com eixos e unidade.
+- [ ] `metrics.json`, `split_counts.json` e `parquet_sha256` idênticos aos da execução anterior.
+- [ ] `results/e0/dados/RESUMO.md` diz o que a figura mostra ao lado do que o artigo afirma sobre a Fig. 2.
+
 ## Como ficou (conferido no código em `0ae2d49`)
 
 - `data.py`: `load_cira(zip_path=CIRA_ZIP_PATH)` devolve os 5 identificadores, os 29 atributos, `label` inteiro e `group`, sem limpar; levanta `ValueError` com rótulo fora de `LABEL_ENCODING` ou fluxo sem endereço `192.168.20.x`. `local_machine(flows)`, `feature_matrix(flows)` (só as 29 colunas, por nome), `class_counts(flows)` (lista na ordem dos códigos) e `clean_flows(flows, drop_nan, drop_inf, duplicate_columns)`, que devolve `(fluxos que ficaram, removidas por classe)`.
@@ -52,7 +69,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 4. Testar as combinações de limpeza (remover NaN; remover infinitos; remover duplicatas com e sem identificadores; combinações) e registrar a contagem por classe de cada uma ao lado do alvo 889.809 / 19.746 / 249.553.
 5. Adotar a combinação que reproduz a Tabela I. Se nenhuma reproduzir exatamente, adotar a mais próxima e registrar a diferença por classe. Não ajustar regra de limpeza para forçar o número.
 6. Gravar o resultado limpo em `data/processed/cira.parquet` e seu SHA-256 em `results/e0/dados/cira/seed42/`.
-7. Gerar estatísticas descritivas por classe. Opcional, se sobrar tempo: os gráficos de densidade de `FlowBytesReceived`, `PacketLengthMean` e `PacketLengthVariance`, para comparar com a Fig. 2 do artigo; só valem o esforço se forem para o relatório.
+7. Gerar estatísticas descritivas por classe. (Desde a decisão 46 os gráficos são obrigatórios: ver o complemento no topo.) Opcional, se sobrar tempo: os gráficos de densidade de `FlowBytesReceived`, `PacketLengthMean` e `PacketLengthVariance`, para comparar com a Fig. 2 do artigo; só valem o esforço se forem para o relatório.
 8. Contar quantas máquinas locais (`group`) e quantos dias de captura existem por classe **antes** de descartar os identificadores, e gravar em `results/e0/dados/cira/seed42/`, junto com a tabela máquina × classe e o período por classe. Esse número diz se o split por grupo da tarefa 11 é viável.
 
 ## Por quê

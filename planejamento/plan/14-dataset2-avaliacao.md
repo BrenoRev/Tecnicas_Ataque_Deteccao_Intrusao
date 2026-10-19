@@ -1,19 +1,49 @@
-# 14 · segundo dataset · transferência e retreino (E6)
+# 14 · segundo dataset · P1 refeito no combinado sem réplicas, com transferência e combinado publicado ao lado (E6)
 
-**Onde:** `scripts/e6_dataset2.py`, `src/doh_ids/evaluate.py`, `tests/test_evaluate.py`, `tests/test_pipeline.py`, `results/e6/fiel/`
-**Objetivo:** os resultados do sistema do artigo no segundo dataset, em quatro cenários postos lado a lado: o CIRA da tarefa 08, o modelo treinado no CIRA diante de ferramentas que nunca viu, e o sistema retreinado no dataset combinado como publicado e sem as réplicas do HKD. É a entrega de P2.
-**Depende de:** 08, 13
-**Demonstra:** `results/e6/fiel/`: recall por ferramenta na transferência e métricas completas nos dois retreinos, com as tabelas de amostras por conjunto. Evidência de P2 (seção 7.2).
+**Onde:** `scripts/e6_dataset2.py` (14a), scripts dos baselines e do SHAP no combinado (14b), `src/doh_ids/evaluate.py`, `tests/test_evaluate.py`, `tests/test_pipeline.py`, `results/e6/`
+**Objetivo:** refazer no dataset combinado sem réplicas o que P1 produz no CIRA (decisão 47): contagens por classe em cada conjunto, o sistema nas duas leituras de profundidade, a validação cruzada, os baselines da Tabela II e as figuras SHAP. Ao lado, como análises: o retreino no combinado como publicado e a transferência do modelo do CIRA para o HKD. É a entrega de P2.
+**Depende de:** 08, 13 (parte 14a); 09, 12 e a 14a (parte 14b)
+**Demonstra:** `results/e6/`: no combinado sem réplicas, as matrizes de teste e de validação cruzada do sistema nas duas leituras, os três baselines e as figuras SHAP, com as tabelas de amostras por conjunto e o recall por ferramenta; ao lado, o retreino no combinado publicado e a transferência. Evidência de P2 (seções 6 e 7.2).
+
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos) divergirem, vale este bloco.**
+
+Q4 foi respondida em 07/10/2026: "devem fazer tudo novamente com outro dataset não usado no trabalho". A decisão 47 traduz isso: o que P1 produz no CIRA é refeito no combinado sem réplicas. A tarefa fica em um arquivo só e é dividida em duas partes, porque a segunda depende de código que as tarefas 09 e 12 ainda vão criar. Não há tarefa nova nem número novo.
+
+| Parte | O que produz | Equivale, no CIRA, a | Depende de |
+| --- | --- | --- | --- |
+| **14a** | No combinado sem réplicas: contagens por classe em treino, folds e teste; o sistema nas duas leituras de profundidade, avaliado no teste e em validação cruzada de 10 folds; recall por ferramenta. Ao lado: retreino no combinado como publicado e transferência do modelo do CIRA para o HKD | tarefas 05 e 08 (E0 e E1) | 08, 13 |
+| **14b** | No combinado sem réplicas: os três baselines da Tabela II e as figuras SHAP dos Random Forests base | tarefas 09 e 12 (E2 e E5) | 09, 12, 14a |
+
+A 14a pode ser fechada e integrada antes da 14b; a tarefa 14 só fica concluída com as duas. A tarefa 15 precisa só da 14a; a 17 precisa das duas.
+
+**O que muda em relação aos passos abaixo:**
+
+- **A validação cruzada passa a ser refeita.** A frase do passo 3, "a validação cruzada de 10 folds da tarefa 08 não é repetida aqui", deixa de valer no combinado sem réplicas: a decisão 47 lista a validação cruzada entre o que é refeito. Usa-se a mesma construção da tarefa 08 (`cross_validated_confusion`: scaler, subconjuntos, SMOTE, bases e meta refeitos em cada fold). No combinado como publicado e na transferência, que são análises ao lado, não há validação cruzada; no publicado continua valendo a tabela de tamanho por fold só com os índices.
+- **Duas leituras de profundidade (decisão 45).** No combinado sem réplicas o sistema é treinado com profundidade 5 e sem limite de profundidade, como em E1. Nas análises ao lado, o sistema base é o de profundidade variável; o de profundidade 5 entra onde o custo permitir.
+- **Não há figura nem tabela do artigo para o segundo dataset.** `compare_confusion` contra a Fig. 4 e a comparação com a Tabela II não se aplicam; o que vai lado a lado é o resultado do CIRA (tarefas 08, 09 e 12) e o do combinado sem réplicas.
+- **O HKD sozinho só tem a classe maliciosa** e não permite treinar o sistema: por isso a transferência é só teste, e isso é declarado no resumo, com as duas ressalvas que o professor não comentou (Non-DoH e Benign-DoH do combinado são os do CIRA; réplicas do HKD no combinado publicado).
+- **14b:** os baselines usam os construtores e o SMOTE do treino inteiro criados na tarefa 09; o SHAP usa `explain.py` da tarefa 12, sobre os Random Forests base treinados no combinado sem réplicas. Dois scripts novos e parecidos com os de E2 e E5 são aceitos pela regra de código; a alternativa, os scripts de E2 e de E5 receberem o dataset como argumento, toca arquivos de outras tarefas e é combinada com o usuário.
+- **Ponto sem valor declarado: os recortes de `results/e6/`.** A decisão 38 lista três (`transferencia`, `retreino_publicado`, `retreino_sem_replicas`), todos sob a trilha `fiel`. O escopo novo precisa de nome para a leitura de profundidade em cada cenário, para os três baselines no combinado e para o SHAP no combinado. Ver "Pendências abertas pela decisão 45" em `00-README.md`; o implementador não escolhe. Onde os passos e critérios abaixo dizem `results/e6/fiel/<cenário>/seed42/`, isso vale para a profundidade 5.
+- Código que já existe e é reutilizado: `stratified_split(table, seed)` estratifica por `label` e serve ao combinado; `fit_scaler`; `balanced_subsets` (as três classes do combinado têm os mesmos papéis das do CIRA); `seen_in_train`; `evaluate` e `metrics_from_confusion`; `malicious_vs_rest` já devolve o FPR com intervalo binomial exato. `fit_system` e `cross_validated_confusion` moram em `scripts/e1_reproducao.py`: ver o bloco "Como ficou" da tarefa 08 sobre levá-las para o pacote.
+- `CV_FOLDS` e `CV_SHUFFLE` estão em `config.py` desde `4746c22`. A construção dos folds em `scripts/e0_dados.py` é `validation_fold_rows`, hoje nas linhas 182 a 188.
+- **Custo estimado, sem cortar nada** (a partir dos tempos medidos na tarefa 08, com 1.043.197 linhas de treino; o combinado sem réplicas tem cerca de 5 mil fluxos a mais e o publicado, cerca de 105 mil a mais):
+  - 14a, combinado sem réplicas, duas leituras com validação cruzada: cerca de 15 minutos na profundidade 5 e 41 na profundidade variável, 56 minutos no total;
+  - 14a, combinado publicado: um ajuste por leitura, cerca de 3 minutos na profundidade variável e 2 na profundidade 5;
+  - 14a, transferência: o modelo do CIRA não é serializado, então é ajustado de novo: os mesmos 3 e 2 minutos;
+  - 14b: não medido; o tempo dos baselines sai da tarefa 09 e o do SHAP, da tarefa 12.
+- Execução com dados reais na própria sessão (decisão 44).
 
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
 - **Referência da contagem fora de [0, 1] (passo 2):** `results/e0/dados/cira/seed42/split_counts.json`, chave `test_outside_unit_interval`. No teste do CIRA são três valores, em três linhas: um em `FlowSentRate`, um em `PacketLengthMean` e um em `ResponseTimeTimeCoefficientofVariation`.
 - A contagem fora de faixa hoje só existe dentro de `scripts/e0_dados.py` (`outside_unit_interval(train, test)`, que ajusta o scaler internamente). A função prevista aqui para `evaluate.py` (T14-3) fica sendo a segunda implementação da mesma conta. Fazer o script de E0 usar a nova toca um arquivo fora da lista desta tarefa: combinar com o usuário.
-- **Tabela por fold (passo 3):** a construção é a de `validation_fold_rows` em `scripts/e0_dados.py:189-195`, `StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=SEED_FIEL)` sobre o treino. `CV_FOLDS` é local daquele script, salvo se a tarefa 08 a tiver levado para `config.py`. O formato de `split_counts.json` (chaves `train`, `test`, `validation_folds`) serve de modelo para as tabelas dos dois retreinos.
+- **Tabela por fold (passo 3):** a construção é a de `validation_fold_rows` em `scripts/e0_dados.py`, `StratifiedKFold(n_splits=CV_FOLDS, shuffle=CV_SHUFFLE, random_state=SEED_FIEL)` sobre o treino, com as duas constantes em `config.py`. O formato de `split_counts.json` (chaves `train`, `test`, `validation_folds`) serve de modelo para as tabelas dos dois retreinos.
 - Scaler da transferência: `fit_scaler(train)` com o treino do CIRA de `stratified_split(table, SEED_FIEL)`; no HKD, `scaler.transform(feature_matrix(hkd))`.
 - A asserção da versão sem réplicas pode usar `seen_in_train`, de `splits.py`, restrita às linhas do HKD de cada lado.
 - `save_run(experiment="e6", track="fiel", slice_name=<transferencia | retreino_publicado | retreino_sem_replicas>, seed=SEED_FIEL, ...)`; `metrics.json` só com tipos nativos do Python.
-- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+- `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45; não altera resultado, só o tempo.
 
 ## Verificado nos dados (07/10/2026)
 
@@ -27,7 +57,8 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 
 ## Arquivos
 
-- `scripts/e6_dataset2.py` — novo.
+- `scripts/e6_dataset2.py` — novo (14a).
+- Scripts dos baselines e do SHAP no combinado sem réplicas — novos (14b); nomes junto com os recortes, no ponto sem valor declarado do bloco de reconciliação.
 - `src/doh_ids/evaluate.py` — acrescentar: recall por ferramenta, contagem de valores fora de [0, 1] por atributo e a avaliação do recorte só de maliciosos (sem precisão, FPR nem acurácia).
 - `tests/test_evaluate.py` (T14-1 a T14-3) e `tests/test_pipeline.py` (T14-4) — acrescentar.
 - `results/e6/fiel/HIPOTESE.md` — escrita antes de rodar, em commit anterior à primeira execução.
@@ -47,7 +78,11 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
    - Na versão sem réplicas, asserção de que nenhum vetor do HKD está em treino e teste ao mesmo tempo.
 4. Colocar lado a lado os quatro cenários: CIRA (tarefa 08), transferência, retreino publicado e retreino sem réplicas.
 5. Interpretar em `RESUMO.md`, com apoio das distribuições da tarefa 13: se a transferência cair, quais atributos mudaram de faixa; o que a diferença entre os dois retreinos diz sobre memorização.
-6. Esta tarefa fica na trilha fiel, seed 42. As dez seeds no combinado sem réplicas são feitas na tarefa 15, com a seleção de hiperparâmetros refeita dentro do treino do combinado.
+6. Esta tarefa usa a seed 42. As dez seeds no combinado sem réplicas são feitas na tarefa 15, com a seleção de hiperparâmetros refeita dentro do treino do combinado.
+7. **14a, validação cruzada no combinado sem réplicas (decisão 47).** Para cada leitura de profundidade, a matriz somada dos 10 folds sobre o treino do combinado sem réplicas, com o sistema refeito em cada fold, como na tarefa 08. A matriz soma o treino e não tem amostra sintética (asserção).
+8. **14b, baselines.** Árvore de decisão, XGBoost e Random Forest da Tabela II, como na tarefa 09, treinados no treino do combinado sem réplicas com SMOTE e avaliados no mesmo teste do passo 3 (asserção de total), com recall por ferramenta.
+9. **14b, SHAP.** As figuras da tarefa 12 (equivalentes às Figs. 5, 6a, 6b, 7 e 8) e a tabela de importância para os Random Forests base treinados no combinado sem réplicas, na leitura de profundidade variável; a de profundidade 5 onde o custo permitir. O resumo compara o ranking com o do CIRA.
+10. Tabela final de P2, gerada por script: CIRA ao lado do combinado sem réplicas, para o sistema nas duas leituras e para os três baselines; em bloco separado e nomeado, o retreino publicado e a transferência.
 
 ## Por quê
 
@@ -75,12 +110,18 @@ Objetivo P2 da especificação. O artigo avalia só com as três ferramentas pre
 - [ ] Nenhuma precisão ou FPR reportada para o recorte só de maliciosos.
 - [ ] Asserção da versão sem réplicas verde, com a saída colada no pull request.
 - [ ] Tabela comparativa dos quatro cenários gerada por script.
+- [ ] 14a: no combinado sem réplicas, matriz de teste e matriz de validação cruzada de 10 folds para as duas leituras de profundidade; a de validação soma o treino (asserção).
+- [ ] 14a: o resumo declara que o HKD sozinho só tem a classe maliciosa, e as duas ressalvas sobre o combinado.
+- [ ] 14b: três baselines no combinado sem réplicas, avaliados no mesmo teste da 14a (asserção de total), com métricas macro e ponderada nomeadas.
+- [ ] 14b: figuras SHAP e tabela de importância dos Random Forests base treinados no combinado sem réplicas, com o tamanho da amostra registrado.
+- [ ] Tabela final de P2 (CIRA ao lado do combinado sem réplicas) gerada por script.
+- [ ] Todo resultado diz, no caminho e no `run.json`, a leitura de profundidade e o dataset.
 - [ ] `HIPOTESE.md` em commit anterior à primeira execução; interpretação em `RESUMO.md`, com uma linha por número principal.
 - [ ] Revisor metodológico sem achado bloqueante.
 
-## Execução com dados reais: local ou Apuana (decisão 42)
+## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e6.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e6.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
 
 ## Testes
 
@@ -88,4 +129,4 @@ Seção "Tarefa 14" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e6_dataset2.py`.
+Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e6_dataset2.py` na 14a e os scripts dos baselines e do SHAP no combinado na 14b. O gate é aplicado a cada parte.

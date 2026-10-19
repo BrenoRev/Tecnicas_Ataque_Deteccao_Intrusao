@@ -7,20 +7,14 @@ só um aviso.
 Uso: uv run python data/verify.py
 """
 
-import hashlib
 import json
 import sys
 from pathlib import Path
 
 from doh_ids.config import DATA_RAW_DIR, PROJECT_ROOT
+from doh_ids.data import sha256_of
 
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifest.json"
-
-
-def sha256_of(path: Path) -> str:
-    """Devolve o SHA-256 do arquivo, em hexadecimal."""
-    with path.open("rb") as file:
-        return hashlib.file_digest(file, "sha256").hexdigest()
 
 
 def check_files(manifest: dict, raw_dir: Path) -> tuple[list[str], list[str]]:

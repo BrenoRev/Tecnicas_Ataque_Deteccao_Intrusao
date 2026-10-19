@@ -5,12 +5,24 @@
 **Depende de:** 08
 **Demonstra:** `results/e3/variante/`: distância à Fig. 4b por leitura alternativa. Seção 7: discussão das ambiguidades.
 
+## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
+
+- Dependência 08 pronta e executada (`798ecd3`).
+- **Ponto a confirmar com o usuário: de que configuração as variantes partem.** A tarefa manda mudar um ponto por vez "a partir da configuração da tarefa 08", que era a trilha fiel (profundidade 5). A decisão 45 troca o sistema base das tarefas 09, 11, 12, 14, 15 e 16 pela variante de profundidade variável e não cita esta tarefa. Como está escrito, as variantes partem da fiel, que com a seed 42 não prediz Benign-DoH. O implementador não escolhe: partir da fiel, da profundidade variável ou das duas é decisão do usuário, tomada antes de ver qualquer resultado desta tarefa.
+- A leitura de profundidade já está medida em `results/e1/variante/profundidade_variavel/seed42/` (soma das diferenças absolutas para a Fig. 4b de 553, contra 4.711 da fiel). Ela não é rodada de novo aqui; a tabela comparativa do passo 4 pode trazê-la como linha lida de `results/e1/`, se o usuário confirmar.
+- `base_forests(subsets, seed, max_depth)` não recebe `class_weight` nem `max_features`: as variantes `class_weight` e `max_features_padrao` pedem esses parâmetros em `models.py`, e `use_probas` pede o seu em `stacked_forest`. Já há um segundo valor em uso para cada um, o que a regra de código exige para criar parâmetro.
+- `fit_system` mora em `scripts/e1_reproducao.py`; ver o bloco "Como ficou" da tarefa 08 sobre levá-la para o pacote.
+- **Custo estimado, sem cortar nada:** cada variante empilhada é um ajuste do sistema inteiro, 112 s partindo da fiel e 194 s partindo da profundidade variável (medidos na tarefa 08, o segundo com a máquina carregada). As três variantes empilhadas do núcleo dão cerca de 6 minutos em um caso e 10 no outro; `rf_unico` e as opcionais não foram medidas. Esta tarefa não repete a validação cruzada.
+- Execução com dados reais na própria sessão (decisão 44).
+
 ## Reconciliado com as tarefas 02 a 05 (07/10/2026, commit `0ae2d49`)
 
 - Cada variante é uma chamada `save_run(experiment="e3", track="variante", slice_name=<variante>, seed=SEED_FIEL, ...)`. No `run.json` o nome da variante aparece na chave `slice`; o ponto que ela muda entra no dicionário `config`, que é o que o critério de aceite pede "por nome".
 - Asserção de total, com a chave real: `split_counts.json["test"]["total"]`, 115.911.
 - `metrics.json` só com tipos nativos do Python; a tabela comparativa é arquivo auxiliar, gravado pelo script em `results/e3/variante/`.
-- `N_JOBS` não existe em `config.py` (pendência da equipe; ver o bloqueio no topo da tarefa 08).
+- `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45; não altera resultado, só o tempo.
 
 ## Arquivos
 
@@ -65,9 +77,9 @@ Risco R2. Como o artigo não especifica vários pontos, "a reprodução" é uma 
 - [ ] Texto de interpretação em `RESUMO.md` separa o que foi medido do que é hipótese.
 - [ ] Revisor metodológico sem achado bloqueante.
 
-## Execução com dados reais: local ou Apuana (decisão 42)
+## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na máquina de quem tem os dados ou no cluster Apuana; as duas formas valem. O que importa é treinar e deixar a evidência: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e3.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). Quem executa roda com a árvore limpa e faz o commit `exp`. A tarefa fica "pronta" sem isso e "executada" com isso.
+O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e3.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
 
 ## Testes
 
