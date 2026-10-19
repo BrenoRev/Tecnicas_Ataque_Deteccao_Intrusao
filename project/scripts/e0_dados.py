@@ -17,7 +17,6 @@ Nenhum modelo é treinado. A seed só entra no sorteio do teste e dos folds.
 Uso: uv run python scripts/e0_dados.py
 """
 
-import hashlib
 import json
 import time
 from pathlib import Path
@@ -45,7 +44,7 @@ from doh_ids.config import (
     TABLE_I_COUNTS,
     TEST_SIZE,
 )
-from doh_ids.data import class_counts, clean_flows, feature_matrix, load_cira
+from doh_ids.data import class_counts, clean_flows, feature_matrix, load_cira, sha256_of
 from doh_ids.runlog import save_run
 from doh_ids.splits import fit_scaler, seen_in_train, stratified_split
 
@@ -74,12 +73,6 @@ CLEANING_RULES = [
     ("NaN, infinito e duplicatas nos 29 atributos", True, True, FEATURE_COLUMNS),
 ]
 ADOPTED_RULE = "NaN"
-
-
-def sha256_of(path: Path) -> str:
-    """Devolve o SHA-256 do arquivo, em hexadecimal."""
-    with path.open("rb") as file:
-        return hashlib.file_digest(file, "sha256").hexdigest()
 
 
 def read_manifest_entry() -> dict:

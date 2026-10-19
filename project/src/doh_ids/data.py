@@ -3,6 +3,7 @@
 Cobre o CIRA-CIC-DoHBrw-2020, o DoH-Tunnel-Traffic-HKD e o combinado dos dois.
 """
 
+import hashlib
 import zipfile
 from pathlib import Path
 
@@ -29,6 +30,12 @@ from doh_ids.config import (
 
 # As 35 colunas dos CSVs publicados, na ordem do cabeçalho.
 CSV_COLUMNS = ID_COLUMNS + FEATURE_COLUMNS + [LABEL_COLUMN]
+
+
+def sha256_of(path: Path) -> str:
+    """Devolve o SHA-256 do arquivo, em hexadecimal."""
+    with path.open("rb") as file:
+        return hashlib.file_digest(file, "sha256").hexdigest()
 
 
 def local_machine(flows: pd.DataFrame) -> pd.Series:

@@ -6,6 +6,7 @@ Os dicionários devolvidos só têm tipos nativos, para serem gravados em JSON.
 """
 
 import numpy as np
+from numpy.typing import ArrayLike
 from scipy.stats import binomtest
 from sklearn.metrics import average_precision_score, confusion_matrix, roc_auc_score
 
@@ -116,7 +117,12 @@ def _ranking_metrics(y_true: np.ndarray, proba: np.ndarray) -> tuple[float, dict
     return float(roc_auc), pr_auc
 
 
-def evaluate(y_true, y_pred, proba, base_mean_proba=None) -> dict:
+def evaluate(
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    proba: ArrayLike,
+    base_mean_proba: ArrayLike | None = None,
+) -> dict:
     """Avalia um modelo pelos rótulos reais, os preditos e as probabilidades por classe.
 
     Devolve o dicionário de `metrics_from_confusion` acrescido de

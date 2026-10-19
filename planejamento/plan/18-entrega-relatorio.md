@@ -5,6 +5,18 @@
 **Depende de:** 17 para as seções 5 a 8. O passo 1 é da onda 0 e as seções 1 a 4 começam logo depois do seminário, sem esperar resultado
 **Demonstra:** o PDF no template, com as nove seções e a lista de conferência pergunta → parágrafo. Entregável de 18/11.
 
+## Reconciliado com as decisões 44 a 50 e com as respostas do professor (07/10/2026, commit `360c3d3`)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** Q1 a Q6 foram respondidas em 07/10/2026 (`docs/07-pendencias.md`); Q7 (frase de declaração), Q9 e Q10 seguem abertas.
+
+- **Q1:** a reimplementação a partir do texto é aceita, "tomando os devidos cuidados para que a reprodução seja a mais fiel possível". O passo 6 declara a reimplementação e as leituras adotadas.
+- **Decisão 45, seções 6 e 7:** o relatório mostra as duas leituras de profundidade lado a lado, com os números de `results/e1/` (a de profundidade 5 como saiu, inclusive o recall zero em Benign-DoH), e declara qual foi usada como sistema base nas demais análises e por quê. As duas têm apoio textual (Seção IV-B e linha 3 do Algoritmo 1); nenhuma foi escolhida por aproximar o número.
+- **Decisão 46, seção 7:** todas as tabelas e gráficos de resultado do artigo têm equivalente no relatório (lista no bloco de reconciliação da tarefa 17). O professor não disse qual referência vale entre a Tabela II e a Fig. 4b nem deu margem numérica: seguem as duas reportadas, com a distância célula a célula.
+- **Decisão 47, seções 6 e 7:** P2 é o P1 refeito no combinado sem réplicas. O texto declara que o HKD sozinho só tem a classe maliciosa, que Non-DoH e Benign-DoH do combinado são os do CIRA (ressalva em aberto com o professor) e que o combinado publicado replica o HKD.
+- **Decisão 48:** sem requisito adicional (Q3).
+- **Decisão 49, seção 7:** a identificação da ferramenta de túnel (Seção VI-D e Fig. 9) entra, com a declaração de que o método é leitura da equipe, porque o artigo não o descreve.
+- **Decisão 50:** o painel interativo é material de demonstração; a evidência do relatório são as figuras estáticas. O relatório pode citar que o painel existe e como abri-lo, sem tela do painel como resultado.
+
 ## Arquivos
 
 - `report/main.tex` e arquivos do template — cópia do Overleaf indicado na especificação.
@@ -40,7 +52,7 @@
 4. Na seção 6, dizer explicitamente que não há conjunto de validação separado: a validação é cruzada, dentro do treino, e apresentar o tamanho por classe de cada fold (tabela da tarefa 17).
 5. Na seção 7, para cada tabela: o que o número significa para a detecção, a diferença para o artigo e as causas plausíveis, separando medido de hipótese. Reportar a divergência entre a Tabela II e a Fig. 4b do artigo.
 6. Declarar: a reimplementação a partir do texto (o código público não contém o modelo), as leituras adotadas para as ambiguidades e as limitações da reprodução. Sobre o uso de assistente de IA (aprovado em 07/10/2026): uma frase, só se o professor pedir (parte em aberto de Q7), a mesma do README.
-6a. Limitações medidas nos dados, que entram nas seções 6 e 8 com o número vindo de `results/`: Malicious-DoH capturado em outras máquinas e dois meses depois das outras classes, confundimento que nenhum split interno remove; 13,7% do teste com vetor idêntico no treino, e as métricas sem essas linhas; 326 vetores presentes em mais de uma classe; teste com 115.911 amostras contra 115.910 do artigo; HKD replicado 20 vezes no combinado publicado, e o retreino sem réplicas; valor sentinela `-10` nas colunas de assimetria e seu efeito na leitura do SHAP.
+6a. Limitações medidas nos dados, que entram nas seções 6 e 8 com o número vindo de `results/`: na leitura de profundidade 5, o sistema não prediz Benign-DoH em nenhuma linha do teste (`results/e1/fiel/`); Malicious-DoH capturado em outras máquinas e dois meses depois das outras classes, confundimento que nenhum split interno remove; 13,7% do teste com vetor idêntico no treino, e as métricas sem essas linhas; 326 vetores presentes em mais de uma classe; teste com 115.911 amostras contra 115.910 do artigo; HKD replicado 20 vezes no combinado publicado, e o retreino sem réplicas; valor sentinela `-10` nas colunas de assimetria e seu efeito na leitura do SHAP.
 7. Resumo e abstract por último.
 8. Rodar o agente `revisor-de-texto` sobre o PDF e corrigir os achados. Leitura cruzada por outro integrante.
 

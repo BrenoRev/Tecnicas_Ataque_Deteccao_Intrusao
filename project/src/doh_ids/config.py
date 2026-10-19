@@ -193,6 +193,10 @@ TEST_SIZE = 0.10
 # Três subconjuntos balanceados de treino, um por Random Forest, Seção III-B.
 N_SUBSETS = 3
 
+# Razão Non-DoH : Benign-DoH : Malicious-DoH de cada subconjunto, como a Seção
+# III-B do artigo a declara. A razão obtida é reportada ao lado desta.
+ARTICLE_SUBSET_RATIO = [15, 12, 12]
+
 # Validação cruzada de 10 folds sobre o treino (Seção III-B e legenda da
 # Fig. 4a do artigo). O artigo não tem conjunto de validação separado e não diz
 # se os folds são estratificados nem se as linhas são embaralhadas. Leitura
@@ -205,15 +209,41 @@ CV_SHUFFLE = True
 # 10 árvores por Random Forest, Seção IV-A do artigo.
 N_ESTIMATORS = 10
 
-# 28 atributos candidatos em cada divisão, de 29 disponíveis, Seção IV-A.
+# A Seção IV-A do artigo diz que os atributos de cada divisão são "selected at
+# random from 28 features". A frase admite duas leituras: 28 atributos
+# candidatos em cada divisão, de 29 disponíveis, ou um modelo com 28 atributos
+# no total. Adotamos a primeira, porque o Algoritmo 1 e a Seção VI-C falam em
+# 29 atributos de entrada e o artigo não diz qual seria o atributo retirado.
 MAX_FEATURES = 28
 
-# Profundidade máxima 5, Seção IV-B do artigo.
+# O artigo traz duas passagens sobre a profundidade das árvores. A Seção IV-B
+# declara profundidade máxima 5 nos submodelos; a linha 3 do Algoritmo 1 fala
+# em "variable tree depth". A trilha fiel usa 5, o único valor numérico que o
+# texto fornece. A leitura sem limite de profundidade, com todo o resto
+# igual, é reportada como variante nomeada, porque também tem apoio no texto.
+# As duas são medidas no mesmo protocolo e nenhuma foi escolhida pelo resultado.
 MAX_DEPTH = 5
+MAX_DEPTH_VARIABLE = None
 
 # Núcleos usados no treino: -1 pede todos os da máquina. Não altera o
 # resultado, porque cada árvore recebe a própria seed; muda só o tempo.
 N_JOBS = -1
+
+# Leitura adotada na trilha fiel em cada ponto que o artigo deixa em aberto.
+# O dicionário é gravado no registro de cada execução, para o resultado dizer
+# sozinho que sistema foi treinado.
+FIEL_READINGS = {
+    "base_estimators": "um Random Forest por subconjunto, treinado antes do empilhamento",
+    "meta_training_data": "predições dos bases no treino original normalizado, sem sintéticas",
+    "meta_input": "rótulo predito por cada base (use_probas=False), três entradas",
+    "meta_parameters": "regressão logística com os parâmetros padrão do scikit-learn",
+    "smote_target": "só Benign-DoH, aumentada até o tamanho de Malicious-DoH no subconjunto",
+    "smote_parameters": "padrão do imbalanced-learn",
+    "one_sided_selection": "não aplicada: o artigo a cita sem descrever",
+    "class_weight": "nenhum: o artigo não menciona",
+    "hyperparameter_source": "valores finais do artigo (Seções IV-A e IV-B), sem busca",
+    "cross_validation": "scaler, subconjuntos, SMOTE, bases e meta refeitos em cada fold",
+}
 
 # Seeds. O artigo não informa a seed. Na trilha fiel usamos 42, a que aparece
 # no script publicado pelos autores. Na trilha corrigida usamos dez seeds, de
