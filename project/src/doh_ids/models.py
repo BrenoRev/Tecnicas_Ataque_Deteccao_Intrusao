@@ -1,11 +1,19 @@
-"""Modelos do artigo: os Random Forests base e o empilhamento (Seção IV)."""
+"""Modelos do artigo: os Random Forests base, o empilhamento (Seção IV) e os de comparação."""
 
 import numpy as np
 from mlxtend.classifier import StackingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
 
-from doh_ids.config import MAX_FEATURES, N_ESTIMATORS, N_JOBS
+from doh_ids.config import (
+    MAX_FEATURES,
+    N_ESTIMATORS,
+    N_JOBS,
+    TABLE_II_FOREST_TREES,
+    TABLE_II_TREE_DEPTH,
+)
 
 
 def base_forests(
@@ -75,3 +83,30 @@ def stacked_forest(
         fit_base_estimators=False,
     )
     return stacked.fit(X_train, y_train)
+
+
+def fit_baseline(
+    name: str, X: np.ndarray, y: np.ndarray, seed: int
+) -> DecisionTreeClassifier | XGBClassifier | RandomForestClassifier:
+    """Treina um dos três modelos de comparação da Tabela II do artigo.
+
+    `name` é a chave do modelo em `config.TABLE_II`: `decision_tree`, `xgboost`
+    ou `random_forest`. `X` e `y` são o treino normalizado e já balanceado com
+    SMOTE. Devolve o modelo ajustado.
+    """
+    # A Tabela II só informa a profundidade máxima da árvore de decisão e o
+    # número de árvores do Random Forest. Todos os outros hiperparâmetros ficam
+    # no padrão do scikit-learn e do XGBoost, porque o artigo não os informa.
+    models = {
+        "decision_tree": DecisionTreeClassifier(max_depth=TABLE_II_TREE_DEPTH, random_state=seed),
+        "xgboost": XGBClassifier(random_state=seed, n_jobs=N_JOBS),
+        "random_forest": RandomForestClassifier(
+            n_estimators=TABLE_II_FOREST_TREES, random_state=seed, n_jobs=N_JOBS
+        ),
+    }
+    model = models[name].fit(X, y)
+    if name == "random_forest":
+        # Mesmo cuidado dos Random Forests base: com um núcleo na predição, a
+        # soma das probabilidades das árvores tem sempre a mesma ordem.
+        model.set_params(n_jobs=1)
+    return model
