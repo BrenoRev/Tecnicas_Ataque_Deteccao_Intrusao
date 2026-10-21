@@ -153,3 +153,54 @@ casos.
 O normalizador é ajustado só no treino. No teste normalizado,
 3 valores em 3 linhas ficam fora do
 intervalo de 0 a 1, nas colunas {'FlowSentRate': 1, 'PacketLengthMean': 1, 'ResponseTimeTimeCoefficientofVariation': 1}.
+
+## Fig. 2: densidade por classe
+
+Figura em `cira/seed42/fig2_densidade.png`, com as curvas desenhadas em
+`cira/seed42/fig2_densidade.csv` e os números desta seção em
+`cira/seed42/fig2_faixa.csv`. Medida no conjunto limpo inteiro, antes de separar
+treino e teste e sem normalizar. Nenhum fluxo é sorteado.
+
+Como a Fig. 2 do artigo, a figura tem três painéis, um por atributo, e uma curva
+por classe, estimada com núcleo gaussiano (KDE) e a largura de banda padrão do
+SciPy, em 400 pontos do eixo. Cada classe é estimada sozinha: a
+área de cada curva é 1. As faixas dos eixos foram lidas na figura do artigo, que
+não diz como recortou os dados nem que largura de banda usou:
+
+| atributo | unidade | faixa do eixo | eixo |
+| --- | --- | --- | --- |
+| FlowBytesReceived | bytes | 0 a 17500 | linear |
+| PacketLengthMean | bytes | 0 a 800 | linear |
+| PacketLengthVariance | bytes² | 10 a 1000000 | logarítmico |
+
+A densidade usa só os fluxos dentro da faixa do eixo; "fração na faixa" diz
+quantos são. Fluxo com variância zero fica fora do terceiro painel, porque o
+eixo é logarítmico. Nesse painel a densidade é estimada sobre o logaritmo de
+base 10 da variância. "Pico da densidade" é o valor do atributo em que a curva
+da classe é mais alta. Os quartis são do atributo em todos os fluxos da classe,
+dentro e fora da faixa.
+
+| atributo | classe | fluxos | fluxos na faixa | fração na faixa | pico da densidade | 1º quartil | mediana | 3º quartil |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| FlowBytesReceived | Non-DoH | 889809 | 767716 | 86.28% | 131.579 | 108 | 2839 | 6929 |
+| FlowBytesReceived | Benign-DoH | 19746 | 17367 | 87.95% | 263.158 | 327 | 1295 | 5785 |
+| FlowBytesReceived | Malicious-DoH | 249553 | 174488 | 69.92% | 4868.42 | 4169 | 4896 | 34055 |
+| PacketLengthMean | Non-DoH | 889809 | 805917 | 90.57% | 62.1554 | 60.5 | 227.147 | 393.889 |
+| PacketLengthMean | Benign-DoH | 19746 | 19746 | 100.00% | 88.2206 | 87.2222 | 116.522 | 153.78 |
+| PacketLengthMean | Malicious-DoH | 249553 | 249553 | 100.00% | 224.561 | 150.158 | 223.433 | 248.864 |
+| PacketLengthVariance | Non-DoH | 889809 | 787095 | 88.46% | 29.9358 | 30.25 | 115512 | 399280 |
+| PacketLengthVariance | Benign-DoH | 19746 | 19559 | 99.05% | 379.269 | 372.49 | 3741.21 | 20192.3 |
+| PacketLengthVariance | Malicious-DoH | 249553 | 237443 | 95.15% | 140563 | 15544.8 | 141409 | 182528 |
+
+O que o artigo afirma (Seção III-A e legenda da Fig. 2), para ler ao lado da
+tabela:
+
+- (a) o número de bytes enviados ou recebidos é maior no Malicious-DoH do que no
+  Non-DoH e no Benign-DoH. Comparar as linhas de `FlowBytesReceived`.
+- (b) e (c) os fluxos DoH têm comprimento de pacote mais regular, com variância
+  menor que a dos Non-DoH, o que a figura do artigo mostra como uma curva
+  estreita para o Malicious-DoH. Comparar o primeiro e o terceiro quartis de
+  `PacketLengthVariance`.
+- A variância do Malicious-DoH é sempre relativamente alta, ao contrário da do
+  Benign-DoH. Comparar o primeiro quartil de `PacketLengthVariance` das duas
+  classes.
