@@ -1,5 +1,5 @@
 {
-  "commit": "4746c22f7dccc81974784480fad1fcfc34bef094",
+  "commit": "d45251e56d5de2ba9869d1741a02806395dbe4ce",
   "config": {
     "adopted_rule": "NaN",
     "cv_folds": 10,
@@ -15,7 +15,7 @@
   "data_sha256": "6f939eff75dfc05b192cf1392df582c77bfa08065836226cba7c35d42d806b41",
   "dirty": false,
   "experiment": "e0",
-  "hostname": "ip-192-168-1-35.ec2.internal",
+  "hostname": "MacBook-Air-de-Breno-2.local",
   "libraries": {
     "imbalanced-learn": "0.14.2",
     "mlxtend": "0.25.0",
@@ -29,9 +29,9 @@
   "python": "3.12.13",
   "seed": 42,
   "slice": "cira",
-  "timestamp": "2026-10-07T03:29:50-03:00",
+  "timestamp": "2026-10-07T13:04:20-03:00",
   "timings": {
-    "total_seconds": 38.3
+    "total_seconds": 82.2
   },
   "track": "dados"
 }
