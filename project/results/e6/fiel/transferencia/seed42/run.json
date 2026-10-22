@@ -1,0 +1,62 @@
+{
+  "commit": "887774cc556cdf511148cc139525647245a89595",
+  "config": {
+    "criterion": "gini",
+    "cross_validation": false,
+    "cv_folds": 10,
+    "cv_shuffle": true,
+    "evaluated_data_sha256": "86a363f2f07d7b88130dd2eecc43ae601638a108abe6d2bae2590eddd45a4779",
+    "evaluated_dataset": "hkd",
+    "max_depth": 5,
+    "max_features": 28,
+    "n_estimators": 10,
+    "n_jobs": -1,
+    "n_subsets": 3,
+    "readings": {
+      "base_depth": "profundidade máxima 5 nos submodelos (Seção IV-B)",
+      "base_estimators": "um Random Forest por subconjunto, treinado antes do empilhamento",
+      "class_weight": "nenhum: o artigo não menciona",
+      "cross_validation": "scaler, subconjuntos, SMOTE, bases e meta refeitos em cada fold",
+      "hyperparameter_source": "valores finais do artigo (Seções IV-A e IV-B), sem busca",
+      "meta_input": "rótulo predito por cada base (use_probas=False), três entradas",
+      "meta_parameters": "regressão logística com os parâmetros padrão do scikit-learn",
+      "meta_training_data": "predições dos bases no treino original normalizado, sem sintéticas",
+      "one_sided_selection": "não aplicada: o artigo a cita sem descrever",
+      "smote_parameters": "padrão do imbalanced-learn",
+      "smote_target": "só Benign-DoH, aumentada até o tamanho de Malicious-DoH no subconjunto"
+    },
+    "smote_seeds": [
+      4200,
+      4201,
+      4202
+    ],
+    "test_size": 0.1,
+    "train_dataset": "cira"
+  },
+  "cpu_count": 10,
+  "data_sha256": "7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3",
+  "dirty": false,
+  "experiment": "e6",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "imbalanced-learn": "0.14.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 42,
+  "slice": "transferencia",
+  "timestamp": "2026-10-07T14:45:21-03:00",
+  "timings": {
+    "base_fit_seconds": 44.2,
+    "meta_fit_seconds": 2.6,
+    "subsets_seconds": 1.5,
+    "total_seconds": 50.3
+  },
+  "track": "fiel"
+}
