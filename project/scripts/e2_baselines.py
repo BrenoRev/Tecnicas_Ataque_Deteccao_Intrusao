@@ -114,11 +114,12 @@ def run_baseline(
     balanced: tuple[np.ndarray, np.ndarray],
     X_test: np.ndarray,
     y_test: np.ndarray,
-) -> tuple[dict, int | None, dict]:
+) -> tuple[dict, np.ndarray, int | None, dict]:
     """Treina o modelo `name` no treino balanceado e o avalia no teste.
 
-    Devolve as métricas do teste, a profundidade máxima do modelo ajustado e os
-    tempos de treino e de avaliação, em segundos.
+    Devolve as métricas do teste, a classe predita para cada linha do teste, a
+    profundidade máxima do modelo ajustado e os tempos de treino e de
+    avaliação, em segundos.
     """
     start = time.perf_counter()
     model = fit_baseline(name, *balanced, SEED_FIEL)
@@ -126,17 +127,20 @@ def run_baseline(
     print(f"{BASELINES[name]['label']}: treino em {fit_seconds} s")
 
     start = time.perf_counter()
-    test_metrics = evaluate(y_test, model.predict(X_test), model.predict_proba(X_test))
+    predicted = model.predict(X_test)
+    test_metrics = evaluate(y_test, predicted, model.predict_proba(X_test))
     evaluation_seconds = round(time.perf_counter() - start, 1)
     timings = {"fit_seconds": fit_seconds, "evaluation_seconds": evaluation_seconds}
-    return test_metrics, model.max_depth, timings
+    return test_metrics, predicted, model.max_depth, timings
 
 
-def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> dict:
-    """Treina e avalia os três modelos de comparação sobre `table` e grava os resultados.
+def evaluate_baselines(table: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Treina e avalia os três modelos de comparação sobre `table`, sem gravar nada.
 
-    `table` tem os atributos do modelo e `label`. Devolve, para cada modelo, o
-    diretório da execução e o dicionário gravado em metrics.json.
+    `table` tem os atributos do modelo e `label`. Devolve o teste e, para cada
+    modelo, um dicionário com as métricas (`metrics`), a configuração
+    (`config`), os tempos (`timings`) e a classe predita para cada linha do
+    teste (`predicted`).
     """
     # O teste é separado antes de qualquer ajuste e só volta na avaliação final.
     train, test = stratified_split(table, SEED_FIEL)
@@ -156,9 +160,9 @@ def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> 
     assert balanced_rows == [max(train_rows)] * len(CLASS_NAMES), "Treino não ficou balanceado."
     print(f"SMOTE do treino inteiro: {smote_seconds} s; amostras por classe {balanced_rows}")
 
-    results = {}
+    evaluated = {}
     for name, baseline in BASELINES.items():
-        test_metrics, max_depth, timings = run_baseline(
+        test_metrics, predicted, max_depth, timings = run_baseline(
             name, balanced, X_test, test["label"].to_numpy()
         )
         # Cada matriz tem, por classe, exatamente as linhas reais do teste:
@@ -172,7 +176,6 @@ def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> 
             "synthetic_train_rows": np.subtract(balanced_rows, train_rows).tolist(),
             "test_rows": test_rows,
             "test": test_metrics,
-            "table_ii_comparison": table_ii_comparison(test_metrics, name),
         }
         config = {
             "model": name,
@@ -185,15 +188,37 @@ def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> 
             "smote_seed": smote_seed(SEED_FIEL, N_SUBSETS),
             "readings": BASELINE_READINGS,
         }
+        evaluated[name] = {
+            "metrics": metrics,
+            "config": config,
+            "timings": {"smote_seconds": smote_seconds, **timings},
+            "predicted": predicted,
+        }
+    return test, evaluated
+
+
+def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> dict:
+    """Treina e avalia os três modelos de comparação sobre `table` e grava os resultados.
+
+    `table` tem os atributos do modelo e `label`. Devolve, para cada modelo, o
+    diretório da execução e o dicionário gravado em metrics.json.
+    """
+    _, evaluated = evaluate_baselines(table)
+    results = {}
+    for name, entry in evaluated.items():
+        metrics = {
+            **entry["metrics"],
+            "table_ii_comparison": table_ii_comparison(entry["metrics"]["test"], name),
+        }
         run_dir = save_run(
             experiment="e2",
             track="fiel",
             slice_name=name,
             seed=SEED_FIEL,
             metrics=metrics,
-            config=config,
+            config=entry["config"],
             data_sha256=data_sha256,
-            timings={"smote_seconds": smote_seconds, **timings},
+            timings=entry["timings"],
             results_dir=results_dir,
         )
         results[name] = (run_dir, metrics)
