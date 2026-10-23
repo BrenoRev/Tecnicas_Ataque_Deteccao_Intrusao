@@ -1,5 +1,7 @@
 # 18 · entrega · relatório
 
+> **Execução (07/10/2026):** a relatório é produzida pela tarefa [24](24-entrega-pdfs-finais.md), com o agente `gerador-entregaveis` e os modelos de `geracao_latex_and_pdf/`. Este arquivo continua valendo para o conteúdo exigido e a lista de conferência; em tamanho e formato vale a tarefa 24 (relatório: alvo de 6 páginas, teto de 8; apresentação: 12 a 14 slides em PPTX, para o Google Slides; a apresentação é feita mesmo sem a modificação).
+
 **Onde:** `report/` (cópia do template Overleaf), PDF final
 **Objetivo:** o relatório em formato de artigo, com as nove seções e todas as perguntas da especificação respondidas em texto. Entrega em 18/11/2026.
 **Depende de:** 17 para as seções 5 a 8. O passo 1 é da onda 0 e as seções 1 a 4 começam logo depois do seminário, sem esperar resultado
