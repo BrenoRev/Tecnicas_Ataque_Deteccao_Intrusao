@@ -1,0 +1,14 @@
+item,value,effect_pp
+Média da população,,36.8052
+PacketLengthMode,112,45.1952
+ResponseTimeTimeMedian,0.228077,15.9857
+PacketLengthMedian,112,-5.75176
+PacketLengthSkewFromMode,-0.707107,2.48855
+ResponseTimeTimeMode,0.228077,2.45824
+Duration,0.268802,1.88048
+PacketLengthMean,96.6667,-1.7998
+ResponseTimeTimeMean,0.228077,0.913533
+PacketTimeMedian,0.228077,0.242117
+PacketLengthStandardDeviation,21.6846,-0.235192
+Outros atributos somados,,0.284535
+Predição final,,98.4668
