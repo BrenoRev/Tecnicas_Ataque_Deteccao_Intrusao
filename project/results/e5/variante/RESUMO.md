@@ -1,0 +1,199 @@
+# E5: explicabilidade com SHAP, variante (profundidade variável)
+
+Gerado por `scripts/e5_xai.py`. Os números vêm de `profundidade_variavel/seed42/metrics.json`; os
+tempos estão em `profundidade_variavel/seed42/run.json`. Random Forests base:
+sem limite de profundidade ("variable tree depth", linha 3 do Algoritmo 1). A outra leitura da profundidade está ao lado desta, em
+`../RESUMO.md`. Uma única execução, com a seed 42.
+Classes na ordem dos códigos: Non-DoH, Benign-DoH, Malicious-DoH.
+
+## Modelo explicado
+
+A explicação principal é a do sistema na leitura de profundidade variável, em `results/e5/variante/`. A leitura de profundidade 5 é explicada ao lado, em `results/e5/fiel/`. O motivo está no resultado da reprodução:
+
+- **variante (profundidade variável):** no teste, o modelo empilhado tem recall de Benign-DoH de 92.91% (`results/e1/variante/`).
+- **fiel (profundidade 5):** no teste, o modelo empilhado tem recall de Benign-DoH de 0.00% (`results/e1/fiel/`).
+
+Um sistema que não prediz uma das três classes não sustenta a explicação das decisões dele. Os Random Forests base de profundidade 5, sozinhos, predizem as três classes, e é a eles que os valores SHAP se referem nas duas leituras.
+
+## Amostras
+
+Os valores SHAP são calculados com o `TreeExplainer` em duas amostras
+estratificadas, de até 2000 fluxos por classe, sorteadas com a seed
+42. O artigo fala em todo o treino (Fig. 5) e em todo o teste (Fig. 6).
+
+| amostra | Non-DoH | Benign-DoH | Malicious-DoH | uso |
+| --- | --- | --- | --- | --- |
+| treino | 2000 | 2000 | 2000 | importância global (Fig. 5) |
+| teste | 2000 | 1975 | 2000 | dependência e explicações locais (Figs. 6 a 8) |
+
+As classes entram em partes iguais. A importância média pesa as três classes
+por igual, e não na proporção do tráfego, em que Non-DoH é a maioria.
+
+A tabela `profundidade_variavel/seed42/importancia.csv` traz a média do valor absoluto de SHAP
+por base, classe e atributo. As figuras usam o Random Forest base
+1, o do primeiro subconjunto. Valor base (probabilidade média) de cada
+classe nesse modelo: 37.29%, 31.35%, 31.36%.
+
+## Importância global ao lado da Fig. 5
+
+A Fig. 5 do artigo é um gráfico de barras com a média do valor absoluto de SHAP
+de cada um dos 29 atributos. Ela não diz a classe; a legenda fala do tráfego
+malicioso, e a comparação é com o ranking da classe Malicious-DoH.
+Figura equivalente: `profundidade_variavel/seed42/fig5_importancia_malicious-doh.png`; as das
+outras duas classes estão na mesma pasta.
+
+| posto | artigo, Fig. 5 | base 1 | base 2 | base 3 |
+| --- | --- | --- | --- | --- |
+| 1 | Duration | PacketLengthMode | PacketLengthMode | PacketLengthMode |
+| 2 | PacketLengthMode | PacketLengthMedian | PacketLengthMedian | PacketLengthMedian |
+| 3 | PacketTimeVariance | Duration | Duration | Duration |
+| 4 | PacketLengthCoefficientofVariation | PacketTimeMedian | PacketTimeMedian | PacketTimeMedian |
+| 5 | PacketLengthVariance | PacketLengthSkewFromMode | PacketLengthMean | PacketLengthCoefficientofVariation |
+| 6 | PacketLengthMean | PacketLengthCoefficientofVariation | PacketLengthCoefficientofVariation | ResponseTimeTimeMedian |
+| 7 | FlowBytesSent | ResponseTimeTimeMedian | ResponseTimeTimeMedian | PacketLengthMean |
+| 8 | PacketTimeMean | PacketLengthMean | FlowBytesSent | FlowBytesSent |
+| 9 | ResponseTimeTimeMedian | FlowBytesSent | FlowBytesReceived | FlowBytesReceived |
+| 10 | FlowBytesReceived | FlowBytesReceived | PacketLengthStandardDeviation | PacketLengthSkewFromMode |
+
+Posto, em cada base, dos 10 primeiros atributos do artigo:
+
+| atributo | posto no artigo | posto no base 1 | posto no base 2 | posto no base 3 |
+| --- | --- | --- | --- | --- |
+| Duration | 1 | 3 | 3 | 3 |
+| PacketLengthMode | 2 | 1 | 1 | 1 |
+| PacketTimeVariance | 3 | 28 | 29 | 23 |
+| PacketLengthCoefficientofVariation | 4 | 6 | 6 | 5 |
+| PacketLengthVariance | 5 | 20 | 17 | 19 |
+| PacketLengthMean | 6 | 8 | 5 | 7 |
+| FlowBytesSent | 7 | 9 | 8 | 8 |
+| PacketTimeMean | 8 | 14 | 16 | 14 |
+| ResponseTimeTimeMedian | 9 | 7 | 7 | 6 |
+| FlowBytesReceived | 10 | 10 | 9 | 9 |
+
+- **`Duration` no topo: não confirmado.** O artigo põe `Duration` em primeiro; nos três bases ela fica nos postos 3, 3, 3.
+- **Dez primeiros.** Atributos entre os 10 primeiros do artigo que também estão entre os 10 primeiros de cada base: 7, 7, 7.
+- **Ranking inteiro.** Correlação de postos de Spearman entre o ranking do artigo e o de cada base, nos 29 atributos: 0.515, 0.520, 0.605.
+- **Famílias de atributos nos 10 primeiros** (o artigo cita, depois da duração, comprimento de pacote e variância do tempo de pacote): base 1: 5 de comprimento de pacote, 1 de tempo de pacote, 1 de tempo de resposta, 2 de bytes do fluxo; base 2: 5 de comprimento de pacote, 1 de tempo de pacote, 1 de tempo de resposta, 2 de bytes do fluxo; base 3: 5 de comprimento de pacote, 1 de tempo de pacote, 1 de tempo de resposta, 2 de bytes do fluxo.
+
+## Estabilidade entre os três submodelos
+
+Correlação de postos de Spearman entre os rankings de dois bases, sobre os
+atributos que estão entre os 10 primeiros de pelo menos um deles.
+O valor 1 quer dizer a mesma ordem.
+
+| classe | bases 1-2 | bases 1-3 | bases 2-3 |
+| --- | --- | --- | --- |
+| Non-DoH | 0.988 | 0.988 | 0.976 |
+| Benign-DoH | 0.982 | 0.955 | 0.964 |
+| Malicious-DoH | 0.782 | 0.818 | 0.964 |
+
+## Dependência de `Duration` ao lado da Fig. 6a
+
+Figura equivalente: `profundidade_variavel/seed42/fig6a_dependencia_duration.png`, com os dados
+em `profundidade_variavel/seed42/fig6_dependencia.csv`. Um ponto por fluxo da amostra do teste;
+no eixo horizontal a duração em segundos, depois de desfeita a normalização;
+no vertical o valor SHAP de `Duration` para a classe Malicious-DoH.
+
+O artigo lê na Fig. 6a um limiar de 40 segundos: acima dele o valor SHAP de `Duration` para o tráfego malicioso seria positivo.
+
+- Fluxos da amostra com duração acima de 40 s: 1485, dos quais 97.37% têm valor SHAP positivo.
+- Fluxos com duração até 40 s: 4490, dos quais 20.51% têm valor SHAP positivo.
+- Limiar que melhor separa valor positivo de não positivo nesta amostra: 33.13 s, com 98.38% dos fluxos do lado esperado.
+- Menor duração com valor positivo: 0.1639 s; maior duração com valor não positivo: 112.09 s.
+
+Ressalva sobre os dados: a mediana de `Duration` no dataset limpo é
+0.31 s em Non-DoH, 4.10 s em Benign-DoH, 34.07 s em Malicious-DoH. A classe maliciosa foi capturada em outras máquinas e em outro
+período, de modo que a duração pode separar as classes pelo modo como o tráfego
+foi gerado, e não só pelo protocolo.
+
+## Dependência de `FlowBytesSent` ao lado da Fig. 6b
+
+Figura equivalente: `profundidade_variavel/seed42/fig6b_dependencia_flowbytessent.png`. O artigo
+chama a Fig. 6b de gráfico de interação; o que ela mostra é o valor SHAP de
+`FlowBytesSent` contra o valor do atributo, com os pontos coloridos por
+`FlowBytesReceived`. Os valores de interação de SHAP não foram calculados. Os
+eixos estão em escala logarítmica; os do artigo são lineares, até 6.000 bytes.
+
+O artigo aponta um grupo de fluxos com mais bytes recebidos que enviados e o
+associa ao tráfego malicioso. Na amostra do teste:
+
+- fluxos com mais bytes recebidos que enviados, por classe real:
+  [1557, 988, 1579]; valor SHAP de `FlowBytesSent` positivo em 36.40% deles;
+- demais fluxos, por classe real: [443, 987, 421]; valor SHAP positivo em
+  31.87% deles.
+
+## Explicações locais ao lado das Figs. 7 e 8
+
+As Figs. 7 e 8 do artigo são telas do painel interativo: probabilidade por
+classe, tabela de contribuição e gráfico de contribuição em cascata. As figuras
+equivalentes trazem os três elementos. O fluxo explicado é o primeiro da classe
+na amostra do teste; o artigo não diz como escolheu os dele. As probabilidades
+são as do Random Forest base 1, que é o que os valores SHAP decompõem.
+
+### Equivalente à Fig. 7: fluxo Malicious-DoH do teste
+
+Arquivos `fig7_explicacao_malicious-doh.png` e `fig7_explicacao_malicious-doh.csv`. Classe predita pelo base 1: Malicious-DoH; pelo modelo empilhado: Malicious-DoH.
+
+| medida | artigo, Fig. 7 | aqui |
+| --- | --- | --- |
+| probabilidade de Malicious-DoH (%) | 76.4 | 100.00 |
+| média da população (%) | 33.31 | 31.36 |
+| atributo de maior efeito | Duration = 120.817 (+14.68 pp) | PacketLengthMode = 68 (+64.95 pp) |
+
+| motivo | valor no fluxo | efeito (pp) |
+| --- | --- | --- |
+| Média da população |  | +31.36 |
+| PacketLengthMode | 68 | +64.95 |
+| PacketLengthSkewFromMode | 0.41325 | +2.47 |
+| Duration | 33.3443 | +2.05 |
+| PacketLengthCoefficientofVariation | 1.68327 | +0.69 |
+| PacketLengthMedian | 76 | -0.59 |
+| FlowBytesSent | 1807 | -0.34 |
+| PacketTimeMedian | 0.068567 | -0.33 |
+| ResponseTimeTimeSkewFromMedian | -1.71044 | -0.28 |
+| PacketLengthStandardDeviation | 376.044 | +0.27 |
+| PacketTimeSkewFromMedian | 1.81187 | -0.21 |
+| Outros atributos somados |  | -0.04 |
+| Predição final |  | +100.00 |
+
+### Equivalente à Fig. 8: fluxo Non-DoH do teste
+
+Arquivos `fig8_explicacao_non-doh.png` e `fig8_explicacao_non-doh.csv`. Classe predita pelo base 1: Non-DoH; pelo modelo empilhado: Non-DoH.
+
+| medida | artigo, Fig. 8 | aqui |
+| --- | --- | --- |
+| probabilidade de Non-DoH (%) | 88.85 | 100.00 |
+| média da população (%) | 33.33 | 37.29 |
+| atributo de maior efeito | PacketLengthVariance = 468846 (+19.15 pp) | PacketLengthMode = 60 (+25.80 pp) |
+
+| motivo | valor no fluxo | efeito (pp) |
+| --- | --- | --- |
+| Média da população |  | +37.29 |
+| PacketLengthMode | 60 | +25.80 |
+| FlowBytesSent | 163 | +13.51 |
+| PacketLengthMedian | 57.5 | +11.13 |
+| FlowBytesReceived | 180 | +3.22 |
+| PacketLengthCoefficientofVariation | 0.0499045 | -2.55 |
+| ResponseTimeTimeMean | 0.0255875 | +2.42 |
+| PacketLengthSkewFromMode | -0.993151 | +2.30 |
+| ResponseTimeTimeMode | 0.025438 | -2.06 |
+| PacketLengthMean | 57.1667 | +2.02 |
+| PacketTimeMean | 22.5722 | +1.73 |
+| Outros atributos somados |  | +5.19 |
+| Predição final |  | +100.00 |
+
+## Limitação
+
+Os valores SHAP deste experimento explicam os Random Forests base, não a decisão do empilhamento. A linha 8 do Algoritmo 1 do artigo aplica o `TreeExplainer` sem dizer a qual modelo. O `TreeExplainer` recusa o modelo empilhado com o erro: `Model type not yet supported by TreeExplainer: <class 'mlxtend.classifier.stacking_classification.StackingClassifier'>`. A regressão logística que combina os três bases não é um modelo de árvores, e a decisão final do sistema passa por ela.
+
+Na amostra do teste, a classe de maior probabilidade do base 1 é a classe que o modelo empilhado devolve em 99.50% dos fluxos. Predições do modelo empilhado na amostra: 2138 de Non-DoH, 1837 de Benign-DoH, 2000 de Malicious-DoH. Onde os dois divergem, a explicação do base não é a explicação da saída do sistema.
+
+## Ressalvas e o que não foi feito
+
+- Nas seis colunas de assimetria o extrator grava -10 quando o desvio padrão é
+  zero; 298766 fluxos do dataset limpo têm esse valor em alguma delas. A
+  importância dessas colunas mede em parte esse marcador, e não a assimetria.
+- Os valores SHAP são calculados em amostras, não no treino e no teste inteiros.
+- Não há média entre seeds: uma execução, com a seed 42.
+- O painel interativo é um script à parte e não grava resultado.
+- Nenhuma seed, amostra ou fluxo foi escolhido para aproximar as figuras do artigo.
