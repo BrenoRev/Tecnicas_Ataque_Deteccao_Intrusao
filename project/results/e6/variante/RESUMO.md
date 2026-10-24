@@ -1,6 +1,6 @@
 # E6: o sistema do artigo no segundo dataset, variante (profundidade variável)
 
-Gerado por `scripts/e6_dataset2.py`. Os números vêm dos arquivos `metrics.json`
+Gerado por `scripts/e6_resumo.py`. Os números vêm dos arquivos `metrics.json`
 de `transferencia/seed42/`, `retreino_sem_replicas/seed42/` e
 `retreino_publicado/seed42/`; os tempos estão nos `run.json`.
 Random Forests base: sem limite de profundidade ("variable tree depth", linha 3 do Algoritmo 1). Os cenários das duas leituras
@@ -259,12 +259,23 @@ de 95% entre parênteses.
 | tcp-over-dns | 0.33% (5/1502; 0.11% a 0.78%) | 98.59% (140/142; 95.00% a 99.83%) | 100.00% (2935/2935; 99.87% a 100.00%) |
 | tuns | 6.20% (90/1452; 5.01% a 7.56%) | 100.00% (139/139; 97.38% a 100.00%) | 100.00% (2859/2859; 99.87% a 100.00%) |
 
-No retreino publicado, 10490 dos
-10490 fluxos do HKD no teste são cópias de fluxos do treino; no
-retreino sem réplicas, nenhum. A diferença de recall entre as duas colunas de
-retreino é o que as cópias acrescentam. A coluna da transferência não é
-comparável em tamanho: é o HKD inteiro, e o sistema não viu nenhuma das três
-ferramentas.
+O que foi medido: no retreino publicado, 10490 dos
+10490 fluxos do HKD no teste têm cópia idêntica no treino; no retreino
+sem réplicas, 0 dos 513.
+
+- **O que isso permite concluir.** No publicado, o recall das ferramentas do HKD
+  é medido em fluxos que o modelo já recebeu no treino: ele não mede a detecção
+  de fluxo novo dessas ferramentas. A coluna que mede isso é a do retreino sem
+  réplicas.
+- **O que isso não permite concluir.** A diferença de recall entre as duas
+  colunas de retreino não é a medida do efeito das cópias. Os dois retreinos
+  diferem também no split (as tabelas são diferentes, e treino e teste não têm
+  as mesmas linhas), no número de fluxos do HKD no treino (94670 contra
+  4745) e no teste (10490 contra 513). Nenhum
+  desses fatores foi isolado.
+
+A coluna da transferência não é comparável em tamanho: é o HKD inteiro, e o
+sistema não viu nenhuma das três ferramentas.
 
 ## O que não foi feito
 
@@ -279,3 +290,101 @@ ferramentas.
   réplicas pode incluir esse efeito.
 - Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada depois de ver
   os resultados.
+
+## SHAP dos Random Forests base no combinado sem réplicas
+
+Gerado por `scripts/e6_baselines_xai.py`, com as mesmas funções da explicação
+no CIRA (`scripts/e5_xai.py`). Os números vêm de `retreino_sem_replicas-shap/seed42/metrics.json`; os
+do CIRA, de `results/e5/variante/`. O sistema explicado é o do retreino
+no combinado sem réplicas nesta leitura: mesma seed, mesmo split e mesmos
+subconjuntos de `retreino_sem_replicas/`. Não há figura do artigo para este dataset: o
+que fica ao lado é a explicação no CIRA.
+
+### Amostras
+
+Duas amostras estratificadas de até 2000 fluxos por classe,
+sorteadas com a seed 42, como no CIRA. O sorteio é feito na classe
+Malicious-DoH inteira, sem separar por ferramenta, e o número de fluxos de cada
+ferramenta na amostra não é gravado. No treino, 4745 dos 229330 fluxos da
+classe são do HKD (2.07%): pelo sorteio, a amostra de Malicious-DoH
+é quase toda de fluxos das ferramentas do CIRA, e a importância medida reflete
+sobretudo esses fluxos.
+
+| amostra | Non-DoH | Benign-DoH | Malicious-DoH | uso |
+| --- | --- | --- | --- | --- |
+| treino | 2000 | 2000 | 2000 | importância global |
+| teste | 2000 | 1975 | 2000 | dependência e explicações locais |
+
+A tabela `retreino_sem_replicas-shap/seed42/importancia.csv` traz a média do valor absoluto de SHAP
+por base, classe e atributo. As figuras, na mesma pasta, são as equivalentes às
+Figs. 5 a 8 do artigo e usam o Random Forest base 1.
+
+### Ranking de Malicious-DoH ao lado do CIRA
+
+| posto | CIRA, base 1 | combinado, base 1 | combinado, base 2 | combinado, base 3 |
+| --- | --- | --- | --- | --- |
+| 1 | PacketLengthMode | PacketLengthMode | PacketLengthMode | PacketLengthMode |
+| 2 | PacketLengthMedian | Duration | Duration | Duration |
+| 3 | Duration | PacketLengthMedian | PacketLengthMedian | PacketLengthMedian |
+| 4 | PacketTimeMedian | PacketTimeMedian | PacketTimeMedian | PacketTimeMedian |
+| 5 | PacketLengthSkewFromMode | ResponseTimeTimeMedian | ResponseTimeTimeMedian | ResponseTimeTimeMedian |
+| 6 | PacketLengthCoefficientofVariation | PacketLengthMean | PacketLengthMean | PacketLengthMean |
+| 7 | ResponseTimeTimeMedian | PacketLengthCoefficientofVariation | PacketLengthCoefficientofVariation | PacketLengthCoefficientofVariation |
+| 8 | PacketLengthMean | FlowBytesSent | FlowBytesSent | FlowBytesReceived |
+| 9 | FlowBytesSent | FlowBytesReceived | FlowBytesReceived | FlowBytesSent |
+| 10 | FlowBytesReceived | ResponseTimeTimeMean | ResponseTimeTimeMean | PacketLengthSkewFromMedian |
+
+| base | classe | Spearman nos 29 atributos | Spearman na união dos 10 primeiros | atributos em comum nos 10 primeiros |
+| --- | --- | --- | --- | --- |
+| base 1 | Non-DoH | 0.958 | 0.991 | 9 |
+| base 1 | Benign-DoH | 0.966 | 0.945 | 9 |
+| base 1 | Malicious-DoH | 0.863 | 0.773 | 9 |
+| base 2 | Non-DoH | 0.992 | 0.988 | 10 |
+| base 2 | Benign-DoH | 0.983 | 0.964 | 9 |
+| base 2 | Malicious-DoH | 0.910 | 0.955 | 9 |
+| base 3 | Non-DoH | 0.959 | 0.891 | 10 |
+| base 3 | Benign-DoH | 0.959 | 0.945 | 9 |
+| base 3 | Malicious-DoH | 0.878 | 0.945 | 9 |
+
+Correlação de postos de Spearman entre o ranking de importância no combinado sem réplicas e o do base de mesmo número no CIRA; o valor 1 quer dizer a mesma ordem. O base de mesmo número não é o mesmo modelo nos dois datasets: cada um foi treinado no seu subconjunto, depois de outro split.
+
+### Estabilidade entre os três submodelos
+
+Correlação de postos de Spearman entre os rankings de dois bases, sobre os
+atributos que estão entre os 10 primeiros de pelo menos um deles.
+
+| classe | bases 1-2 | bases 1-3 | bases 2-3 |
+| --- | --- | --- | --- |
+| Non-DoH | 0.964 | 0.873 | 0.842 |
+| Benign-DoH | 0.964 | 0.900 | 0.891 |
+| Malicious-DoH | 1.000 | 0.982 | 0.982 |
+
+### Dependência e explicações locais
+
+Medidas do Random Forest base 1 na amostra do teste. O limiar de
+40 segundos é a leitura que o artigo faz da Fig. 6a, no CIRA;
+aqui ele é só a linha de referência das figuras.
+
+| medida | CIRA (E5) | combinado sem réplicas |
+| --- | --- | --- |
+| limiar medido de `Duration` (s) | 33.13 | 33.07 |
+| SHAP positivo acima de 40 s | 97.37% | 98.30% |
+| SHAP positivo até 40 s | 20.51% | 19.28% |
+| base concorda com o empilhado | 99.50% | 99.68% |
+
+Fluxos da amostra com mais bytes recebidos que enviados, por classe real:
+[1544, 988, 1614]; o valor SHAP de `FlowBytesSent` para Malicious-DoH é positivo em
+30.41% deles e em 24.33% dos demais.
+
+- `fig7_explicacao_malicious-doh.png` e `fig7_explicacao_malicious-doh.csv`: fluxo Malicious-DoH do teste. Probabilidade da classe no base 1: 100.00%, a partir da média da população de 31.61%; atributo de maior efeito: `PacketLengthMode` = 68 (+59.43 pp). Classe predita pelo base: Malicious-DoH; pelo modelo empilhado: Malicious-DoH.
+- `fig8_explicacao_non-doh.png` e `fig8_explicacao_non-doh.csv`: fluxo Non-DoH do teste. Probabilidade da classe no base 1: 100.00%, a partir da média da população de 36.81%; atributo de maior efeito: `PacketLengthMode` = 112 (+39.17 pp). Classe predita pelo base: Non-DoH; pelo modelo empilhado: Non-DoH.
+
+### Limitação
+
+Os valores SHAP deste experimento explicam os Random Forests base, não a decisão do empilhamento. A linha 8 do Algoritmo 1 do artigo aplica o `TreeExplainer` sem dizer a qual modelo. O `TreeExplainer` recusa o modelo empilhado com o erro: `Model type not yet supported by TreeExplainer: <class 'mlxtend.classifier.stacking_classification.StackingClassifier'>`. A regressão logística que combina os três bases não é um modelo de árvores, e a decisão final do sistema passa por ela.
+
+Na amostra do teste, a classe de maior probabilidade do base 1 é a classe que o modelo empilhado devolve em 99.68% dos fluxos. Predições do modelo empilhado na amostra: 2123 de Non-DoH, 1852 de Benign-DoH, 2000 de Malicious-DoH. Onde os dois divergem, a explicação do base não é a explicação da saída do sistema.
+
+Os valores SHAP são calculados em amostras, com uma seed. O fluxo de cada
+explicação local é o primeiro da classe na amostra do teste e pode ser de
+qualquer ferramenta.
