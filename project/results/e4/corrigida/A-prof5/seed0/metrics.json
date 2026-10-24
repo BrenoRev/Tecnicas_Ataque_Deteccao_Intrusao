@@ -1,0 +1,175 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "fit_rows": [
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266942,
+      224598,
+      224598
+    ]
+  ],
+  "split_index_sha256": {
+    "test": "c4f012c030e6aeed04d231f7a98ac8433475c9990d1f038dd7b2c7f24c704251",
+    "train": "cc6f85f8928629b76622fbed16395575805c97c50adb65534781e704471396a4"
+  },
+  "test": {
+    "accuracy": 0.9767148933233256,
+    "confusion_matrix": [
+      [
+        88798,
+        9,
+        174
+      ],
+      [
+        1968,
+        0,
+        7
+      ],
+      [
+        541,
+        0,
+        24414
+      ]
+    ],
+    "macro_f1": 0.65683239828197,
+    "macro_precision": 0.6550540183428343,
+    "macro_recall": 0.6587547863104097,
+    "malicious_vs_rest": {
+      "false_positives": 181,
+      "fpr": 0.0019899731738422972,
+      "fpr_ci_high": 0.0023015824512117784,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 0.001710847165593503,
+      "negatives": 90956,
+      "recall": 0.978320977759968
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.0,
+        "pr_auc": 0.28589434158955435,
+        "pr_auc_base_mean": 0.3970649141453179,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9854288597376388,
+        "pr_auc": 0.9897349676674979,
+        "pr_auc_base_mean": 0.9907095633280221,
+        "precision": 0.9926407806464729,
+        "recall": 0.978320977759968,
+        "support": 24955
+      },
+      "Non-DoH": {
+        "f1": 0.9850683351082712,
+        "pr_auc": 0.9938773281114942,
+        "pr_auc_base_mean": 0.9969907702173129,
+        "precision": 0.9725212743820298,
+        "recall": 0.9979433811712612,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9656569467413516,
+    "roc_auc_ovr_macro_base_mean": 0.985729728517104,
+    "total": 115911,
+    "weighted_f1": 0.9683614386988452,
+    "weighted_precision": 0.9602821664623731,
+    "weighted_recall": 0.9767148933233256
+  },
+  "test_rows": [
+    88981,
+    1975,
+    24955
+  ],
+  "test_seen_in_train": {
+    "by_class": [
+      15720,
+      92,
+      2
+    ],
+    "fraction": 0.1364322626843009,
+    "rows": 15814
+  },
+  "test_unseen": {
+    "accuracy": 0.9739652537039072,
+    "confusion_matrix": [
+      [
+        73078,
+        9,
+        174
+      ],
+      [
+        1876,
+        0,
+        7
+      ],
+      [
+        540,
+        0,
+        24413
+      ]
+    ],
+    "macro_f1": 0.6559921595694889,
+    "macro_precision": 0.6535459793899207,
+    "macro_recall": 0.6586204657039442,
+    "malicious_vs_rest": {
+      "false_positives": 181,
+      "fpr": 0.0024087086127967637,
+      "fpr_ci_high": 0.0027857960099748886,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 0.0020709067079667234,
+      "negatives": 75144,
+      "recall": 0.9783593155131648
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.0,
+        "pr_auc": 0.28397073016492486,
+        "pr_auc_base_mean": 0.40105174094812823,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 1883
+      },
+      "Malicious-DoH": {
+        "f1": 0.9854481603326136,
+        "pr_auc": 0.9900905930506677,
+        "pr_auc_base_mean": 0.9927839218650802,
+        "precision": 0.9926404814182321,
+        "recall": 0.9783593155131648,
+        "support": 24953
+      },
+      "Non-DoH": {
+        "f1": 0.982528318375853,
+        "pr_auc": 0.992742795678039,
+        "pr_auc_base_mean": 0.9966419300440492,
+        "precision": 0.9679974567515299,
+        "recall": 0.9975020815986678,
+        "support": 73261
+      }
+    },
+    "roc_auc_ovr_macro": 0.9660926846388501,
+    "roc_auc_ovr_macro_base_mean": 0.9870499848227988,
+    "total": 100097,
+    "weighted_f1": 0.9647731208459103,
+    "weighted_precision": 0.9559309431042188,
+    "weighted_recall": 0.9739652537039072
+  },
+  "train_rows": [
+    800828,
+    17771,
+    224598
+  ]
+}
