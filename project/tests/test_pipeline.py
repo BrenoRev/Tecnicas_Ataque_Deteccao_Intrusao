@@ -4,6 +4,7 @@ import pytest
 
 import scripts.e1_reproducao as e1
 import scripts.e4_corrigido as e4
+import scripts.e4_resumo as e4_resumo
 import scripts.e6_dataset2 as e6
 from doh_ids import system
 from doh_ids.config import CLASS_NAMES, CORRIGIDA_MODELS, FEATURE_COLUMNS, MAX_DEPTH
@@ -115,7 +116,7 @@ def test_every_model_of_a_seed_gets_the_same_train_and_test_rows(
     fit_model, model_metrics = e4.fit_model, e4.model_metrics
     monkeypatch.setattr(e4, "fit_model", recording_fit_model)
     monkeypatch.setattr(e4, "model_metrics", recording_model_metrics)
-    results = e4.run_experiment(synthetic_flows, DATA_SHA256, tmp_path, seeds)
+    e4.run_experiment(synthetic_flows, DATA_SHA256, tmp_path, seeds)
 
     n_models = len(CORRIGIDA_MODELS)
     assert len(fitted) == len(evaluated) == n_models * len(seeds)
@@ -127,14 +128,30 @@ def test_every_model_of_a_seed_gets_the_same_train_and_test_rows(
     # Seeds diferentes dão splits diferentes: sem isso as dez execuções seriam uma só.
     assert evaluated[0] != evaluated[n_models]
 
-    # A trilha e a leitura de profundidade ficam no caminho e no registro.
+
+@pytest.fixture
+def e4_run(synthetic_flows, tmp_path):
+    """Roda o protocolo corrigido em duas seeds e devolve as seeds e o que ficou em memória."""
+    seeds = [0, 1]
+    return seeds, e4.run_experiment(synthetic_flows, DATA_SHA256, tmp_path, seeds)
+
+
+def test_corrected_run_registers_the_track_and_the_depth_reading(e4_run, tmp_path):
     for name, spec in CORRIGIDA_MODELS.items():
         run_file = tmp_path / "e4" / "corrigida" / name / "seed1" / "run.json"
         run = json.loads(run_file.read_text(encoding="utf-8"))
         assert run["track"] == "corrigida"
         assert run["config"]["max_depth"] == spec["max_depth"]
 
-    summary = e4.summary_content(results)
+
+def test_corrected_summary_is_rebuilt_from_the_saved_files_without_training(e4_run, tmp_path):
+    seeds, in_memory = e4_run
+
+    saved = e4_resumo.load_results(tmp_path / "e4" / "corrigida", seeds)
+    summary = e4_resumo.summary_content(saved)
+
+    # O que o resumo lê do disco é o que o treino avaliou: a agregação não depende de retreinar.
+    assert saved == in_memory
     assert set(summary["models"]) == set(CORRIGIDA_MODELS)
     assert all(model["test"]["macro_f1"]["n"] == len(seeds) for model in summary["models"].values())
-    assert "A contra B" in e4.summary_text(summary)
+    assert "## Hipótese ao lado do resultado" in e4_resumo.summary_text(summary, saved)

@@ -545,8 +545,11 @@ SEEDS_CORRIGIDA = list(range(10))
 # balanceado com SMOTE. `max_features` "sqrt" e `max_depth` sem limite são os
 # padrões do scikit-learn.
 # - A é o sistema do artigo na leitura de profundidade variável.
-# - B tem os mesmos hiperparâmetros de A e não empilha: A contra B isola o
-#   efeito da arquitetura.
+# - B tem os mesmos hiperparâmetros de A e não empilha. Os dois diferem na
+#   arquitetura e no balanceamento que ela traz: em A cada base vê um terço do
+#   Non-DoH e só Benign-DoH é aumentada; em B o SMOTE iguala Benign-DoH e
+#   Malicious-DoH ao Non-DoH inteiro. A diferença entre A e B mede as duas
+#   coisas juntas.
 # - C é o Random Forest da Tabela II, que só informa as 10 árvores: A contra C
 #   é a comparação que o artigo faz.
 # - A-prof5 e B-prof5 repetem A e B com a profundidade máxima 5 da Seção IV-B,
