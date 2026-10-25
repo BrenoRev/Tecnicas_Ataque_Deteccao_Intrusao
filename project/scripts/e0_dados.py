@@ -40,6 +40,8 @@ from doh_ids.config import (
     CV_SHUFFLE,
     DATA_RAW_DIR,
     FEATURE_COLUMNS,
+    FIG2_GRID_POINTS,
+    FIG2_PANELS,
     FIG4_TEST_COUNTS,
     FIG4_TRAIN_COUNTS,
     ID_COLUMNS,
@@ -53,6 +55,7 @@ from doh_ids.config import (
 from doh_ids.data import class_counts, clean_flows, feature_matrix, load_cira, sha256_of
 from doh_ids.runlog import save_run
 from doh_ids.splits import fit_scaler, seen_in_train, stratified_split
+from doh_ids.summary import frame_markdown_table
 
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifest.json"
 
@@ -80,17 +83,6 @@ CLEANING_RULES = [
 ]
 ADOPTED_RULE = "NaN"
 
-# Painéis da Fig. 2 do artigo: atributo, unidade, início e fim do eixo
-# horizontal e se o eixo é logarítmico. As faixas foram lidas nos eixos da
-# figura; o artigo não diz como recortou os dados. A unidade vem do extrator
-# DoHLyzer, que mede o comprimento do pacote em bytes.
-FIG2_PANELS = [
-    ("FlowBytesReceived", "bytes", 0, 17500, False),
-    ("PacketLengthMean", "bytes", 0, 800, False),
-    ("PacketLengthVariance", "bytes²", 10, 1_000_000, True),
-]
-# Pontos do eixo horizontal em que cada curva é calculada.
-FIG2_GRID_POINTS = 400
 # Cores das classes na Fig. 2 do artigo, na ordem dos códigos.
 FIG2_COLORS = ["tab:blue", "tab:green", "tab:red"]
 
@@ -382,7 +374,7 @@ SciPy, em {FIG2_GRID_POINTS} pontos do eixo. Cada classe é estimada sozinha: a
 área de cada curva é 1. As faixas dos eixos foram lidas na figura do artigo, que
 não diz como recortou os dados nem que largura de banda usou:
 
-{markdown_table(panels.set_index("atributo"))}
+{frame_markdown_table(panels.set_index("atributo"))}
 
 A densidade usa só os fluxos dentro da faixa do eixo; "fração na faixa" diz
 quantos são. Fluxo com variância zero fica fora do terceiro painel, porque o
@@ -391,7 +383,7 @@ base 10 da variância. "Pico da densidade" é o valor do atributo em que a curva
 da classe é mais alta. Os quartis são do atributo em todos os fluxos da classe,
 dentro e fora da faixa.
 
-{markdown_table(measured.set_index("atributo"))}
+{frame_markdown_table(measured.set_index("atributo"))}
 
 O que o artigo afirma (Seção III-A e legenda da Fig. 2), para ler ao lado da
 tabela:
@@ -406,14 +398,6 @@ tabela:
   Benign-DoH. Comparar o primeiro quartil de `PacketLengthVariance` das duas
   classes.
 """
-
-
-def markdown_table(frame: pd.DataFrame) -> str:
-    """Escreve a tabela, com o índice na primeira coluna, em Markdown."""
-    frame = frame.reset_index()
-    lines = [" | ".join(frame.columns), " | ".join("---" for _ in frame.columns)]
-    lines += [" | ".join(str(value) for value in row) for row in frame.itertuples(index=False)]
-    return "\n".join(f"| {line} |" for line in lines)
 
 
 def summary_text(
@@ -443,7 +427,7 @@ Tabela I do artigo: {TABLE_I_COUNTS}. As três primeiras colunas numéricas são
 os fluxos que ficam; "removidas" são os que saem; "diferença" é o que fica
 menos a Tabela I.
 
-{markdown_table(rules.set_index("regra"))}
+{frame_markdown_table(rules.set_index("regra"))}
 
 Regra adotada: remover as linhas com `NaN` em algum dos 29 atributos, e só
 isso. Diferença para a Tabela I: {adopted[difference_columns].tolist()}.
@@ -464,16 +448,16 @@ chegam às contagens publicadas. Valores ausentes por coluna, no bruto:
   {metrics["skew_sentinel"]["rows_with_any"]}. O extrator DoHLyzer grava esse
   valor quando o desvio padrão é zero. Por coluna e por classe:
 
-{markdown_table(sentinel)}
+{frame_markdown_table(sentinel)}
 
 ## Máquinas e período de captura
 
 Medido no conjunto limpo, antes de os identificadores serem descartados. A
 máquina é o endereço da rede local que aparece na origem ou no destino do fluxo.
 
-{markdown_table(period)}
+{frame_markdown_table(period)}
 
-{markdown_table(machines)}
+{frame_markdown_table(machines)}
 
 Máquinas em que há fluxo malicioso e também fluxo de outra classe:
 {metrics["machines_shared_with_malicious"]}. Dias em que há fluxo malicioso e
@@ -526,7 +510,7 @@ Gerado de `cira/seed42/split_counts.json`. Sorteio estratificado por classe,
 seed {counts["seed"]}, fração de teste {counts["test_size"]}. Treino:
 {train["total"]} fluxos; teste: {test["total"]}.
 
-{markdown_table(sets)}
+{frame_markdown_table(sets)}
 
 As matrizes da Fig. 4 somam {sum(train["fig4a"])} fluxos no treino e
 {sum(test["fig4b"])} no teste. A fração {counts["test_size"]} de {clean_total}
@@ -541,7 +525,7 @@ O artigo não tem conjunto de validação separado: a validação é cruzada, co
 (embaralhamento: {folds["shuffle"]}, seed {counts["seed"]}). O teste não entra
 em nenhum fold. Amostras por classe no fold de validação de cada rodada:
 
-{markdown_table(fold_table)}
+{frame_markdown_table(fold_table)}
 
 ### Teste com vetor de atributos presente no treino
 
@@ -553,7 +537,7 @@ do teste cujo vetor está no treino com a classe dela; "com outro rótulo", a qu
 tem o vetor no treino com classe diferente; "com os dois", a que está nos dois
 casos.
 
-{markdown_table(seen_table)}
+{frame_markdown_table(seen_table)}
 
 ### Teste normalizado
 
