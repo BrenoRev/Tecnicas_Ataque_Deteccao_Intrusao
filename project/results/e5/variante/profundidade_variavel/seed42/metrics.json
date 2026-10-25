@@ -1,0 +1,618 @@
+{
+  "base_agrees_with_stacked_fraction": 0.994979079497908,
+  "base_values": [
+    [
+      0.37291643102805466,
+      0.3134768529573169,
+      0.31360671601462853
+    ],
+    [
+      0.37291643102805455,
+      0.313476852957317,
+      0.3136067160146285
+    ],
+    [
+      0.372915695019675,
+      0.3134781285171294,
+      0.3136061764631956
+    ]
+  ],
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "duration_threshold": {
+    "article_threshold_seconds": 40,
+    "best_threshold_agreement": 0.983765690376569,
+    "best_threshold_seconds": 33.128057,
+    "longest_non_positive_seconds": 112.089976,
+    "positive_fraction_above_article_threshold": 0.9737373737373738,
+    "positive_fraction_up_to_article_threshold": 0.20512249443207126,
+    "rows_above_article_threshold": 1485,
+    "rows_up_to_article_threshold": 4490,
+    "shortest_positive_seconds": 0.1639
+  },
+  "explained_base": 1,
+  "fig5_comparison": [
+    {
+      "base": 1,
+      "obtained_rank_of_article_top": {
+        "Duration": 3,
+        "FlowBytesReceived": 10,
+        "FlowBytesSent": 9,
+        "PacketLengthCoefficientofVariation": 6,
+        "PacketLengthMean": 8,
+        "PacketLengthMode": 1,
+        "PacketLengthVariance": 20,
+        "PacketTimeMean": 14,
+        "PacketTimeVariance": 28,
+        "ResponseTimeTimeMedian": 7
+      },
+      "spearman_all_features": 0.5147783251231526,
+      "top_obtained": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "Duration",
+        "PacketTimeMedian",
+        "PacketLengthSkewFromMode",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMedian",
+        "PacketLengthMean",
+        "FlowBytesSent",
+        "FlowBytesReceived"
+      ],
+      "top_shared_with_article": 7
+    },
+    {
+      "base": 2,
+      "obtained_rank_of_article_top": {
+        "Duration": 3,
+        "FlowBytesReceived": 9,
+        "FlowBytesSent": 8,
+        "PacketLengthCoefficientofVariation": 6,
+        "PacketLengthMean": 5,
+        "PacketLengthMode": 1,
+        "PacketLengthVariance": 17,
+        "PacketTimeMean": 16,
+        "PacketTimeVariance": 29,
+        "ResponseTimeTimeMedian": 7
+      },
+      "spearman_all_features": 0.5201970443349753,
+      "top_obtained": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "Duration",
+        "PacketTimeMedian",
+        "PacketLengthMean",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMedian",
+        "FlowBytesSent",
+        "FlowBytesReceived",
+        "PacketLengthStandardDeviation"
+      ],
+      "top_shared_with_article": 7
+    },
+    {
+      "base": 3,
+      "obtained_rank_of_article_top": {
+        "Duration": 3,
+        "FlowBytesReceived": 9,
+        "FlowBytesSent": 8,
+        "PacketLengthCoefficientofVariation": 5,
+        "PacketLengthMean": 7,
+        "PacketLengthMode": 1,
+        "PacketLengthVariance": 19,
+        "PacketTimeMean": 14,
+        "PacketTimeVariance": 23,
+        "ResponseTimeTimeMedian": 6
+      },
+      "spearman_all_features": 0.6049261083743841,
+      "top_obtained": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "Duration",
+        "PacketTimeMedian",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMedian",
+        "PacketLengthMean",
+        "FlowBytesSent",
+        "FlowBytesReceived",
+        "PacketLengthSkewFromMode"
+      ],
+      "top_shared_with_article": 7
+    }
+  ],
+  "local": {
+    "Fig. 7": {
+      "base_predicted_class": "Malicious-DoH",
+      "base_probabilities_percent": [
+        0.0,
+        0.0,
+        100.0
+      ],
+      "contributions": [
+        {
+          "effect_pp": 31.360671601462855,
+          "item": "Média da população",
+          "value": null
+        },
+        {
+          "effect_pp": 64.95403961637577,
+          "item": "PacketLengthMode",
+          "value": 68.0
+        },
+        {
+          "effect_pp": 2.471938546625461,
+          "item": "PacketLengthSkewFromMode",
+          "value": 0.4132499759704756
+        },
+        {
+          "effect_pp": 2.0503855235704758,
+          "item": "Duration",
+          "value": 33.34435
+        },
+        {
+          "effect_pp": 0.6897106828664118,
+          "item": "PacketLengthCoefficientofVariation",
+          "value": 1.6832747494845202
+        },
+        {
+          "effect_pp": -0.5889961255794494,
+          "item": "PacketLengthMedian",
+          "value": 76.0
+        },
+        {
+          "effect_pp": -0.3383335960208727,
+          "item": "FlowBytesSent",
+          "value": 1807.0
+        },
+        {
+          "effect_pp": -0.33076752644749385,
+          "item": "PacketTimeMedian",
+          "value": 0.068567
+        },
+        {
+          "effect_pp": -0.2837597351015356,
+          "item": "ResponseTimeTimeSkewFromMedian",
+          "value": -1.7104439056170344
+        },
+        {
+          "effect_pp": 0.26619871791594996,
+          "item": "PacketLengthStandardDeviation",
+          "value": 376.0435790348418
+        },
+        {
+          "effect_pp": -0.21033612278926758,
+          "item": "PacketTimeSkewFromMedian",
+          "value": 1.8118680493683996
+        },
+        {
+          "effect_pp": -0.040751582878465795,
+          "item": "Outros atributos somados",
+          "value": null
+        },
+        {
+          "effect_pp": 99.99999999999983,
+          "item": "Predição final",
+          "value": null
+        }
+      ],
+      "explained_class": "Malicious-DoH",
+      "stacked_predicted_class": "Malicious-DoH"
+    },
+    "Fig. 8": {
+      "base_predicted_class": "Non-DoH",
+      "base_probabilities_percent": [
+        100.0,
+        0.0,
+        0.0
+      ],
+      "contributions": [
+        {
+          "effect_pp": 37.291643102805466,
+          "item": "Média da população",
+          "value": null
+        },
+        {
+          "effect_pp": 25.797292015995172,
+          "item": "PacketLengthMode",
+          "value": 60.0
+        },
+        {
+          "effect_pp": 13.507279029497587,
+          "item": "FlowBytesSent",
+          "value": 163.0
+        },
+        {
+          "effect_pp": 11.12723862131695,
+          "item": "PacketLengthMedian",
+          "value": 57.5
+        },
+        {
+          "effect_pp": 3.2197920138554834,
+          "item": "FlowBytesReceived",
+          "value": 180.0
+        },
+        {
+          "effect_pp": -2.547134301359196,
+          "item": "PacketLengthCoefficientofVariation",
+          "value": 0.0499044978677075
+        },
+        {
+          "effect_pp": 2.4228511971966418,
+          "item": "ResponseTimeTimeMean",
+          "value": 0.0255875
+        },
+        {
+          "effect_pp": 2.298488921946023,
+          "item": "PacketLengthSkewFromMode",
+          "value": -0.993150604322877
+        },
+        {
+          "effect_pp": -2.0586599572331665,
+          "item": "ResponseTimeTimeMode",
+          "value": 0.025438
+        },
+        {
+          "effect_pp": 2.0211669917224744,
+          "item": "PacketLengthMean",
+          "value": 57.166666666666664
+        },
+        {
+          "effect_pp": 1.7265177319586822,
+          "item": "PacketTimeMean",
+          "value": 22.57216533333333
+        },
+        {
+          "effect_pp": 5.193524632293859,
+          "item": "Outros atributos somados",
+          "value": null
+        },
+        {
+          "effect_pp": 99.99999999999598,
+          "item": "Predição final",
+          "value": null
+        }
+      ],
+      "explained_class": "Non-DoH",
+      "stacked_predicted_class": "Non-DoH"
+    }
+  },
+  "ranking": {
+    "base_1": {
+      "Benign-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "PacketLengthMean",
+        "ResponseTimeTimeMedian",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMean",
+        "Duration",
+        "FlowBytesReceived",
+        "FlowBytesSent",
+        "PacketTimeMedian",
+        "PacketTimeMean",
+        "PacketLengthStandardDeviation",
+        "PacketLengthSkewFromMode",
+        "PacketTimeSkewFromMedian",
+        "ResponseTimeTimeMode",
+        "PacketLengthSkewFromMedian",
+        "ResponseTimeTimeCoefficientofVariation",
+        "PacketLengthVariance",
+        "FlowSentRate",
+        "PacketTimeCoefficientofVariation",
+        "ResponseTimeTimeStandardDeviation",
+        "FlowReceivedRate",
+        "PacketTimeStandardDeviation",
+        "PacketTimeSkewFromMode",
+        "ResponseTimeTimeSkewFromMedian",
+        "ResponseTimeTimeSkewFromMode",
+        "PacketTimeVariance",
+        "ResponseTimeTimeVariance",
+        "PacketTimeMode"
+      ],
+      "Malicious-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "Duration",
+        "PacketTimeMedian",
+        "PacketLengthSkewFromMode",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMedian",
+        "PacketLengthMean",
+        "FlowBytesSent",
+        "FlowBytesReceived",
+        "PacketLengthStandardDeviation",
+        "ResponseTimeTimeSkewFromMedian",
+        "ResponseTimeTimeMean",
+        "PacketTimeMean",
+        "PacketTimeSkewFromMedian",
+        "PacketLengthSkewFromMedian",
+        "ResponseTimeTimeStandardDeviation",
+        "ResponseTimeTimeMode",
+        "PacketTimeCoefficientofVariation",
+        "PacketLengthVariance",
+        "FlowSentRate",
+        "ResponseTimeTimeCoefficientofVariation",
+        "FlowReceivedRate",
+        "PacketTimeStandardDeviation",
+        "ResponseTimeTimeSkewFromMode",
+        "PacketTimeSkewFromMode",
+        "ResponseTimeTimeVariance",
+        "PacketTimeVariance",
+        "PacketTimeMode"
+      ],
+      "Non-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "PacketLengthMean",
+        "ResponseTimeTimeMedian",
+        "Duration",
+        "ResponseTimeTimeMean",
+        "FlowBytesSent",
+        "PacketLengthCoefficientofVariation",
+        "PacketTimeMedian",
+        "FlowBytesReceived",
+        "PacketLengthSkewFromMode",
+        "PacketTimeMean",
+        "PacketLengthStandardDeviation",
+        "ResponseTimeTimeMode",
+        "PacketTimeSkewFromMedian",
+        "ResponseTimeTimeCoefficientofVariation",
+        "PacketLengthSkewFromMedian",
+        "PacketLengthVariance",
+        "ResponseTimeTimeStandardDeviation",
+        "FlowSentRate",
+        "PacketTimeCoefficientofVariation",
+        "FlowReceivedRate",
+        "PacketTimeStandardDeviation",
+        "ResponseTimeTimeSkewFromMedian",
+        "PacketTimeSkewFromMode",
+        "PacketTimeVariance",
+        "ResponseTimeTimeSkewFromMode",
+        "ResponseTimeTimeVariance",
+        "PacketTimeMode"
+      ]
+    },
+    "base_2": {
+      "Benign-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "PacketLengthMean",
+        "ResponseTimeTimeMedian",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMean",
+        "Duration",
+        "FlowBytesSent",
+        "FlowBytesReceived",
+        "PacketLengthStandardDeviation",
+        "PacketTimeMean",
+        "PacketTimeSkewFromMedian",
+        "ResponseTimeTimeMode",
+        "PacketLengthSkewFromMedian",
+        "PacketTimeMedian",
+        "PacketLengthSkewFromMode",
+        "ResponseTimeTimeCoefficientofVariation",
+        "FlowSentRate",
+        "PacketTimeCoefficientofVariation",
+        "FlowReceivedRate",
+        "ResponseTimeTimeStandardDeviation",
+        "ResponseTimeTimeSkewFromMedian",
+        "PacketTimeStandardDeviation",
+        "PacketLengthVariance",
+        "PacketTimeSkewFromMode",
+        "PacketTimeVariance",
+        "ResponseTimeTimeSkewFromMode",
+        "ResponseTimeTimeVariance",
+        "PacketTimeMode"
+      ],
+      "Malicious-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "Duration",
+        "PacketTimeMedian",
+        "PacketLengthMean",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMedian",
+        "FlowBytesSent",
+        "FlowBytesReceived",
+        "PacketLengthStandardDeviation",
+        "ResponseTimeTimeMode",
+        "PacketLengthSkewFromMode",
+        "PacketLengthSkewFromMedian",
+        "ResponseTimeTimeMean",
+        "ResponseTimeTimeSkewFromMedian",
+        "PacketTimeMean",
+        "PacketLengthVariance",
+        "ResponseTimeTimeStandardDeviation",
+        "PacketTimeCoefficientofVariation",
+        "PacketTimeSkewFromMedian",
+        "ResponseTimeTimeCoefficientofVariation",
+        "FlowSentRate",
+        "PacketTimeStandardDeviation",
+        "ResponseTimeTimeSkewFromMode",
+        "PacketTimeSkewFromMode",
+        "FlowReceivedRate",
+        "ResponseTimeTimeVariance",
+        "PacketTimeMode",
+        "PacketTimeVariance"
+      ],
+      "Non-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "PacketLengthMean",
+        "ResponseTimeTimeMedian",
+        "Duration",
+        "FlowBytesSent",
+        "ResponseTimeTimeMean",
+        "PacketLengthCoefficientofVariation",
+        "PacketTimeMedian",
+        "FlowBytesReceived",
+        "PacketLengthStandardDeviation",
+        "PacketTimeMean",
+        "ResponseTimeTimeMode",
+        "PacketTimeSkewFromMedian",
+        "PacketLengthSkewFromMedian",
+        "PacketLengthSkewFromMode",
+        "ResponseTimeTimeCoefficientofVariation",
+        "FlowSentRate",
+        "PacketTimeCoefficientofVariation",
+        "FlowReceivedRate",
+        "ResponseTimeTimeStandardDeviation",
+        "ResponseTimeTimeSkewFromMedian",
+        "PacketTimeStandardDeviation",
+        "PacketLengthVariance",
+        "PacketTimeSkewFromMode",
+        "ResponseTimeTimeSkewFromMode",
+        "PacketTimeVariance",
+        "ResponseTimeTimeVariance",
+        "PacketTimeMode"
+      ]
+    },
+    "base_3": {
+      "Benign-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "PacketLengthMean",
+        "ResponseTimeTimeMedian",
+        "ResponseTimeTimeMean",
+        "Duration",
+        "PacketLengthCoefficientofVariation",
+        "FlowBytesSent",
+        "FlowBytesReceived",
+        "PacketTimeMean",
+        "PacketLengthStandardDeviation",
+        "PacketLengthSkewFromMedian",
+        "PacketTimeMedian",
+        "PacketLengthSkewFromMode",
+        "ResponseTimeTimeCoefficientofVariation",
+        "PacketTimeSkewFromMedian",
+        "ResponseTimeTimeMode",
+        "PacketTimeCoefficientofVariation",
+        "FlowSentRate",
+        "ResponseTimeTimeStandardDeviation",
+        "FlowReceivedRate",
+        "PacketLengthVariance",
+        "PacketTimeStandardDeviation",
+        "PacketTimeSkewFromMode",
+        "ResponseTimeTimeSkewFromMedian",
+        "ResponseTimeTimeSkewFromMode",
+        "ResponseTimeTimeVariance",
+        "PacketTimeVariance",
+        "PacketTimeMode"
+      ],
+      "Malicious-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "Duration",
+        "PacketTimeMedian",
+        "PacketLengthCoefficientofVariation",
+        "ResponseTimeTimeMedian",
+        "PacketLengthMean",
+        "FlowBytesSent",
+        "FlowBytesReceived",
+        "PacketLengthSkewFromMode",
+        "PacketLengthStandardDeviation",
+        "ResponseTimeTimeSkewFromMedian",
+        "ResponseTimeTimeMean",
+        "PacketTimeMean",
+        "PacketTimeSkewFromMode",
+        "PacketLengthSkewFromMedian",
+        "ResponseTimeTimeStandardDeviation",
+        "PacketTimeCoefficientofVariation",
+        "PacketLengthVariance",
+        "ResponseTimeTimeMode",
+        "FlowSentRate",
+        "PacketTimeSkewFromMedian",
+        "PacketTimeVariance",
+        "ResponseTimeTimeSkewFromMode",
+        "FlowReceivedRate",
+        "ResponseTimeTimeCoefficientofVariation",
+        "PacketTimeStandardDeviation",
+        "ResponseTimeTimeVariance",
+        "PacketTimeMode"
+      ],
+      "Non-DoH": [
+        "PacketLengthMode",
+        "PacketLengthMedian",
+        "PacketLengthMean",
+        "ResponseTimeTimeMedian",
+        "Duration",
+        "ResponseTimeTimeMean",
+        "FlowBytesSent",
+        "PacketLengthCoefficientofVariation",
+        "FlowBytesReceived",
+        "PacketTimeMedian",
+        "PacketTimeMean",
+        "PacketLengthStandardDeviation",
+        "PacketLengthSkewFromMode",
+        "PacketLengthSkewFromMedian",
+        "ResponseTimeTimeCoefficientofVariation",
+        "PacketTimeSkewFromMedian",
+        "ResponseTimeTimeMode",
+        "PacketTimeCoefficientofVariation",
+        "ResponseTimeTimeStandardDeviation",
+        "FlowSentRate",
+        "FlowReceivedRate",
+        "ResponseTimeTimeSkewFromMedian",
+        "PacketLengthVariance",
+        "PacketTimeSkewFromMode",
+        "PacketTimeStandardDeviation",
+        "ResponseTimeTimeSkewFromMode",
+        "ResponseTimeTimeVariance",
+        "PacketTimeVariance",
+        "PacketTimeMode"
+      ]
+    }
+  },
+  "received_over_sent": {
+    "positive_fraction": 0.3639670223084384,
+    "positive_fraction_others": 0.3187466234467855,
+    "rows_by_class": [
+      1557,
+      988,
+      1579
+    ],
+    "rows_others_by_class": [
+      443,
+      987,
+      421
+    ]
+  },
+  "sample_per_class_requested": 2000,
+  "stability": {
+    "Benign-DoH": {
+      "1-2": 0.9818181818181818,
+      "1-3": 0.9545454545454546,
+      "2-3": 0.9636363636363637
+    },
+    "Malicious-DoH": {
+      "1-2": 0.7818181818181819,
+      "1-3": 0.8181818181818182,
+      "2-3": 0.9636363636363637
+    },
+    "Non-DoH": {
+      "1-2": 0.9878787878787878,
+      "1-3": 0.9878787878787878,
+      "2-3": 0.9757575757575757
+    }
+  },
+  "stability_top_features": 10,
+  "stacked_explainer_error": "Model type not yet supported by TreeExplainer: <class 'mlxtend.classifier.stacking_classification.StackingClassifier'>",
+  "stacked_predictions_by_class": [
+    2138,
+    1837,
+    2000
+  ],
+  "test_sample_rows": [
+    2000,
+    1975,
+    2000
+  ],
+  "train_sample_rows": [
+    2000,
+    2000,
+    2000
+  ]
+}
