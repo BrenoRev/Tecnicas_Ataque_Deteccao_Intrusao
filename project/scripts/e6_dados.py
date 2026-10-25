@@ -40,6 +40,8 @@ from doh_ids.config import (
     ID_COLUMNS,
     ORIGINS,
     PROJECT_ROOT,
+    README_CLASS_ROWS,
+    README_TOOL_ROWS,
     SECOND_DATASET_COLUMNS,
     SEED_FIEL,
     TABLE_I_COUNTS,
@@ -59,6 +61,7 @@ from doh_ids.data import (
     without_replicas,
 )
 from doh_ids.runlog import save_run
+from doh_ids.summary import frame_markdown_table
 
 MANIFEST_PATH = PROJECT_ROOT / "data" / "manifest.json"
 
@@ -67,17 +70,6 @@ MANIFEST_PATH = PROJECT_ROOT / "data" / "manifest.json"
 # colunas que definem linha repetida.
 CLEANING = {"drop_nan": True, "drop_inf": False, "duplicate_columns": None}
 
-# Fluxos por classe do combinado, na ordem de CLASS_NAMES, e por ferramenta,
-# como o README.txt do dataset combinado os informa.
-README_CLASS_ROWS = [897493, 19807, 354996]
-README_TOOL_ROWS = {
-    "dns2tcp": 167486,
-    "dnscat2": 35770,
-    "iodine": 46580,
-    "dnstt": 46080,
-    "tcp-over-dns": 30040,
-    "tuns": 29040,
-}
 HKD_TOOLS = [tool for tool, origin in TOOL_ORIGIN.items() if origin == "HKD"]
 
 # Tabelas gravadas: nome, que é também o da pasta de resultados, pasta dos
@@ -236,14 +228,6 @@ def median_table(cira_malicious: pd.DataFrame, hkd: pd.DataFrame) -> pd.DataFram
     return table
 
 
-def markdown_table(frame: pd.DataFrame) -> str:
-    """Escreve a tabela, com o índice na primeira coluna, em Markdown."""
-    frame = frame.reset_index()
-    lines = [" | ".join(frame.columns), " | ".join("---" for _ in frame.columns)]
-    lines += [" | ".join(str(value) for value in row) for row in frame.itertuples(index=False)]
-    return "\n".join(f"| {line} |" for line in lines)
-
-
 def count_tables(metrics: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Monta as tabelas de fluxos por classe e por ferramenta das três tabelas gravadas."""
     by_class, by_tool = {}, {"README do combinado": README_TOOL_ROWS}
@@ -273,7 +257,7 @@ def summary_text(metrics: dict, headers: dict, medians: pd.DataFrame, ranges: pd
     by_origin.index.name = "classe"
     outside = ranges[ranges.columns[-2:]]
     outside = outside[outside.sum(axis=1) > 0]
-    outside_text = markdown_table(outside) if len(outside) else "Nenhum."
+    outside_text = frame_markdown_table(outside) if len(outside) else "Nenhum."
     shown = ["Duration", "FlowBytesSent", "FlowBytesReceived", "PacketLengthMean"]
     return f"""# E6, dados: segundo dataset
 
@@ -298,7 +282,7 @@ colunas do CIRA-CIC-DoHBrw-2020: {len(ID_COLUMNS)} identificadores,
 {len(FEATURE_COLUMNS)} atributos e o rótulo. `missing` lista as colunas
 esperadas que faltam e `unexpected`, as que sobram.
 
-{markdown_table(header_table)}
+{frame_markdown_table(header_table)}
 
 Diferenças de formato, sem efeito nos atributos:
 
@@ -315,9 +299,9 @@ gravado. A limpeza é a mesma do CIRA: sai a linha com valor ausente em algum
 dos 29 atributos. A coluna do README traz as contagens que o `README.txt` do
 dataset combinado informa.
 
-{markdown_table(by_class)}
+{frame_markdown_table(by_class)}
 
-{markdown_table(by_tool)}
+{frame_markdown_table(by_tool)}
 
 - O combinado bruto tem as contagens do README, por classe e por ferramenta.
 - Valores ausentes no combinado, por coluna: {combined["nan_by_column"]}. No
@@ -329,7 +313,7 @@ dataset combinado informa.
 
 Combinado sem réplicas, limpo, por origem:
 
-{markdown_table(by_origin)}
+{frame_markdown_table(by_origin)}
 
 ## Réplicas do HKD
 
@@ -358,7 +342,7 @@ nenhum modelo é ajustado aqui. Os fluxos do CIRA são os do combinado limpo.
   {capture["first_day"]} a {capture["last_day"]}.
 - Mediana de quatro atributos; os 29 estão em `hkd/seed42/medianas_malicioso.csv`:
 
-{markdown_table(medians.loc[shown])}
+{frame_markdown_table(medians.loc[shown])}
 
 - Faixa de valores de cada atributo, em `hkd/seed42/faixa_por_atributo.csv`. A
   faixa do CIRA é a dos fluxos limpos das três classes. Atributos em que algum

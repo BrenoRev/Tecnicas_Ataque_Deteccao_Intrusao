@@ -68,6 +68,7 @@ from doh_ids.evaluate import (
 )
 from doh_ids.runlog import save_run
 from doh_ids.splits import seen_in_train, stratified_split
+from doh_ids.summary import markdown_table
 from doh_ids.system import cross_validated_confusion, fit_system
 
 LABELS = list(range(len(CLASS_NAMES)))
@@ -129,7 +130,7 @@ def base_mean_proba(stacked: StackingClassifier, X: np.ndarray) -> np.ndarray:
     return np.mean([forest.predict_proba(X) for forest in stacked.clfs_], axis=0)
 
 
-def tool_counts(flows: pd.DataFrame) -> dict:
+def rows_by_tool(flows: pd.DataFrame) -> dict:
     """Conta os fluxos de cada ferramenta de túnel presente, pelo nome."""
     counts = flows["tool"].value_counts().sort_index()
     return {name: int(count) for name, count in counts.items()}
@@ -151,8 +152,12 @@ def split_table(train: pd.DataFrame, test: pd.DataFrame) -> dict:
     validation_rows = validation_fold_rows(train)
     return {
         "test_size": TEST_SIZE,
-        "train": {"rows": train_rows, "total": len(train), "rows_by_tool": tool_counts(train)},
-        "test": {"rows": class_counts(test), "total": len(test), "rows_by_tool": tool_counts(test)},
+        "train": {"rows": train_rows, "total": len(train), "rows_by_tool": rows_by_tool(train)},
+        "test": {
+            "rows": class_counts(test),
+            "total": len(test),
+            "rows_by_tool": rows_by_tool(test),
+        },
         "validation_folds": {
             "n_folds": CV_FOLDS,
             "shuffle": CV_SHUFFLE,
@@ -214,7 +219,7 @@ def run_transfer(
         "evaluated_dataset": "hkd",
         "train_rows": class_counts(train),
         "hkd_rows": len(hkd),
-        "hkd_rows_by_tool": tool_counts(hkd),
+        "hkd_rows_by_tool": rows_by_tool(hkd),
         "hkd": malicious_only_metrics(hkd["tool"], stacked.predict(X_hkd)),
         "hkd_outside_unit_interval": outside_unit_interval(X_hkd),
         # O teste do CIRA entra só como referência: a contagem fora da faixa ao
@@ -322,13 +327,6 @@ def run_retrain(
         results_dir=results_dir,
     )
     return run_dir, metrics
-
-
-def markdown_table(columns: list[str], rows: list[list]) -> str:
-    """Escreve uma tabela em Markdown."""
-    lines = [" | ".join(columns), " | ".join("---" for _ in columns)]
-    lines += [" | ".join(str(value) for value in row) for row in rows]
-    return "\n".join(f"| {line} |" for line in lines)
 
 
 def matrix_table(confusion: list[list[int]]) -> str:
