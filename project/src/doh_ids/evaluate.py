@@ -298,13 +298,16 @@ def paired_comparison(first: ArrayLike, second: ArrayLike) -> dict:
 
     `first` e `second` trazem o valor da métrica de cada modelo, na mesma ordem
     de seeds; vence a seed quem tem o valor maior. Devolve a diferença média
-    (primeiro menos segundo), o número de seeds em que cada um vence, os
-    empates e a estatística e o p-valor do teste de postos sinalizados de
-    Wilcoxon, bilateral.
+    (primeiro menos segundo), o desvio padrão amostral das diferenças, o
+    número de seeds em que cada um vence, os empates e a estatística e o
+    p-valor do teste de postos sinalizados de Wilcoxon, bilateral.
     """
     difference = np.asarray(first, dtype=float) - np.asarray(second, dtype=float)
     result = {
         "mean_difference": float(difference.mean()),
+        # Desvio das diferenças seed a seed, e não o de cada modelo entre as
+        # seeds: no par, o que varia de um split para outro se cancela.
+        "std_difference": float(difference.std(ddof=1)),
         "first_wins": int((difference > 0).sum()),
         "second_wins": int((difference < 0).sum()),
         "ties": int((difference == 0).sum()),
