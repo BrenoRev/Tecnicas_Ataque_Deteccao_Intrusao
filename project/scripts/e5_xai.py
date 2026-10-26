@@ -62,12 +62,14 @@ from doh_ids.explain import (
 )
 from doh_ids.runlog import save_run
 from doh_ids.splits import stratified_split
-from doh_ids.summary import markdown_table
+from doh_ids.summary import markdown_table, one_feature_rule_text
 from doh_ids.system import fit_system
 
 # Resultados da etapa de dados e da reprodução, com os quais esta execução é conferida.
 E0_DIR = RESULTS_DIR / "e0" / "dados" / "cira" / f"seed{SEED_FIEL}"
 E1_DIR = RESULTS_DIR / "e1"
+# Medidas da etapa de dados do segundo dataset, citadas na ressalva de um atributo.
+HKD_DATA_PATH = RESULTS_DIR / "e6" / "dados" / "hkd" / f"seed{SEED_FIEL}" / "metrics.json"
 
 NON_DOH = CLASS_NAMES.index("Non-DoH")
 MALICIOUS = CLASS_NAMES.index("Malicious-DoH")
@@ -162,28 +164,75 @@ def article_comparison(importance: pd.DataFrame) -> list[dict]:
     return comparison
 
 
-def duration_threshold(duration: np.ndarray, shap_duration: np.ndarray) -> dict:
+def positive_share(positive: np.ndarray) -> float | None:
+    """Devolve a fração de valores positivos, ou None quando não há fluxo."""
+    return float(positive.mean()) if len(positive) else None
+
+
+def duration_by_class(
+    positive: np.ndarray, above: np.ndarray, between: np.ndarray, labels: np.ndarray
+) -> dict:
+    """Separa por classe real as contagens da análise do limiar de `Duration`.
+
+    `positive` marca os fluxos com valor SHAP positivo, `above` os de duração
+    acima do limiar do artigo e `between` os que ficam entre o limiar do artigo
+    e o corte medido.
+    """
+    by_class = {}
+    for code, name in enumerate(CLASS_NAMES):
+        of_class = labels == code
+        by_class[name] = {
+            "rows_up_to_article_threshold": int((of_class & ~above).sum()),
+            "positive_fraction_up_to_article_threshold": positive_share(
+                positive[of_class & ~above]
+            ),
+            "rows_above_article_threshold": int((of_class & above).sum()),
+            "positive_fraction_above_article_threshold": positive_share(positive[of_class & above]),
+            "rows_between_cuts": int((of_class & between).sum()),
+            "fraction_between_cuts": float(between[of_class].mean()),
+        }
+    return by_class
+
+
+def duration_threshold(duration: np.ndarray, shap_duration: np.ndarray, labels: np.ndarray) -> dict:
     """Mede onde o valor SHAP de `Duration` para Malicious-DoH troca de sinal.
 
-    `duration` está em segundos. Devolve a fração de valores positivos acima e
-    abaixo do limiar do artigo e o limiar que melhor separa os dois sinais.
+    `duration` está em segundos e `labels` é a classe real de cada fluxo.
+    Devolve a fração de valores positivos acima e abaixo do limiar do artigo,
+    no total e por classe, o corte que melhor separa os dois sinais e se o
+    limiar do artigo é confirmado.
     """
     positive = shap_duration > 0
     above = duration > ARTICLE_DURATION_THRESHOLD_SECONDS
-    # Limiar que melhor separa: os fluxos são ordenados pela duração e, para
+    # Corte que melhor separa: os fluxos são ordenados pela duração e, para
     # cada ponto de corte, contam-se os negativos até ele e os positivos depois
-    # dele. O corte com a maior contagem é o limiar medido.
+    # dele. O corte com a maior contagem é o corte medido.
     order = np.argsort(duration, kind="stable")
     agreeing = np.cumsum(~positive[order]) + positive.sum() - np.cumsum(positive[order])
     best = int(np.argmax(agreeing))
+    best_seconds = float(duration[order][best])
+
+    # Fluxos que o corte medido e o limiar do artigo põem em lados diferentes.
+    # O limiar do artigo é dado como confirmado quando a maioria deles tem o
+    # sinal que ele prevê: positivo acima de 40 segundos, não positivo até lá.
+    # Sem nenhum fluxo entre os dois, os cortes separam a amostra do mesmo jeito.
+    low, high = sorted([best_seconds, float(ARTICLE_DURATION_THRESHOLD_SECONDS)])
+    between = (duration > low) & (duration <= high)
+    as_article_predicts = positive[between] == above[between]
+    confirmed = bool(not between.any() or as_article_predicts.mean() > 0.5)
     return {
         "article_threshold_seconds": ARTICLE_DURATION_THRESHOLD_SECONDS,
         "rows_above_article_threshold": int(above.sum()),
         "positive_fraction_above_article_threshold": float(positive[above].mean()),
         "rows_up_to_article_threshold": int((~above).sum()),
         "positive_fraction_up_to_article_threshold": float(positive[~above].mean()),
-        "best_threshold_seconds": float(duration[order][best]),
+        "article_threshold_agreement": float((positive == above).mean()),
+        "best_threshold_seconds": best_seconds,
         "best_threshold_agreement": float(agreeing[best] / len(duration)),
+        "rows_between_cuts": int(between.sum()),
+        "positive_fraction_between_cuts": positive_share(positive[between]),
+        "article_threshold_confirmed": confirmed,
+        "by_class": duration_by_class(positive, above, between, labels),
         "shortest_positive_seconds": float(duration[positive].min()),
         "longest_non_positive_seconds": float(duration[~positive].max()),
     }
@@ -467,7 +516,7 @@ def explain_test_sample(
 
     measures = {
         "duration_threshold": duration_threshold(
-            dependence["Duration"].to_numpy(), dependence["shap_Duration"].to_numpy()
+            dependence["Duration"].to_numpy(), dependence["shap_Duration"].to_numpy(), labels
         ),
         "received_over_sent": received_over_sent(dependence),
         "base_agrees_with_stacked_fraction": float(
@@ -628,6 +677,63 @@ def ranking_text(metrics: dict) -> str:
     )
 
 
+def share_text(fraction: float | None) -> str:
+    """Escreve uma fração em percentual, ou um traço quando não há fluxo."""
+    return "–" if fraction is None else f"{fraction:.2%}"
+
+
+def threshold_class_table(threshold: dict) -> str:
+    """Escreve, por classe real, os fluxos de cada lado do limiar do artigo e o sinal do SHAP."""
+    seconds = threshold["article_threshold_seconds"]
+    rows = [
+        [
+            name,
+            entry["rows_up_to_article_threshold"],
+            share_text(entry["positive_fraction_up_to_article_threshold"]),
+            entry["rows_above_article_threshold"],
+            share_text(entry["positive_fraction_above_article_threshold"]),
+            entry["rows_between_cuts"],
+            f"{entry['fraction_between_cuts']:.2%}",
+        ]
+        for name, entry in threshold["by_class"].items()
+    ]
+    columns = [
+        "classe real",
+        f"fluxos até {seconds} s",
+        "com SHAP positivo",
+        f"fluxos acima de {seconds} s",
+        "com SHAP positivo",
+        "fluxos entre os dois cortes",
+        "fração da classe na amostra",
+    ]
+    return markdown_table(columns, rows)
+
+
+def threshold_verdict(threshold: dict) -> str:
+    """Escreve se a amostra confirma o limiar de 40 segundos que o artigo lê na Fig. 6a."""
+    seconds = threshold["article_threshold_seconds"]
+    malicious = threshold["by_class"][CLASS_NAMES[MALICIOUS]]
+    confirmed = threshold["article_threshold_confirmed"]
+    direction = threshold["positive_fraction_above_article_threshold"] > 0.5
+    side = "o que" if confirmed else "o contrário do que"
+    return (
+        f"**Veredito: o limiar de {seconds} s {'é' if confirmed else 'não é'} confirmado nesta "
+        f"amostra.** A direção que o artigo descreve {'aparece' if direction else 'não aparece'}: "
+        f"acima de {seconds} s, {threshold['positive_fraction_above_article_threshold']:.2%} dos "
+        f"fluxos têm valor SHAP positivo. O ponto de corte medido é "
+        f"{threshold['best_threshold_seconds']:.2f} s, que deixa "
+        f"{threshold['best_threshold_agreement']:.2%} dos fluxos do lado esperado; o corte em "
+        f"{seconds} s deixa {threshold['article_threshold_agreement']:.2%}. Entre os dois cortes "
+        f"ficam {threshold['rows_between_cuts']} fluxos, {malicious['rows_between_cuts']} deles "
+        f"{CLASS_NAMES[MALICIOUS]} ({malicious['fraction_between_cuts']:.2%} dos maliciosos da "
+        f"amostra), e {share_text(threshold['positive_fraction_between_cuts'])} têm valor SHAP "
+        f"positivo, {side} o limiar de {seconds} s prevê para eles. Critério do veredito: o "
+        "limiar do artigo é confirmado quando a maioria dos fluxos entre ele e o corte medido tem "
+        "o sinal que ele prevê. A amostra tem as três classes em partes iguais, e os "
+        "percentuais não são os do tráfego."
+    )
+
+
 def threshold_text(threshold: dict) -> str:
     """Escreve o que a amostra do teste mostra sobre o limiar de 40 segundos."""
     return (
@@ -639,11 +745,14 @@ def threshold_text(threshold: dict) -> str:
         f"- Fluxos com duração até {threshold['article_threshold_seconds']} s: "
         f"{threshold['rows_up_to_article_threshold']}, dos quais "
         f"{threshold['positive_fraction_up_to_article_threshold']:.2%} têm valor SHAP positivo.\n"
-        f"- Limiar que melhor separa valor positivo de não positivo nesta amostra: "
+        f"- Corte que melhor separa valor positivo de não positivo nesta amostra: "
         f"{threshold['best_threshold_seconds']:.2f} s, com "
         f"{threshold['best_threshold_agreement']:.2%} dos fluxos do lado esperado.\n"
         f"- Menor duração com valor positivo: {threshold['shortest_positive_seconds']:.4f} s; "
         f"maior duração com valor não positivo: {threshold['longest_non_positive_seconds']:.2f} s."
+        '\n\nPor classe real. "Entre os dois cortes" são os fluxos com duração entre o corte '
+        f"medido e os {threshold['article_threshold_seconds']} s do artigo:\n\n"
+        f"{threshold_class_table(threshold)}\n\n{threshold_verdict(threshold)}"
     )
 
 
@@ -723,7 +832,8 @@ def limitation_text(metrics: dict) -> str:
         "empilhamento. A linha 8 do Algoritmo 1 do artigo aplica o `TreeExplainer` sem dizer a "
         f"qual modelo. {refusal}. A regressão logística que combina os três bases não é um "
         "modelo de árvores, e a decisão final do sistema passa por ela.\n\n"
-        f"Na amostra do teste, a classe de maior probabilidade do base "
+        f"Na amostra do teste, com as classes em partes iguais, a classe de maior "
+        f"probabilidade do base "
         f"{metrics['explained_base']} é a classe que o modelo empilhado devolve em "
         f"{metrics['base_agrees_with_stacked_fraction']:.2%} dos fluxos. Predições do modelo "
         f"empilhado na amostra: {predictions}. Onde os dois divergem, a explicação do base não "
@@ -762,6 +872,11 @@ def summary_text(metrics: dict, reading: dict, context: dict) -> str:
         for name, value in zip(CLASS_NAMES, context["duration_medians"], strict=True)
     )
     over = metrics["received_over_sent"]
+    mode = context["packet_length_mode"]
+    malicious_ranking = metrics["ranking"][f"base_{metrics['explained_base']}"][
+        CLASS_NAMES[MALICIOUS]
+    ]
+    mode_rank = malicious_ranking.index(mode["column"]) + 1
     return f"""# E5: explicabilidade com SHAP, {reading["label"]}
 
 Gerado por `scripts/e5_xai.py`. Os números vêm de `{run_dir}/metrics.json`; os
@@ -842,6 +957,15 @@ Ressalva sobre os dados: a mediana de `Duration` no dataset limpo é
 período, de modo que a duração pode separar as classes pelo modo como o tráfego
 foi gerado, e não só pelo protocolo.
 
+Ressalva sobre `{mode["column"]}`, atributo de posto {mode_rank} no ranking de
+{CLASS_NAMES[MALICIOUS]} do base {metrics["explained_base"]} e de posto
+{FIG5_RANKING.index(mode["column"]) + 1} na Fig. 5 do artigo.
+{one_feature_rule_text(mode)}
+Os números vêm de `results/e6/dados/hkd/seed{SEED_FIEL}/metrics.json`, gravado por
+`scripts/e6_dados.py`. Como a duração, esse atributo pode separar as classes
+pelo modo como o tráfego do CIRA foi capturado, e não só pelo protocolo: a
+importância dele aqui não diz que ele detecta túnel de outra captura.
+
 ## Dependência de `FlowBytesSent` ao lado da Fig. 6b
 
 Figura equivalente: `{run_dir}/fig6b_dependencia_flowbytessent.png`. O artigo
@@ -899,6 +1023,7 @@ def comparison_text(results: list[tuple[dict, dict]], e1_tests: dict) -> str:
             f"{metrics['fig5_comparison'][EXPLAINED_BASE]['spearman_all_features']:.3f}",
             metrics["fig5_comparison"][EXPLAINED_BASE]["top_shared_with_article"],
             f"{metrics['duration_threshold']['best_threshold_seconds']:.2f}",
+            "sim" if metrics["duration_threshold"]["article_threshold_confirmed"] else "não",
             f"{metrics['duration_threshold']['positive_fraction_above_article_threshold']:.2%}",
             f"{metrics['duration_threshold']['positive_fraction_up_to_article_threshold']:.2%}",
             f"{metrics['base_agrees_with_stacked_fraction']:.2%}",
@@ -933,7 +1058,8 @@ Random Forest base {EXPLAINED_BASE_NUMBER} de cada leitura, na amostra do treino
                 "leitura",
                 f"Spearman com a Fig. 5 ({len(FEATURE_COLUMNS)} atributos)",
                 f"atributos em comum nos {SHAP_TOP_FEATURES} primeiros",
-                "limiar medido de `Duration` (s)",
+                "corte que melhor separa o sinal do SHAP (s), amostra com classes em partes iguais",
+                f"limiar de {ARTICLE_DURATION_THRESHOLD_SECONDS} s confirmado",
                 f"SHAP positivo acima de {ARTICLE_DURATION_THRESHOLD_SECONDS} s",
                 f"SHAP positivo até {ARTICLE_DURATION_THRESHOLD_SECONDS} s",
                 "base concorda com o empilhado",
@@ -942,9 +1068,14 @@ Random Forest base {EXPLAINED_BASE_NUMBER} de cada leitura, na amostra do treino
         )
     }
 
-As medidas são do Random Forest base {EXPLAINED_BASE_NUMBER}. A última coluna diz em que fração
-da amostra do teste a classe mais provável do base é a classe que o modelo
-empilhado devolve: é o alcance da explicação do base como explicação do sistema.
+As medidas são do Random Forest base {EXPLAINED_BASE_NUMBER}, na amostra do teste com as classes
+em partes iguais. O limiar de {
+        ARTICLE_DURATION_THRESHOLD_SECONDS
+    } s é dado como confirmado quando a maioria dos fluxos
+entre ele e o corte medido tem o sinal que ele prevê; o detalhe por classe está
+no resumo de cada trilha. A última coluna diz em que fração da amostra a classe
+mais provável do base é a classe que o modelo empilhado devolve: é o alcance da
+explicação do base como explicação do sistema.
 """
 
 
@@ -967,9 +1098,16 @@ def main() -> None:
         for reading in READINGS
     }
 
+    if not HKD_DATA_PATH.exists():
+        raise SystemExit(
+            f"Falta {HKD_DATA_PATH.relative_to(PROJECT_ROOT)}. Rode scripts/e6_dados.py antes."
+        )
+    hkd_data = json.loads(HKD_DATA_PATH.read_text(encoding="utf-8"))
+
     table = pd.read_parquet(CIRA_PARQUET_PATH)
     context = {
         "e1_tests": e1_tests,
+        "packet_length_mode": hkd_data["packet_length_mode"],
         "duration_medians": table.groupby("label")["Duration"].median().tolist(),
         "sentinel_rows": int((table[SKEW_COLUMNS] == SKEW_SENTINEL).any(axis=1).sum()),
     }
