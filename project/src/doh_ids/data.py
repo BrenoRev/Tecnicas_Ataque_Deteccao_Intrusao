@@ -83,12 +83,16 @@ def load_cira(zip_path: Path = CIRA_ZIP_PATH) -> pd.DataFrame:
     return flows
 
 
-def load_malicious_by_tool(zip_path: Path = MALICIOUS_ZIP_PATH) -> pd.DataFrame:
+def load_malicious_by_tool(
+    zip_path: Path = MALICIOUS_ZIP_PATH, doh_only: bool = True
+) -> pd.DataFrame:
     """Lê os fluxos maliciosos de cada ferramenta de túnel direto do zip publicado.
 
     Devolve os 29 atributos e `tool`, a ferramenta que gerou o fluxo, que é o
     nome da pasta do arquivo dentro do zip. Só entram as linhas com a coluna
     `DoH` verdadeira; nada mais é limpo e linhas repetidas não são removidas.
+    Com `doh_only` falso entram todas as linhas dos arquivos, inclusive as que
+    não são DoH, como estão publicadas.
 
     Levanta `ValueError` se a coluna `DoH` de algum arquivo não for booleana.
     """
@@ -102,8 +106,8 @@ def load_malicious_by_tool(zip_path: Path = MALICIOUS_ZIP_PATH) -> pd.DataFrame:
             raw = pd.read_csv(archive.open(member), usecols=columns)
             if raw[DOH_COLUMN].dtype != bool:
                 raise ValueError(f"Coluna {DOH_COLUMN} não booleana em {member}.")
-            flows = raw.loc[raw[DOH_COLUMN], FEATURE_COLUMNS]
-            tools.append(flows.assign(tool=tool))
+            flows = raw[raw[DOH_COLUMN]] if doh_only else raw
+            tools.append(flows[FEATURE_COLUMNS].assign(tool=tool))
     return pd.concat(tools, ignore_index=True)
 
 
