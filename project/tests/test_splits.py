@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from doh_ids.config import FEATURE_COLUMNS
+import scripts.e4_corrigido as e4
+import scripts.e7_ferramenta as e7
+from doh_ids.config import CLASS_NAMES, FEATURE_COLUMNS, GROUP_FOLDS
 from doh_ids.data import class_counts, feature_matrix
 from doh_ids.splits import balanced_subsets, fit_scaler, seen_in_train, stratified_split
 
@@ -138,3 +140,33 @@ def test_same_seed_gives_same_subsets_and_other_seed_gives_others(synthetic_flow
         assert np.array_equal(X, X_again)
         assert np.array_equal(y, y_again)
     assert not np.array_equal(subsets[0][0], subsets_other_seed[0][0])
+
+
+def test_group_folds_keep_machines_apart_and_put_every_row_in_one_test(synthetic_flows):
+    malicious = synthetic_flows["label"] == CLASS_NAMES.index("Malicious-DoH")
+    position = np.arange(len(synthetic_flows))
+    # Quatro máquinas geram o tráfego legítimo e outras seis, só o malicioso.
+    legitimate_machine = pd.Series(position % GROUP_FOLDS + 111).map("192.168.20.{}".format)
+    malicious_machine = pd.Series(position % 6 + 204).map("192.168.20.{}".format)
+    table = synthetic_flows.assign(group=legitimate_machine.where(~malicious, malicious_machine))
+
+    folds = e4.group_folds(table)
+
+    assert len(folds) == GROUP_FOLDS
+    for held_out, train, test in folds:
+        assert set(test["group"]) == set(held_out)
+        assert set(train["group"]).isdisjoint(test["group"])
+        assert sorted([*train.index, *test.index]) == list(table.index)
+    tested = [index for _, _, test in folds for index in test.index]
+    assert sorted(tested) == list(table.index)
+
+
+def test_tool_roles_follow_the_train_counts_and_codes_are_mapped_by_name():
+    # A ordem em que as ferramentas aparecem não é a ordem das contagens.
+    tools = pd.Series(["iodine"] * 3 + ["dnscat2"] * 1 + ["dns2tcp"] * 5)
+
+    roles = e7.tool_roles(tools)
+
+    # Código 0 para a maior, 1 para a menor e 2 para a terceira, como no sistema do artigo.
+    assert roles == ["dns2tcp", "dnscat2", "iodine"]
+    assert np.bincount(tools.map(roles.index)).tolist() == [5, 1, 3]
