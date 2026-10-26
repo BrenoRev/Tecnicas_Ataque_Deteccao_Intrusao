@@ -68,7 +68,7 @@ from doh_ids.evaluate import (
 )
 from doh_ids.runlog import save_run
 from doh_ids.splits import seen_in_train, stratified_split
-from doh_ids.summary import markdown_table
+from doh_ids.summary import markdown_table, one_feature_rule_text
 from doh_ids.system import cross_validated_confusion, fit_system
 
 LABELS = list(range(len(CLASS_NAMES)))
@@ -269,8 +269,8 @@ def run_retrain(
     assert train.index.intersection(test.index).empty, "Linha no treino e no teste."
 
     # Fluxo do HKD no teste com os mesmos 29 atributos de um fluxo do HKD no
-    # treino já foi visto pelo modelo: o recall dele mede memorização. Sem as
-    # réplicas isso não pode acontecer.
+    # treino já foi visto pelo modelo: o recall dele não mede detecção de
+    # fluxo novo. Sem as réplicas isso não pode acontecer.
     test_hkd = test[test["origin"] == "HKD"]
     hkd_seen = int(seen_in_train(train[train["origin"] == "HKD"], test_hkd).sum())
     if not scenario["hkd_replicas"]:
@@ -411,8 +411,11 @@ def outside_text(outside: dict) -> str:
     )
 
 
-def transfer_section(transfer: dict, e1_test: dict) -> str:
-    """Escreve a seção da transferência do CIRA para o HKD."""
+def transfer_section(transfer: dict, e1_test: dict, mode: dict) -> str:
+    """Escreve a seção da transferência do CIRA para o HKD.
+
+    `mode` é a medida de `PacketLengthMode` gravada pela etapa de dados.
+    """
     total, outside = transfer["hkd"]["malicious"], transfer["hkd_outside_unit_interval"]
     missed = total["n"] - total["detected"]
     e1_recall = e1_test["per_class"]["Malicious-DoH"]["recall"]
@@ -424,8 +427,7 @@ def transfer_section(transfer: dict, e1_test: dict) -> str:
         range_text = (
             "Nenhum atributo do HKD sai da faixa do treino do CIRA: a diferença entre os dois "
             "conjuntos é de posição dentro da faixa (medianas em "
-            "`../dados/hkd/seed42/medianas_malicioso.csv`), e não de faixa. A contagem não "
-            "aponta atributo que explique os erros."
+            "`../dados/hkd/seed42/medianas_malicioso.csv`), e não de faixa."
         )
     return f"""## Transferência: treino no CIRA, avaliação no HKD
 
@@ -450,6 +452,21 @@ não são calculados. A medida é o recall de Malicious-DoH.
 - **Valores normalizados fora de [0, 1] no HKD: {outside_text(outside)}.** No teste do
   CIRA, com o mesmo scaler: {outside_text(transfer["cira_test_outside_unit_interval"])}.
   {range_text}
+
+### `{mode["column"]}` nos fluxos do HKD
+
+Medido pela etapa de dados nos conjuntos limpos inteiros
+(`../dados/hkd/seed{SEED_FIEL}/metrics.json`, com a tabela em `../dados/RESUMO.md`).
+{one_feature_rule_text(mode)}
+
+- **Ao lado do sistema.** O recall do sistema na transferência é {total["recall"]:.2%}; o
+  da regra de um só atributo, nos mesmos fluxos, {mode["rule"]["hkd"]["recall"]:.2%}.
+- **O que não foi medido.** Quanto da decisão do sistema nos fluxos do HKD vem
+  de `{mode["column"]}`: não há valor SHAP dos fluxos do HKD neste cenário. A
+  causa da diferença entre as capturas também não foi medida. Hipótese, não
+  medida: a moda do comprimento do pacote depende de como cada captura gravou
+  os pacotes (por exemplo, o cabeçalho de enlace ou as opções do TCP), e não
+  só da ferramenta de túnel.
 """
 
 
@@ -505,8 +522,8 @@ def retrain_section(metrics: dict, scenario: dict, e1: dict) -> str:
     if scenario["hkd_replicas"]:
         seen_text = (
             f"{seen} dos {hkd_rows} fluxos do HKD no teste ({seen / hkd_rows:.2%}) têm os mesmos "
-            f"{len(FEATURE_COLUMNS)} atributos de um fluxo do HKD no treino: são cópias, e o "
-            "recall delas mede memorização."
+            f"{len(FEATURE_COLUMNS)} atributos de um fluxo do HKD no treino: são cópias de "
+            "fluxos do treino. O recall delas não mede detecção de fluxo novo."
         )
     else:
         seen_text = (
@@ -565,7 +582,7 @@ Recall de Malicious-DoH por ferramenta no teste:
 """
 
 
-def memorization_table(result: dict) -> str:
+def hkd_recall_table(result: dict) -> str:
     """Põe lado a lado o recall das ferramentas do HKD nos três cenários."""
     tools = result[TRANSFER_SLICE]["hkd"]["by_tool"]
     columns = ["ferramenta", "transferência (HKD inteiro)"]
@@ -604,24 +621,49 @@ sem réplicas, {unique["hkd_test_rows_seen_in_train"]} dos {unique["hkd_test_row
   é medido em fluxos que o modelo já recebeu no treino: ele não mede a detecção
   de fluxo novo dessas ferramentas. A coluna que mede isso é a do retreino sem
   réplicas.
-- **O que isso não permite concluir.** A diferença de recall entre as duas
-  colunas de retreino não é a medida do efeito das cópias. Os dois retreinos
-  diferem também no split (as tabelas são diferentes, e treino e teste não têm
-  as mesmas linhas), no número de fluxos do HKD no treino ({published_train} contra
-  {unique_train}) e no teste ({published["hkd_test_rows"]} contra {unique["hkd_test_rows"]}). Nenhum
-  desses fatores foi isolado.
+- **O que isso não permite concluir.** A diferença entre as duas colunas reúne
+  dois efeitos que este experimento não separa: o peso {HKD_REPLICAS} vezes maior do HKD
+  no treino ({published_train} fluxos contra {unique_train}) e a presença, no teste, de cópias
+  de fluxos do treino. Os dois testes têm linhas e tamanhos diferentes
+  ({published["hkd_test_rows"]} fluxos do HKD contra {unique["hkd_test_rows"]}).
 
 A coluna da transferência não é comparável em tamanho: é o HKD inteiro, e o
 sistema não viu nenhuma das três ferramentas."""
 
 
+def proximity_text(proximity: dict, hkd: dict, data_dir: str) -> str:
+    """Escreve o quanto os fluxos do HKD no teste do retreino sem réplicas ficam perto do treino.
+
+    `proximity` é a medida de distância gravada pela etapa de dados, `hkd`, o
+    recall das ferramentas do HKD no teste do retreino sem réplicas e
+    `data_dir`, a pasta da etapa de dados vista do resumo que recebe o texto.
+    """
+    near, far = proximity["nearest_hkd_train"], proximity["nearest_cira_malicious_train"]
+    closeness = "muito próximos" if near["median"] < far["median"] else "que não ficam mais perto"
+    return (
+        f"**Proximidade ao treino.** No retreino sem réplicas, o recall das ferramentas do HKD "
+        f"({hkd['recall']:.2%}, {hkd['detected']} de {hkd['n']}) é de fluxos {closeness} de "
+        f"fluxos do treino. Nos {len(FEATURE_COLUMNS)} atributos normalizados, a mediana da "
+        f"distância de um fluxo do HKD no teste ao fluxo do HKD mais próximo no treino é "
+        f"{near['median']:.6f}; ao fluxo Malicious-DoH do CIRA mais próximo no treino, "
+        f"{far['median']:.6f}. Em {proximity['rows_closer_to_hkd_train']} dos "
+        f"{proximity['hkd_test_rows']} fluxos ({proximity['fraction_closer_to_hkd_train']:.2%}), "
+        "o vizinho do HKD está mais perto que qualquer malicioso do CIRA. Nenhum deles é cópia "
+        "exata, mas o recall não estima a detecção de uma sessão de túnel que o treino não "
+        f"tenha. Medida em `{data_dir}/combinado_sem_replicas/seed{SEED_FIEL}/metrics.json`, com "
+        f"a tabela em `{data_dir}/RESUMO.md`."
+    )
+
+
 def summary_text(reading: dict, result: dict) -> str:
     """Monta o texto do sistema em uma leitura a partir das métricas de cada cenário.
 
-    `result` leva o nome de cada cenário às métricas dele e `e1` às métricas da
-    reprodução no CIRA na mesma leitura.
+    `result` leva o nome de cada cenário às métricas dele, `e1` às métricas da
+    reprodução no CIRA na mesma leitura e `hkd_data` e `unique_data` às da
+    etapa de dados do HKD e do combinado sem réplicas.
     """
     e1 = result["e1"]
+    unique_hkd = result["retreino_sem_replicas"]["test_recall_by_origin"]["HKD"]
     retrains = "\n".join(
         retrain_section(result[scenario["slice_name"]], scenario, e1) for scenario in RETRAINS
     )
@@ -649,16 +691,18 @@ padrão. Classes na ordem dos códigos: {", ".join(CLASS_NAMES)}.
   principal desta etapa é o combinado sem réplicas, com cada fluxo do HKD uma
   única vez; o publicado vai ao lado.
 
-{transfer_section(result[TRANSFER_SLICE], e1["test"])}
+{transfer_section(result[TRANSFER_SLICE], e1["test"], result["hkd_data"]["packet_length_mode"])}
 {retrains}
 ## Ferramentas do HKD nos três cenários
 
 Recall de Malicious-DoH, com detectados sobre `n` e o intervalo de confiança
 de 95% entre parênteses.
 
-{memorization_table(result)}
+{hkd_recall_table(result)}
 
 {copies_text(result)}
+
+{proximity_text(result["unique_data"]["hkd_test_proximity"], unique_hkd, "../dados")}
 
 ## O que não foi feito
 
@@ -669,8 +713,8 @@ de 95% entre parênteses.
 - A validação cruzada grava só a matriz de confusão: não há recall por
   ferramenta nem AUC nos folds.
 - Fluxos do HKD da mesma sessão de túnel podem cair um no treino e outro no
-  teste sem serem cópias exatas. Isso não é medido, e o recall do retreino sem
-  réplicas pode incluir esse efeito.
+  teste sem serem cópias exatas. A sessão não está nas tabelas e não é medida;
+  o que foi medido é a distância ao treino, acima.
 - Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada depois de ver
   os resultados.
 """
