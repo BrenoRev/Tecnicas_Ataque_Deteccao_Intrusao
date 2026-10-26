@@ -7,10 +7,13 @@ import pytest
 
 from doh_ids.config import (
     CIRA_LOCAL_PREFIX,
+    CIRA_TOOLS,
     CIRA_ZIP_MEMBERS,
+    DOH_COLUMN,
     FEATURE_COLUMNS,
     ID_COLUMNS,
     LABEL_COLUMN,
+    MALICIOUS_ZIP_MEMBER,
     SECOND_DATASET_COLUMNS,
     TOOL_ORIGIN,
 )
@@ -21,6 +24,7 @@ from doh_ids.data import (
     load_cira,
     load_combined,
     load_hkd,
+    load_malicious_by_tool,
     read_flow_csv,
     read_header,
     without_replicas,
@@ -229,3 +233,27 @@ def test_second_dataset_load_does_not_create_group_or_time_window(second_dataset
     for flows in [load_hkd(hkd_path), load_combined(level_paths)]:
         assert "group" not in flows.columns
         assert "time_window" not in flows.columns
+
+
+def test_tool_load_keeps_only_doh_rows_with_the_tool_of_the_folder(synthetic_raw_csv, tmp_path):
+    # Como nos arquivos reais: sem a coluna Label, com a coluna DoH booleana e
+    # algumas linhas em que ela é falsa.
+    raw = synthetic_raw_csv.drop(columns=LABEL_COLUMN)
+    parts = [raw.iloc[start :: len(CIRA_TOOLS)] for start in range(len(CIRA_TOOLS))]
+    not_doh_rows = 3
+    with zipfile.ZipFile(tmp_path / "malicious.zip", "w") as archive:
+        for tool, part in zip(CIRA_TOOLS, parts, strict=True):
+            is_doh = np.arange(len(part)) >= not_doh_rows
+            member = MALICIOUS_ZIP_MEMBER.format(tool=tool)
+            archive.writestr(member, part.assign(**{DOH_COLUMN: is_doh}).to_csv(index=False))
+
+    flows = load_malicious_by_tool(tmp_path / "malicious.zip")
+
+    assert list(flows.columns) == FEATURE_COLUMNS + ["tool"]
+    assert not set(ID_COLUMNS) & set(flows.columns)
+    for tool, part in zip(CIRA_TOOLS, parts, strict=True):
+        expected = part.iloc[not_doh_rows:]
+        loaded = flows[flows["tool"] == tool]
+        assert len(loaded) == len(expected)
+        # Duration identifica a linha: cada ferramenta recebe as linhas da sua pasta.
+        assert np.allclose(loaded["Duration"], expected["Duration"])
