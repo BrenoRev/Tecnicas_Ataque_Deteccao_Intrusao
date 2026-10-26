@@ -346,6 +346,52 @@ def write_fig2(run_dir: Path, curves: pd.DataFrame, coverage: pd.DataFrame) -> N
     draw_fig2(curves).savefig(run_dir / "fig2_densidade.png", dpi=150, metadata={"Software": None})
 
 
+# Afirmações do artigo sobre a Fig. 2 (Seção III-A e legenda), cada uma com as
+# comparações que a põem à prova: estatística, atributo, as duas classes e a
+# relação que o artigo afirma entre a primeira e a segunda.
+FIG2_CLAIMS = [
+    (
+        "(a) os bytes recebidos são mais no Malicious-DoH do que no Non-DoH e no Benign-DoH",
+        [
+            ("mediana", "FlowBytesReceived", "Malicious-DoH", "Non-DoH", "maior que"),
+            ("mediana", "FlowBytesReceived", "Malicious-DoH", "Benign-DoH", "maior que"),
+        ],
+    ),
+    (
+        "(b) e (c) os fluxos DoH têm variância do comprimento de pacote menor que a dos Non-DoH",
+        [
+            ("mediana", "PacketLengthVariance", "Benign-DoH", "Non-DoH", "menor que"),
+            ("mediana", "PacketLengthVariance", "Malicious-DoH", "Non-DoH", "menor que"),
+        ],
+    ),
+    (
+        "a variância do Malicious-DoH é sempre relativamente alta, ao contrário da do Benign-DoH",
+        [("1º quartil", "PacketLengthVariance", "Malicious-DoH", "Benign-DoH", "maior que")],
+    ),
+]
+
+
+def fig2_verdicts(coverage: pd.DataFrame) -> str:
+    """Confronta cada afirmação do artigo sobre a Fig. 2 com as medianas e os quartis medidos."""
+    measured = coverage.set_index(["atributo", "classe"])
+    lines = []
+    for claim, comparisons in FIG2_CLAIMS:
+        lines.append(f"- **Afirmação: {claim}.**")
+        for statistic, column, first, second, expected in comparisons:
+            value = measured.loc[(column, first), statistic]
+            reference = measured.loc[(column, second), statistic]
+            if value == reference:
+                found = "igual a"
+            else:
+                found = "maior que" if value > reference else "menor que"
+            verdict = "sustenta" if found == expected else "não sustenta"
+            lines.append(
+                f"  - {statistic} de `{column}`: {value:.6g} no {first}, {found} {reference:.6g} "
+                f"no {second}. O número {verdict} a afirmação para o {first} diante do {second}."
+            )
+    return "\n".join(lines)
+
+
 def fig2_summary_text(coverage: pd.DataFrame) -> str:
     """Monta a seção de RESUMO.md sobre a figura equivalente à Fig. 2 do artigo."""
     panels = pd.DataFrame(
@@ -397,6 +443,15 @@ tabela:
 - A variância do Malicious-DoH é sempre relativamente alta, ao contrário da do
   Benign-DoH. Comparar o primeiro quartil de `PacketLengthVariance` das duas
   classes.
+
+### Veredito por afirmação
+
+Cada afirmação é confrontada com a mediana, ou com o primeiro quartil, do
+atributo em todos os fluxos de cada classe, lidos da tabela acima. É uma
+comparação de dois números, não um teste estatístico, e não olha a forma das
+curvas.
+
+{fig2_verdicts(coverage)}
 """
 
 
