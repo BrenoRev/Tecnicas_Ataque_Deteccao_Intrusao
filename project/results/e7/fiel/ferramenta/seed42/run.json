@@ -1,5 +1,5 @@
 {
-  "commit": "b459e2ab2272911f8661eff10164116ebb67ea43",
+  "commit": "ff039fa4758928a9eddd2e0c8e0055b515321121",
   "config": {
     "classes": [
       "dns2tcp",
@@ -60,12 +60,12 @@
   "python": "3.12.13",
   "seed": 42,
   "slice": "ferramenta",
-  "timestamp": "2026-10-07T18:23:20-03:00",
+  "timestamp": "2026-10-07T21:35:16-03:00",
   "timings": {
-    "base_fit_seconds": 7.2,
+    "base_fit_seconds": 7.3,
     "meta_fit_seconds": 0.5,
-    "subsets_seconds": 2.1,
-    "total_seconds": 10.5
+    "subsets_seconds": 2.3,
+    "total_seconds": 10.8
   },
   "track": "fiel"
 }
