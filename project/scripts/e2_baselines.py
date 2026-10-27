@@ -29,6 +29,7 @@ from doh_ids.config import (
     RESULTS_DIR,
     SEED_FIEL,
     TABLE_II,
+    TABLE_II_FAR_ABOVE_PP,
     TABLE_II_FOREST_TREES,
     TABLE_II_LITERATURE,
     TABLE_II_TREE_DEPTH,
@@ -248,6 +249,35 @@ def comparison_table(comparisons: dict) -> str:
     return markdown_table(columns, rows)
 
 
+def far_above_text(comparisons: dict) -> str:
+    """Destaca os modelos de comparação que saem muito acima da sua linha na Tabela II.
+
+    `comparisons` leva o nome de cada modelo de comparação à sua comparação com
+    a Tabela II.
+    """
+    limit = f"{TABLE_II_FAR_ABOVE_PP:g} pontos percentuais"
+    lines = []
+    for label, comparison in comparisons.items():
+        far = [
+            f"`{key}` {value:.4f} contra {entry['table_ii']} no artigo "
+            f"({entry['difference_pp'][key]:+.2f} pp)"
+            for entry in comparison.values()
+            for key, value in entry["obtained"].items()
+            if entry["difference_pp"][key] > TABLE_II_FAR_ABOVE_PP
+        ]
+        if far:
+            lines.append(f"- **{label}:** " + "; ".join(far) + ".")
+    if not lines:
+        return f"Nenhum modelo de comparação fica mais de {limit} acima da sua linha na Tabela II."
+    return (
+        f"Modelos de comparação mais de {limit} acima da sua linha na Tabela II (o limite é "
+        "escolha nossa):\n\n" + "\n".join(lines) + "\n\nUma diferença desse tamanho, para "
+        "cima, é indício de que o modelo do artigo foi treinado com uma configuração diferente "
+        "da que a Tabela II informa. Qual é a diferença não foi medido, e a configuração daqui "
+        "não foi ajustada para aproximar o resultado."
+    )
+
+
 def literature_table() -> str:
     """Escreve a metade inferior da Tabela II como o artigo a imprime."""
     rows = [
@@ -331,6 +361,8 @@ nele, `roc_auc_ovr_macro` é a AUC da saída do meta-classificador e
 `roc_auc_ovr_macro_base_mean` a da média das probabilidades dos bases.
 
 {comparison_table({**comparisons, **proposed})}
+
+{far_above_text(comparisons)}
 
 ## Tabela II, metade inferior: resultados da literatura
 
