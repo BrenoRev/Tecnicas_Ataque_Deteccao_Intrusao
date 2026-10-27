@@ -49,7 +49,22 @@ não são calculados. A medida é o recall de Malicious-DoH.
   não recebe alerta.
 - **Valores normalizados fora de [0, 1] no HKD: 0 valores em 0 fluxos.** No teste do
   CIRA, com o mesmo scaler: 3 valores em 3 fluxos (`FlowSentRate` 1, `PacketLengthMean` 1, `ResponseTimeTimeCoefficientofVariation` 1).
-  Nenhum atributo do HKD sai da faixa do treino do CIRA: a diferença entre os dois conjuntos é de posição dentro da faixa (medianas em `../dados/hkd/seed42/medianas_malicioso.csv`), e não de faixa. A contagem não aponta atributo que explique os erros.
+  Nenhum atributo do HKD sai da faixa do treino do CIRA: a diferença entre os dois conjuntos é de posição dentro da faixa (medianas em `../dados/hkd/seed42/medianas_malicioso.csv`), e não de faixa.
+
+### `PacketLengthMode` nos fluxos do HKD
+
+Medido pela etapa de dados nos conjuntos limpos inteiros
+(`../dados/hkd/seed42/metrics.json`, com a tabela em `../dados/RESUMO.md`).
+No CIRA limpo inteiro, os valores {56, 62, 68, 87} de `PacketLengthMode` cobrem 99.84% dos 249553 fluxos Malicious-DoH e ocorrem em 1 dos 909555 fluxos legítimos (Non-DoH e Benign-DoH). A regra de um só atributo que chama de malicioso o fluxo com `PacketLengthMode` nesse conjunto tem, no mesmo CIRA de onde os valores foram tirados, recall de 99.84% e 1 falso positivo em 909555 (FPR de 0.0001%). Nos 5258 fluxos do HKD ela detecta 0 (0.00%): 0.00% dos fluxos do HKD têm um valor de `PacketLengthMode` que ocorre no Malicious-DoH do CIRA. O valor mais frequente no HKD, 66 (99.90% dos fluxos), é, no CIRA, o de 28.09% dos fluxos Non-DoH, 50.70% dos fluxos Benign-DoH, 0.00% dos fluxos Malicious-DoH.
+
+- **Ao lado do sistema.** O recall do sistema na transferência é 1.81%; o
+  da regra de um só atributo, nos mesmos fluxos, 0.00%.
+- **O que não foi medido.** Quanto da decisão do sistema nos fluxos do HKD vem
+  de `PacketLengthMode`: não há valor SHAP dos fluxos do HKD neste cenário. A
+  causa da diferença entre as capturas também não foi medida. Hipótese, não
+  medida: a moda do comprimento do pacote depende de como cada captura gravou
+  os pacotes (por exemplo, o cabeçalho de enlace ou as opções do TCP), e não
+  só da ferramenta de túnel.
 
 ## Retreino no combinado sem réplicas
 
@@ -194,7 +209,7 @@ Fluxos de túnel por ferramenta:
 | tcp-over-dns | 27105 | 2935 |
 | tuns | 26181 | 2859 |
 
-10490 dos 10490 fluxos do HKD no teste (100.00%) têm os mesmos 29 atributos de um fluxo do HKD no treino: são cópias, e o recall delas mede memorização.
+10490 dos 10490 fluxos do HKD no teste (100.00%) têm os mesmos 29 atributos de um fluxo do HKD no treino: são cópias de fluxos do treino. O recall delas não mede detecção de fluxo novo.
 
 ### Teste
 
@@ -267,15 +282,16 @@ sem réplicas, 0 dos 513.
   é medido em fluxos que o modelo já recebeu no treino: ele não mede a detecção
   de fluxo novo dessas ferramentas. A coluna que mede isso é a do retreino sem
   réplicas.
-- **O que isso não permite concluir.** A diferença de recall entre as duas
-  colunas de retreino não é a medida do efeito das cópias. Os dois retreinos
-  diferem também no split (as tabelas são diferentes, e treino e teste não têm
-  as mesmas linhas), no número de fluxos do HKD no treino (94670 contra
-  4745) e no teste (10490 contra 513). Nenhum
-  desses fatores foi isolado.
+- **O que isso não permite concluir.** A diferença entre as duas colunas reúne
+  dois efeitos que este experimento não separa: o peso 20 vezes maior do HKD
+  no treino (94670 fluxos contra 4745) e a presença, no teste, de cópias
+  de fluxos do treino. Os dois testes têm linhas e tamanhos diferentes
+  (10490 fluxos do HKD contra 513).
 
 A coluna da transferência não é comparável em tamanho: é o HKD inteiro, e o
 sistema não viu nenhuma das três ferramentas.
+
+**Proximidade ao treino.** No retreino sem réplicas, o recall das ferramentas do HKD (99.42%, 510 de 513) é de fluxos muito próximos de fluxos do treino. Nos 29 atributos normalizados, a mediana da distância de um fluxo do HKD no teste ao fluxo do HKD mais próximo no treino é 0.002571; ao fluxo Malicious-DoH do CIRA mais próximo no treino, 0.051449. Em 505 dos 513 fluxos (98.44%), o vizinho do HKD está mais perto que qualquer malicioso do CIRA. Nenhum deles é cópia exata, mas o recall não estima a detecção de uma sessão de túnel que o treino não tenha. Medida em `../dados/combinado_sem_replicas/seed42/metrics.json`, com a tabela em `../dados/RESUMO.md`.
 
 ## O que não foi feito
 
@@ -286,8 +302,8 @@ sistema não viu nenhuma das três ferramentas.
 - A validação cruzada grava só a matriz de confusão: não há recall por
   ferramenta nem AUC nos folds.
 - Fluxos do HKD da mesma sessão de túnel podem cair um no treino e outro no
-  teste sem serem cópias exatas. Isso não é medido, e o recall do retreino sem
-  réplicas pode incluir esse efeito.
+  teste sem serem cópias exatas. A sessão não está nas tabelas e não é medida;
+  o que foi medido é a distância ao treino, acima.
 - Nenhuma seed, hiperparâmetro ou regra de limpeza foi ajustada depois de ver
   os resultados.
 
@@ -367,7 +383,7 @@ aqui ele é só a linha de referência das figuras.
 
 | medida | CIRA (E5) | combinado sem réplicas |
 | --- | --- | --- |
-| limiar medido de `Duration` (s) | 33.13 | 33.07 |
+| corte que melhor separa o sinal do SHAP (s), amostra com classes em partes iguais | 33.13 | 33.07 |
 | SHAP positivo acima de 40 s | 97.37% | 98.30% |
 | SHAP positivo até 40 s | 20.51% | 19.28% |
 | base concorda com o empilhado | 99.50% | 99.68% |
@@ -383,7 +399,7 @@ Fluxos da amostra com mais bytes recebidos que enviados, por classe real:
 
 Os valores SHAP deste experimento explicam os Random Forests base, não a decisão do empilhamento. A linha 8 do Algoritmo 1 do artigo aplica o `TreeExplainer` sem dizer a qual modelo. O `TreeExplainer` recusa o modelo empilhado com o erro: `Model type not yet supported by TreeExplainer: <class 'mlxtend.classifier.stacking_classification.StackingClassifier'>`. A regressão logística que combina os três bases não é um modelo de árvores, e a decisão final do sistema passa por ela.
 
-Na amostra do teste, a classe de maior probabilidade do base 1 é a classe que o modelo empilhado devolve em 99.68% dos fluxos. Predições do modelo empilhado na amostra: 2123 de Non-DoH, 1852 de Benign-DoH, 2000 de Malicious-DoH. Onde os dois divergem, a explicação do base não é a explicação da saída do sistema.
+Na amostra do teste, com as classes em partes iguais, a classe de maior probabilidade do base 1 é a classe que o modelo empilhado devolve em 99.68% dos fluxos. Predições do modelo empilhado na amostra: 2123 de Non-DoH, 1852 de Benign-DoH, 2000 de Malicious-DoH. Onde os dois divergem, a explicação do base não é a explicação da saída do sistema.
 
 Os valores SHAP são calculados em amostras, com uma seed. O fluxo de cada
 explicação local é o primeiro da classe na amostra do teste e pode ser de

@@ -1,5 +1,5 @@
 {
-  "commit": "c7503f4f3658148eb72af6706448e837b862f2cc",
+  "commit": "18f00245a74b9699477cda678533e62dc56d27d4",
   "config": {
     "cleaning": {
       "drop_inf": false,
@@ -14,21 +14,24 @@
   "experiment": "e6",
   "hostname": "MacBook-Air-de-Breno-2.local",
   "libraries": {
+    "explainerdashboard": "0.5.8",
     "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
     "mlxtend": "0.25.0",
     "numpy": "2.3.5",
     "pandas": "3.0.6",
     "pyarrow": "25.0.1",
     "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
     "shap": "0.52.0",
     "xgboost": "3.4.1"
   },
   "python": "3.12.13",
   "seed": 42,
   "slice": "combinado",
-  "timestamp": "2026-10-07T13:16:26-03:00",
+  "timestamp": "2026-10-07T17:57:55-03:00",
   "timings": {
-    "total_seconds": 23.6
+    "total_seconds": 18.2
   },
   "track": "dados"
 }
