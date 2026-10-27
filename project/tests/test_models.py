@@ -1,6 +1,8 @@
 import numpy as np
 import pytest
+from sklearn.ensemble import RandomForestClassifier
 
+import scripts.e3_sensibilidade as e3
 from doh_ids.config import (
     MAX_DEPTH,
     MAX_FEATURES,
@@ -8,9 +10,10 @@ from doh_ids.config import (
     TABLE_II_FOREST_TREES,
     TABLE_II_TREE_DEPTH,
 )
-from doh_ids.data import feature_matrix
+from doh_ids.data import class_counts, feature_matrix
 from doh_ids.models import base_forests, fit_baseline, stacked_forest
 from doh_ids.splits import balanced_subsets, balanced_train, fit_scaler, stratified_split
+from doh_ids.system import fit_system
 
 SEED = 42
 
@@ -100,3 +103,96 @@ def test_baselines_use_the_hyperparameters_of_table_ii(synthetic_flows):
 
     assert tree.max_depth == TABLE_II_TREE_DEPTH == 10
     assert len(forest.estimators_) == TABLE_II_FOREST_TREES == 10
+
+
+def system_configuration(stacked):
+    """Os pontos da configuração do sistema empilhado que uma leitura alternativa pode trocar."""
+    forest = stacked.clfs_[0]
+    return {
+        "n_base_models": len(stacked.clfs_),
+        "n_estimators": len(forest.estimators_),
+        "max_depth": forest.max_depth,
+        "criterion": forest.criterion,
+        "class_weight": forest.class_weight,
+        "max_features": forest.max_features,
+        "use_probas": stacked.use_probas,
+    }
+
+
+@pytest.mark.parametrize("name", e3.VARIANTS)
+def test_variant_fits_and_predicts_class_codes_and_three_probabilities(synthetic_flows, name):
+    train, test = stratified_split(synthetic_flows, SEED)
+
+    scaler, model, _, _ = e3.fit_variant(train, SEED, MAX_DEPTH, name)
+    X_test = scaler.transform(feature_matrix(test))
+
+    assert set(model.predict(X_test)) <= {0, 1, 2}
+    assert model.predict_proba(X_test).shape == (len(test), 3)
+
+
+def test_use_probas_variant_gives_the_meta_classifier_nine_inputs(synthetic_flows):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    _, stacked, _, _ = e3.fit_variant(train, SEED, MAX_DEPTH, "use_probas")
+
+    assert stacked.meta_clf_.n_features_in_ == 9
+
+
+def test_single_forest_variant_is_fitted_without_synthetic_rows(synthetic_flows):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    _, _, single_sets, _ = e3.fit_variant(train, SEED, MAX_DEPTH, "rf_unico")
+    _, _, stacked_sets, _ = fit_system(train, SEED, MAX_DEPTH)
+
+    # O Random Forest único é ajustado em um conjunto só, com as linhas reais
+    # do treino; os subconjuntos do sistema empilhado têm Benign-DoH sintético.
+    benign = 1
+    assert [entry["class_counts"] for entry in single_sets] == [class_counts(train)]
+    assert all(
+        entry["class_counts"][benign] > class_counts(train)[benign] for entry in stacked_sets
+    )
+
+
+@pytest.mark.parametrize(
+    ("name", "point"),
+    [
+        ("class_weight", "class_weight"),
+        ("use_probas", "use_probas"),
+        ("max_features_padrao", "max_features"),
+    ],
+)
+def test_stacked_variant_differs_from_the_fiel_configuration_in_one_point(
+    synthetic_flows, name, point
+):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    fiel = system_configuration(fit_system(train, SEED, MAX_DEPTH)[1])
+    variant = system_configuration(e3.fit_variant(train, SEED, MAX_DEPTH, name)[1])
+
+    assert {key for key in fiel if fiel[key] != variant[key]} == {point}
+
+
+def test_single_forest_variant_is_the_configuration_of_the_public_script(synthetic_flows):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    _, forest, _, _ = e3.fit_variant(train, SEED, MAX_DEPTH, "rf_unico")
+
+    assert isinstance(forest, RandomForestClassifier)
+    assert forest.class_weight == "balanced"
+    assert forest.max_features == RandomForestClassifier().max_features
+    assert len(forest.estimators_) == N_ESTIMATORS
+    assert forest.max_depth == MAX_DEPTH
+
+
+def test_meta_on_subsets_changes_the_meta_classifier_and_keeps_the_bases(synthetic_flows):
+    train, test = stratified_split(synthetic_flows, SEED)
+
+    scaler, fiel, _, _ = fit_system(train, SEED, MAX_DEPTH)
+    _, variant, _, _ = e3.fit_variant(train, SEED, MAX_DEPTH, "meta_uniao")
+    X_test = scaler.transform(feature_matrix(test))
+
+    # Os bases são os mesmos; só os dados em que o meta é ajustado mudam. Se o
+    # argumento fosse ignorado, a variante sairia igual à reprodução sem erro.
+    assert system_configuration(fiel) == system_configuration(variant)
+    assert np.array_equal(fiel.predict_meta_features(X_test), variant.predict_meta_features(X_test))
+    assert not np.array_equal(fiel.meta_clf_.coef_, variant.meta_clf_.coef_)

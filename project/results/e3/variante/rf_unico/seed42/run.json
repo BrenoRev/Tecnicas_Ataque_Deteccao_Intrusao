@@ -1,0 +1,63 @@
+{
+  "commit": "d7742236900b144efdb362de09a531135a56448b",
+  "config": {
+    "alternative_reading": "um Random Forest só, com class_weight='balanced', max_features no padrão da biblioteca, sem subconjuntos, sem SMOTE e sem meta-classificador",
+    "changed_arguments": {},
+    "changed_point": "sistema inteiro: a configuração do script publicado pelos autores",
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": null,
+    "max_features": "sqrt",
+    "meta_on_subsets": null,
+    "n_base_models": 1,
+    "n_estimators": 10,
+    "n_jobs": -1,
+    "readings": {
+      "base_depth": "sem limite de profundidade (\"variable tree depth\", linha 3 do Algoritmo 1)",
+      "base_estimators": "um Random Forest só, treinado no treino original normalizado",
+      "class_weight": "balanced, como no script publicado pelos autores",
+      "cross_validation": "scaler, subconjuntos, SMOTE, bases e meta refeitos em cada fold",
+      "hyperparameter_source": "valores finais do artigo (Seções IV-A e IV-B), sem busca",
+      "max_features": "padrão do scikit-learn ('sqrt')",
+      "meta_input": "não há meta-classificador",
+      "meta_parameters": "não há meta-classificador",
+      "meta_training_data": "não há meta-classificador",
+      "one_sided_selection": "não aplicada: o artigo a cita sem descrever",
+      "smote_parameters": "SMOTE não aplicado",
+      "smote_target": "SMOTE não aplicado"
+    },
+    "smote_seeds": [],
+    "start": "profundidade variável",
+    "start_run": "e1/variante/profundidade_variavel/seed42",
+    "test_size": 0.1,
+    "use_probas": null,
+    "variant": "rf_unico"
+  },
+  "cpu_count": 10,
+  "data_sha256": "7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3",
+  "dirty": false,
+  "experiment": "e3",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 42,
+  "slice": "rf_unico",
+  "timestamp": "2026-10-07T18:40:13-03:00",
+  "timings": {
+    "base_fit_seconds": 9.0,
+    "total_seconds": 9.7
+  },
+  "track": "variante"
+}
