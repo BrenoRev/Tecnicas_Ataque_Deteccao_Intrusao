@@ -115,6 +115,62 @@ nenhum modelo é ajustado aqui. Os fluxos do CIRA são os do combinado limpo.
 
 Nenhum.
 
+## `PacketLengthMode` no CIRA e no HKD
+
+Moda do comprimento dos pacotes de cada fluxo, nos conjuntos limpos inteiros,
+sem separar treino e teste e sem normalizar. Os fluxos do CIRA são os do
+combinado limpo e os do HKD, os de `Total-48h.csv`.
+
+| origem e classe | fluxos | valores distintos | os 5 valores mais frequentes (fração dos fluxos) |
+| --- | --- | --- | --- |
+| CIRA, Non-DoH | 889809 | 237 | 54 (33.57%), 66 (28.09%), 55 (22.63%), 1514 (5.56%), 60 (3.18%) |
+| CIRA, Benign-DoH | 19746 | 14 | 66 (50.70%), 105 (22.12%), 54 (12.21%), 60 (7.95%), 74 (2.03%) |
+| CIRA, Malicious-DoH | 249553 | 20 | 68 (88.09%), 56 (7.56%), 62 (2.20%), 87 (1.99%), 165 (0.10%) |
+| HKD, Malicious-DoH | 5258 | 2 | 66 (99.90%), 285 (0.10%) |
+
+No CIRA limpo inteiro, os valores {56, 62, 68, 87} de `PacketLengthMode` cobrem 99.84% dos 249553 fluxos Malicious-DoH e ocorrem em 1 dos 909555 fluxos legítimos (Non-DoH e Benign-DoH). A regra de um só atributo que chama de malicioso o fluxo com `PacketLengthMode` nesse conjunto tem, no mesmo CIRA de onde os valores foram tirados, recall de 99.84% e 1 falso positivo em 909555 (FPR de 0.0001%). Nos 5258 fluxos do HKD ela detecta 0 (0.00%): 0.00% dos fluxos do HKD têm um valor de `PacketLengthMode` que ocorre no Malicious-DoH do CIRA. O valor mais frequente no HKD, 66 (99.90% dos fluxos), é, no CIRA, o de 28.09% dos fluxos Non-DoH, 50.70% dos fluxos Benign-DoH, 0.00% dos fluxos Malicious-DoH.
+
+- **Critério da regra.** Entram os valores que cobrem ao menos
+  1% dos fluxos Malicious-DoH do CIRA e no máximo
+  0.01% dos fluxos legítimos. Os dois limites são escolha
+  nossa; os valores saem dos dados.
+- **O que isso mede.** A regra é tirada do CIRA inteiro e medida nele mesmo:
+  descreve os dados, não é um modelo avaliado em teste. Ela mostra que, no
+  CIRA, um só atributo separa quase todo o tráfego malicioso do legítimo, e
+  que essa separação não vale para os fluxos do HKD.
+- **O que não foi medido.** A causa da diferença. Hipótese, não medida: a moda
+  do comprimento do pacote depende de como cada captura gravou os pacotes (por
+  exemplo, o cabeçalho de enlace ou as opções do TCP), e não só da ferramenta
+  de túnel. Nenhum arquivo de captura foi examinado.
+
+## Fluxos do HKD no teste do combinado sem réplicas ao lado do treino
+
+Split do retreino do sistema: seed 42, fração de teste
+0.1. Para cada um dos 513 fluxos do HKD no teste, a
+distância euclidiana, nos 29 atributos normalizados pelo scaler do treino, até
+o mais próximo dos 4745 fluxos do HKD no treino e até o mais próximo dos
+224585 fluxos Malicious-DoH do CIRA no treino. Cada atributo
+normalizado vai de 0 a 1 no treino.
+
+| distância | mínimo | 1º quartil | mediana | 3º quartil | máximo |
+| --- | --- | --- | --- | --- | --- |
+| ao fluxo do HKD mais próximo no treino | 0.000008 | 0.000978 | 0.002571 | 0.006485 | 0.214349 |
+| ao fluxo Malicious-DoH do CIRA mais próximo no treino | 0.017216 | 0.025584 | 0.051449 | 0.070082 | 0.197388 |
+
+| ferramenta | fluxos no teste | mediana ao HKD do treino | mediana ao malicioso do CIRA do treino |
+| --- | --- | --- | --- |
+| dnstt | 232 | 0.003373 | 0.061047 |
+| tcp-over-dns | 142 | 0.007081 | 0.070669 |
+| tuns | 139 | 0.000056 | 0.021812 |
+
+Em 505 dos 513 fluxos
+(98.44%), o fluxo do HKD mais próximo no treino está
+mais perto que qualquer fluxo malicioso do CIRA. A mediana da distância ao HKD do
+treino é 5.00% da mediana da distância ao malicioso do CIRA.
+Nenhum fluxo do HKD no teste é cópia exata de um do treino; a medida diz o
+quanto os que não são cópia ficam perto. Ela não separa fluxos da mesma sessão
+de túnel, porque as tabelas não trazem a sessão.
+
 ## Justificativa da escolha do segundo dataset
 
 **Quais dados.** O segundo dataset é o combinado CIRA-CIC-DoHBrw-2020 +
@@ -128,7 +184,10 @@ classe (Non-DoH, Benign-DoH, Malicious-DoH). Ao lado dele ficam o combinado como
 artigo: os cinco arquivos lidos têm as 35 colunas do
 CIRA-CIC-DoHBrw-2020, com os mesmos nomes e na mesma ordem, e o `README.txt` do
 HKD informa que os atributos foram extraídos das capturas com o DoHLyzer. O
-sistema é aplicado sem mudar a entrada. Segundo, o HKD traz tráfego de túnel de
+sistema recebe as mesmas 29 colunas. Colunas iguais não garantem valores
+comparáveis entre as duas capturas: em `PacketLengthMode`,
+0.00% dos fluxos do HKD têm um valor que ocorre no
+tráfego malicioso do CIRA (seção `PacketLengthMode` acima). Segundo, o HKD traz tráfego de túnel de
 três ferramentas que o CIRA não tem (dnstt, tcp-over-dns, tuns), capturado em
 outras máquinas, de 2021-10-27 a 2021-11-04; as máquinas e
 o período do CIRA estão em `results/e0/dados/RESUMO.md`. Terceiro, o

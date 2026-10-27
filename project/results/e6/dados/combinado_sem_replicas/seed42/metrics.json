@@ -29,6 +29,46 @@
     "tcp-over-dns": 1502,
     "tuns": 1452
   },
+  "hkd_test_proximity": {
+    "by_tool": {
+      "dnstt": {
+        "median_nearest_cira_malicious_train": 0.06104685236383506,
+        "median_nearest_hkd_train": 0.003372843283857042,
+        "n": 232
+      },
+      "tcp-over-dns": {
+        "median_nearest_cira_malicious_train": 0.07066865011922856,
+        "median_nearest_hkd_train": 0.007081101198424431,
+        "n": 142
+      },
+      "tuns": {
+        "median_nearest_cira_malicious_train": 0.02181243535143664,
+        "median_nearest_hkd_train": 5.584607758734165e-05,
+        "n": 139
+      }
+    },
+    "cira_malicious_train_rows": 224585,
+    "fraction_closer_to_hkd_train": 0.9844054580896686,
+    "hkd_test_rows": 513,
+    "hkd_train_rows": 4745,
+    "nearest_cira_malicious_train": {
+      "max": 0.19738790641730414,
+      "median": 0.05144939718505064,
+      "min": 0.017215968977289248,
+      "q1": 0.02558410431377623,
+      "q3": 0.07008202797033845
+    },
+    "nearest_hkd_train": {
+      "max": 0.214349057021693,
+      "median": 0.002570740737030179,
+      "min": 8.354356132671073e-06,
+      "q1": 0.000978298725839134,
+      "q3": 0.006484687967936002
+    },
+    "rows_closer_to_hkd_train": 505,
+    "seed": 42,
+    "test_size": 0.1
+  },
   "infinite_values": 0,
   "nan_by_column": {
     "ResponseTimeTimeMedian": 8028,
