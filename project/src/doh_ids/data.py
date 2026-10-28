@@ -12,17 +12,21 @@ import pandas as pd
 
 from doh_ids.config import (
     CIRA_LOCAL_PREFIX,
+    CIRA_TOOLS,
     CIRA_ZIP_MEMBERS,
     CIRA_ZIP_PATH,
     CLASS_NAMES,
     COMBINED_BENIGN_LABEL,
     COMBINED_CSV_PATHS,
     COMBINED_NON_DOH_LABEL,
+    DOH_COLUMN,
     FEATURE_COLUMNS,
     HKD_CSV_PATH,
     ID_COLUMNS,
     LABEL_COLUMN,
     LABEL_ENCODING,
+    MALICIOUS_ZIP_MEMBER,
+    MALICIOUS_ZIP_PATH,
     SECOND_DATASET_COLUMNS,
     SECOND_DATASET_ENCODING,
     TOOL_ORIGIN,
@@ -77,6 +81,30 @@ def load_cira(zip_path: Path = CIRA_ZIP_PATH) -> pd.DataFrame:
     if not flows["group"].str.startswith(CIRA_LOCAL_PREFIX).all():
         raise ValueError(f"Fluxo sem endereço da rede {CIRA_LOCAL_PREFIX}x em {zip_path.name}.")
     return flows
+
+
+def load_malicious_by_tool(zip_path: Path = MALICIOUS_ZIP_PATH) -> pd.DataFrame:
+    """Lê os fluxos maliciosos de cada ferramenta de túnel direto do zip publicado.
+
+    Devolve os 29 atributos e `tool`, a ferramenta que gerou o fluxo, que é o
+    nome da pasta do arquivo dentro do zip. Só entram as linhas com a coluna
+    `DoH` verdadeira; nada mais é limpo e linhas repetidas não são removidas.
+
+    Levanta `ValueError` se a coluna `DoH` de algum arquivo não for booleana.
+    """
+    columns = FEATURE_COLUMNS + [DOH_COLUMN]
+    tools = []
+    with zipfile.ZipFile(zip_path) as archive:
+        for tool in CIRA_TOOLS:
+            member = MALICIOUS_ZIP_MEMBER.format(tool=tool)
+            # Os identificadores do fluxo não são pedidos ao leitor: não chegam
+            # a entrar na tabela.
+            raw = pd.read_csv(archive.open(member), usecols=columns)
+            if raw[DOH_COLUMN].dtype != bool:
+                raise ValueError(f"Coluna {DOH_COLUMN} não booleana em {member}.")
+            flows = raw.loc[raw[DOH_COLUMN], FEATURE_COLUMNS]
+            tools.append(flows.assign(tool=tool))
+    return pd.concat(tools, ignore_index=True)
 
 
 def column_differences(header: list[str]) -> dict[str, list[str]]:

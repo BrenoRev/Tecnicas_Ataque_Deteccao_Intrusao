@@ -1,0 +1,51 @@
+{
+  "commit": "b459e2ab2272911f8661eff10164116ebb67ea43",
+  "config": {
+    "bins": 100,
+    "cleaning": {
+      "drop_inf": false,
+      "drop_nan": true,
+      "duplicate_columns": null
+    },
+    "panels": [
+      [
+        "ResponseTimeTimeSkewFromMode",
+        "sem unidade",
+        -10,
+        10
+      ],
+      [
+        "PacketTimeVariance",
+        "s²",
+        0,
+        3000
+      ]
+    ]
+  },
+  "cpu_count": 10,
+  "data_sha256": "a4b3e546a9a4b9d307af6bf86d5bd60ba14db110ebd09e27b9da524c6b55deb1",
+  "dirty": false,
+  "experiment": "e7",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 42,
+  "slice": "fig9",
+  "timestamp": "2026-10-07T18:23:20-03:00",
+  "timings": {
+    "total_seconds": 0.0
+  },
+  "track": "dados"
+}
