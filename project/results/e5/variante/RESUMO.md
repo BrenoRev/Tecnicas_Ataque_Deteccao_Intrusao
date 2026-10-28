@@ -98,13 +98,32 @@ O artigo lê na Fig. 6a um limiar de 40 segundos: acima dele o valor SHAP de `Du
 
 - Fluxos da amostra com duração acima de 40 s: 1485, dos quais 97.37% têm valor SHAP positivo.
 - Fluxos com duração até 40 s: 4490, dos quais 20.51% têm valor SHAP positivo.
-- Limiar que melhor separa valor positivo de não positivo nesta amostra: 33.13 s, com 98.38% dos fluxos do lado esperado.
+- Corte que melhor separa valor positivo de não positivo nesta amostra: 33.13 s, com 98.38% dos fluxos do lado esperado.
 - Menor duração com valor positivo: 0.1639 s; maior duração com valor não positivo: 112.09 s.
+
+Por classe real. "Entre os dois cortes" são os fluxos com duração entre o corte medido e os 40 s do artigo:
+
+| classe real | fluxos até 40 s | com SHAP positivo | fluxos acima de 40 s | com SHAP positivo | fluxos entre os dois cortes | fração da classe na amostra |
+| --- | --- | --- | --- | --- | --- | --- |
+| Non-DoH | 1822 | 2.80% | 178 | 98.88% | 51 | 2.55% |
+| Benign-DoH | 1456 | 0.82% | 519 | 92.87% | 15 | 0.76% |
+| Malicious-DoH | 1212 | 70.79% | 788 | 100.00% | 803 | 40.15% |
+
+**Veredito: o limiar de 40 s não é confirmado nesta amostra.** A direção que o artigo descreve aparece: acima de 40 s, 97.37% dos fluxos têm valor SHAP positivo. O ponto de corte medido é 33.13 s, que deixa 98.38% dos fluxos do lado esperado; o corte em 40 s deixa 83.93%. Entre os dois cortes ficam 869 fluxos, 803 deles Malicious-DoH (40.15% dos maliciosos da amostra), e 99.65% têm valor SHAP positivo, o contrário do que o limiar de 40 s prevê para eles. Critério do veredito: o limiar do artigo é confirmado quando a maioria dos fluxos entre ele e o corte medido tem o sinal que ele prevê. A amostra tem as três classes em partes iguais, e os percentuais não são os do tráfego.
 
 Ressalva sobre os dados: a mediana de `Duration` no dataset limpo é
 0.31 s em Non-DoH, 4.10 s em Benign-DoH, 34.07 s em Malicious-DoH. A classe maliciosa foi capturada em outras máquinas e em outro
 período, de modo que a duração pode separar as classes pelo modo como o tráfego
 foi gerado, e não só pelo protocolo.
+
+Ressalva sobre `PacketLengthMode`, atributo de posto 1 no ranking de
+Malicious-DoH do base 1 e de posto
+2 na Fig. 5 do artigo.
+No CIRA limpo inteiro, os valores {56, 62, 68, 87} de `PacketLengthMode` cobrem 99.84% dos 249553 fluxos Malicious-DoH e ocorrem em 1 dos 909555 fluxos legítimos (Non-DoH e Benign-DoH). A regra de um só atributo que chama de malicioso o fluxo com `PacketLengthMode` nesse conjunto tem, no mesmo CIRA de onde os valores foram tirados, recall de 99.84% e 1 falso positivo em 909555 (FPR de 0.0001%). Nos 5258 fluxos do HKD ela detecta 0 (0.00%): 0.00% dos fluxos do HKD têm um valor de `PacketLengthMode` que ocorre no Malicious-DoH do CIRA. O valor mais frequente no HKD, 66 (99.90% dos fluxos), é, no CIRA, o de 28.09% dos fluxos Non-DoH, 50.70% dos fluxos Benign-DoH, 0.00% dos fluxos Malicious-DoH.
+Os números vêm de `results/e6/dados/hkd/seed42/metrics.json`, gravado por
+`scripts/e6_dados.py`. Como a duração, esse atributo pode separar as classes
+pelo modo como o tráfego do CIRA foi capturado, e não só pelo protocolo: a
+importância dele aqui não diz que ele detecta túnel de outra captura.
 
 ## Dependência de `FlowBytesSent` ao lado da Fig. 6b
 
@@ -186,7 +205,7 @@ Arquivos `fig8_explicacao_non-doh.png` e `fig8_explicacao_non-doh.csv`. Classe p
 
 Os valores SHAP deste experimento explicam os Random Forests base, não a decisão do empilhamento. A linha 8 do Algoritmo 1 do artigo aplica o `TreeExplainer` sem dizer a qual modelo. O `TreeExplainer` recusa o modelo empilhado com o erro: `Model type not yet supported by TreeExplainer: <class 'mlxtend.classifier.stacking_classification.StackingClassifier'>`. A regressão logística que combina os três bases não é um modelo de árvores, e a decisão final do sistema passa por ela.
 
-Na amostra do teste, a classe de maior probabilidade do base 1 é a classe que o modelo empilhado devolve em 99.50% dos fluxos. Predições do modelo empilhado na amostra: 2138 de Non-DoH, 1837 de Benign-DoH, 2000 de Malicious-DoH. Onde os dois divergem, a explicação do base não é a explicação da saída do sistema.
+Na amostra do teste, com as classes em partes iguais, a classe de maior probabilidade do base 1 é a classe que o modelo empilhado devolve em 99.50% dos fluxos. Predições do modelo empilhado na amostra: 2138 de Non-DoH, 1837 de Benign-DoH, 2000 de Malicious-DoH. Onde os dois divergem, a explicação do base não é a explicação da saída do sistema.
 
 ## Ressalvas e o que não foi feito
 
