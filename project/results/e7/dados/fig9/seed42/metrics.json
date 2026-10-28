@@ -1,0 +1,71 @@
+{
+  "fig9_statistics": [
+    {
+      "atributo": "ResponseTimeTimeSkewFromMode",
+      "desvio padrão": 0.6071485096346455,
+      "desvio padrão no artigo": 0.607949,
+      "ferramenta": "dns2tcp",
+      "fluxos": 167287,
+      "fração com -10": 0.001040128641197463,
+      "fração no eixo": 1.0,
+      "média": 1.0986631429003229,
+      "média no artigo": 1.09728
+    },
+    {
+      "atributo": "ResponseTimeTimeSkewFromMode",
+      "desvio padrão": 1.1384711887670613,
+      "desvio padrão no artigo": 1.13836,
+      "ferramenta": "dnscat2",
+      "fluxos": 35742,
+      "fração com -10": 0.007526159700072744,
+      "fração no eixo": 1.0,
+      "média": 0.5041190309942278,
+      "média no artigo": 0.504178
+    },
+    {
+      "atributo": "ResponseTimeTimeSkewFromMode",
+      "desvio padrão": 1.0843523313860937,
+      "desvio padrão no artigo": 1.08367,
+      "ferramenta": "iodine",
+      "fluxos": 46524,
+      "fração com -10": 0.007759435990026653,
+      "fração no eixo": 1.0,
+      "média": 0.5212727293026436,
+      "média no artigo": 0.520797
+    },
+    {
+      "atributo": "PacketTimeVariance",
+      "desvio padrão": 290.9468958640598,
+      "desvio padrão no artigo": 290.832,
+      "ferramenta": "dns2tcp",
+      "fluxos": 167287,
+      "fração com -10": null,
+      "fração no eixo": 1.0,
+      "média": 197.60332786649096,
+      "média no artigo": 197.345
+    },
+    {
+      "atributo": "PacketTimeVariance",
+      "desvio padrão": 432.2515609087501,
+      "desvio padrão no artigo": 434.215,
+      "ferramenta": "dnscat2",
+      "fluxos": 35742,
+      "fração com -10": null,
+      "fração no eixo": 1.0,
+      "média": 857.580899577409,
+      "média no artigo": 854.902
+    },
+    {
+      "atributo": "PacketTimeVariance",
+      "desvio padrão": 429.0922894753033,
+      "desvio padrão no artigo": 430.179,
+      "ferramenta": "iodine",
+      "fluxos": 46524,
+      "fração com -10": null,
+      "fração no eixo": 1.0,
+      "média": 880.865181113565,
+      "média no artigo": 879.466
+    }
+  ],
+  "flows": 249553
+}
