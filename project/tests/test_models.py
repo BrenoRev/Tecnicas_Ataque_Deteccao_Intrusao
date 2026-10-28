@@ -1,18 +1,21 @@
 import numpy as np
 import pytest
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
 
 import scripts.e3_sensibilidade as e3
 from doh_ids.config import (
     MAX_DEPTH,
     MAX_FEATURES,
     MODIFIED_GRID,
+    MODIFIED_MODELS,
     N_ESTIMATORS,
     TABLE_II_FOREST_TREES,
     TABLE_II_TREE_DEPTH,
 )
 from doh_ids.data import class_counts, feature_matrix
-from doh_ids.models import base_forests, fit_baseline, stacked_forest
+from doh_ids.models import base_forests, fit_baseline, fit_modified_forest, stacked_forest
 from doh_ids.splits import balanced_subsets, balanced_train, fit_scaler, stratified_split
 from doh_ids.system import fit_system
 
@@ -204,3 +207,19 @@ def test_selection_grid_has_at_most_eight_combinations_and_the_one_of_the_articl
     assert {"n_estimators": 10, "max_depth": 5, "max_features": 28} in MODIFIED_GRID
     # Combinação repetida seria avaliada duas vezes sem mudar a escolha.
     assert len({tuple(combination.items()) for combination in MODIFIED_GRID}) == len(MODIFIED_GRID)
+
+
+def test_modified_model_is_a_pipeline_with_the_scaler_first_and_a_class_weighted_forest(
+    synthetic_flows,
+):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    model = fit_modified_forest(
+        feature_matrix(train), train["label"].to_numpy(), SEED, **MODIFIED_MODELS["M1"]
+    )
+
+    assert isinstance(model, Pipeline)
+    assert isinstance(model.steps[0][1], MinMaxScaler)
+    forest = model.steps[-1][1]
+    assert isinstance(forest, RandomForestClassifier)
+    assert forest.class_weight == "balanced"
