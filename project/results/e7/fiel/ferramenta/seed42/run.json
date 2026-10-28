@@ -1,0 +1,71 @@
+{
+  "commit": "b459e2ab2272911f8661eff10164116ebb67ea43",
+  "config": {
+    "classes": [
+      "dns2tcp",
+      "dnscat2",
+      "iodine"
+    ],
+    "cleaning": {
+      "drop_inf": false,
+      "drop_nan": true,
+      "duplicate_columns": null
+    },
+    "criterion": "gini",
+    "max_depth": 5,
+    "max_features": 28,
+    "n_estimators": 10,
+    "n_jobs": -1,
+    "n_subsets": 3,
+    "readings": {
+      "base_depth": "profundidade máxima 5 nos submodelos (Seção IV-B)",
+      "base_estimators": "um Random Forest por subconjunto, treinado antes do empilhamento",
+      "class_weight": "nenhum: o artigo não menciona",
+      "cross_validation": "não executada: o artigo não mostra matriz para a Seção VI-D",
+      "hyperparameter_source": "valores finais do artigo (Seções IV-A e IV-B), sem busca",
+      "meta_input": "rótulo predito por cada base (use_probas=False), três entradas",
+      "meta_parameters": "regressão logística com os parâmetros padrão do scikit-learn",
+      "meta_training_data": "predições dos bases no treino original normalizado, sem sintéticas",
+      "method": "sistema da reprodução aplicado só aos fluxos maliciosos, uma classe por ferramenta",
+      "one_sided_selection": "não aplicada: o artigo a cita sem descrever",
+      "smote_parameters": "padrão do imbalanced-learn",
+      "smote_target": "só a ferramenta com menos fluxos no treino",
+      "subset_roles": "a ferramenta com mais fluxos no treino é dividida em três partes; a com menos é aumentada com SMOTE até o tamanho da terceira"
+    },
+    "smote_seeds": [
+      4200,
+      4201,
+      4202
+    ],
+    "test_size": 0.1
+  },
+  "cpu_count": 10,
+  "data_sha256": "a4b3e546a9a4b9d307af6bf86d5bd60ba14db110ebd09e27b9da524c6b55deb1",
+  "dirty": false,
+  "experiment": "e7",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 42,
+  "slice": "ferramenta",
+  "timestamp": "2026-10-07T18:23:20-03:00",
+  "timings": {
+    "base_fit_seconds": 7.2,
+    "meta_fit_seconds": 0.5,
+    "subsets_seconds": 2.1,
+    "total_seconds": 10.5
+  },
+  "track": "fiel"
+}
