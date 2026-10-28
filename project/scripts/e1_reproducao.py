@@ -57,6 +57,7 @@ from doh_ids.data import class_counts, feature_matrix, sha256_of
 from doh_ids.evaluate import compare_confusion, evaluate, metrics_from_confusion
 from doh_ids.runlog import save_run
 from doh_ids.splits import stratified_split
+from doh_ids.summary import frame_markdown_table
 from doh_ids.system import cross_validated_confusion, fit_system
 
 # Resultados da etapa de dados, com os quais esta execução é conferida.
@@ -285,18 +286,10 @@ def run_experiment(
     return run_dir, metrics
 
 
-def markdown_table(frame: pd.DataFrame) -> str:
-    """Escreve a tabela, com o índice na primeira coluna, em Markdown."""
-    frame = frame.reset_index()
-    lines = [" | ".join(frame.columns), " | ".join("---" for _ in frame.columns)]
-    lines += [" | ".join(str(value) for value in row) for row in frame.itertuples(index=False)]
-    return "\n".join(f"| {line} |" for line in lines)
-
-
 def matrix_table(confusion: list[list[int]]) -> str:
     """Escreve uma matriz de confusão em Markdown, com o nome das classes."""
     index = pd.Index(CLASS_NAMES, name="real \\ predito")
-    return markdown_table(pd.DataFrame(confusion, index=index, columns=CLASS_NAMES))
+    return frame_markdown_table(pd.DataFrame(confusion, index=index, columns=CLASS_NAMES))
 
 
 def confusion_tables(obtained: list[list[int]], target: list[list[int]], figure: str) -> str:
@@ -395,7 +388,7 @@ def table_ii_table(comparison: dict) -> str:
         for name, value in entry["obtained"].items()
     ]
     columns = ["métrica da Tabela II", "artigo", "métrica obtida", "valor", "diferença (pp)"]
-    return markdown_table(pd.DataFrame(rows, columns=columns).set_index(columns[0]))
+    return frame_markdown_table(pd.DataFrame(rows, columns=columns).set_index(columns[0]))
 
 
 def subsets_table(subsets: list[dict]) -> str:
@@ -410,7 +403,7 @@ def subsets_table(subsets: list[dict]) -> str:
     ]
     columns = ["amostras por classe", "razão obtida", "Benign-DoH sintético"]
     index = pd.RangeIndex(1, len(subsets) + 1, name="subconjunto")
-    return markdown_table(pd.DataFrame(rows, columns=columns, index=index))
+    return frame_markdown_table(pd.DataFrame(rows, columns=columns, index=index))
 
 
 def decisions_table(decision_table: list[dict]) -> str:
@@ -430,7 +423,7 @@ def decisions_table(decision_table: list[dict]) -> str:
         "linhas do treino por classe real",
         "linhas do teste",
     ]
-    return markdown_table(pd.DataFrame(rows, columns=columns).set_index(columns[0]))
+    return frame_markdown_table(pd.DataFrame(rows, columns=columns).set_index(columns[0]))
 
 
 def meta_text(metrics: dict) -> str:
@@ -593,7 +586,7 @@ def side_by_side(target: list[list[int]], figure: str, obtained: dict) -> str:
     frame = pd.DataFrame.from_dict(rows, orient="index", columns=list(matrices))
     frame.index.name = "medida"
     blocks = [f"{name}:\n\n{matrix_table(matrix)}" for name, matrix in matrices.items()]
-    return "\n\n".join([*blocks, markdown_table(frame)])
+    return "\n\n".join([*blocks, frame_markdown_table(frame)])
 
 
 def comparison_text(results: list[tuple[dict, dict]]) -> str:
