@@ -29,6 +29,7 @@ from doh_ids.config import (
     RESULTS_DIR,
     SEED_FIEL,
     TABLE_II,
+    TABLE_II_FAR_ABOVE_PP,
     TABLE_II_FOREST_TREES,
     TABLE_II_LITERATURE,
     TABLE_II_TREE_DEPTH,
@@ -40,6 +41,7 @@ from doh_ids.evaluate import evaluate
 from doh_ids.models import fit_baseline
 from doh_ids.runlog import save_run
 from doh_ids.splits import balanced_train, fit_scaler, stratified_split
+from doh_ids.summary import markdown_table
 
 # Resultados da etapa de dados, com os quais esta execução é conferida.
 E0_DIR = RESULTS_DIR / "e0" / "dados" / "cira" / f"seed{SEED_FIEL}"
@@ -114,11 +116,12 @@ def run_baseline(
     balanced: tuple[np.ndarray, np.ndarray],
     X_test: np.ndarray,
     y_test: np.ndarray,
-) -> tuple[dict, int | None, dict]:
+) -> tuple[dict, np.ndarray, int | None, dict]:
     """Treina o modelo `name` no treino balanceado e o avalia no teste.
 
-    Devolve as métricas do teste, a profundidade máxima do modelo ajustado e os
-    tempos de treino e de avaliação, em segundos.
+    Devolve as métricas do teste, a classe predita para cada linha do teste, a
+    profundidade máxima do modelo ajustado e os tempos de treino e de
+    avaliação, em segundos.
     """
     start = time.perf_counter()
     model = fit_baseline(name, *balanced, SEED_FIEL)
@@ -126,17 +129,20 @@ def run_baseline(
     print(f"{BASELINES[name]['label']}: treino em {fit_seconds} s")
 
     start = time.perf_counter()
-    test_metrics = evaluate(y_test, model.predict(X_test), model.predict_proba(X_test))
+    predicted = model.predict(X_test)
+    test_metrics = evaluate(y_test, predicted, model.predict_proba(X_test))
     evaluation_seconds = round(time.perf_counter() - start, 1)
     timings = {"fit_seconds": fit_seconds, "evaluation_seconds": evaluation_seconds}
-    return test_metrics, model.max_depth, timings
+    return test_metrics, predicted, model.max_depth, timings
 
 
-def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> dict:
-    """Treina e avalia os três modelos de comparação sobre `table` e grava os resultados.
+def evaluate_baselines(table: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Treina e avalia os três modelos de comparação sobre `table`, sem gravar nada.
 
-    `table` tem os atributos do modelo e `label`. Devolve, para cada modelo, o
-    diretório da execução e o dicionário gravado em metrics.json.
+    `table` tem os atributos do modelo e `label`. Devolve o teste e, para cada
+    modelo, um dicionário com as métricas (`metrics`), a configuração
+    (`config`), os tempos (`timings`) e a classe predita para cada linha do
+    teste (`predicted`).
     """
     # O teste é separado antes de qualquer ajuste e só volta na avaliação final.
     train, test = stratified_split(table, SEED_FIEL)
@@ -156,9 +162,9 @@ def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> 
     assert balanced_rows == [max(train_rows)] * len(CLASS_NAMES), "Treino não ficou balanceado."
     print(f"SMOTE do treino inteiro: {smote_seconds} s; amostras por classe {balanced_rows}")
 
-    results = {}
+    evaluated = {}
     for name, baseline in BASELINES.items():
-        test_metrics, max_depth, timings = run_baseline(
+        test_metrics, predicted, max_depth, timings = run_baseline(
             name, balanced, X_test, test["label"].to_numpy()
         )
         # Cada matriz tem, por classe, exatamente as linhas reais do teste:
@@ -172,7 +178,6 @@ def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> 
             "synthetic_train_rows": np.subtract(balanced_rows, train_rows).tolist(),
             "test_rows": test_rows,
             "test": test_metrics,
-            "table_ii_comparison": table_ii_comparison(test_metrics, name),
         }
         config = {
             "model": name,
@@ -185,25 +190,41 @@ def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> 
             "smote_seed": smote_seed(SEED_FIEL, N_SUBSETS),
             "readings": BASELINE_READINGS,
         }
+        evaluated[name] = {
+            "metrics": metrics,
+            "config": config,
+            "timings": {"smote_seconds": smote_seconds, **timings},
+            "predicted": predicted,
+        }
+    return test, evaluated
+
+
+def run_experiment(table: pd.DataFrame, data_sha256: str, results_dir: Path) -> dict:
+    """Treina e avalia os três modelos de comparação sobre `table` e grava os resultados.
+
+    `table` tem os atributos do modelo e `label`. Devolve, para cada modelo, o
+    diretório da execução e o dicionário gravado em metrics.json.
+    """
+    _, evaluated = evaluate_baselines(table)
+    results = {}
+    for name, entry in evaluated.items():
+        metrics = {
+            **entry["metrics"],
+            "table_ii_comparison": table_ii_comparison(entry["metrics"]["test"], name),
+        }
         run_dir = save_run(
             experiment="e2",
             track="fiel",
             slice_name=name,
             seed=SEED_FIEL,
             metrics=metrics,
-            config=config,
+            config=entry["config"],
             data_sha256=data_sha256,
-            timings={"smote_seconds": smote_seconds, **timings},
+            timings=entry["timings"],
             results_dir=results_dir,
         )
         results[name] = (run_dir, metrics)
     return results
-
-
-def markdown_table(columns: list[str], rows: list[list]) -> str:
-    """Escreve uma tabela em Markdown a partir dos nomes das colunas e das linhas."""
-    lines = [columns, ["---"] * len(columns), *rows]
-    return "\n".join("| " + " | ".join(str(cell) for cell in line) + " |" for line in lines)
 
 
 def comparison_table(comparisons: dict) -> str:
@@ -226,6 +247,35 @@ def comparison_table(comparisons: dict) -> str:
     ]
     columns = ["modelo", "métrica da Tabela II", "artigo", "métrica obtida", "valor", "dif. (pp)"]
     return markdown_table(columns, rows)
+
+
+def far_above_text(comparisons: dict) -> str:
+    """Destaca os modelos de comparação que saem muito acima da sua linha na Tabela II.
+
+    `comparisons` leva o nome de cada modelo de comparação à sua comparação com
+    a Tabela II.
+    """
+    limit = f"{TABLE_II_FAR_ABOVE_PP:g} pontos percentuais"
+    lines = []
+    for label, comparison in comparisons.items():
+        far = [
+            f"`{key}` {value:.4f} contra {entry['table_ii']} no artigo "
+            f"({entry['difference_pp'][key]:+.2f} pp)"
+            for entry in comparison.values()
+            for key, value in entry["obtained"].items()
+            if entry["difference_pp"][key] > TABLE_II_FAR_ABOVE_PP
+        ]
+        if far:
+            lines.append(f"- **{label}:** " + "; ".join(far) + ".")
+    if not lines:
+        return f"Nenhum modelo de comparação fica mais de {limit} acima da sua linha na Tabela II."
+    return (
+        f"Modelos de comparação mais de {limit} acima da sua linha na Tabela II (o limite é "
+        "escolha nossa):\n\n" + "\n".join(lines) + "\n\nUma diferença desse tamanho, para "
+        "cima, é indício de que o modelo do artigo foi treinado com uma configuração diferente "
+        "da que a Tabela II informa. Qual é a diferença não foi medido, e a configuração daqui "
+        "não foi ajustada para aproximar o resultado."
+    )
 
 
 def literature_table() -> str:
@@ -311,6 +361,8 @@ nele, `roc_auc_ovr_macro` é a AUC da saída do meta-classificador e
 `roc_auc_ovr_macro_base_mean` a da média das probabilidades dos bases.
 
 {comparison_table({**comparisons, **proposed})}
+
+{far_above_text(comparisons)}
 
 ## Tabela II, metade inferior: resultados da literatura
 

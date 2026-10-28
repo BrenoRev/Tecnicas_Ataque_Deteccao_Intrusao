@@ -1,0 +1,108 @@
+{
+  "cira_test_confusion_matrix": [
+    [
+      88922,
+      0,
+      59
+    ],
+    [
+      1975,
+      0,
+      0
+    ],
+    [
+      522,
+      0,
+      24433
+    ]
+  ],
+  "cira_test_outside_unit_interval": {
+    "by_column": {
+      "FlowSentRate": 1,
+      "PacketLengthMean": 1,
+      "ResponseTimeTimeCoefficientofVariation": 1
+    },
+    "rows": 3,
+    "values": 3
+  },
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "evaluated_dataset": "hkd",
+  "hkd": {
+    "by_tool": {
+      "dnstt": {
+        "detected": 0,
+        "n": 2304,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 0,
+          "Non-DoH": 2304
+        },
+        "recall": 0.0,
+        "recall_ci_high": 0.0015997951133083406,
+        "recall_ci_level": 0.95,
+        "recall_ci_low": 0.0
+      },
+      "tcp-over-dns": {
+        "detected": 0,
+        "n": 1502,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 0,
+          "Non-DoH": 1502
+        },
+        "recall": 0.0,
+        "recall_ci_high": 0.0024529648843429576,
+        "recall_ci_level": 0.95,
+        "recall_ci_low": 0.0
+      },
+      "tuns": {
+        "detected": 90,
+        "n": 1452,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 90,
+          "Non-DoH": 1362
+        },
+        "recall": 0.06198347107438017,
+        "recall_ci_high": 0.07564134796853295,
+        "recall_ci_level": 0.95,
+        "recall_ci_low": 0.050133267835888215
+      }
+    },
+    "malicious": {
+      "detected": 90,
+      "n": 5258,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 90,
+        "Non-DoH": 5168
+      },
+      "recall": 0.017116774438950173,
+      "recall_ci_high": 0.020998038671996812,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.01378579318113963
+    },
+    "negatives": 0
+  },
+  "hkd_outside_unit_interval": {
+    "by_column": {},
+    "rows": 0,
+    "values": 0
+  },
+  "hkd_rows": 5258,
+  "hkd_rows_by_tool": {
+    "dnstt": 2304,
+    "tcp-over-dns": 1502,
+    "tuns": 1452
+  },
+  "train_dataset": "cira",
+  "train_rows": [
+    800828,
+    17771,
+    224598
+  ]
+}
