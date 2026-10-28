@@ -72,6 +72,12 @@ nele, `roc_auc_ovr_macro` é a AUC da saída do meta-classificador e
 | Modelo proposto, variante (profundidade variável) | recall | 0.9992 | macro_recall | 0.975219 | -2.3981 |
 | Modelo proposto, variante (profundidade variável) | recall | 0.9992 | weighted_recall | 0.996359 | -0.2841 |
 
+Modelos de comparação mais de 5 pontos percentuais acima da sua linha na Tabela II (o limite é escolha nossa):
+
+- **Árvore de decisão:** `roc_auc_ovr_macro` 0.9927 contra 0.8617 no artigo (+13.10 pp); `weighted_f1` 0.9775 contra 0.8197 no artigo (+15.78 pp); `macro_recall` 0.9641 contra 0.712 no artigo (+25.21 pp); `weighted_recall` 0.9723 contra 0.712 no artigo (+26.03 pp).
+
+Uma diferença desse tamanho, para cima, é indício de que o modelo do artigo foi treinado com uma configuração diferente da que a Tabela II informa. Qual é a diferença não foi medido, e a configuração daqui não foi ajustada para aproximar o resultado.
+
 ## Tabela II, metade inferior: resultados da literatura
 
 Valores copiados do artigo como impressos, com a referência que ele cita em
