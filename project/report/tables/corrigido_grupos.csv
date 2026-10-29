@@ -1,0 +1,7 @@
+Métrica,Split aleatório,Por máquina
+Benign-DoH: precisão,87.00 ± 0.66,50.83 ± 35.85
+Benign-DoH: recall,93.07 ± 0.52,31.10 ± 9.42
+Benign-DoH: F1,89.93 ± 0.35,36.14 ± 17.96
+Malicious-DoH: recall,99.94 ± 0.02,99.25 ± 1.38
+Malicious-DoH: FPR,0.0015 ± 0.0011,0.0788 ± 0.1392
+F1 macro,96.56 ± 0.12,77.89 ± 5.99

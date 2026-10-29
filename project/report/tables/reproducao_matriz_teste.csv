@@ -1,0 +1,16 @@
+Fonte,Classe real,Classe predita Non-DoH,Classe predita Benign-DoH,Classe predita Malicious-DoH
+Artigo (Fig. 4b),Non-DoH,88928,50,2
+Artigo (Fig. 4b),Benign-DoH,192,1782,1
+Artigo (Fig. 4b),Malicious-DoH,6,0,24949
+Prof. 5,Non-DoH,88922,0,59
+Prof. 5,Benign-DoH,1975,0,0
+Prof. 5,Malicious-DoH,522,0,24433
+Prof. 5 − artigo,Non-DoH,-6,-50,+57
+Prof. 5 − artigo,Benign-DoH,+1783,-1782,-1
+Prof. 5 − artigo,Malicious-DoH,+516,0,-516
+Prof. var.,Non-DoH,88709,269,3
+Prof. var.,Benign-DoH,140,1835,0
+Prof. var.,Malicious-DoH,8,2,24945
+Prof. var. − artigo,Non-DoH,-219,+219,+1
+Prof. var. − artigo,Benign-DoH,-52,+53,-1
+Prof. var. − artigo,Malicious-DoH,+2,+2,-4
