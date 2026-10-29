@@ -1,0 +1,255 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "fit_rows": [
+    [
+      266943,
+      229330,
+      229330
+    ],
+    [
+      266943,
+      229330,
+      229330
+    ],
+    [
+      266942,
+      229330,
+      229330
+    ]
+  ],
+  "split_index_sha256": {
+    "test": "e3a93c756b3bb1c2ab2d51f78c8ff27e825363d293ba3af9c75bcbd29dc2a695",
+    "train": "9086c4eb77bf18e7fdbf7120ee35d1d5d4dfa3ce1693efdf06c83195f66cf02f"
+  },
+  "test": {
+    "accuracy": 0.9965045475235536,
+    "confusion_matrix": [
+      [
+        88721,
+        259,
+        1
+      ],
+      [
+        136,
+        1839,
+        0
+      ],
+      [
+        6,
+        5,
+        25470
+      ]
+    ],
+    "macro_f1": 0.9664722595091578,
+    "macro_precision": 0.9576092747286551,
+    "macro_recall": 0.9759285247321334,
+    "malicious_vs_rest": {
+      "false_positives": 1,
+      "fpr": 1.0994326927305511e-05,
+      "fpr_ci_high": 6.125492954384143e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 2.7835221932204267e-07,
+      "negatives": 90956,
+      "recall": 0.9995683057964758
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.9019127023050515,
+        "pr_auc": 0.8400346027914296,
+        "pr_auc_base_mean": 0.9423054673345057,
+        "precision": 0.8744650499286734,
+        "recall": 0.9311392405063291,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9997644842204428,
+        "pr_auc": 0.9997984772023949,
+        "pr_auc_base_mean": 0.9999983904714473,
+        "precision": 0.9999607396647168,
+        "recall": 0.9995683057964758,
+        "support": 25481
+      },
+      "Non-DoH": {
+        "f1": 0.9977395920019793,
+        "pr_auc": 0.9989599300831601,
+        "pr_auc_base_mean": 0.9995803262435057,
+        "precision": 0.998402034592575,
+        "recall": 0.9970780278935952,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9906026437933438,
+    "roc_auc_ovr_macro_base_mean": 0.9972640209824858,
+    "total": 116437,
+    "weighted_f1": 0.9965573060573675,
+    "weighted_precision": 0.9966409261754228,
+    "weighted_recall": 0.9965045475235536
+  },
+  "test_recall_by_tool": {
+    "dns2tcp": {
+      "detected": 16838,
+      "n": 16838,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 16838,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9997809433779176
+    },
+    "dnscat2": {
+      "detected": 3469,
+      "n": 3473,
+      "predicted_as": {
+        "Benign-DoH": 3,
+        "Malicious-DoH": 3469,
+        "Non-DoH": 1
+      },
+      "recall": 0.9988482579902102,
+      "recall_ci_high": 0.9996861027277477,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9970537319731939
+    },
+    "dnstt": {
+      "detected": 233,
+      "n": 233,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 233,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9842925682535313
+    },
+    "iodine": {
+      "detected": 4625,
+      "n": 4632,
+      "predicted_as": {
+        "Benign-DoH": 2,
+        "Malicious-DoH": 4625,
+        "Non-DoH": 5
+      },
+      "recall": 0.9984887737478411,
+      "recall_ci_high": 0.9993921996037258,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.99688879068362
+    },
+    "tcp-over-dns": {
+      "detected": 149,
+      "n": 149,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 149,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.97554637509441
+    },
+    "tuns": {
+      "detected": 156,
+      "n": 156,
+      "predicted_as": {
+        "Benign-DoH": 0,
+        "Malicious-DoH": 156,
+        "Non-DoH": 0
+      },
+      "recall": 1.0,
+      "recall_ci_high": 1.0,
+      "recall_ci_level": 0.95,
+      "recall_ci_low": 0.9766307284086198
+    }
+  },
+  "test_rows": [
+    88981,
+    1975,
+    25481
+  ],
+  "test_seen_in_train": {
+    "by_class": [
+      15674,
+      83,
+      5
+    ],
+    "fraction": 0.13536934136056408,
+    "rows": 15762
+  },
+  "test_unseen": {
+    "accuracy": 0.9961162155450708,
+    "confusion_matrix": [
+      [
+        73056,
+        250,
+        1
+      ],
+      [
+        129,
+        1763,
+        0
+      ],
+      [
+        6,
+        5,
+        25465
+      ]
+    ],
+    "macro_f1": 0.9663066236869698,
+    "macro_precision": 0.9572511691660807,
+    "macro_recall": 0.9759874820348373,
+    "malicious_vs_rest": {
+      "false_positives": 1,
+      "fpr": 1.3298049176185854e-05,
+      "fpr_ci_high": 7.408973567218927e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 3.3667739893246967e-07,
+      "negatives": 75199,
+      "recall": 0.9995682210708118
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.9017902813299231,
+        "pr_auc": 0.8409490154864419,
+        "pr_auc_base_mean": 0.9457432260511519,
+        "precision": 0.873637264618434,
+        "recall": 0.9318181818181818,
+        "support": 1892
+      },
+      "Malicious-DoH": {
+        "f1": 0.9997644379883004,
+        "pr_auc": 0.9998054870955548,
+        "pr_auc_base_mean": 0.9999983898446211,
+        "precision": 0.999960731956334,
+        "recall": 0.9995682210708118,
+        "support": 25476
+      },
+      "Non-DoH": {
+        "f1": 0.9973651517426859,
+        "pr_auc": 0.9988225887550599,
+        "pr_auc_base_mean": 0.999538654867969,
+        "precision": 0.9981555109234742,
+        "recall": 0.9965760432155183,
+        "support": 73307
+      }
+    },
+    "roc_auc_ovr_macro": 0.9907438853462737,
+    "roc_auc_ovr_macro_base_mean": 0.9975625420943541,
+    "total": 100675,
+    "weighted_f1": 0.9961761431662998,
+    "weighted_precision": 0.9962722359199878,
+    "weighted_recall": 0.9961162155450708
+  },
+  "train_rows": [
+    800828,
+    17771,
+    229330
+  ]
+}

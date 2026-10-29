@@ -1,5 +1,5 @@
 {
-  "commit": "18f00245a74b9699477cda678533e62dc56d27d4",
+  "commit": "ff039fa4758928a9eddd2e0c8e0055b515321121",
   "config": {
     "base_depth": "sem limite de profundidade (\"variable tree depth\", linha 3 do Algoritmo 1)",
     "explained_base": 1,
@@ -29,13 +29,13 @@
   "python": "3.12.13",
   "seed": 42,
   "slice": "profundidade_variavel",
-  "timestamp": "2026-10-07T18:10:18-03:00",
+  "timestamp": "2026-10-07T21:44:28-03:00",
   "timings": {
-    "base_fit_seconds": 119.5,
-    "meta_fit_seconds": 4.0,
-    "shap_test_sample_seconds": 97.7,
-    "shap_train_sample_seconds": 293.0,
-    "subsets_seconds": 1.0,
+    "base_fit_seconds": 118.7,
+    "meta_fit_seconds": 3.9,
+    "shap_test_sample_seconds": 97.5,
+    "shap_train_sample_seconds": 294.0,
+    "subsets_seconds": 1.2,
     "total_seconds": 516.1
   },
   "track": "variante"

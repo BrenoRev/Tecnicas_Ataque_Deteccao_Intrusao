@@ -1,12 +1,15 @@
 # E3: sensibilidade às leituras que o artigo deixa em aberto
 
-Gerado por `scripts/e3_sensibilidade.py`. Os números de cada recorte vêm de
+Gerado por `scripts/e3_resumo.py`, que não treina: lê os arquivos gravados por
+`scripts/e3_sensibilidade.py`. Os números de cada recorte vêm de
 `<recorte>/seed42/metrics.json`; a configuração e os tempos, de
 `<recorte>/seed42/run.json`; a tabela abaixo, sem arredondamento, está em
 `comparacao.csv`. Uma única execução de cada recorte, com a seed 42: não há
 média nem desvio padrão, e diferença pequena entre recortes não distingue
 leitura de variação entre seeds. Todos os recortes são avaliados no mesmo
 teste, de 115911 fluxos. Não há validação cruzada aqui.
+
+A lista das leituras alternativas e as duas configurações de partida foram fixadas no código em commit anterior à execução: os `run.json` registram o commit `d774223`, com a árvore limpa. Não houve hipótese escrita antes de rodar, e isso não se conserta depois: nenhum número desta pasta foi confrontado com uma expectativa declarada antes de ser visto.
 
 ## O que foi variado
 
@@ -92,7 +95,9 @@ essa classe erra no máximo essas linhas, e a soma quase não registra a perda d
 uma classe inteira. Por isso a soma vai ao lado das métricas por classe, e
 nenhuma leitura é declarada a mais próxima do artigo por um número só.
 
-Entre os 10 recortes medidos aqui, o de menor soma das diferenças absolutas é `rf_unico` (469), com recall de Benign-DoH de 92.20% e precisão de Benign-DoH de 88.31%. Não predizem Benign-DoH em nenhuma linha do teste: `use_probas-prof5`, `max_features_padrao-prof5`. Nesses recortes a precisão da classe é indefinida e entra como 0 no F1 macro.
+Nos recortes de profundidade variável, a soma das diferenças absolutas vai de 469 a 1061; a da partida, com a seed 42, é 553. O mesmo modelo de partida, nas 10 seeds de `results/e4/corrigida/A/`, tem soma de 509 a 653: só a troca do split e dos sorteios move a soma em até 144 linhas. Diferença entre recortes menor que essa não ordena as leituras, e nenhum recorte é apontado como o mais próximo da Fig. 4b. O recorte que corresponde ao script publicado pelos autores, `rf_unico-prof5`, tem a maior soma entre os 10 recortes medidos (15287; a maior é 15287).
+
+Não predizem Benign-DoH em nenhuma linha do teste: `use_probas-prof5`, `max_features_padrao-prof5`. Nesses recortes a precisão da classe é indefinida e entra como 0 no F1 macro.
 
 ## Medido e hipótese
 

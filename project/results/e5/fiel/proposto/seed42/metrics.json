@@ -24,7 +24,6 @@
   ],
   "duration_threshold": {
     "article_threshold_agreement": 0.8530543933054393,
-    "article_threshold_confirmed": false,
     "article_threshold_seconds": 40,
     "best_threshold_agreement": 0.9974895397489539,
     "best_threshold_seconds": 33.128057,
