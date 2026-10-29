@@ -1,9 +1,14 @@
-"""Modelos do artigo: os Random Forests base, o empilhamento (Seção IV) e os de comparação."""
+"""Modelos: os do artigo (Random Forests base, empilhamento da Seção IV e os de comparação)
+e o modelo modificado proposto pela equipe.
+"""
 
 import numpy as np
+import pandas as pd
 from mlxtend.classifier import StackingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 
@@ -123,4 +128,46 @@ def fit_baseline(
         # Mesmo cuidado dos Random Forests base: com um núcleo na predição, a
         # soma das probabilidades das árvores tem sempre a mesma ordem.
         model.set_params(n_jobs=1)
+    return model
+
+
+def fit_modified_forest(
+    X: pd.DataFrame,
+    y: np.ndarray,
+    seed: int,
+    n_estimators: int,
+    max_depth: int | None,
+    max_features: int | str,
+) -> Pipeline:
+    """Ajusta o modelo modificado: normalizador e um Random Forest único com peso de classe.
+
+    `X` tem os 29 atributos sem normalizar e só linhas reais: não há SMOTE nem
+    subconjuntos. Devolve o `Pipeline` ajustado, com os passos `scaler` e `forest`.
+    """
+    # O normalizador é o primeiro passo do Pipeline: ele é ajustado com as
+    # mesmas linhas que o Random Forest, e na validação cruzada isso quer dizer
+    # só com os folds de ajuste. O peso de classe "balanced" multiplica o peso
+    # de cada fluxo pelo inverso da frequência da classe dele, e faz o papel
+    # que as amostras sintéticas do SMOTE têm no artigo.
+    model = Pipeline(
+        [
+            ("scaler", MinMaxScaler()),
+            (
+                "forest",
+                RandomForestClassifier(
+                    n_estimators=n_estimators,
+                    max_depth=max_depth,
+                    max_features=max_features,
+                    criterion="gini",
+                    class_weight="balanced",
+                    random_state=seed,
+                    n_jobs=N_JOBS,
+                ),
+            ),
+        ]
+    )
+    model.fit(X, y)
+    # Mesmo cuidado dos Random Forests base: com um núcleo na predição, a soma
+    # das probabilidades das árvores tem sempre a mesma ordem.
+    model.named_steps["forest"].set_params(n_jobs=1)
     return model

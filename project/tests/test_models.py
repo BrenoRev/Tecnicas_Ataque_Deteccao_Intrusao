@@ -1,17 +1,26 @@
+import json
+
 import numpy as np
 import pytest
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
 
 import scripts.e3_sensibilidade as e3
+import scripts.e8_modificacao as e8
 from doh_ids.config import (
     MAX_DEPTH,
     MAX_FEATURES,
+    MODIFIED_GRID,
+    MODIFIED_MODELS,
+    MODIFIED_SELECTED_MODEL,
+    MODIFIED_SELECTION_FRACTION,
     N_ESTIMATORS,
     TABLE_II_FOREST_TREES,
     TABLE_II_TREE_DEPTH,
 )
 from doh_ids.data import class_counts, feature_matrix
-from doh_ids.models import base_forests, fit_baseline, stacked_forest
+from doh_ids.models import base_forests, fit_baseline, fit_modified_forest, stacked_forest
 from doh_ids.splits import balanced_subsets, balanced_train, fit_scaler, stratified_split
 from doh_ids.system import fit_system
 
@@ -196,3 +205,61 @@ def test_meta_on_subsets_changes_the_meta_classifier_and_keeps_the_bases(synthet
     assert system_configuration(fiel) == system_configuration(variant)
     assert np.array_equal(fiel.predict_meta_features(X_test), variant.predict_meta_features(X_test))
     assert not np.array_equal(fiel.meta_clf_.coef_, variant.meta_clf_.coef_)
+
+
+def test_selection_grid_has_at_most_eight_combinations_and_the_one_of_the_article():
+    assert len(MODIFIED_GRID) <= 8
+    assert {"n_estimators": 10, "max_depth": 5, "max_features": 28} in MODIFIED_GRID
+    # Combinação repetida seria avaliada duas vezes sem mudar a escolha.
+    assert len({tuple(combination.items()) for combination in MODIFIED_GRID}) == len(MODIFIED_GRID)
+
+
+def test_modified_model_is_a_pipeline_with_the_scaler_first_and_a_class_weighted_forest(
+    synthetic_flows,
+):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    model = fit_modified_forest(
+        feature_matrix(train), train["label"].to_numpy(), SEED, **MODIFIED_MODELS["M1"]
+    )
+
+    assert isinstance(model, Pipeline)
+    assert isinstance(model.steps[0][1], MinMaxScaler)
+    forest = model.steps[-1][1]
+    assert isinstance(forest, RandomForestClassifier)
+    assert forest.class_weight == "balanced"
+
+
+def test_modified_model_is_fitted_on_the_rows_of_the_original_train(synthetic_flows):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    model, _, _ = e8.fit_modification("M1", train, SEED)
+
+    # O normalizador é ajustado junto com o Random Forest, nas mesmas linhas:
+    # com SMOTE ou subconjuntos ele veria outro número de linhas.
+    assert model.named_steps["scaler"].n_samples_seen_ == len(train)
+
+
+def test_hyperparameter_selection_only_receives_train_rows_of_the_seed(
+    synthetic_flows, tmp_path, monkeypatch
+):
+    seed = 1
+    samples = []
+    select = e8.select_hyperparameters
+
+    def recording_select(sample, seed):
+        samples.append(sample)
+        return select(sample, seed)
+
+    monkeypatch.setattr(e8, "select_hyperparameters", recording_select)
+    e8.run_dataset("cira", synthetic_flows, {"cira": "0" * 64}, tmp_path, [seed])
+
+    train, test = stratified_split(synthetic_flows, seed)
+    assert len(samples) == 1
+    assert samples[0].index.isin(train.index).all()
+    assert samples[0].index.intersection(test.index).empty
+    assert len(samples[0]) == int(MODIFIED_SELECTION_FRACTION * len(train))
+    # A combinação escolhida fica gravada no resultado da seed.
+    run_dir = tmp_path / "e8" / "corrigida" / f"{MODIFIED_SELECTED_MODEL}-cira" / f"seed{seed}"
+    selected = json.loads((run_dir / "metrics.json").read_text())["selection"]["selected"]
+    assert selected in MODIFIED_GRID
