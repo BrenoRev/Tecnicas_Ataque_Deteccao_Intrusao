@@ -384,10 +384,10 @@ def benign_errors_table(models: dict) -> str:
     return markdown_table(columns, rows)
 
 
-def benign_errors_text(models: dict) -> str:
-    """Diz, para cada par comparado, se os modelos trocam um erro de Benign-DoH pelo outro."""
+def benign_errors_text(models: dict, pairs: list[tuple[str, str]] = PAIRED_COMPARISONS) -> str:
+    """Diz, para cada par de `pairs`, se os modelos trocam um erro de Benign-DoH pelo outro."""
     lines = []
-    for first, second in PAIRED_COMPARISONS:
+    for first, second in pairs:
         errors = [models[name]["benign_doh_errors"] for name in (first, second)]
         false_benign = [entry["non_doh_as_benign_doh"]["mean"] for entry in errors]
         missed_benign = [entry["benign_doh_as_non_doh"]["mean"] for entry in errors]
