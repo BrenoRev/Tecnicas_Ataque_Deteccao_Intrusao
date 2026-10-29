@@ -1,0 +1,4 @@
+Classe,CIRA Prof. 5,CIRA Prof. var.,Combinado Prof. 5,Combinado Prof. var.
+Benign-DoH,0.95,0.95,0.98,0.89
+Malicious-DoH,0.98,0.78,0.84,0.98
+Non-DoH,0.99,0.98,0.99,0.84

@@ -1,0 +1,17 @@
+Dataset,Comparação,Métrica,Dif. média,Desvio,Seeds a favor,Leitura
+CIRA,M1 − A,Benign-DoH: recall,-0.50,0.29,0–10,piora
+CIRA,M1 − A,F1 macro,+0.58,0.12,10–0,melhora
+CIRA,M1 − A,Malicious-DoH: FPR,+0.0033,0.0026,8–1,piora
+CIRA,M1 − A,Tempo de treino (s),-129.9,57.8,0–10,melhora
+CIRA,M1-prof5 − A-prof5,Benign-DoH: recall,+87.64,1.36,10–0,melhora
+CIRA,M1-prof5 − A-prof5,F1 macro,+12.99,0.57,10–0,melhora
+CIRA,M1-prof5 − A-prof5,Malicious-DoH: FPR,-0.0183,0.1079,5–5,não se distinguem
+CIRA,M1-prof5 − A-prof5,Tempo de treino (s),-48.5,31.2,0–10,melhora
+CIRA,M1M2 − A,Benign-DoH: recall,+0.60,0.55,10–0,melhora
+CIRA,M1M2 − A,F1 macro,+0.50,0.17,10–0,melhora
+CIRA,M1M2 − A,Malicious-DoH: FPR,-0.0013,0.0011,0–7,melhora
+CIRA,M1M2 − A,Tempo de treino (s),+102.2,59.9,9–1,piora
+Combinado sem réplicas,M1M2 − A,Benign-DoH: recall,+0.46,0.47,8–1,não se distinguem
+Combinado sem réplicas,M1M2 − A,F1 macro,+0.57,0.20,10–0,melhora
+Combinado sem réplicas,M1M2 − A,Malicious-DoH: FPR,-0.0011,0.0012,0–6,não se distinguem
+Combinado sem réplicas,M1M2 − A,Tempo de treino (s),+147.2,1.8,10–0,piora
