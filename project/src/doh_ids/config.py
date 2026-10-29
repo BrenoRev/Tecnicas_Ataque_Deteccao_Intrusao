@@ -683,6 +683,40 @@ MODIFIED_COMPARISONS = {
 }
 MODIFIED_PAIRED_METRICS = ["benign_doh_recall", "macro_f1", "malicious_fpr"]
 
+# Robustez à manipulação da duração do fluxo. O artigo publica que a duração
+# pesa na decisão (Seção VI-B e Fig. 6) e não avalia um atacante que a mude.
+# Tudo abaixo foi fixado antes da primeira execução.
+
+# Modelos avaliados: o sistema do artigo sem limite de profundidade, o modelo
+# proposto pela equipe e, ao lado, o sistema do artigo com profundidade 5.
+ROBUSTNESS_MODELS = ["A", MODIFIED_SELECTED_MODEL, "A-prof5"]
+
+# Conjuntos de colunas em que cada modelo é ajustado: todos os atributos, sem a
+# duração e sem a duração e as duas taxas de bytes por segundo, que o extrator
+# calcula dividindo os bytes pela duração. O valor é a lista de colunas retiradas.
+ROBUSTNESS_COLUMN_SETS = {
+    "todos": [],
+    "sem_duration": ["Duration"],
+    "sem_duration_taxas": ["Duration", "FlowSentRate", "FlowReceivedRate"],
+}
+
+# Colunas que a fragmentação de uma sessão em fluxos menores divide pelo fator:
+# a duração e os bytes enviados e recebidos. As taxas são o quociente das duas
+# e não mudam; as estatísticas por pacote ficam como estão, por simplificação.
+FRAGMENTED_COLUMNS = ["Duration", "FlowBytesSent", "FlowBytesReceived"]
+
+# Fatores de fragmentação: em quantos fluxos de mesma duração a sessão é
+# cortada. O fator 1 é o teste sem perturbação. Potências de 2 até 16 são
+# escolha nossa: com a mediana de 34 s dos fluxos maliciosos, o fator 16 leva a
+# duração a cerca de 2 s.
+FRAGMENTATION_FACTORS = [1, 2, 4, 8, 16]
+
+# Pares comparados seed a seed em cada fator, o primeiro menos o segundo, pelo
+# recall de Malicious-DoH: o modelo proposto contra o sistema do artigo, com
+# as mesmas colunas, e cada modelo sem colunas contra ele mesmo com todas.
+ROBUSTNESS_MODEL_PAIR = (MODIFIED_SELECTED_MODEL, "A")
+ROBUSTNESS_COLUMN_PAIRS = [("sem_duration", "todos"), ("sem_duration_taxas", "todos")]
+
 # Trilhas aceitas no registro de resultados. As duas primeiras são a reprodução
 # como o artigo descreve e o protocolo consertado; "variante" é para leituras
 # alternativas do texto do artigo e "dados" para etapas que não treinam modelo.
