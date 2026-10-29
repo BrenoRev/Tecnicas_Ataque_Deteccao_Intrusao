@@ -565,8 +565,12 @@ def table_ii_rows(results_dir: Path) -> list[tuple[str, dict]]:
     return rows
 
 
-def table_ii_table(results_dir: Path, average: str, average_title: str) -> Table:
-    """Metade superior da Tabela II: artigo, reprodução e diferença, com uma média nomeada."""
+def table_ii_table(results_dir: Path, average: str, average_title: str, short_title: str) -> Table:
+    """Metade superior da Tabela II: artigo, reprodução e diferença, com uma média nomeada.
+
+    `average` é o prefixo da média nas chaves de results/; `average_title` e
+    `short_title` são o nome dela na legenda e no cabeçalho da coluna.
+    """
     obtained_key = {
         "auc": "roc_auc_ovr_macro",
         "accuracy": "accuracy",
@@ -610,7 +614,7 @@ def table_ii_table(results_dir: Path, average: str, average_title: str) -> Table
     header = ["Modelo"]
     for metric in titles:
         named = metric in ("f1", "precision", "recall")
-        header += ["Art.", average_title.capitalize()[:5] if named else "Rep.", "Dif."]
+        header += ["Art.", short_title if named else "Rep.", "Dif."]
     table = Table(
         f"tabela2_superior_{average_title}_dupla", header, rows, caption, source, tuple(READINGS)
     )
@@ -621,8 +625,8 @@ def table_ii_table(results_dir: Path, average: str, average_title: str) -> Table
 def table_ii_tables(results_dir: Path) -> list[Table]:
     """Metade superior da Tabela II com a média macro e com a ponderada."""
     return [
-        table_ii_table(results_dir, "macro", "macro"),
-        table_ii_table(results_dir, "weighted", "ponderada"),
+        table_ii_table(results_dir, "macro", "macro", "Macro"),
+        table_ii_table(results_dir, "weighted", "ponderada", "Pond."),
     ]
 
 
