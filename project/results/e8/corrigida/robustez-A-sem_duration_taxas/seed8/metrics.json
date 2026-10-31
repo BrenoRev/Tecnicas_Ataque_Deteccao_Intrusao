@@ -1,0 +1,254 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "dropped_features": [
+    "Duration",
+    "FlowSentRate",
+    "FlowReceivedRate"
+  ],
+  "fit_rows": [
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266942,
+      224598,
+      224598
+    ]
+  ],
+  "fragmentation": {
+    "1": {
+      "malicious": {
+        "detected": 24942,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 6,
+          "Malicious-DoH": 24942,
+          "Non-DoH": 7
+        },
+        "recall": 0.9994790623121619
+      },
+      "perturbation": {
+        "median_duration_seconds": 34.06955,
+        "outside_train_range": {
+          "by_column": {},
+          "row_fraction": 0.0,
+          "rows": 0,
+          "values": 0
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.0,
+          "rows": 0
+        },
+        "rows": 24955
+      }
+    },
+    "16": {
+      "malicious": {
+        "detected": 23063,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 96,
+          "Malicious-DoH": 23063,
+          "Non-DoH": 1796
+        },
+        "recall": 0.9241835303546383
+      },
+      "perturbation": {
+        "median_duration_seconds": 2.129346875,
+        "outside_train_range": {
+          "by_column": {
+            "Duration": 2,
+            "FlowBytesReceived": 2125,
+            "FlowBytesSent": 1927
+          },
+          "row_fraction": 0.08727709877780004,
+          "rows": 2178,
+          "values": 4054
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9989981967541575,
+          "rows": 24930
+        },
+        "rows": 24955
+      }
+    },
+    "2": {
+      "malicious": {
+        "detected": 23992,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 282,
+          "Malicious-DoH": 23992,
+          "Non-DoH": 681
+        },
+        "recall": 0.9614105389701463
+      },
+      "perturbation": {
+        "median_duration_seconds": 17.034775,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 64,
+            "FlowBytesSent": 10
+          },
+          "row_fraction": 0.0025646163093568423,
+          "rows": 64,
+          "values": 74
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.2975355640152274,
+          "rows": 7425
+        },
+        "rows": 24955
+      }
+    },
+    "4": {
+      "malicious": {
+        "detected": 23480,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 87,
+          "Malicious-DoH": 23480,
+          "Non-DoH": 1388
+        },
+        "recall": 0.9408936084952916
+      },
+      "perturbation": {
+        "median_duration_seconds": 8.5173875,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 172,
+            "FlowBytesSent": 149
+          },
+          "row_fraction": 0.006892406331396514,
+          "rows": 172,
+          "values": 321
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.6918853937086756,
+          "rows": 17266
+        },
+        "rows": 24955
+      }
+    },
+    "8": {
+      "malicious": {
+        "detected": 23194,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 187,
+          "Malicious-DoH": 23194,
+          "Non-DoH": 1574
+        },
+        "recall": 0.9294329793628532
+      },
+      "perturbation": {
+        "median_duration_seconds": 4.25869375,
+        "outside_train_range": {
+          "by_column": {
+            "Duration": 1,
+            "FlowBytesReceived": 516,
+            "FlowBytesSent": 367
+          },
+          "row_fraction": 0.02288118613504308,
+          "rows": 571,
+          "values": 884
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9654978962131837,
+          "rows": 24094
+        },
+        "rows": 24955
+      }
+    }
+  },
+  "n_features": 26,
+  "split_index_sha256": {
+    "test": "22f935de65f6e29c4786a8b7f120e606d9e624048eb41757c6575937ca44389d",
+    "train": "af8668e2f7a09551a4279544d36f25b5144be44419b92f1f2419fd9b225b872d"
+  },
+  "test": {
+    "accuracy": 0.9963420210333791,
+    "confusion_matrix": [
+      [
+        88700,
+        278,
+        3
+      ],
+      [
+        130,
+        1845,
+        0
+      ],
+      [
+        7,
+        6,
+        24942
+      ]
+    ],
+    "macro_f1": 0.9654838158616533,
+    "macro_precision": 0.9549805415476219,
+    "macro_recall": 0.976832766652089,
+    "malicious_vs_rest": {
+      "false_positives": 3,
+      "fpr": 3.298298078191653e-05,
+      "fpr_ci_high": 9.638721050947424e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 6.801935229928487e-06,
+      "negatives": 90956,
+      "recall": 0.9994790623121619
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.8991228070175439,
+        "pr_auc": 0.8319743249826903,
+        "pr_auc_base_mean": 0.9430096309741545,
+        "precision": 0.8666040394551433,
+        "recall": 0.9341772151898734,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9996793587174349,
+        "pr_auc": 0.999703318340699,
+        "pr_auc_base_mean": 0.9999665909069169,
+        "precision": 0.9998797354179194,
+        "recall": 0.9994790623121619,
+        "support": 24955
+      },
+      "Non-DoH": {
+        "f1": 0.9976492818499815,
+        "pr_auc": 0.9989830257731721,
+        "pr_auc_base_mean": 0.999686694138932,
+        "precision": 0.9984578497698031,
+        "recall": 0.9968420224542318,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9908901890800649,
+    "roc_auc_ovr_macro_base_mean": 0.9980646937097114,
+    "total": 115911,
+    "weighted_f1": 0.9964075600154121,
+    "weighted_precision": 0.9965173254104006,
+    "weighted_recall": 0.9963420210333791
+  },
+  "test_rows": [
+    88981,
+    1975,
+    24955
+  ],
+  "train_rows": [
+    800828,
+    17771,
+    224598
+  ]
+}
