@@ -717,6 +717,16 @@ FRAGMENTATION_FACTORS = [1, 2, 4, 8, 16]
 ROBUSTNESS_MODEL_PAIR = (MODIFIED_SELECTED_MODEL, "A")
 ROBUSTNESS_COLUMN_PAIRS = [("sem_duration", "todos"), ("sem_duration_taxas", "todos")]
 
+# Limiares da leitura descritiva da robustez. Foram acrescentados depois da
+# execução, com os resultados à vista: não fazem parte da regra de leitura
+# fixada antes dela e não mudam nenhum veredito. Escolha nossa. Com recall de
+# Malicious-DoH abaixo de 90% em um fator, a seed conta como colapso do modelo
+# nesse fator; com mais de 90% dos vetores perturbados incoerentes (tempo médio
+# de pacote maior que a duração), o fator é lido como fora da região de fluxos
+# possíveis.
+ROBUSTNESS_COLLAPSE_RECALL = 0.90
+ROBUSTNESS_INCOHERENT_FRACTION = 0.90
+
 # Trilhas aceitas no registro de resultados. As duas primeiras são a reprodução
 # como o artigo descreve e o protocolo consertado; "variante" é para leituras
 # alternativas do texto do artigo e "dados" para etapas que não treinam modelo.
