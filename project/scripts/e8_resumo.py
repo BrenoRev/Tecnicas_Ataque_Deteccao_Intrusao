@@ -19,8 +19,11 @@ Uso: uv run python -m scripts.e8_resumo
 import json
 from pathlib import Path
 
+import numpy as np
+
 import scripts.e4_resumo as e4r
 import scripts.e8_modificacao as e8
+import scripts.e8_robustez as rob
 from doh_ids.config import (
     CLASS_NAMES,
     CORRIGIDA_MODELS,
@@ -50,14 +53,19 @@ E6_TRANSFER_FILE = (
 SCOPES = e8.e4.SCOPES
 ORDER = ", ".join(CLASS_NAMES)
 SELECTED = MODIFIED_SELECTED_MODEL
+# Linha da transferência que junta os fluxos das três ferramentas do HKD.
+TRANSFER_TOTAL = "as três ferramentas"
 DATASET_TITLES = {
     "cira": "CIRA-CIC-DoHBrw-2020",
     "combinado_sem_replicas": "combinado CIRA + HKD sem réplicas",
 }
 
+BENIGN = CLASS_NAMES.index("Benign-DoH")
 TRAIN_SECONDS = "train_seconds"
+PRECISION = "benign_doh_precision"
 METRIC_TITLES = {
     "benign_doh_recall": "recall de Benign-DoH",
+    PRECISION: "precisão de Benign-DoH",
     "macro_f1": "F1 macro",
     "malicious_fpr": "FPR de Malicious-DoH",
     TRAIN_SECONDS: "tempo de treino",
@@ -82,6 +90,19 @@ READING_RULE = (
     "diferenças pareadas; piora quando tem o sinal desfavorável e passa do mesmo desvio; nos "
     "outros casos os dois modelos não se distinguem"
 )
+# Comparações acrescentadas depois da execução, que a hipótese não previa:
+# a precisão de Benign-DoH do modelo proposto contra A, e o modelo proposto
+# contra M1, que tem a mesma arquitetura e o mesmo balanceamento e só difere
+# nos hiperparâmetros. A regra de leitura é aplicada a elas do mesmo modo.
+POSTERIOR_NOTE = (
+    "análise acrescentada depois da execução, fora dos pares pré-registrados: o par ou a "
+    "métrica não estavam na hipótese, e a regra de leitura é aplicada do mesmo modo"
+)
+POSTERIOR_METRICS = ["macro_f1", "benign_doh_recall", PRECISION, "malicious_fpr"]
+POSTERIOR_COMPARISONS = {
+    "cira": [(SELECTED, "A", [PRECISION]), (SELECTED, "M1", POSTERIOR_METRICS)],
+    "combinado_sem_replicas": [(SELECTED, "A", [PRECISION])],
+}
 PAIRED_METHOD = (
     "comparação pareada por seed: diferença média (a modificação menos o modelo de "
     "referência), desvio padrão das diferenças, número de seeds em que cada modelo tem o "
@@ -145,6 +166,15 @@ def train_seconds(run: dict) -> float:
     return sum(run["timings"][key] for key in FIT_STEPS if key in run["timings"])
 
 
+def previous_train_seconds(run: dict) -> float:
+    """Devolve o tempo de treino pela definição anterior: o total menos a avaliação.
+
+    Só serve para conferir que a troca de definição, feita depois da
+    execução, não muda nenhum veredito de tempo.
+    """
+    return run["timings"]["total_seconds"] - run["timings"]["evaluation_seconds"]
+
+
 def model_config(name: str) -> dict:
     """Devolve a configuração fixada de um modelo, como ela vai para o summary.json."""
     if name in CORRIGIDA_MODELS:
@@ -187,7 +217,9 @@ def tool_recall_summary(entries: list[dict]) -> dict:
     """Agrega entre as seeds o recall de Malicious-DoH por ferramenta de túnel.
 
     `entries` tem, por seed, o dicionário de `recall_by_tool`. Devolve, por
-    ferramenta, a média de fluxos avaliados e a média e o desvio padrão do recall.
+    ferramenta, a média de fluxos avaliados, a média e o desvio padrão do
+    recall, o menor e o maior recall entre as seeds e em quantas seeds nenhum
+    fluxo foi detectado.
     """
     recall = aggregate_seeds(
         [{tool: entry["recall"] for tool, entry in by_tool.items()} for by_tool in entries]
@@ -195,7 +227,17 @@ def tool_recall_summary(entries: list[dict]) -> dict:
     rows = aggregate_seeds(
         [{tool: entry["n"] for tool, entry in by_tool.items()} for by_tool in entries]
     )
-    return {tool: {"rows_mean": rows[tool]["mean"], "recall": recall[tool]} for tool in recall}
+    summary = {}
+    for tool in recall:
+        by_seed = [by_tool[tool]["recall"] for by_tool in entries]
+        summary[tool] = {
+            "rows_mean": rows[tool]["mean"],
+            "recall": recall[tool],
+            "recall_min": min(by_seed),
+            "recall_max": max(by_seed),
+            "seeds_none_detected": sum(value == 0 for value in by_seed),
+        }
+    return summary
 
 
 def verdict(comparison: dict, metric: str) -> str:
@@ -208,38 +250,127 @@ def verdict(comparison: dict, metric: str) -> str:
     return IMPROVES if favourable else WORSENS
 
 
+def metric_rows(results: dict, first: str, second: str, metrics: list[str]) -> list[dict]:
+    """Compara dois modelos, seed a seed, em cada métrica pedida, nos dois conjuntos de teste."""
+    rows = []
+    for scope in SCOPES:
+        for metric in metrics:
+            comparison = e4r.paired(results, first, second, metric, scope)
+            rows.append(
+                {
+                    "first": first,
+                    "second": second,
+                    "scope": scope,
+                    "metric": metric,
+                    **comparison,
+                    "verdict": verdict(comparison, metric),
+                }
+            )
+    return rows
+
+
+def time_row(seconds: dict, first: str, second: str) -> dict:
+    """Compara o tempo de treino de dois modelos, seed a seed."""
+    comparison = paired_comparison(seconds[first], seconds[second])
+    return {
+        "first": first,
+        "second": second,
+        "scope": None,
+        "metric": TRAIN_SECONDS,
+        **comparison,
+        "verdict": verdict(comparison, TRAIN_SECONDS),
+    }
+
+
 def paired_rows(results: dict, seconds: dict, dataset: str) -> list[dict]:
     """Compara, seed a seed, cada par do conjunto de dados em cada métrica e no tempo de treino."""
     rows = []
     for first, second in MODIFIED_COMPARISONS[dataset]:
-        pair = {"first": first, "second": second}
-        for scope in SCOPES:
-            for metric in MODIFIED_PAIRED_METRICS:
-                comparison = e4r.paired(results, first, second, metric, scope)
-                rows.append(
-                    {
-                        **pair,
-                        "scope": scope,
-                        "metric": metric,
-                        **comparison,
-                        "verdict": verdict(comparison, metric),
-                    }
-                )
-        comparison = paired_comparison(seconds[first], seconds[second])
-        rows.append(
-            {
-                **pair,
-                "scope": None,
-                "metric": TRAIN_SECONDS,
-                **comparison,
-                "verdict": verdict(comparison, TRAIN_SECONDS),
-            }
-        )
+        rows += metric_rows(results, first, second, MODIFIED_PAIRED_METRICS)
+        rows.append(time_row(seconds, first, second))
     return rows
 
 
-def dataset_summary(dataset: str, results: dict, runs: dict) -> dict:
-    """Agrega as execuções de um conjunto de dados a partir do que `load_dataset` devolve."""
+def selection_against_test(results: dict) -> dict:
+    """Põe a ordem da validação ao lado da do teste, para M1 e para o modelo proposto.
+
+    Compara, seed a seed, o F1 macro de validação da combinação escolhida com
+    o da combinação de M1, na subamostra da seleção, e o F1 macro de teste do
+    modelo proposto com o de M1. Devolve as duas comparações e a média de
+    validação de cada combinação.
+    """
+    fixed = combination_text(MODIFIED_MODELS["M1"])
+    chosen, reference = [], []
+    for run in results[SELECTED].values():
+        scores = {
+            combination_text(score): score["mean_macro_f1"] for score in run["selection"]["scores"]
+        }
+        chosen.append(scores[combination_text(run["selection"]["selected"])])
+        reference.append(scores[fixed])
+    validation = aggregate_seeds(
+        [{SELECTED: one, "M1": other} for one, other in zip(chosen, reference, strict=True)]
+    )
+    return {
+        "validation_macro_f1": validation,
+        "validation_paired": paired_comparison(chosen, reference),
+        "test_paired": e4r.paired(results, SELECTED, "M1", "macro_f1"),
+    }
+
+
+def posterior_summary(dataset: str, results: dict) -> dict:
+    """Monta as comparações acrescentadas depois da execução para um conjunto de dados."""
+    rows = []
+    for first, second, metrics in POSTERIOR_COMPARISONS[dataset]:
+        for seed, run in results[first].items():
+            assert run["split_index_sha256"] == results[second][seed]["split_index_sha256"]
+        rows += metric_rows(results, first, second, metrics)
+    summary = {"note": POSTERIOR_NOTE, "paired": rows}
+    if "M1" in results:
+        summary["selection_against_test"] = selection_against_test(results)
+    return summary
+
+
+def time_checks(runs: dict, seconds: dict, dataset: str, refit_runs: dict) -> dict:
+    """Refaz a comparação de tempo de treino de dois outros modos, para conferir os vereditos.
+
+    `previous_definition` usa o total da execução menos a avaliação, a
+    definição que valia antes de o resumo somar as etapas de ajuste.
+    `refit_reference` troca o tempo dos modelos de `refit_runs`, medido em
+    outra execução, pelo do mesmo modelo reajustado nas mesmas seeds.
+    """
+    pairs = MODIFIED_COMPARISONS[dataset]
+    previous = {
+        name: [previous_train_seconds(run) for run in by_seed.values()]
+        for name, by_seed in runs.items()
+    }
+    checks = {"previous_definition": [time_row(previous, first, second) for first, second in pairs]}
+    if refit_runs:
+        refit = {
+            name: [run["timings"]["fit_seconds"] for run in by_seed.values()]
+            for name, by_seed in refit_runs.items()
+        }
+        checks["refit_reference"] = {
+            "train_seconds": aggregate_seeds(
+                [
+                    dict(zip(refit, values, strict=True))
+                    for values in zip(*refit.values(), strict=True)
+                ]
+            ),
+            "paired": [
+                time_row({**seconds, **refit}, first, second)
+                for first, second in pairs
+                if second in refit
+            ],
+        }
+    return checks
+
+
+def dataset_summary(dataset: str, results: dict, runs: dict, refit_runs: dict) -> dict:
+    """Agrega as execuções de um conjunto de dados a partir do que `load_dataset` devolve.
+
+    `refit_runs` tem o run.json dos modelos de referência reajustados em outra
+    execução, por modelo e seed; vazio quando não há.
+    """
     seeds = list(results[SELECTED])
     seconds = {name: [train_seconds(runs[name][seed]) for seed in seeds] for name in results}
     models = {}
@@ -248,6 +379,7 @@ def dataset_summary(dataset: str, results: dict, runs: dict) -> dict:
         models[name] = {
             "config": model_config(name),
             "train_rows": metrics[0]["train_rows"],
+            "test_rows": metrics[0]["test_rows"],
             "fit_rows": metrics[0]["fit_rows"],
             "commits": sorted({runs[name][seed]["commit"] for seed in seeds}),
             "dirty_runs": sum(runs[name][seed]["dirty"] for seed in seeds),
@@ -256,6 +388,17 @@ def dataset_summary(dataset: str, results: dict, runs: dict) -> dict:
                 run["test"]["per_class"]["Benign-DoH"]["recall"] for run in metrics
             ),
             TRAIN_SECONDS: aggregate_seeds([{"s": value} for value in seconds[name]])["s"],
+            "benign_doh_detected": aggregate_seeds(
+                [{"n": run["test"]["confusion_matrix"][BENIGN][BENIGN]} for run in metrics]
+            )["n"],
+            # Falsos positivos de Malicious-DoH e fluxos não maliciosos, somados nas seeds.
+            "false_positives_by_scope": {
+                scope: {
+                    key: sum(run[scope]["malicious_vs_rest"][key] for run in metrics)
+                    for key in ("false_positives", "negatives")
+                }
+                for scope in SCOPES
+            },
         }
         assert models[name]["test"]["accuracy"]["n"] == len(seeds), f"{name}: falta seed."
         if "test_recall_by_tool" in metrics[0]:
@@ -271,19 +414,25 @@ def dataset_summary(dataset: str, results: dict, runs: dict) -> dict:
             [{"s": runs[SELECTED][seed]["timings"]["selection_seconds"]} for seed in seeds]
         )["s"],
         "paired": paired_rows(results, seconds, dataset),
+        "posterior": posterior_summary(dataset, results),
+        "time_checks": time_checks(runs, seconds, dataset, refit_runs),
     }
     if "hkd_transfer" in selected_runs[0]:
         transfer = [run["hkd_transfer"] for run in selected_runs]
         summary["hkd_transfer"] = tool_recall_summary(
-            [{"as três ferramentas": run["malicious"], **run["by_tool"]} for run in transfer]
+            [{TRANSFER_TOTAL: run["malicious"], **run["by_tool"]} for run in transfer]
         )
     return summary
 
 
-def summary_content(loaded: dict) -> dict:
-    """Monta o summary.json a partir das execuções lidas de cada conjunto de dados."""
+def summary_content(loaded: dict, refit_runs: dict) -> dict:
+    """Monta o summary.json a partir das execuções lidas de cada conjunto de dados.
+
+    `refit_runs[dados][modelo][seed]` é o run.json do modelo de referência
+    reajustado em outra execução, quando há.
+    """
     datasets = {
-        dataset: dataset_summary(dataset, results, runs)
+        dataset: dataset_summary(dataset, results, runs, refit_runs.get(dataset, {}))
         for dataset, (results, runs) in loaded.items()
     }
     first_results, _ = next(iter(loaded.values()))
@@ -404,15 +553,16 @@ def tool_table(dataset: dict) -> str:
     return markdown_table(columns, rows)
 
 
-def transfer_table(transfer: dict, e6_transfer: dict) -> str:
-    """Escreve o recall de M1M2 nos fluxos do HKD ao lado do sistema do artigo com a seed 42."""
-    article = {"as três ferramentas": e6_transfer["malicious"], **e6_transfer["by_tool"]}
+def transfer_table(transfer: dict) -> str:
+    """Escreve o recall de M1M2 nos fluxos do HKD: média, desvio, mínimo e máximo entre as seeds."""
     rows = [
         [
             name,
             f"{entry['rows_mean']:.0f}",
             e4r.mean_std(entry["recall"]),
-            f"{100 * article[name]['recall']:.3f}",
+            f"{100 * entry['recall_min']:.3f}",
+            f"{100 * entry['recall_max']:.3f}",
+            entry["seeds_none_detected"],
         ]
         for name, entry in transfer.items()
     ]
@@ -420,9 +570,39 @@ def transfer_table(transfer: dict, e6_transfer: dict) -> str:
         "fluxos do HKD",
         "fluxos",
         f"recall, {SELECTED} ajustado no CIRA, média ± desvio padrão entre as seeds (%)",
-        f"recall, sistema do artigo ajustado no CIRA, seed {SEED_FIEL} (%)",
+        "menor recall entre as seeds (%)",
+        "maior recall entre as seeds (%)",
+        "seeds sem nenhum fluxo detectado",
     ]
     return markdown_table(columns, rows)
+
+
+def transfer_text(transfer: dict, e6_transfer: dict, n_seeds: int) -> str:
+    """Escreve a leitura da transferência ao HKD, com o sistema do artigo citado à parte."""
+    total = transfer[TRANSFER_TOTAL]
+    article = e6_transfer["malicious"]["recall"]
+    by_tool = ", ".join(
+        f"{tool} {entry['recall']:.3%}" for tool, entry in e6_transfer["by_tool"].items()
+    )
+    none_detected = [
+        f"{tool}, em {entry['seeds_none_detected']} das {n_seeds} seeds"
+        for tool, entry in transfer.items()
+        if entry["seeds_none_detected"]
+    ]
+    text = (
+        f"Sem nenhum fluxo detectado em alguma seed: {'; '.join(none_detected) or 'nenhuma'}. "
+        f"Nas {n_seeds} seeds, {SELECTED} deixa passar de {1 - total['recall_max']:.2%} a "
+        f"{1 - total['recall_min']:.2%} dos fluxos do HKD.\n\n"
+        f"O sistema do artigo ajustado no CIRA foi avaliado no HKD em uma execução só, com a "
+        f"seed {SEED_FIEL} (`results/e6/variante/transferencia/`): recall de {article:.3%} "
+        f"({by_tool}), ou {1 - article:.2%} dos fluxos sem detecção. Esse número não é das "
+        "mesmas seeds, por isso fica fora da tabela, e não há comparação pareada."
+    )
+    # Um sistema que deixa passar a maioria dos fluxos em toda execução medida
+    # não transfere, qualquer que seja a diferença entre os dois.
+    if total["recall_max"] < 0.5 and article < 0.5:
+        text += " Nenhum dos dois sistemas transfere."
+    return text
 
 
 def difference_text(row: dict) -> tuple[str, str]:
@@ -467,14 +647,26 @@ def paired_table(rows: list[dict]) -> str:
     return markdown_table(columns, lines)
 
 
-def find(rows: list[dict], first: str, metric: str, scope: str | None = "test") -> dict:
-    """Devolve a comparação pareada do modelo `first` com a referência dele em uma métrica."""
+def find(
+    rows: list[dict],
+    first: str,
+    metric: str,
+    scope: str | None = "test",
+    second: str | None = None,
+) -> dict:
+    """Devolve a comparação pareada do modelo `first` com a referência dele em uma métrica.
+
+    `second` só é preciso quando `rows` tem `first` contra mais de um modelo.
+    """
     if metric == TRAIN_SECONDS:
         scope = None
     return next(
         row
         for row in rows
-        if row["first"] == first and row["metric"] == metric and row["scope"] == scope
+        if row["first"] == first
+        and row["metric"] == metric
+        and row["scope"] == scope
+        and second in (None, row["second"])
     )
 
 
@@ -546,6 +738,9 @@ def proposed_lines(number: int, dataset: dict) -> list[str]:
         models[name]["benign_doh_errors"]["non_doh_as_benign_doh"]["mean"]
         for name in (SELECTED, "A")
     ]
+    detected = [models[name]["benign_doh_detected"]["mean"] for name in (SELECTED, "A")]
+    false_positives = [models[name]["false_positives_by_scope"]["test"] for name in (SELECTED, "A")]
+    n_seeds = models[SELECTED]["test"]["accuracy"]["n"]
     return [
         f"{number}. {SELECTED} contra A, {dataset['title']}, teste inteiro:",
         f"   - Esperado: melhora do F1 macro. {verdict_text(rows, SELECTED, 'macro_f1')}: "
@@ -554,12 +749,20 @@ def proposed_lines(number: int, dataset: dict) -> list[str]:
         f"{e4r.occurred(abs(100 * f1['mean_difference']) < 1)}.",
         "   - Esperado: sem melhora no recall de Benign-DoH. "
         f"{verdict_text(rows, SELECTED, 'benign_doh_recall')}: "
-        f"{e4r.occurred(recall['verdict'] != IMPROVES)}.",
+        f"{e4r.occurred(recall['verdict'] != IMPROVES)}. Em fluxos (contagem acrescentada "
+        f"depois da execução): {SELECTED} acerta em média {detected[0] - detected[1]:+.1f} "
+        f"fluxos Benign-DoH por teste em relação a A, de "
+        f"{models[SELECTED]['test_rows'][BENIGN]} no teste da primeira seed.",
         "   - Esperado: o ganho, se houver, vem de menos fluxos Non-DoH preditos como "
         f"Benign-DoH. Média por teste de {false_benign[0]:.1f} em {SELECTED} contra "
         f"{false_benign[1]:.1f} em A: {e4r.occurred(false_benign[0] < false_benign[1])}.",
         "   - Esperado: os dois não se distinguem no FPR de Malicious-DoH. "
-        f"{verdict_text(rows, SELECTED, 'malicious_fpr')}: {e4r.occurred(fpr['verdict'] == SAME)}.",
+        f"{verdict_text(rows, SELECTED, 'malicious_fpr')}: "
+        f"{e4r.occurred(fpr['verdict'] == SAME)}. Em fluxos (contagem acrescentada depois da "
+        f"execução): {false_positives[0]['false_positives']} falsos positivos de "
+        f"Malicious-DoH somados nas {n_seeds} seeds em {SELECTED} contra "
+        f"{false_positives[1]['false_positives']} em A, em "
+        f"{false_positives[0]['negatives']} fluxos não maliciosos somados.",
     ]
 
 
@@ -622,6 +825,46 @@ def better_lines(datasets: dict) -> list[str]:
         )
         lines.append(f"- {dataset['title']}: {cells}. Pela regra, {conclusion}.")
     return lines
+
+
+def improves_over_reference(dataset: dict, metric: str) -> bool:
+    """Diz se o modelo proposto melhora a métrica sobre A, pela regra, no teste inteiro."""
+    rows = [*dataset["paired"], *dataset["posterior"]["paired"]]
+    return find(rows, SELECTED, metric, second="A")["verdict"] == IMPROVES
+
+
+def repeated_text(datasets: dict) -> str:
+    """Diz que melhoras de M1M2 sobre A se repetem nos conjuntos de dados, no teste inteiro."""
+    repeated, single = [], []
+    for metric in [*MODIFIED_PAIRED_METRICS, PRECISION]:
+        improved = [
+            dataset["title"]
+            for dataset in datasets.values()
+            if improves_over_reference(dataset, metric)
+        ]
+        if len(improved) == len(datasets):
+            repeated.append(METRIC_TITLES[metric])
+        elif improved:
+            single.append(f"{METRIC_TITLES[metric]} (só em {', '.join(improved)})")
+    # Fluxos por classe de cada conjunto, na primeira seed: treino mais teste.
+    first, last = (
+        np.add(dataset["models"][SELECTED]["train_rows"], dataset["models"][SELECTED]["test_rows"])
+        for dataset in (list(datasets.values())[0], list(datasets.values())[-1])
+    )
+    by_class = ", ".join(
+        f"{difference:+d} {name}"
+        for name, difference in zip(CLASS_NAMES, last - first, strict=True)
+    )
+    return (
+        "Leitura acrescentada depois da execução. Pela regra, no teste inteiro, o veredito de "
+        f"melhora de {SELECTED} sobre A se repete em todos os conjuntos de dados em: "
+        f"{', '.join(repeated) or 'nenhuma métrica'}. Não se repete em: "
+        f"{', '.join(single) or 'nenhuma métrica'}. A {METRIC_TITLES[PRECISION]} não estava entre "
+        "as métricas da hipótese e entra aqui como análise posterior. Os conjuntos não são "
+        f"independentes: o segundo tem {last.sum() / first.sum() - 1:.2%} de fluxos a mais que "
+        f"o primeiro ({by_class}). É o primeiro mais os fluxos do HKD, e o resultado nele não "
+        "é uma réplica independente do resultado no primeiro."
+    )
 
 
 def unexpected_lines(datasets: dict) -> list[str]:
@@ -698,12 +941,15 @@ Malicious-DoH.
 
 {chr(10).join(better_lines(datasets))}
 
+{repeated_text(datasets)}
+
 {SELECTED} difere de A em três coisas ao mesmo tempo: a arquitetura (um Random
 Forest em vez de três e um meta-classificador), o balanceamento (peso de
 classe em vez de SMOTE) e os hiperparâmetros. A diferença entre os dois não
 pode ser atribuída a nenhuma das três em separado. M1 contra A, no CIRA, mede
-a arquitetura e o balanceamento juntos, com os hiperparâmetros iguais; a
-diferença entre M1 e {SELECTED} não foi comparada seed a seed aqui. Médias dos dois
+a arquitetura e o balanceamento juntos, com os hiperparâmetros iguais. M1
+contra {SELECTED} não estava entre os pares da hipótese: a comparação seed a seed
+foi acrescentada depois da execução e está na seção do CIRA. Médias dos dois
 no teste inteiro do CIRA: F1 macro de {fixed["macro_f1"]}% em M1 e de
 {selected["macro_f1"]}% em {SELECTED}; recall de Benign-DoH de
 {fixed["benign_doh_recall"]}% e de {selected["benign_doh_recall"]}%; precisão de
@@ -736,11 +982,12 @@ vêm do CIRA; dnstt, tcp-over-dns e tuns, do HKD.
 
 Os fluxos do HKD são todos Malicious-DoH e não entram em nenhum ajuste; são
 normalizados com o normalizador do treino do CIRA. Sem fluxo legítimo, só o
-recall é definido. A coluna do sistema do artigo vem de uma execução com a
-seed {SEED_FIEL} (`results/e6/variante/transferencia/`): não é das mesmas seeds e
-não há comparação pareada.
+recall é definido. O mínimo e o máximo entre as seeds foram acrescentados
+depois da execução.
 
-{transfer_table(dataset["hkd_transfer"], e6_transfer)}
+{transfer_table(dataset["hkd_transfer"])}
+
+{transfer_text(dataset["hkd_transfer"], e6_transfer, len(seeds))}
 """
     return f"""## {dataset["title"]}
 
@@ -801,10 +1048,150 @@ tempo depende da carga da máquina e não é reprodutível como as métricas.
 
 {seconds_table(dataset)}
 
+{time_text(dataset)}
+
 ### Comparação pareada
 
 {paired_table(dataset["paired"])}
+
+{posterior_text(dataset)}"""
+
+
+def false_positives_text(models: dict, names: list[str]) -> str:
+    """Escreve os falsos positivos de Malicious-DoH somados nas seeds, nos dois conjuntos."""
+    cells = []
+    for scope, title in SCOPES.items():
+        counts = [models[name]["false_positives_by_scope"][scope] for name in names]
+        by_model = ", ".join(
+            f"{name} {entry['false_positives']}" for name, entry in zip(names, counts, strict=True)
+        )
+        cells.append(f"{title}, {by_model}, em {counts[0]['negatives']} fluxos não maliciosos")
+    return "Falsos positivos de Malicious-DoH somados nas seeds: " + "; ".join(cells) + "."
+
+
+def selection_effect_text(dataset: dict) -> str:
+    """Escreve o que a seleção de hiperparâmetros muda, de M1 para o modelo proposto."""
+    rows = dataset["posterior"]["paired"]
+    verdicts = {
+        metric: find(rows, SELECTED, metric, second="M1")["verdict"] for metric in POSTERIOR_METRICS
+    }
+    parts = []
+    if verdicts["benign_doh_recall"] == IMPROVES and verdicts[PRECISION] == WORSENS:
+        parts.append("troca precisão por recall de Benign-DoH")
+    if verdicts["malicious_fpr"] == IMPROVES:
+        parts.append("reduz os falsos positivos de Malicious-DoH")
+    if verdicts["macro_f1"] != IMPROVES:
+        parts.append("não aumenta o F1 macro")
+    text = (
+        f"Pela regra, no teste inteiro, de M1 para {SELECTED}: "
+        + "; ".join(f"{METRIC_TITLES[metric]}, {value}" for metric, value in verdicts.items())
+        + ". "
+    )
+    if parts:
+        text += f"A seleção de hiperparâmetros {'; '.join(parts)}."
+    if (
+        verdicts["macro_f1"] != IMPROVES
+        and find(dataset["paired"], "M1", "macro_f1")["verdict"] == IMPROVES
+    ):
+        text += f" O ganho de F1 macro de {SELECTED} sobre A já está em M1."
+    return text
+
+
+def selection_against_test_text(dataset: dict) -> str:
+    """Escreve a ordem da validação ao lado do F1 macro de teste de M1 e do modelo proposto."""
+    against = dataset["posterior"]["selection_against_test"]
+    validation, test = against["validation_paired"], against["test_paired"]
+    fixed = combination_text(MODIFIED_MODELS["M1"])
+    ranking = sorted(
+        dataset["selection"]["grid"], key=lambda entry: -entry["validation_macro_f1"]["mean"]
+    )
+    position = [combination_text(entry) for entry in ranking].index(fixed) + 1
+    rows = [
+        [
+            name,
+            combination,
+            e4r.mean_std(against["validation_macro_f1"][name]),
+            e4r.mean_std(dataset["models"][name]["test"]["macro_f1"]),
+        ]
+        for name, combination in (("M1", fixed), (SELECTED, "a escolhida em cada seed"))
+    ]
+    columns = [
+        "modelo",
+        "árvores, profundidade máxima, atributos por divisão",
+        f"F1 macro de validação, subamostra de {MODIFIED_SELECTION_FRACTION:.0%} do treino (%)",
+        "F1 macro no teste inteiro (%)",
+    ]
+    text = (
+        f"A combinação de M1 é a {position}ª das {len(ranking)} da grade pela média de "
+        f"validação. Na validação, a combinação escolhida fica acima da de M1 em "
+        f"{validation['first_wins']} das {dataset['models'][SELECTED]['test']['macro_f1']['n']} "
+        f"seeds (diferença média de {100 * validation['mean_difference']:+.3f} pp); no teste, "
+        f"{SELECTED} fica acima de M1 em {test['first_wins']} seeds e abaixo em "
+        f"{test['second_wins']} (diferença média de {100 * test['mean_difference']:+.3f} pp). "
+        "A validação mede modelos ajustados em quatro quintos da subamostra; o teste, modelos "
+        "ajustados no treino inteiro."
+    )
+    if validation["mean_difference"] > 0 and test["mean_difference"] <= 0:
+        text += (
+            " A ordem que a validação dá às duas combinações não se repete no teste: é "
+            "evidência da limitação da subamostra, registrada em Limitações."
+        )
+    return f"{markdown_table(columns, rows)}\n\n{text}"
+
+
+def posterior_text(dataset: dict) -> str:
+    """Monta o bloco das comparações acrescentadas depois da execução."""
+    posterior, models = dataset["posterior"], dataset["models"]
+    compared = {name for row in posterior["paired"] for name in (row["first"], row["second"])}
+    names = [name for name in models if name in compared]
+    text = f"""### Análise acrescentada depois da execução, fora dos pares pré-registrados
+
+Este bloco é {POSTERIOR_NOTE}. Não entra na condição que a hipótese fixou para
+dizer que o modelo proposto é melhor que A.
+
+{paired_table(posterior["paired"])}
+
+{false_positives_text(models, names)}
 """
+    if "selection_against_test" in posterior:
+        text += f"""
+{selection_effect_text(dataset)}
+
+{selection_against_test_text(dataset)}
+"""
+    return text
+
+
+def time_text(dataset: dict) -> str:
+    """Escreve as duas conferências do tempo de treino feitas depois da execução."""
+    checks, current = dataset["time_checks"], dataset["paired"]
+
+    def same_verdicts(rows: list[dict]) -> str:
+        same = all(
+            row["verdict"] == find(current, row["first"], TRAIN_SECONDS)["verdict"] for row in rows
+        )
+        return "são os mesmos" if same else "**mudam**"
+
+    text = (
+        "A definição de tempo de treino acima foi ajustada depois da execução: antes era o "
+        "total da execução menos a avaliação. Com a definição anterior, os vereditos de tempo "
+        f"{same_verdicts(checks['previous_definition'])}."
+    )
+    if "refit_reference" in checks:
+        refit = checks["refit_reference"]
+        cells = "; ".join(
+            f"{name}, {entry['mean']:.1f} ± {entry['std']:.1f} s reajustado contra "
+            f"{dataset['models'][name][TRAIN_SECONDS]['mean']:.1f} ± "
+            f"{dataset['models'][name][TRAIN_SECONDS]['std']:.1f} s na tabela"
+            for name, entry in refit["train_seconds"].items()
+        )
+        text += (
+            "\n\nOs tempos dos modelos que vêm de `results/e4/corrigida/` foram medidos em outra "
+            "execução, com outra carga na máquina. Os mesmos modelos foram reajustados nas mesmas "
+            f"seeds pelo script da robustez (`robustez-<modelo>-todos/`): {cells}. Com o tempo "
+            f"reajustado no lugar, os vereditos de tempo {same_verdicts(refit['paired'])}."
+        )
+    return text
 
 
 def provenance_text(datasets: dict) -> str:
@@ -895,11 +1282,26 @@ pontos percentuais (pp) e as de tempo, em segundos. Regra de leitura:
   desvio padrão entre seeds mede a variação entre sorteios desta tabela, não a
   variação entre redes ou entre capturas.
 - O tempo de treino de A no CIRA foi medido em outra execução, a do protocolo
-  corrigido, com outra carga na máquina. A comparação de tempo é indicativa.
+  corrigido, com outra carga na máquina. A comparação de tempo é indicativa; a
+  seção de tempo de treino do CIRA mostra o mesmo modelo reajustado.
 - O tráfego malicioso do CIRA-CIC-DoHBrw-2020 foi capturado em outras máquinas
   e em outro período que o tráfego das outras duas classes. Nenhum split
   dentro do conjunto remove essa diferença.
 """
+
+
+def load_refit_runs(e8_dir: Path, seeds: list[int]) -> dict:
+    """Lê o run.json dos modelos do CIRA que vêm do protocolo corrigido e foram reajustados.
+
+    O script da robustez reajusta esses modelos com todos os atributos, nas
+    mesmas seeds e nos mesmos splits. Modelo sem essa execução fica de fora.
+    """
+    refit = {}
+    for name in model_names("cira"):
+        directory = e8_dir / rob.SLICE_NAME.format(model=name, columns="todos")
+        if name not in MODIFIED_RUNS["cira"] and directory.exists():
+            refit[name] = load_seeds(directory, seeds, "run.json")
+    return {"cira": refit}
 
 
 def write_summary(e8_dir: Path, e4_dir: Path, e6_transfer_file: Path, seeds: list[int]) -> dict:
@@ -907,7 +1309,7 @@ def write_summary(e8_dir: Path, e4_dir: Path, e6_transfer_file: Path, seeds: lis
     loaded = {
         dataset: load_dataset(dataset, e8_dir, e4_dir, seeds) for dataset in MODIFIED_COMPARISONS
     }
-    summary = summary_content(loaded)
+    summary = summary_content(loaded, load_refit_runs(e8_dir, seeds))
     text = json.dumps(summary, indent=2, sort_keys=True, ensure_ascii=False)
     (e8_dir / "summary.json").write_text(text + "\n", encoding="utf-8")
     e6_transfer = json.loads(e6_transfer_file.read_text(encoding="utf-8"))["hkd"]
