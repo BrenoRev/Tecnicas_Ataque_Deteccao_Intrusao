@@ -1,0 +1,244 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "dropped_features": [
+    "Duration",
+    "FlowSentRate",
+    "FlowReceivedRate"
+  ],
+  "fit_rows": [
+    [
+      800828,
+      17771,
+      224598
+    ]
+  ],
+  "fragmentation": {
+    "1": {
+      "malicious": {
+        "detected": 24947,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24947,
+          "Non-DoH": 8
+        },
+        "recall": 0.9996794229613304
+      },
+      "perturbation": {
+        "median_duration_seconds": 34.072058,
+        "outside_train_range": {
+          "by_column": {
+            "PacketTimeMode": 1
+          },
+          "row_fraction": 4.007212983370066e-05,
+          "rows": 1,
+          "values": 1
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.0,
+          "rows": 0
+        },
+        "rows": 24955
+      }
+    },
+    "16": {
+      "malicious": {
+        "detected": 24258,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24258,
+          "Non-DoH": 697
+        },
+        "recall": 0.9720697255059106
+      },
+      "perturbation": {
+        "median_duration_seconds": 2.129503625,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 2221,
+            "FlowBytesSent": 2028,
+            "PacketTimeMode": 1
+          },
+          "row_fraction": 0.09132438389100381,
+          "rows": 2279,
+          "values": 4250
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9986776197154879,
+          "rows": 24922
+        },
+        "rows": 24955
+      }
+    },
+    "2": {
+      "malicious": {
+        "detected": 24943,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24943,
+          "Non-DoH": 12
+        },
+        "recall": 0.9995191344419956
+      },
+      "perturbation": {
+        "median_duration_seconds": 17.036029,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 69,
+            "FlowBytesSent": 19,
+            "PacketTimeMode": 1
+          },
+          "row_fraction": 0.002805049088359046,
+          "rows": 70,
+          "values": 89
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.2962131837307153,
+          "rows": 7392
+        },
+        "rows": 24955
+      }
+    },
+    "4": {
+      "malicious": {
+        "detected": 24711,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24711,
+          "Non-DoH": 244
+        },
+        "recall": 0.9902224003205771
+      },
+      "perturbation": {
+        "median_duration_seconds": 8.5180145,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 176,
+            "FlowBytesSent": 157,
+            "PacketTimeMode": 1
+          },
+          "row_fraction": 0.007172911240232419,
+          "rows": 179,
+          "values": 334
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.691164095371669,
+          "rows": 17248
+        },
+        "rows": 24955
+      }
+    },
+    "8": {
+      "malicious": {
+        "detected": 24510,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24510,
+          "Non-DoH": 445
+        },
+        "recall": 0.9821679022240032
+      },
+      "perturbation": {
+        "median_duration_seconds": 4.25900725,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 548,
+            "FlowBytesSent": 390,
+            "PacketTimeMode": 1
+          },
+          "row_fraction": 0.024043277900220397,
+          "rows": 600,
+          "values": 939
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9647365257463434,
+          "rows": 24075
+        },
+        "rows": 24955
+      }
+    }
+  },
+  "n_features": 26,
+  "split_index_sha256": {
+    "test": "9e82ab3d23ed1b56fb24071dd58fd8669055e399c0731911db01e09338e109c8",
+    "train": "ea77b5fe23fa9eee68826e8acbf417d10aaae564f1b48fa511ff6320072de80e"
+  },
+  "test": {
+    "accuracy": 0.9970322057440623,
+    "confusion_matrix": [
+      [
+        88763,
+        216,
+        2
+      ],
+      [
+        118,
+        1857,
+        0
+      ],
+      [
+        8,
+        0,
+        24947
+      ]
+    ],
+    "macro_f1": 0.9717852456997286,
+    "macro_precision": 0.9647685073432902,
+    "macro_recall": 0.9791608754302049,
+    "malicious_vs_rest": {
+      "false_positives": 2,
+      "fpr": 2.1988653854611022e-05,
+      "fpr_ci_high": 7.942829687673793e-05,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 2.6629390861849993e-06,
+      "negatives": 90956,
+      "recall": 0.9996794229613304
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.9174901185770752,
+        "pr_auc": 0.9598181723514891,
+        "precision": 0.8958031837916064,
+        "recall": 0.9402531645569621,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9997996152613018,
+        "pr_auc": 0.9999999261583026,
+        "precision": 0.9999198364663915,
+        "recall": 0.9996794229613304,
+        "support": 24955
+      },
+      "Non-DoH": {
+        "f1": 0.9980660032608085,
+        "pr_auc": 0.9998278298757203,
+        "precision": 0.9985825017718728,
+        "recall": 0.9975500387723222,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.998475812358025,
+    "total": 115911,
+    "weighted_f1": 0.9970663131125218,
+    "weighted_precision": 0.9971191724441186,
+    "weighted_recall": 0.9970322057440623
+  },
+  "test_rows": [
+    88981,
+    1975,
+    24955
+  ],
+  "train_rows": [
+    800828,
+    17771,
+    224598
+  ]
+}
