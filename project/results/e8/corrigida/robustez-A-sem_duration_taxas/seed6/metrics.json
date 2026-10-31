@@ -1,0 +1,252 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "dropped_features": [
+    "Duration",
+    "FlowSentRate",
+    "FlowReceivedRate"
+  ],
+  "fit_rows": [
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266942,
+      224598,
+      224598
+    ]
+  ],
+  "fragmentation": {
+    "1": {
+      "malicious": {
+        "detected": 24941,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 6,
+          "Malicious-DoH": 24941,
+          "Non-DoH": 8
+        },
+        "recall": 0.9994389901823282
+      },
+      "perturbation": {
+        "median_duration_seconds": 34.07194,
+        "outside_train_range": {
+          "by_column": {},
+          "row_fraction": 0.0,
+          "rows": 0,
+          "values": 0
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.0,
+          "rows": 0
+        },
+        "rows": 24955
+      }
+    },
+    "16": {
+      "malicious": {
+        "detected": 22895,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 419,
+          "Malicious-DoH": 22895,
+          "Non-DoH": 1641
+        },
+        "recall": 0.9174514125425767
+      },
+      "perturbation": {
+        "median_duration_seconds": 2.12949625,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 2157,
+            "FlowBytesSent": 1940
+          },
+          "row_fraction": 0.08835904628330996,
+          "rows": 2205,
+          "values": 4097
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9992386295331597,
+          "rows": 24936
+        },
+        "rows": 24955
+      }
+    },
+    "2": {
+      "malicious": {
+        "detected": 23715,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 540,
+          "Malicious-DoH": 23715,
+          "Non-DoH": 700
+        },
+        "recall": 0.9503105590062112
+      },
+      "perturbation": {
+        "median_duration_seconds": 17.03597,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 65,
+            "FlowBytesSent": 7
+          },
+          "row_fraction": 0.002604688439190543,
+          "rows": 65,
+          "values": 72
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.297856141053897,
+          "rows": 7433
+        },
+        "rows": 24955
+      }
+    },
+    "4": {
+      "malicious": {
+        "detected": 23432,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 101,
+          "Malicious-DoH": 23432,
+          "Non-DoH": 1422
+        },
+        "recall": 0.9389701462632739
+      },
+      "perturbation": {
+        "median_duration_seconds": 8.517985,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 177,
+            "FlowBytesSent": 157
+          },
+          "row_fraction": 0.007092766980565017,
+          "rows": 177,
+          "values": 334
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.6952514526147064,
+          "rows": 17350
+        },
+        "rows": 24955
+      }
+    },
+    "8": {
+      "malicious": {
+        "detected": 23096,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 362,
+          "Malicious-DoH": 23096,
+          "Non-DoH": 1497
+        },
+        "recall": 0.9255059106391504
+      },
+      "perturbation": {
+        "median_duration_seconds": 4.2589925,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 525,
+            "FlowBytesSent": 371
+          },
+          "row_fraction": 0.02312161891404528,
+          "rows": 577,
+          "values": 896
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9644159487076738,
+          "rows": 24067
+        },
+        "rows": 24955
+      }
+    }
+  },
+  "n_features": 26,
+  "split_index_sha256": {
+    "test": "e39b55c3dc528a224296fedc9086e513c9c52f1d63a81173905106129cc3786a",
+    "train": "b3d6a6bc51272908bd2489a26a83e19bf7458f7b51c1505823e3e6cea034dc0e"
+  },
+  "test": {
+    "accuracy": 0.9962988844889613,
+    "confusion_matrix": [
+      [
+        88711,
+        266,
+        4
+      ],
+      [
+        145,
+        1830,
+        0
+      ],
+      [
+        8,
+        6,
+        24941
+      ]
+    ],
+    "macro_f1": 0.9649932379607198,
+    "macro_precision": 0.9562391147513457,
+    "macro_recall": 0.9743289710047941,
+    "malicious_vs_rest": {
+      "false_positives": 4,
+      "fpr": 4.3977307709222044e-05,
+      "fpr_ci_high": 0.00011259551080194938,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 1.198246204507016e-05,
+      "negatives": 90956,
+      "recall": 0.9994389901823282
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.8977189109639442,
+        "pr_auc": 0.835431888098455,
+        "pr_auc_base_mean": 0.9434554660740424,
+        "precision": 0.8705994291151284,
+        "recall": 0.9265822784810127,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9996392785571142,
+        "pr_auc": 0.9998043620736891,
+        "pr_auc_base_mean": 0.9999048929993614,
+        "precision": 0.9998396472238925,
+        "recall": 0.9994389901823282,
+        "support": 24955
+      },
+      "Non-DoH": {
+        "f1": 0.997621524361101,
+        "pr_auc": 0.9989542075355857,
+        "pr_auc_base_mean": 0.9996169670828783,
+        "precision": 0.9982782679150162,
+        "recall": 0.9969656443510412,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.9903971321132357,
+    "roc_auc_ovr_macro_base_mean": 0.9976010042708712,
+    "total": 115911,
+    "weighted_f1": 0.996353701587612,
+    "weighted_precision": 0.996438912841065,
+    "weighted_recall": 0.9962988844889613
+  },
+  "test_rows": [
+    88981,
+    1975,
+    24955
+  ],
+  "train_rows": [
+    800828,
+    17771,
+    224598
+  ]
+}

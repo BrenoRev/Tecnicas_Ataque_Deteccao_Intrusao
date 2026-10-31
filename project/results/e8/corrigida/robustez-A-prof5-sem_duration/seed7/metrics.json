@@ -1,0 +1,256 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "dropped_features": [
+    "Duration"
+  ],
+  "fit_rows": [
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266943,
+      224598,
+      224598
+    ],
+    [
+      266942,
+      224598,
+      224598
+    ]
+  ],
+  "fragmentation": {
+    "1": {
+      "malicious": {
+        "detected": 24110,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24110,
+          "Non-DoH": 845
+        },
+        "recall": 0.9661390502905229
+      },
+      "perturbation": {
+        "median_duration_seconds": 34.071615,
+        "outside_train_range": {
+          "by_column": {
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 4.007212983370066e-05,
+          "rows": 1,
+          "values": 1
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.0,
+          "rows": 0
+        },
+        "rows": 24955
+      }
+    },
+    "16": {
+      "malicious": {
+        "detected": 24072,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24072,
+          "Non-DoH": 883
+        },
+        "recall": 0.9646163093568423
+      },
+      "perturbation": {
+        "median_duration_seconds": 2.1294759375,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 2118,
+            "FlowBytesSent": 1934,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.08727709877780004,
+          "rows": 2178,
+          "values": 4053
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9988379082348227,
+          "rows": 24926
+        },
+        "rows": 24955
+      }
+    },
+    "2": {
+      "malicious": {
+        "detected": 24073,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24073,
+          "Non-DoH": 882
+        },
+        "recall": 0.964656381486676
+      },
+      "perturbation": {
+        "median_duration_seconds": 17.0358075,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 62,
+            "FlowBytesSent": 12,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.0025245441795231417,
+          "rows": 63,
+          "values": 75
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.29497094770587057,
+          "rows": 7361
+        },
+        "rows": 24955
+      }
+    },
+    "4": {
+      "malicious": {
+        "detected": 24073,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24073,
+          "Non-DoH": 882
+        },
+        "recall": 0.964656381486676
+      },
+      "perturbation": {
+        "median_duration_seconds": 8.51790375,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 150,
+            "FlowBytesSent": 128,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.0060909637347225,
+          "rows": 152,
+          "values": 279
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.6920056100981767,
+          "rows": 17269
+        },
+        "rows": 24955
+      }
+    },
+    "8": {
+      "malicious": {
+        "detected": 24072,
+        "n": 24955,
+        "predicted_as": {
+          "Benign-DoH": 0,
+          "Malicious-DoH": 24072,
+          "Non-DoH": 883
+        },
+        "recall": 0.9646163093568423
+      },
+      "perturbation": {
+        "median_duration_seconds": 4.258951875,
+        "outside_train_range": {
+          "by_column": {
+            "FlowBytesReceived": 491,
+            "FlowBytesSent": 345,
+            "ResponseTimeTimeMode": 1
+          },
+          "row_fraction": 0.022039671408535362,
+          "rows": 550,
+          "values": 837
+        },
+        "packet_time_mean_above_duration": {
+          "row_fraction": 0.9663394109396914,
+          "rows": 24115
+        },
+        "rows": 24955
+      }
+    }
+  },
+  "n_features": 28,
+  "split_index_sha256": {
+    "test": "e1ee3ca2302bace8574c564fbb9153c30ed2c7365f4d632f8949dc2e3bbd2253",
+    "train": "4b4e29823fb811c21427d9cc561d06d5c3664119375a318533ff0ac1a403f719"
+  },
+  "test": {
+    "accuracy": 0.9740749368049624,
+    "confusion_matrix": [
+      [
+        88796,
+        0,
+        185
+      ],
+      [
+        1936,
+        0,
+        39
+      ],
+      [
+        845,
+        0,
+        24110
+      ]
+    ],
+    "macro_f1": 0.6539615787642475,
+    "macro_precision": 0.6534756285375733,
+    "macro_recall": 0.6546866515844245,
+    "malicious_vs_rest": {
+      "false_positives": 224,
+      "fpr": 0.002462729231716434,
+      "fpr_ci_high": 0.0028067510888022465,
+      "fpr_ci_level": 0.95,
+      "fpr_ci_low": 0.002151081112653636,
+      "negatives": 90956,
+      "recall": 0.9661390502905229
+    },
+    "per_class": {
+      "Benign-DoH": {
+        "f1": 0.0,
+        "pr_auc": 0.23913736066448535,
+        "pr_auc_base_mean": 0.36301227171936784,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 1975
+      },
+      "Malicious-DoH": {
+        "f1": 0.9783115908214813,
+        "pr_auc": 0.9874293205960667,
+        "pr_auc_base_mean": 0.9926652599297071,
+        "precision": 0.9907947727459522,
+        "recall": 0.9661390502905229,
+        "support": 24955
+      },
+      "Non-DoH": {
+        "f1": 0.9835731454712614,
+        "pr_auc": 0.9935115177343258,
+        "pr_auc_base_mean": 0.9970411887288405,
+        "precision": 0.9696321128667679,
+        "recall": 0.9979209044627505,
+        "support": 88981
+      }
+    },
+    "roc_auc_ovr_macro": 0.962032476578487,
+    "roc_auc_ovr_macro_base_mean": 0.9855519378493542,
+    "total": 115911,
+    "weighted_f1": 0.9656813227918695,
+    "weighted_precision": 0.957666818411308,
+    "weighted_recall": 0.9740749368049624
+  },
+  "test_rows": [
+    88981,
+    1975,
+    24955
+  ],
+  "train_rows": [
+    800828,
+    17771,
+    224598
+  ]
+}
