@@ -319,7 +319,9 @@ def model_description(name: str, config: dict) -> str:
 # Tabelas de dados.
 
 SINGLE_SEED = f"seed {SEED_FIEL}"
-E0_RUN = Path("e0") / "dados" / "cira" / f"seed{SEED_FIEL}"
+# Nome da pasta de uma execução com a seed única, nos caminhos de origem das tabelas.
+SEED_DIR = f"seed{SEED_FIEL}"
+E0_RUN = Path("e0") / "dados" / "cira" / SEED_DIR
 
 
 def split_rows(prefix: str, split: dict) -> list[list[str]]:
@@ -401,8 +403,8 @@ def capture_table(results_dir: Path) -> list[Table]:
 
 
 E6_DATA_SOURCE = (
-    "results/e6/dados/{combinado,combinado_sem_replicas,hkd}/seed42/metrics.json; "
-    "results/e6/fiel/retreino_{publicado,sem_replicas}/seed42/metrics.json"
+    f"results/e6/dados/{{combinado,combinado_sem_replicas,hkd}}/{SEED_DIR}/metrics.json; "
+    f"results/e6/fiel/retreino_{{publicado,sem_replicas}}/{SEED_DIR}/metrics.json"
 )
 # As duas formas do combinado: nome do dataset, cenário de retreino e título.
 COMBINED_FORMS = [
@@ -463,7 +465,7 @@ def second_dataset_tools_table(results_dir: Path) -> list[Table]:
 # Reprodução.
 
 
-E1_SOURCE = "results/e1/{fiel/proposto,variante/profundidade_variavel}/seed42/metrics.json"
+E1_SOURCE = f"results/e1/{{fiel/proposto,variante/profundidade_variavel}}/{SEED_DIR}/metrics.json"
 # Cabeçalho de dois níveis das matrizes de confusão: as colunas são a classe predita.
 PREDICTED_GROUPS = [("", 2), ("Classe predita", len(CLASS_NAMES))]
 
@@ -607,8 +609,8 @@ def table_ii_table(results_dir: Path, average: str, average_title: str, short_ti
         f"média {average_title}",
     )
     source = (
-        "results/e2/fiel/{decision_tree,xgboost,random_forest}/seed42/metrics.json; "
-        "results/e1/{fiel/proposto,variante/profundidade_variavel}/seed42/metrics.json"
+        f"results/e2/fiel/{{decision_tree,xgboost,random_forest}}/{SEED_DIR}/metrics.json; "
+        f"results/e1/{{fiel/proposto,variante/profundidade_variavel}}/{SEED_DIR}/metrics.json"
     )
     # Na coluna reproduzida, AUC e acurácia não têm média; as outras levam o nome dela.
     header = ["Modelo"]
@@ -694,8 +696,8 @@ def timings_table(results_dir: Path) -> list[Table]:
     )
     header = ["Modelo", "Reamostragem", "Ajuste", "Meta", "Valid. cruzada"]
     source = (
-        "results/e2/fiel/*/seed42/run.json; "
-        "results/e1/{fiel/proposto,variante/profundidade_variavel}/seed42/run.json"
+        f"results/e2/fiel/*/{SEED_DIR}/run.json; "
+        f"results/e1/{{fiel/proposto,variante/profundidade_variavel}}/{SEED_DIR}/run.json"
     )
     return [Table("tempos_treino", header, rows, caption, source, tuple(READINGS))]
 
@@ -736,8 +738,8 @@ SHAP_RUNS = {
     "segundo": ("e6", "retreino_sem_replicas-shap", SECOND_DATASET),
 }
 SHAP_SOURCE = (
-    "results/e5/{fiel/proposto,variante/profundidade_variavel}/seed42/; "
-    "results/e6/{fiel,variante}/retreino_sem_replicas-shap/seed42/"
+    f"results/e5/{{fiel/proposto,variante/profundidade_variavel}}/{SEED_DIR}/; "
+    f"results/e6/{{fiel,variante}}/retreino_sem_replicas-shap/{SEED_DIR}/"
 )
 MALICIOUS = CLASS_NAMES[2]
 
@@ -826,7 +828,7 @@ def shap_stability_table(results_dir: Path) -> list[Table]:
 
 # Segundo dataset.
 
-E6_SOURCE = "results/e6/{fiel,variante}/<cenário>/seed42/metrics.json"
+E6_SOURCE = f"results/e6/{{fiel,variante}}/<cenário>/{SEED_DIR}/metrics.json"
 
 
 def second_dataset_metrics_table(results_dir: Path) -> list[Table]:
@@ -849,8 +851,8 @@ def second_dataset_metrics_table(results_dir: Path) -> list[Table]:
     )
     header = ["Métrica", *READING_HEADERS.values(), *READING_HEADERS.values()]
     source = (
-        "results/e1/{fiel/proposto,variante/profundidade_variavel}/seed42/metrics.json; "
-        "results/e6/{fiel,variante}/retreino_sem_replicas/seed42/metrics.json"
+        f"results/e1/{{fiel/proposto,variante/profundidade_variavel}}/{SEED_DIR}/metrics.json; "
+        f"results/e6/{{fiel,variante}}/retreino_sem_replicas/{SEED_DIR}/metrics.json"
     )
     table = Table("segundo_metricas", header, rows, caption, source, tuple(READINGS))
     table.groups = [("", 1), ("CIRA", len(READINGS)), (SECOND_DATASET, len(READINGS))]
@@ -888,9 +890,9 @@ def second_dataset_baselines_table(results_dir: Path) -> list[Table]:
     )
     short = ["F1 macro", "Benign rec.", "Malic. rec.", "Malic. FPR"]
     source = (
-        "results/e2/fiel/*/seed42/metrics.json; results/e1/*/*/seed42/metrics.json; "
-        "results/e6/fiel/retreino_sem_replicas-*/seed42/metrics.json; "
-        "results/e6/{fiel,variante}/retreino_sem_replicas/seed42/metrics.json"
+        f"results/e2/fiel/*/{SEED_DIR}/metrics.json; results/e1/*/*/{SEED_DIR}/metrics.json; "
+        f"results/e6/fiel/retreino_sem_replicas-*/{SEED_DIR}/metrics.json; "
+        f"results/e6/{{fiel,variante}}/retreino_sem_replicas/{SEED_DIR}/metrics.json"
     )
     table = Table(
         "segundo_baselines_dupla", ["Modelo", *short * 2], rows, caption, source, tuple(READINGS)
@@ -916,7 +918,7 @@ def second_dataset_confusion_table(results_dir: Path) -> list[Table]:
         NO_AVERAGE,
     )
     header = ["Avaliação", "Classe real", *CLASS_NAMES]
-    source = "results/e6/{fiel,variante}/retreino_sem_replicas/seed42/metrics.json"
+    source = f"results/e6/{{fiel,variante}}/retreino_sem_replicas/{SEED_DIR}/metrics.json"
     table = Table("segundo_matrizes", header, rows[:-1], caption, source, tuple(READINGS))
     table.groups = PREDICTED_GROUPS
     return [table]
@@ -1031,7 +1033,7 @@ def tunnel_tool_table(results_dir: Path) -> list[Table]:
         "média macro",
     )
     header = ["Leitura", "Ferramenta", "n", "Artigo", "Precisão", "Recall", "F1", "Dif."]
-    source = "results/e7/{fiel,variante}/ferramenta/seed42/metrics.json"
+    source = f"results/e7/{{fiel,variante}}/ferramenta/{SEED_DIR}/metrics.json"
     return [Table("ferramenta_metricas", header, rows[:-1], caption, source, tuple(READINGS))]
 
 
@@ -1217,14 +1219,20 @@ def modification_metrics_table(results_dir: Path) -> list[Table]:
     return [Table("modificacao_metricas_dupla", header, rows[:-1], caption, E8_SOURCE, tracks)]
 
 
-def paired_row(dataset: str, entry: dict) -> list[str]:
-    """Linha de uma comparação pareada: diferença média, desvio, vitórias e leitura."""
+POSTERIOR_MARK = " (posterior)"
+
+
+def paired_row(dataset: str, entry: dict, mark: str = "") -> list[str]:
+    """Linha de uma comparação pareada: diferença média, desvio, vitórias e leitura.
+
+    `mark` entra depois do nome do par, para identificar a análise posterior.
+    """
     seconds = entry["metric"] == "train_seconds"
     label = "Tempo de treino (s)" if seconds else KEY_LABELS[entry["metric"]]
     scale, decimals = (1, 1) if seconds else (100, decimals_for(label))
     return [
         dataset,
-        f"{entry['first']} − {entry['second']}",
+        f"{entry['first']} − {entry['second']}{mark}",
         label,
         signed(scale * entry["mean_difference"], decimals),
         num(scale * entry["std_difference"], decimals),
@@ -1244,6 +1252,12 @@ def modification_paired_table(results_dir: Path) -> list[Table]:
             for entry in dataset["paired"]
             if entry["scope"] in ("test", None)
         ]
+        # Pares e métricas acrescentados depois da execução: vão marcados.
+        rows += [
+            paired_row(DATASET_TITLES[key], entry, POSTERIOR_MARK)
+            for entry in dataset["posterior"]["paired"]
+            if entry["scope"] == "test"
+        ]
         rows.append(None)
     caption = model_caption(
         "Comparação pareada por seed entre a modificação e o modelo de referência: diferença "
@@ -1251,7 +1265,8 @@ def modification_paired_table(results_dir: Path) -> list[Table]:
         "(em segundos no tempo de treino), e número de seeds em que cada um tem o valor maior. "
         "A leitura segue a regra fixada antes da execução: há diferença quando a média, em "
         "módulo, passa do desvio. Os conjuntos de teste das seeds se sobrepõem, e os pares não "
-        "são independentes.",
+        f"são independentes. As linhas com{POSTERIOR_MARK} são análise acrescentada depois da "
+        "execução, fora dos pares e das métricas fixados antes dela.",
         tracks,
         seeds,
         "média macro",
@@ -1266,17 +1281,24 @@ def modification_transfer_table(results_dir: Path) -> list[Table]:
     summary, tracks, seeds = load_summary(results_dir, E8_SOURCE)
     transfer = summary["datasets"]["cira"]["hkd_transfer"]
     rows = [
-        [tool, count(entry["rows_mean"]), mean_std(entry["recall"])]
+        [
+            tool,
+            count(entry["rows_mean"]),
+            mean_std(entry["recall"]),
+            num(100 * entry["recall_min"]),
+            num(100 * entry["recall_max"]),
+        ]
         for tool, entry in transfer.items()
     ]
     caption = model_caption(
         f"Transferência da modificação ({MODIFIED_SELECTED_MODEL}) treinada no CIRA para os "
-        "fluxos do HKD, sem retreino: recall de Malicious-DoH por ferramenta, em %.",
+        "fluxos do HKD, sem retreino: recall de Malicious-DoH por ferramenta, em %, com o menor "
+        "e o maior valor entre as seeds.",
         tracks,
         seeds,
         NO_AVERAGE,
     )
-    header = ["Ferramenta do HKD", "n", "Recall"]
+    header = ["Ferramenta do HKD", "n", "Recall", "Mín.", "Máx."]
     return [Table("modificacao_transferencia", header, rows, caption, E8_SOURCE, tracks)]
 
 
@@ -1323,6 +1345,28 @@ def robustness_table(results_dir: Path) -> list[Table]:
     header = ["Atributos do modelo", "k", "Duração mediana (s)", *models]
     name = "robustez_fragmentacao_dupla"
     return [Table(name, header, rows[:-1], caption, ROBUSTNESS_SOURCE, tracks)]
+
+
+def robustness_seeds_table(results_dir: Path) -> list[Table]:
+    """Recall de Malicious-DoH da modificação em cada seed e fator, com todos os atributos."""
+    summary, tracks, _ = load_summary(results_dir, ROBUSTNESS_SOURCE)
+    all_features = column_sets(summary)[0][0]
+    recalls = summary["descriptive"]["recall_by_seed"][MODIFIED_SELECTED_MODEL][all_features]
+    rows = [
+        [count(seed), *[num(100 * recalls[str(factor)][index]) for factor in summary["factors"]]]
+        for index, seed in enumerate(summary["seeds"])
+    ]
+    caption = model_caption(
+        f"Recall de Malicious-DoH de {MODIFIED_SELECTED_MODEL}, em %, em cada seed e fator de "
+        "fragmentação k, no CIRA, com todos os atributos. Leitura descritiva acrescentada "
+        "depois da execução: a média entre as seeds esconde as seeds em que o recall cai muito "
+        "mais que nas outras.",
+        tracks,
+        f"{len(summary['seeds'])} seeds, uma por linha",
+        NO_AVERAGE,
+    )
+    header = ["Seed", *[f"k = {factor}" for factor in summary["factors"]]]
+    return [Table("robustez_seeds", header, rows, caption, ROBUSTNESS_SOURCE, tracks)]
 
 
 def robustness_figure(results_dir: Path) -> list[Plot]:
@@ -1807,7 +1851,7 @@ REQUIRED_RUNS = (
 REQUIRED_FILES = [
     E0_RUN / "split_counts.json",
     E0_RUN / "fig2_densidade.csv",
-    Path("e7") / "dados" / "fig9" / f"seed{SEED_FIEL}" / "fig9_curvas.csv",
+    Path("e7") / "dados" / "fig9" / SEED_DIR / "fig9_curvas.csv",
 ]
 REQUIRED_BUILDERS = [
     cira_counts_table,
@@ -1860,7 +1904,7 @@ OPTIONAL_BUILDERS = [
     (
         Path("e8") / "corrigida" / "summary-robustez.json",
         "robustez à fragmentação dos fluxos",
-        [robustness_table, robustness_figure],
+        [robustness_table, robustness_seeds_table, robustness_figure],
     ),
 ]
 
