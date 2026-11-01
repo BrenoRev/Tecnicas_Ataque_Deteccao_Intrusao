@@ -13,7 +13,17 @@ Projeto da disciplina CIN0114, Técnicas de Ataque e Detecção de Intrusão (CI
 
 ## Onde está o código
 
-O código, os testes, os resultados e as instruções de instalação e de execução ficam em [`project/`](project/README.md). As demais pastas são material de estudo e de planejamento da equipe.
+O código, os testes, os resultados, o relatório e as instruções de instalação e de execução ficam em [`project/`](project/README.md). É o único lugar necessário para reproduzir os resultados.
+
+As demais pastas:
+
+| Pasta | Conteúdo |
+| --- | --- |
+| `geracao_latex_and_pdf/` | modelo de slides do CIn e modelo LaTeX, usados para gerar a apresentação |
+| `docs/` | material de estudo da equipe sobre o artigo, os dados e a disciplina |
+| `planejamento/` | plano de implementação e registro das decisões da equipe |
+| `.github/`, `.githooks/` | integração contínua, modelo de pull request e hooks de commit |
+| `.claude/` | configuração do assistente de IA usado no desenvolvimento |
 
 Depois de clonar, ative os hooks do Git uma vez, na raiz do repositório:
 
