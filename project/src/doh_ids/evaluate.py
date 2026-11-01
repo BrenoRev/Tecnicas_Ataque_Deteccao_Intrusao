@@ -15,6 +15,8 @@ from doh_ids.config import BASE_RATE_FLOWS, CLASS_NAMES, CONFIDENCE_LEVEL, FEATU
 
 MALICIOUS = CLASS_NAMES.index("Malicious-DoH")
 CLASS_METRICS = ["precision", "recall", "f1"]
+# Vereditos da regra de leitura de uma comparação pareada.
+HIGHER, LOWER, SAME = "maior", "menor", "não se distinguem"
 
 
 def _ratio(numerator: float, denominator: float) -> float:
@@ -321,6 +323,20 @@ def paired_comparison(first: ArrayLike, second: ArrayLike) -> dict:
         result["wilcoxon_statistic"] = float(test.statistic)
         result["wilcoxon_p_value"] = float(test.pvalue)
     return result
+
+
+def paired_verdict(comparison: dict) -> str:
+    """Aplica a regra de leitura a uma comparação pareada devolvida por `paired_comparison`.
+
+    A diferença conta quando a média é, em módulo, maior que o desvio padrão
+    das diferenças entre as seeds. Devolve `HIGHER` ou `LOWER`, conforme o
+    primeiro lado do par seja maior ou menor que o segundo, e `SAME` quando a
+    diferença não conta, inclusive quando a média é igual ao desvio.
+    """
+    difference = comparison["mean_difference"]
+    if abs(difference) <= comparison["std_difference"]:
+        return SAME
+    return HIGHER if difference > 0 else LOWER
 
 
 def _difference_pp(obtained: dict, target: dict) -> dict:
