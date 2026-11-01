@@ -1,0 +1,13 @@
+Atributo,Artigo,CIRA Prof. 5,CIRA Prof. var.,Combinado Prof. 5,Combinado Prof. var.
+Duration,1,2,3,2,2
+PacketLengthMode,2,1,1,1,1
+PacketTimeVariance,3,21,28,20,26
+PacketLengthCoefficientofVariation,4,5,6,6,7
+PacketLengthVariance,5,16,20,17,23
+PacketLengthMean,6,6,8,5,6
+FlowBytesSent,7,7,9,7,8
+PacketTimeMean,8,23,14,22,15
+ResponseTimeTimeMedian,9,12,7,10,5
+FlowBytesReceived,10,14,10,11,9
+Spearman com a Fig. 5,–,0.62,0.51,–,–
+Em comum nos 10 primeiros,–,5,7,–,–

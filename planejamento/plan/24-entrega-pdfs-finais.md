@@ -15,6 +15,40 @@
 
 Esta tarefa executa as tarefas 18 e 20: o conteúdo exigido, a lista de conferência e as limitações a declarar continuam descritos nelas; a forma, o tamanho e a geração dos PDFs são os daqui. Onde divergirem em tamanho ou formato, vale esta.
 
+## O que o relatório pode e não pode afirmar (revisão metodológica de 08/10/2026)
+
+Cada número abaixo é conferido contra o arquivo de origem antes de entrar no texto; os valores aqui são guia, não fonte.
+
+**Pode afirmar:**
+
+1. Com profundidade 5 (Seção IV-B), o sistema empilhado não prediz Benign-DoH: recall 0 no teste e nas dez seeds; os bases sozinhos têm recall de 85% a 86%, e a perda acontece no meta-classificador (`results/e1/`, `results/e4/corrigida/`).
+2. Com profundidade variável (linha 3 do Algoritmo 1), F1 macro de 96,56% ± 0,12 e recall de Benign-DoH de 93,07% ± 0,52 em dez seeds; na seed 42 a matriz de teste fica a 553 linhas da Fig. 4b, contra 4.711 na leitura de profundidade 5.
+3. A acurácia esconde a classe rara: 97,79% de acurácia com recall 0 em Benign-DoH.
+4. 13,64% das linhas do teste repetem um vetor do treino; os vereditos são os mesmos sem essas linhas.
+5. Treinado no CIRA, o sistema detecta 1,81% dos fluxos do HKD; uma regra só com `PacketLengthMode` em quatro valores tem recall de 99,84% e 1 falso positivo em 909.555 no CIRA, e 0% no HKD (`results/e6/`).
+6. Um Random Forest único sem SMOTE, com peso de classe (M1), tem F1 macro 0,58 pp acima do sistema do artigo nas dez seeds, treina em cerca de 31 s e perde 0,50 pp de recall de Benign-DoH.
+7. M1M2 tem F1 macro cerca de 0,5 pp acima do sistema do artigo nos dois datasets, nas dez seeds, e precisão de Benign-DoH 2,2 a 2,7 pp maior, a cerca de 2,3 vezes o tempo de treino.
+8. Dividir duração e bytes por 2 no espaço de atributos tira 3,19 pp de recall do sistema do artigo e 0,34 pp de M1M2, nas dez seeds; sempre com a ressalva de perturbação simulada.
+9. Lidos sem a limpeza e com desvio populacional, os arquivos por ferramenta reproduzem as 12 estatísticas da legenda da Fig. 9 em seis algarismos (`results/e7/`); com profundidade variável, o recall por ferramenta fica a menos de 2 pp dos valores da Seção VI-D.
+
+**Não pode afirmar:**
+
+- "A profundidade variável é o que os autores usaram." São duas leituras com apoio textual; a proximidade da Fig. 4b não identifica a configuração.
+- "Os autores geraram a Fig. 9 com os arquivos sem limpeza." É indício.
+- "A seleção de hiperparâmetros melhora o modelo." M1M2 menos M1 em F1 macro é −0,08 ± 0,15 pp.
+- "A modificação reduz falsos positivos" ou "melhora o recall de Benign-DoH" como resultado geral: cerca de um fluxo por teste, e o veredito não se repete no combinado.
+- "A modificação é mais robusta" e também "é menos robusta": melhor no fator 2, colapso em duas ou três seeds do fator 4 em diante.
+- "A modificação generaliza melhor para ferramentas novas": recall no HKD de 2,1% a 43,0% entre seeds, sem par nas mesmas seeds.
+- "O modelo detecta ferramentas novas depois do retreino": os 99,42% são de fluxos muito próximos de fluxos do treino; medem as mesmas ferramentas, não uma nunca vista.
+- "Um atacante que fragmenta a sessão evade X%": nenhum tráfego foi gerado, e nos fatores 8 e 16 mais de 96% dos vetores são fisicamente incoerentes.
+- "Tirar `Duration` torna o detector mais (ou menos) robusto": o efeito tem sinais opostos entre os modelos.
+- "O limiar de 40 s foi refutado": o corte medido é 33,13 s em amostra com classes em partes iguais; a diferença não é atribuível.
+- Qualquer "significativo" apoiado no p-valor de Wilcoxon: os testes das seeds se sobrepõem.
+
+## Insumos prontos (tarefa 17)
+
+`project/report/INDICE.md` lista as 30 tabelas (`.tex` e `.csv`) e as 13 figuras (`.pdf` e `.png`) com origem e legenda sugerida. O sufixo `_dupla` marca o que precisa de `table*` ou `figure*`. Várias tabelas de uma coluna passam da largura em até 25% e cabem com `\resizebox{\columnwidth}{!}{...}` em volta do `\input`. O relatório usa um subconjunto: o que não couber em 8 páginas fica citado como disponível no repositório.
+
 ## Verificado em 07/10/2026
 
 - `geracao_latex_and_pdf/template.tex`: classe `IEEEtran`, opção `conference`, em português, 649 linhas. Seções: Introdução; Trabalhos relacionados; Modelo de ameaça; Sistema proposto pelo artigo de referência; Solução proposta pela equipe (caso feita); Metodologia (dados do artigo, novo conjunto de dados, métricas); Resultados e discussões (reprodução, nos dois conjuntos; proposta de melhoria, caso feita); Conclusões e trabalhos futuros; referências em `thebibliography`. O título de exemplo cita "IF848" e precisa ser trocado. O template usa `algorithm` e `algpseudocode` e uma figura de exemplo em `imagens/`, que não acompanha o arquivo.

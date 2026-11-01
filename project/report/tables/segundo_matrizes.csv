@@ -1,0 +1,13 @@
+Avaliação,Classe real,Classe predita Non-DoH,Classe predita Benign-DoH,Classe predita Malicious-DoH
+"Prof. 5, teste",Non-DoH,88826,9,146
+"Prof. 5, teste",Benign-DoH,1956,0,19
+"Prof. 5, teste",Malicious-DoH,708,4,24769
+"Prof. var., teste",Non-DoH,88692,287,2
+"Prof. var., teste",Benign-DoH,132,1843,0
+"Prof. var., teste",Malicious-DoH,4,12,25465
+"Prof. 5, validação",Non-DoH,799924,76,828
+"Prof. 5, validação",Benign-DoH,17612,0,159
+"Prof. 5, validação",Malicious-DoH,6639,4,222687
+"Prof. var., validação",Non-DoH,798383,2428,17
+"Prof. var., validação",Benign-DoH,1206,16557,8
+"Prof. var., validação",Malicious-DoH,86,67,229177

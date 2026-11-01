@@ -1,0 +1,16 @@
+Atributos do modelo,k,Duração mediana (s),A,A-prof5,M1M2
+todos,1,34.1,99.94 ± 0.02,97.52 ± 0.73,99.97 ± 0.02
+todos,2,17.0,96.75 ± 0.76,93.15 ± 0.70,99.63 ± 0.35
+todos,4,8.5,95.41 ± 0.15,92.94 ± 0.89,92.75 ± 10.90
+todos,8,4.3,95.04 ± 0.15,92.94 ± 0.89,91.30 ± 10.14
+todos,16,2.1,94.70 ± 0.19,92.94 ± 0.89,90.99 ± 9.67
+sem Duration,1,34.1,99.94 ± 0.02,96.26 ± 0.97,99.97 ± 0.01
+sem Duration,2,17.0,95.75 ± 0.76,96.11 ± 0.99,99.95 ± 0.02
+sem Duration,4,8.5,94.14 ± 0.17,96.11 ± 0.97,99.20 ± 0.16
+sem Duration,8,4.3,93.06 ± 0.17,96.04 ± 0.92,98.49 ± 0.22
+sem Duration,16,2.1,92.52 ± 0.15,95.98 ± 0.89,97.80 ± 0.81
+"sem Duration, FlowSentRate, FlowReceivedRate",1,34.1,99.94 ± 0.01,96.26 ± 0.97,99.97 ± 0.02
+"sem Duration, FlowSentRate, FlowReceivedRate",2,17.0,95.79 ± 0.70,96.09 ± 0.98,99.95 ± 0.02
+"sem Duration, FlowSentRate, FlowReceivedRate",4,8.5,94.10 ± 0.19,96.08 ± 0.98,99.12 ± 0.30
+"sem Duration, FlowSentRate, FlowReceivedRate",8,4.3,93.03 ± 0.31,96.01 ± 0.94,97.96 ± 1.46
+"sem Duration, FlowSentRate, FlowReceivedRate",16,2.1,92.48 ± 0.42,95.97 ± 0.92,95.76 ± 6.23
