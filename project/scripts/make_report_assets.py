@@ -1504,7 +1504,7 @@ def importance_figure(results_dir: Path, dataset: str, runs: dict) -> Plot:
         axis.invert_yaxis()
         # Título alinhado à direita: os nomes dos atributos estreitam o painel.
         axis.set_title(f"{READINGS[track].capitalize()} (trilha {track})", loc="right")
-    axes[-1].set_xlabel("Média do valor absoluto de SHAP")
+    axes[-1].set_xlabel("Média de |valor SHAP|")
     first = runs[dataset, "fiel"]
     caption = (
         f"Importância global dos {SHAP_TOP_FEATURES} atributos de maior média do valor "
