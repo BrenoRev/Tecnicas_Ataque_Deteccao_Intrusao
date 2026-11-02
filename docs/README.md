@@ -34,3 +34,5 @@ Material de origem, em `docs/referencias/`:
 - Repositório dos autores: clone em 06/10/2026, commit `38e2f23`, leitura dos arquivos e do histórico git. Nenhum pickle foi carregado.
 - Colunas do dataset: lidas do código-fonte do DoHLyzer (`meter/flow.py`), não do CSV. Conferir de novo quando os dados forem baixados.
 - O que não pôde ser verificado está marcado como `[A verificar]`.
+
+- [09-acompanhamento-professor.md](09-acompanhamento-professor.md): página de status e perguntas para os encontros de 10/11 e 17/11.
