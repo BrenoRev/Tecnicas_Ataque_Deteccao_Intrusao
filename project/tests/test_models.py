@@ -9,6 +9,7 @@ from sklearn.preprocessing import MinMaxScaler
 import scripts.e3_sensibilidade as e3
 import scripts.e8_modificacao as e8
 from doh_ids.config import (
+    FEATURE_COLUMNS,
     MAX_DEPTH,
     MAX_FEATURES,
     MODIFIED_GRID,
@@ -263,3 +264,41 @@ def test_hyperparameter_selection_only_receives_train_rows_of_the_seed(
     run_dir = tmp_path / "e8" / "corrigida" / f"{MODIFIED_SELECTED_MODEL}-cira" / f"seed{seed}"
     selected = json.loads((run_dir / "metrics.json").read_text())["selection"]["selected"]
     assert selected in MODIFIED_GRID
+
+
+def test_selection_sample_is_the_same_for_a_seed_and_changes_with_the_seed(synthetic_flows):
+    train, _ = stratified_split(synthetic_flows, SEED)
+
+    first = e8.selection_sample(train, SEED)
+
+    # Sem a seed no sorteio, a seleção de hiperparâmetros não se repetiria.
+    assert list(first.index) == list(e8.selection_sample(train, SEED).index)
+    assert list(first.index) != list(e8.selection_sample(train, SEED + 1).index)
+
+
+def test_selection_scaler_is_fitted_inside_each_fold_on_the_fit_rows_only(
+    synthetic_flows, monkeypatch
+):
+    train, _ = stratified_split(synthetic_flows, SEED)
+    sample = e8.selection_sample(train, SEED)
+    # Um valor extremo em uma única linha: o máximo do normalizador só pode ser
+    # esse valor nos ajustes em que a linha está nos folds de ajuste. Com a
+    # subamostra normalizada antes dos folds, o máximo seria sempre 1.
+    planted_row, planted_value = sample.index[0], 1e6
+    sample.loc[planted_row, FEATURE_COLUMNS[0]] = planted_value
+    seen = []
+
+    def recording_fit(X, y, seed, **combination):
+        model = fit_modified_forest(X, y, seed, **combination)
+        assert isinstance(model.steps[0][1], MinMaxScaler)
+        seen.append((planted_row in X.index, model.steps[0][1].data_max_[0]))
+        return model
+
+    monkeypatch.setattr(e8, "fit_modified_forest", recording_fit)
+    # Uma combinação basta: todas passam pelo mesmo laço de folds.
+    monkeypatch.setattr(e8, "MODIFIED_GRID", MODIFIED_GRID[:1])
+    e8.select_hyperparameters(sample, SEED)
+
+    assert [in_fit for in_fit, _ in seen].count(False) == 1
+    for in_fit, scaler_maximum in seen:
+        assert (scaler_maximum == planted_value) == in_fit
