@@ -64,6 +64,14 @@ REPORT_DIR = PROJECT_ROOT / "report"
 READINGS = {"fiel": "prof. 5", "variante": "prof. variável"}
 # Forma curta, para o cabeçalho das colunas.
 READING_HEADERS = {"fiel": "Prof. 5", "variante": "Prof. var."}
+# Título dos painéis das figuras, com a passagem do artigo que apoia a leitura.
+READING_TITLES = {
+    "fiel": "Profundidade 5 (Seção IV-B)",
+    "variante": "Profundidade variável (Alg. 1)",
+}
+# Autores das obras que a Tabela II do artigo identifica pelo número da lista
+# de referências dele; o número não vale fora do artigo.
+LITERATURE_AUTHORS = {"[10]": "Banadaki", "[12]": "Jafar et al.", "[22]": "Ahakonye et al."}
 # Recorte da reprodução e da explicabilidade em cada trilha.
 SYSTEM_SLICES = {"fiel": "proposto", "variante": "profundidade_variavel"}
 BASELINES = {
@@ -644,17 +652,23 @@ def literature_table(results_dir: Path) -> list[Table]:
     """Metade inferior da Tabela II: resultados de outros trabalhos, transcritos do artigo."""
     metrics = ["auc", "accuracy", "f1", "precision", "recall"]
     rows = [
-        [entry["model"], entry["reference"], *(literature_cell(entry, key) for key in metrics)]
+        [
+            entry["model"],
+            LITERATURE_AUTHORS[entry["reference"]],
+            *(literature_cell(entry, key) for key in metrics),
+        ]
         for entry in TABLE_II_LITERATURE
     ]
+    fractions = sum(not entry["percent"] for entry in TABLE_II_LITERATURE)
     caption = (
         "Metade inferior da Tabela II do artigo: resultados de outros trabalhos no mesmo "
-        "dataset, em %, transcritos como o artigo os imprime; a referência é a da lista do "
-        "artigo e o traço marca a célula que ele deixa vazia. O artigo declara que o método "
-        "experimental desses trabalhos não é diretamente comparável ao dele (Seção V), e não "
-        "diz que média usam."
+        "dataset, em %, com os autores de cada trabalho. O artigo imprime "
+        f"{fractions} das {len(TABLE_II_LITERATURE)} linhas em fração, aqui multiplicadas por "
+        "100, e as demais já em percentual; o traço marca a célula que ele deixa vazia. O "
+        "artigo declara que o método experimental desses trabalhos não é diretamente "
+        "comparável ao dele (Seção V), e não diz que média usam."
     )
-    header = ["Modelo", "Ref.", "AUC", "Acurácia", "F1", "Precisão", "Recall"]
+    header = ["Modelo", "Trabalho", "AUC", "Acurácia", "F1", "Precisão", "Recall"]
     return [Table("tabela2_literatura", header, rows, caption, "config.py, TABLE_II_LITERATURE")]
 
 
@@ -1470,7 +1484,7 @@ def confusion_figures(results_dir: Path) -> list[Plot]:
         for axis, (track, metrics) in zip(axes[1:], runs.items(), strict=True):
             difference = metrics[f"{key}_comparison"]["cell_difference"]
             draw_confusion(axis, metrics[evaluation]["confusion_matrix"], difference)
-            axis.set_title(f"{READINGS[track].capitalize()} (trilha {track})")
+            axis.set_title(READING_TITLES[track])
         caption = (
             f"Matrizes de confusão {title}: artigo e reprodução nas duas leituras de "
             "profundidade dos Random Forests base. Em cada célula, o número de fluxos e, entre "
@@ -1503,7 +1517,7 @@ def importance_figure(results_dir: Path, dataset: str, runs: dict) -> Plot:
         axis.barh(top["feature"], top["mean_abs_shap"], color=CLASS_COLORS[MALICIOUS])
         axis.invert_yaxis()
         # Título alinhado à direita: os nomes dos atributos estreitam o painel.
-        axis.set_title(f"{READINGS[track].capitalize()} (trilha {track})", loc="right")
+        axis.set_title(READING_TITLES[track], loc="right")
     axes[-1].set_xlabel("Média de |valor SHAP|")
     first = runs[dataset, "fiel"]
     caption = (
@@ -1551,7 +1565,7 @@ def dependence_figure(results_dir: Path, dataset: str, runs: dict) -> Plot:
             scale = ", escala logarítmica" if log_scale else ""
             axis.set_xlabel(f"({letter}) {column} ({unit}{scale})")
             axis.set_ylabel(f"SHAP de {column}")
-            axis.set_title(f"{READINGS[track].capitalize()} (trilha {track})")
+            axis.set_title(READING_TITLES[track])
             figure.colorbar(drawn, ax=axis, label=f"{color} ({color_unit})")
     first = runs[dataset, "fiel"]
     caption = (
