@@ -42,5 +42,5 @@ Valem para todo script que produz arquivo em `project/results/`. Nasceram na imp
 
 ## Dispensados, com o motivo
 
-- **Rodar como módulo (`python -m scripts.<nome>`) quando um script importa outro:** não vira regra. Rodar pelo caminho falha na importação com erro claro, e o README traz o comando de cada script.
+- **Rodar como módulo (`python -m scripts.<nome>`) quando um script importa outro:** não vira regra de revisão. É o modo de execução desses scripts: o comando certo está na linha "Uso:" de cada script e no README, e rodar pelo caminho falha na importação com erro claro.
 - **Retomada por commit em execução longa:** não vira regra. São dois scripts que a têm e dois longos que não a têm; exigir retomada em todos acrescentaria código a defender sem proteger resultado.
