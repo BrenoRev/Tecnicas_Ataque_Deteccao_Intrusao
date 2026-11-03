@@ -25,8 +25,9 @@ import json
 import sys
 from pathlib import Path
 
-# Chaves dos agregados da modificação que guardam tempo de execução.
-TIME_KEYS = {"train_seconds", "selection_seconds", "time_checks", "fit_seconds"}
+# Chaves dos agregados da modificação que mudam entre execuções sem que o
+# resultado mude: tempo de execução e o commit que gerou cada execução.
+TIME_KEYS = {"train_seconds", "selection_seconds", "time_checks", "fit_seconds", "commits"}
 
 # Agregados que trazem tempo ao lado das métricas: comparados sem as chaves acima.
 TIME_AGGREGATES = {"e8/corrigida/summary.json", "e8/corrigida/summary-robustez.json"}
