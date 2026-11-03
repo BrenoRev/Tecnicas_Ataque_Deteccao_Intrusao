@@ -49,6 +49,6 @@ uv run pytest
 
 - A tarefa 01 faz os primeiros commits direto na `main`, porque ainda não existe base.
 - Da tarefa 02 em diante: uma branch por tarefa, `tarefa/NN-nome-curto`, criada da `main` atualizada.
-- Integração por pull request, com a revisão de outro integrante e o CI verde. A descrição segue o modelo do repositório (`.github/pull_request_template.md`): o que a mudança demonstra, como verificar, saída da verificação com dados reais, checklist. Tarefas que escrevem o mesmo arquivo: a segunda a integrar faz rebase sobre a `main` antes do pull request.
+- Integração por pull request, com a revisão de outro integrante e o CI verde. Exceção registrada: a versão final do projeto foi à `main` por avanço direto, a pedido do usuário (decisão 55); a regra vale para mudanças posteriores. A descrição segue o modelo do repositório (`.github/pull_request_template.md`): o que a mudança demonstra, como verificar, saída da verificação com dados reais, checklist. Tarefas que escrevem o mesmo arquivo: a segunda a integrar faz rebase sobre a `main` antes do pull request.
 - Não reescreva histórico já enviado: sem `--amend` e sem `push --force` em commit publicado.
 - O agente implementador faz commit na branch da tarefa. Ele não faz `push`, não abre pull request e não faz merge sem pedido explícito.
