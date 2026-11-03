@@ -14,7 +14,7 @@ Uma tarefa por vez: desenvolve, testa, revisa, integra. Só então a próxima.
 | 6. Integrar | integrante da equipe | Lê o pull request (descrição no modelo do repositório: o que demonstra, como verificar, verificação com dados reais), confere o CI e aprova | CI verde e aprovação humana |
 | 7. Sincronizar | agente `cin0114-plan-sync` | Marca a tarefa como concluída e reconcilia as seguintes | Plano atualizado |
 
-A skill `implementar` conduz os passos 1 a 5 e o 7. O passo 6 é sempre de uma pessoa.
+A skill `implementar` conduz os passos 1 a 5 e o 7. O passo 6 é de uma pessoa. Na implementação de 07 e 08/10/2026 as tarefas foram encadeadas em branches e a versão final foi à `main` por avanço direto, a pedido do usuário (decisão 55); o passo 6 por tarefa vale para mudanças posteriores.
 
 ## Regras do ciclo
 
@@ -23,9 +23,9 @@ A skill `implementar` conduz os passos 1 a 5 e o 7. O passo 6 é sempre de uma p
 - Teste que falha é consertado no código. Não se apaga teste, não se afrouxa asserção e não se marca `skip` para passar.
 - Se o critério de aceite não pode ser cumprido como escrito, o implementador para e relata. Ele não reinterpreta a tarefa.
 - Resultado longe do artigo não é falha de teste. Registra-se a distância e segue-se o plano.
-- Tarefa de dados e de experimento só fecha com a verificação local executada por quem tem os datasets, com a saída colada no pull request.
+- Tarefa de dados e de experimento só fecha com a execução com dados reais, feita na própria sessão (decisão 44), com a saída no relato e o resultado em commit `exp`.
 - Execução encadeada: quando o usuário pede para seguir sem esperar a integração, a branch da tarefa seguinte nasce da branch da anterior, isso fica dito no relato, e os pull requests são integrados na ordem.
-- Cada tarefa tem um dono, que roda o ciclo na própria máquina com a própria identidade Git.
+- O ciclo roda na sessão de implementação, com a identidade Git de quem está na máquina (decisões 44 e 55).
 
 ## Quando parar e chamar o usuário
 
@@ -37,10 +37,10 @@ A skill `implementar` conduz os passos 1 a 5 e o 7. O passo 6 é sempre de uma p
 
 ## Dois fechamentos em tarefa de experimento (decisão 42)
 
-Vale para as tarefas 08 a 16.
+Vale para as tarefas de experimento (08 a 16 e 21). As regras de `experimentos.md` valem junto.
 
 - **Pronta:** código, testes N1 e revisão sem bloqueante.
-- **Executada:** o script rodou com os dados reais, na máquina local ou no cluster Apuana. As duas formas valem; o importante é treinar e gerar a evidência: resultados em commit `exp` de quem rodou, com a árvore limpa, `run.json` com a máquina e a saída no pull request.
+- **Executada:** o script rodou com os dados reais na sessão de implementação (decisão 44; o cluster Apuana não foi usado). A evidência: resultados em commit `exp`, com a árvore limpa, e `run.json` com o commit e a máquina.
 - A tarefa seguinte pode começar com a anterior "pronta", desde que não dependa de resultado real. Dependem de resultado real: a 05 (saída da 04), a 11 (resultados da 08 e da 09), a 15 (`results/e4/`) e a 17 (todos).
 - "Pronta" sem "executada" não vira número no relatório.
 
