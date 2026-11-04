@@ -53,6 +53,10 @@ RIGHT_LEFT = 4500000
 RIGHT_WIDTH = SLIDE_WIDTH - RIGHT_LEFT - MARGIN
 FULL_WIDTH = SLIDE_WIDTH - 2 * MARGIN
 WIDE_VISUAL_HEIGHT = 2500000
+# Altura de uma linha de tabela com texto de 14 pt, e o tamanho desse texto.
+TABLE_ROW_HEIGHT = 300000
+TABLE_FONT_SIZE = 14
+FOOTER_TOP = 4560000
 
 # Posição, no modelo, do slide de onde sai o logotipo branco do CIn.
 LOGO_WHITE_SLIDE = 0
@@ -63,31 +67,39 @@ LAYOUT_TITLE = "TITLE"
 LAYOUT_TITLE_ONLY = "TITLE_ONLY"
 
 COVER_TITLE = "IDS explicável para ataques DNS over HTTPS"
-COVER_SUBTITLE = "Reprodução, segundo dataset e modificação"
+COVER_SUBTITLE = "Reprodução, segundo conjunto de dados e modificação"
 PROFESSOR = "Prof. Paulo Freitas de Araujo Filho · CIn/UFPE"
 TEAM = "Amanda Arruda · Breno Silva Xavier de Souza · João Henrique Portela · Antonio Gonzaga"
 COURSE = "CIN0114 · Técnicas de Ataque e Detecção de Intrusão · 2026.2"
 REPOSITORY = "github.com/BrenoRev/Tecnicas_Ataque_Deteccao_Intrusao"
+ARTICLE_REFERENCE = (
+    'T. Zebin, S. Rezvy and Y. Luo, "An Explainable AI-Based Intrusion Detection System for '
+    'DNS Over HTTPS (DoH) Attacks," IEEE Trans. Inf. Forensics Security, vol. 17, '
+    "pp. 2339-2349, 2022, doi: 10.1109/TIFS.2022.3183390."
+)
 
 # Cada slide: título, tempo da fala em segundos, tópicos, elemento visual e os
 # pontos da fala que vão para as anotações e para o roteiro. "figure" é o nome
-# de um PNG de report/figures; "table" é (csv, colunas, linhas, rótulos).
+# de um PNG de report/figures; "tables" é uma lista de (csv, colunas, linhas,
+# rótulos); "headers" troca o cabeçalho da tabela por um texto legível;
+# "footer" é uma linha pequena no pé do slide.
 SLIDES = [
     {
         "title": "O artigo em um slide",
         "seconds": 55,
         "bullets": [
             "Problema: o DoH cifra a consulta DNS; o túnel DNS vira HTTPS comum",
-            "O IDS só tem estatísticas de fluxo: 29 atributos, sem decifrar o TLS",
-            "Três classes: Non-DoH, Benign-DoH, Malicious-DoH",
+            "O IDS só tem estatísticas de fluxo (29 atributos) e três classes: "
+            "Non-DoH, Benign-DoH, Malicious-DoH",
             "Sistema: três subconjuntos balanceados com SMOTE, três Random Forests "
             "e uma regressão logística que os combina",
             "Explicação das decisões com SHAP, em painel interativo",
             "Publicado: precisão, recall e F1 acima de 99,9%",
         ],
+        "footer": ARTICLE_REFERENCE,
         "talk": [
             "A turma já viu o seminário: só o necessário para entender o que reproduzimos.",
-            "Artigo: Zebin, Rezvy e Luo, IEEE TIFS, 2022. Dataset CIRA-CIC-DoHBrw-2020.",
+            "Artigo: Zebin, Rezvy e Luo, IEEE TIFS, 2022. Conjunto de dados CIRA-CIC-DoHBrw-2020.",
             "Os valores acima de 99,9% são os do resumo do artigo.",
         ],
     },
@@ -100,43 +112,46 @@ SLIDES = [
             "Duas leituras da profundidade das árvores, lado a lado: 5 (Seção IV-B) "
             "e variável (Algoritmo 1)",
             "Todas as tabelas e figuras de resultado do artigo, com a diferença medida",
-            "Segundo dataset: CIRA + HKD, com três ferramentas de túnel novas",
-            "Protocolo corrigido: 10 seeds, teste sem vetores repetidos, folds por máquina",
-            "Modificação do sistema e teste de robustez",
-            "Um script por experimento; resultado gravado com seed, versões e commit",
+            "Segundo conjunto de dados: CIRA + DoH-Tunnel-Traffic-HKD (HKD, Mitsuhashi "
+            "et al.), com três ferramentas de túnel novas",
+            "Protocolo corrigido (10 seeds), modificação do sistema e teste de robustez",
         ],
         "talk": [
             "Nada foi ajustado para aproximar número do artigo: seed, hiperparâmetro e "
             "limpeza ficaram fixos.",
             "As duas leituras de profundidade têm apoio no texto; reportamos as duas.",
-            "As etapas seguintes usam a leitura de profundidade variável como base, porque "
-            "a outra não prediz uma das classes.",
+            "Os experimentos seguintes usam a leitura de profundidade variável como base, "
+            "porque a outra não prediz uma das classes.",
+            "Protocolo corrigido: dez seeds em vez de uma, comparação pareada no mesmo "
+            "split, teste sem vetores repetidos e folds por máquina.",
+            "Um script por experimento; resultado gravado com seed, versões e commit.",
         ],
     },
     {
         "title": "Dados e protocolo",
         "seconds": 45,
         "bullets": [
-            "Remover linhas com valor ausente reproduz a Tabela I do artigo",
-            "Split 90/10 estratificado, seed 42",
-            "Validação cruzada de 10 folds dentro do treino",
-            "Segundo dataset: só a classe maliciosa ganha tráfego novo",
+            "Remover fluxos com valor ausente reproduz a Tabela I do artigo",
+            "Split 90/10 estratificado, seed 42; validação cruzada de 10 folds no treino",
+            "Segundo conjunto (combinado sem réplicas): só a classe maliciosa ganha tráfego novo",
             "No CIRA, o malicioso vem de outras máquinas e de outro período",
         ],
         "tables": [
             (
                 "dados_cira_contagens",
                 ["Conjunto", "Non-DoH", "Benign-DoH", "Malicious-DoH"],
-                ["Limpo", "Tabela I", "Reprodução: treino", "Reprodução: teste"],
-                ["CIRA limpo", "Tabela I do artigo", "CIRA: treino", "CIRA: teste"],
+                ["Limpo", "Reprodução: treino", "Reprodução: teste"],
+                ["CIRA limpo (igual à Tabela I)", "CIRA: treino", "CIRA: teste"],
             ),
             (
                 "dados_segundo_contagens",
                 ["Conjunto", "Non-DoH", "Benign-DoH", "Malicious-DoH"],
                 ["Sem réplicas: treino", "Sem réplicas: teste", "HKD isolado: teste"],
-                ["Combinado: treino", "Combinado: teste", "HKD isolado"],
+                ["Combinado: treino", "Combinado: teste", "HKD isolado (só teste)"],
             ),
         ],
+        "headers": ["Fluxos por classe", "Non-DoH", "Benign-DoH", "Malicious-DoH"],
+        "wide": True,
         "talk": [
             "Não há conjunto de validação separado, como no artigo: a validação é cruzada.",
             "O combinado publicado repete 20 vezes cada fluxo do HKD; usamos a forma sem "
@@ -146,7 +161,7 @@ SLIDES = [
     },
     {
         "title": "Reprodução: as duas leituras ao lado da Fig. 4b",
-        "seconds": 65,
+        "seconds": 55,
         "figure": "matriz_confusao_teste_dupla",
         "wide": True,
         "bullets": [
@@ -156,7 +171,6 @@ SLIDES = [
         ],
         "talk": [
             "Linha é a classe real, coluna a predita; entre parênteses, a diferença para o artigo.",
-            "Trilha fiel é a profundidade 5; trilha variante, a profundidade variável.",
             "Com profundidade 5, os 1975 fluxos Benign-DoH do teste vão para Non-DoH.",
             "Com profundidade variável: F1 macro de 96,56%, contra 97,82% calculado da Fig. 4b.",
             "Não afirmamos que a profundidade variável é a dos autores: são duas leituras "
@@ -165,7 +179,7 @@ SLIDES = [
     },
     {
         "title": "Por que a profundidade 5 perde uma classe",
-        "seconds": 55,
+        "seconds": 50,
         "bullets": [
             "Sozinhos, os três Random Forests acertam 85% a 86% do Benign-DoH",
             "A perda acontece na regressão logística que os combina",
@@ -186,34 +200,38 @@ SLIDES = [
                 None,
             )
         ],
+        "headers": ["Teste, em %", "Artigo (Fig. 4b)", "Profundidade 5", "Prof. variável"],
+        "wide": True,
         "talk": [
             "Os bases de profundidade 5 têm precisão de Benign-DoH perto de 30%: marcam "
             "muito Non-DoH como Benign-DoH.",
-            "A combinação em que os três dizem Benign-DoH ocorre em 49247 linhas do "
+            "A combinação em que os três dizem Benign-DoH ocorre em 49247 fluxos do "
             "treino; 31025 são Non-DoH. O meta-classificador devolve Non-DoH.",
             "Por isso as métricas por classe vêm antes das médias, e a média é a macro.",
         ],
     },
     {
         "title": "Tabela II e ferramenta de túnel",
-        "seconds": 55,
+        "seconds": 50,
         "bullets": [
             "A Tabela II do artigo (99,98%) diverge da matriz do próprio artigo (99,78%)",
             "A ordem dos modelos de comparação se mantém em F1 macro",
-            "Ferramenta de túnel (Seção VI-D): recall a menos de 2 pontos do artigo "
-            "com profundidade variável",
-            "O artigo não descreve esse método: é leitura nossa",
+            "Ferramenta de túnel (Seção VI-D), prof. variável: recall a menos de 2 pontos "
+            "do artigo",
+            "O artigo não descreve o método da Seção VI-D: é leitura nossa",
         ],
         "tables": [
             (
                 "tabela2_superior_macro_dupla",
-                ["Modelo", "Acurácia Art.", "Acurácia Rep.", "F1 Art.", "F1 Macro"],
+                ["Modelo", "F1 Art.", "F1 Macro"],
                 None,
                 None,
             )
         ],
+        "headers": ["Teste, em %", "F1 (artigo)", "F1 macro (reprodução)"],
+        "wide": True,
         "talk": [
-            "Art. é o valor do artigo; Rep. e Macro são a reprodução, com média macro.",
+            "A coluna do artigo é a da Tabela II; a da reprodução usa a média macro.",
             "O artigo não diz que média usa; nenhuma média reproduz a linha do modelo proposto.",
             "A legenda da Fig. 9 só é reproduzida com os arquivos sem a limpeza: é "
             "indício, não prova, de que essa seção usou outros dados.",
@@ -225,14 +243,16 @@ SLIDES = [
         "figure": "shap_importancia_cira",
         "bullets": [
             "Artigo: Duration em primeiro. Aqui: PacketLengthMode, com larga margem",
-            "Correlação de Spearman com a Fig. 5: 0,62 e 0,51",
+            "Spearman com a Fig. 5: 0,62 (prof. 5) e 0,51 (prof. variável)",
             "Quatro valores de PacketLengthMode cobrem 99,84% do malicioso do CIRA",
-            "Duration: direção do artigo confirmada; o sinal troca em 33,13 s na nossa amostra",
+            "Duration: direção do artigo observada; o sinal troca em 33,13 s na nossa amostra",
             "O SHAP explica os Random Forests base, não o empilhamento",
         ],
         "talk": [
             "Uma regra com um só atributo teria recall de 99,84% e 1 falso positivo em "
-            "909555 fluxos legítimos: o modelo pode separar pela captura.",
+            "909555 fluxos legítimos (Non-DoH e Benign-DoH): o modelo pode separar pela captura.",
+            "Acima de 40 s, têm SHAP positivo 97,37% dos fluxos com profundidade variável "
+            "e 99,53% com profundidade 5.",
             "Não dizemos que o limiar de 40 s foi refutado: a amostra tem classes em "
             "partes iguais e o artigo lê o valor a olho.",
             "O painel interativo foi implementado e pode ser mostrado ao final.",
@@ -250,6 +270,8 @@ SLIDES = [
         ],
         "talk": [
             "Um ponto por seed; o traço é a média.",
+            "O que muda em relação à reprodução: dez seeds em vez de uma e comparação "
+            "pareada no mesmo split; o SMOTE já era ajustado só no treino.",
             "Com profundidade 5, o recall de Benign-DoH é zero nas dez seeds.",
             "A separação entre Non-DoH e Benign-DoH aprendida em três máquinas não vale na quarta.",
             "Nenhuma máquina gerou tráfego legítimo e malicioso: nenhum split separa a "
@@ -257,7 +279,7 @@ SLIDES = [
         ],
     },
     {
-        "title": "Segundo dataset: ferramentas novas",
+        "title": "Segundo conjunto de dados: ferramentas novas",
         "seconds": 65,
         "figure": "segundo_recall_ferramenta",
         "bullets": [
@@ -270,6 +292,7 @@ SLIDES = [
         "talk": [
             "É o achado principal. É compatível com um detector que aprendeu a assinatura "
             "das ferramentas e da captura do CIRA, e não o comportamento de túnel.",
+            "Ferramenta e captura não se separam: o HKD traz outras ferramentas e outra captura.",
             "Os 99,42% são 510 de 513 fluxos, e medem as mesmas ferramentas, não uma nunca vista.",
             "Non-DoH e Benign-DoH do combinado são os do CIRA: métricas gerais iguais são "
             "esperadas.",
@@ -277,26 +300,39 @@ SLIDES = [
     },
     {
         "title": "Modificação: Random Forest único com peso de classe",
-        "seconds": 60,
+        "seconds": 85,
         "bullets": [
-            "Sem SMOTE e sem empilhamento; M1M2 também seleciona hiperparâmetros",
-            "F1 macro 0,50 ponto acima no CIRA e 0,57 no combinado, nas dez seeds",
-            "O ganho já está em M1, que treina em 31 s",
-            "A seleção de hiperparâmetros não muda o F1 macro: −0,08 ± 0,15 ponto",
+            "Hipótese, escrita antes: sem SMOTE, F1 macro maior, por menos de 1 ponto",
+            "M1: Random Forest único com peso de classe; M1M2: M1 com seleção de hiperparâmetros",
+            "Resultado: F1 macro 0,50 ponto acima no CIRA e 0,57 no combinado, nas dez seeds",
+            "O ganho já está em M1; a seleção não muda o F1 macro: −0,08 ± 0,15 ponto",
+            "Custo: M1 piora o FPR de Malicious-DoH; M1M2 treina em 1,6 a 2,3 vezes o tempo de A",
         ],
         "tables": [
             (
                 "modificacao_metricas_dupla",
-                ["Dataset", "Modelo", "Benign prec.", "Benign rec.", "F1 macro", "Treino (s)"],
+                ["Dataset", "Modelo", "Benign prec.", "F1 macro", "Treino (s)"],
                 [("CIRA", "A"), ("CIRA", "M1"), ("CIRA", "M1M2")]
                 + [("Combinado sem réplicas", "A"), ("Combinado sem réplicas", "M1M2")],
-                None,
+                ["CIRA", "CIRA", "CIRA", "Combinado", "Combinado"],
             )
         ],
+        "headers": ["Conjunto", "Modelo", "Prec. Benign", "F1 macro", "Treino (s)"],
         "wide": True,
         "talk": [
-            "A é o sistema do artigo com profundidade variável; 10 seeds, média e desvio.",
-            "M1 perde 0,50 ponto de recall de Benign-DoH em relação a A.",
+            "A hipótese foi registrada antes da execução: sem amostras sintéticas e sem "
+            "empilhamento, F1 macro maior por menos de 1 ponto, sem ganho esperado no "
+            "recall de Benign-DoH.",
+            "A é o sistema do artigo com profundidade variável; 10 seeds, média e desvio, em %. "
+            "Prec. Benign é a precisão de Benign-DoH.",
+            "A seleção escolheu a mesma combinação nas dez seeds, nos dois conjuntos: 100 "
+            "árvores, sem limite de profundidade, raiz quadrada dos atributos por divisão.",
+            "M1 perde 0,50 ponto de recall de Benign-DoH e o FPR de Malicious-DoH vai de "
+            "0,0015% para 0,0048%.",
+            "Com profundidade 5, o modelo único recupera o recall de Benign-DoH (87,64%), "
+            "mas com precisão de 26,23% e F1 macro de 78,66%.",
+            "Tempo: 1,6 vez no CIRA e 2,3 vezes no combinado; o tempo de A no CIRA foi "
+            "medido sob outra carga e, reajustado, é 112,5 s (2,3 vezes).",
             "Não dizemos que a modificação reduz falsos positivos: no CIRA é cerca de um "
             "fluxo por teste, e não se repete no combinado.",
             "Os testes das seeds se sobrepõem: não usamos a palavra significativo.",
@@ -307,13 +343,16 @@ SLIDES = [
         "seconds": 50,
         "figure": "robustez_fragmentacao",
         "bullets": [
-            "O artigo publica que a duração pesa: o atacante encurta o fluxo",
-            "Duração e bytes divididos por k, no espaço de atributos",
+            "O atacante encurta o fluxo: duração e bytes divididos por k, no espaço de atributos",
             "k = 2: o sistema do artigo perde 3,19 pontos de recall; M1M2, 0,34",
-            "k ≥ 4: M1M2 desaba em duas ou três seeds",
+            "k ≥ 4, sistema do artigo: 4,5 a 5,2 pontos abaixo, com pouca variação entre seeds",
+            "k ≥ 4, M1M2: abaixo de 90% em duas seeds (k = 4) ou três (k = 8 e 16)",
             "Não ordena os modelos em robustez",
         ],
         "talk": [
+            "A e A-prof5 são o sistema do artigo com profundidade variável e com "
+            "profundidade 5; M1M2 é a modificação.",
+            "O artigo publica que a duração pesa na decisão: é o que o atacante usaria.",
             "Nenhum tráfego foi gerado: é perturbação simulada, sem retreino.",
             "Nos fatores 8 e 16, mais de 96% dos vetores são fisicamente incoerentes.",
             "Não dizemos quanto um atacante real evadiria.",
@@ -323,21 +362,28 @@ SLIDES = [
         "title": "Limitações e conclusão",
         "seconds": 60,
         "bullets": [
-            "A reprodução depende de um ponto que o artigo deixa em aberto",
-            "A Tabela II e o resumo do artigo não foram reproduzidos por nenhuma leitura",
-            "O sistema não generaliza para ferramentas fora do treino",
+            "A reprodução depende de um ponto em aberto; a Tabela II e o resumo do artigo "
+            "não foram reproduzidos",
+            "O sistema não detectou as três ferramentas do HKD, de outra captura: recall de 1,81%",
             "Um atributo separa quase todo o malicioso do CIRA: captura e classe se confundem",
-            "Um Random Forest único com peso de classe supera o empilhamento em F1 macro",
-            "Nossa parte: reprodução com uma seed; fragmentação só simulada",
-            "Próximo passo: gerar tráfego fragmentado e testar ferramenta deixada de fora",
+            "Um Random Forest único com peso de classe supera o empilhamento em F1 macro, "
+            "por 0,5 ponto",
+            "Nossa parte: reprodução com uma seed; fragmentação só simulada; a modificação "
+            "treina em mais tempo",
         ],
         "talk": [
-            "A modificação melhora o F1 macro em meio ponto e não resolve a generalização.",
-            "O segundo dataset compartilha duas classes com o primeiro.",
+            "A modificação melhora o F1 macro em meio ponto e não resolve a detecção das "
+            "ferramentas do HKD; sob fragmentação, seu recall cai em algumas seeds.",
+            "O segundo conjunto de dados compartilha duas classes com o primeiro.",
+            "Próximo passo: gerar tráfego fragmentado e testar uma ferramenta deixada de fora.",
             "Relatório, código e resultados estão no repositório.",
         ],
     },
 ]
+
+# Proposta de divisão da fala, em blocos contíguos de slides, por ordem
+# alfabética: (integrante, primeiro slide, último slide).
+SPEAKERS = [("Amanda", 1, 4), ("Antonio", 5, 7), ("Breno", 8, 10), ("João", 11, 14)]
 
 
 def template_logo(presentation: Presentation, slide_index: int) -> io.BytesIO:
@@ -436,29 +482,31 @@ def table_cells(name: str, columns: list[str], rows: list | None, labels: list[s
     return body
 
 
-def add_table(slide, tables: list[tuple], box: tuple[int, int, int, int], size: int) -> None:
-    """Tabela nativa com o cabeçalho da primeira tabela e as linhas de todas."""
-    left, top, width, height = box
+def add_table(slide, tables: list[tuple], headers: list[str] | None, box: tuple) -> int:
+    """Tabela nativa com as linhas de todas as tabelas pedidas; devolve a altura dela.
+
+    O cabeçalho é `headers` ou, na falta dele, os nomes das colunas da primeira tabela.
+    """
+    left, top, width, _ = box
     # Folga à direita: há visualizadores que somam espaço entre as células.
     width = int(width * 0.93)
-    header = tables[0][1]
+    header = headers or tables[0][1]
     body = [line for table in tables for line in table_cells(*table)]
-    row_height = min(height // (len(body) + 1), 330000)
-    frame = slide.shapes.add_table(
-        len(body) + 1, len(header), left, top, width, row_height * (len(body) + 1)
-    )
+    height = TABLE_ROW_HEIGHT * (len(body) + 1)
+    frame = slide.shapes.add_table(len(body) + 1, len(header), left, top, width, height)
     first_width = int(width * (0.34 if len(header) < 5 else 0.26))
     for index, column in enumerate(frame.table.columns):
         column.width = first_width if index == 0 else (width - first_width) // (len(header) - 1)
     for row_index, line in enumerate([header, *body]):
-        frame.table.rows[row_index].height = row_height
+        frame.table.rows[row_index].height = TABLE_ROW_HEIGHT
         for column_index, value in enumerate(line):
             cell = frame.table.cell(row_index, column_index)
             cell.fill.solid()
             cell.fill.fore_color.rgb = DARK if row_index == 0 else (LIGHT, WHITE)[row_index % 2]
             cell.margin_top = cell.margin_bottom = Emu(30000)
             color = WHITE if row_index == 0 else DARK
-            write_lines(cell.text_frame, [value], size, color, bold=row_index == 0)
+            write_lines(cell.text_frame, [value], TABLE_FONT_SIZE, color, bold=row_index == 0)
+    return height
 
 
 def add_cover(presentation: Presentation, logo: io.BytesIO) -> None:
@@ -483,22 +531,26 @@ def add_content(presentation: Presentation, spec: dict) -> None:
     slide = presentation.slides.add_slide(layout_named(presentation, LAYOUT_TITLE_ONLY))
     add_title(slide, spec["title"])
     visual = spec.get("figure") or spec.get("tables")
-    wide = spec.get("wide", False)
-    if visual and wide:
+    if visual and spec.get("wide", False):
+        # O visual ocupa a largura do slide e os tópicos ficam logo abaixo dele.
         visual_box = (MARGIN, BODY_TOP, FULL_WIDTH, WIDE_VISUAL_HEIGHT)
-        text_top = BODY_TOP + WIDE_VISUAL_HEIGHT + 80000
+        if spec.get("tables"):
+            height = add_table(slide, spec["tables"], spec.get("headers"), visual_box)
+        else:
+            add_figure(slide, spec["figure"], visual_box)
+            height = WIDE_VISUAL_HEIGHT
+        text_top = BODY_TOP + height + 100000
         text_box = (MARGIN, text_top, FULL_WIDTH, SLIDE_HEIGHT - text_top - 150000)
     elif visual:
-        visual_box = (RIGHT_LEFT, BODY_TOP, RIGHT_WIDTH, BODY_HEIGHT)
+        add_figure(slide, spec["figure"], (RIGHT_LEFT, BODY_TOP, RIGHT_WIDTH, BODY_HEIGHT))
         text_box = (MARGIN, BODY_TOP, LEFT_WIDTH, BODY_HEIGHT)
     else:
         text_box = (MARGIN, BODY_TOP, FULL_WIDTH, BODY_HEIGHT)
     bullets = [f"• {bullet}" for bullet in spec["bullets"]]
     add_text(slide, bullets, text_box, 16 if visual else 17, space_after=8)
-    if spec.get("figure"):
-        add_figure(slide, spec["figure"], visual_box)
-    if spec.get("tables"):
-        add_table(slide, spec["tables"], visual_box, 11)
+    if spec.get("footer"):
+        footer_box = (MARGIN, FOOTER_TOP, FULL_WIDTH, SLIDE_HEIGHT - FOOTER_TOP - 100000)
+        add_text(slide, [spec["footer"]], footer_box, 10)
     slide.notes_slide.notes_text_frame.text = "\n".join(spec["talk"])
 
 
@@ -530,8 +582,13 @@ def script_markdown() -> str:
         "",
         f"Tempo disponível: 15 minutos. Soma dos tempos: {total // 60} min {total % 60:02d} s.",
         "",
-        "Quem fala em cada slide: [Preencher: divisão da fala entre os quatro integrantes].",
+        "Quem fala em cada slide (proposta, a equipe confirma): blocos contíguos, por ordem "
+        "alfabética.",
+        "",
     ]
+    for name, first, last in SPEAKERS:
+        block = sum(seconds for _, seconds, _ in entries[first - 1 : last])
+        lines.append(f"- {name}: slides {first} a {last} ({block // 60} min {block % 60:02d} s)")
     for number, (title, seconds, talk) in enumerate(entries, start=1):
         lines += ["", f"## {number}. {title} ({seconds // 60}:{seconds % 60:02d})", ""]
         lines += [f"- {point}" for point in talk]
