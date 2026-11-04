@@ -90,8 +90,8 @@ A mutação é aplicada em uma cópia do repositório em diretório temporário,
 
 ## Critério de aceite
 
-- [ ] Execução limpa comparada: `metrics.json` e agregados regenerados iguais aos versionados (tarefa 19).
-- [ ] V1 a V9 com veredito e evidência.
-- [ ] Todo achado que não exige treino corrigido, com lint e testes verdes.
-- [ ] Todo achado que exigiria treino registrado, com o experimento e o custo, para decisão da equipe.
-- [ ] Pendências do plano e de `docs/` que esta revisão resolve marcadas como fechadas, com a evidência; as que são de pessoa continuam abertas e listadas.
+- [x] Execução limpa comparada: `metrics.json` e agregados regenerados iguais aos versionados (tarefa 19). **Fechado em 08/10/2026:** `REVISAO-FINAL.md`, "Execução limpa": 260 de 260 arquivos de `results/` e 56 de 56 de `report/`, com código de saída 0, depois de `97b2c8c` e `47cdabe`.
+- [x] V1 a V9 com veredito e evidência. **Fechado em 08/10/2026:** tabela "Veredito por verificação" de `REVISAO-FINAL.md` (`3e42795`); V1 fechado pela execução limpa (`5999c1b`).
+- [x] Todo achado que não exige treino corrigido, com lint e testes verdes. **Fechado em 08/10/2026:** seção "Tratamento" de `REVISAO-FINAL.md`: I1 a I5 e M1 a M5 corrigidos, M6 registrado no teste, M7 e M8 corrigidos neste fechamento, M9 só registrado (histórico publicado não se reescreve). Executado em `5999c1b`: `ruff check`, `ruff format --check` e `pytest`, 118 testes verdes em 44 s.
+- [x] Todo achado que exigiria treino registrado, com o experimento e o custo, para decisão da equipe. **Fechado em 08/10/2026:** não houve: os cinco achados importantes trazem "não exige treino" em `REVISAO-FINAL.md`, e o I5 foi resolvido com os dois arquivos que a execução limpa já tinha gerado.
+- [x] Pendências do plano e de `docs/` que esta revisão resolve marcadas como fechadas, com a evidência; as que são de pessoa continuam abertas e listadas. **Fechado em 08/10/2026:** feito neste fechamento do plano (`cin0114-plan-sync`, sobre `5999c1b`) e, em `docs/`, pelo `cin0114-doc-sync`. A lista do que é de pessoa está em `00-README.md`, "O que resta", e em `docs/07-pendencias.md`, "O que resta de pessoa".

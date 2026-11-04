@@ -2,18 +2,32 @@
 
 **Onde:** `README.md`, repositório inteiro
 **Objetivo:** o professor abre o link do GitHub, entende o que há ali e consegue reproduzir os resultados do relatório sem falar com a equipe. Entrega em 18/11/2026.
-**Depende de:** 17 para a execução limpa e o README (pronta em `759ec29`); 24 só para o envio final (os entregáveis já existem)
+**Depende de:** 17 para a execução limpa e o README; 24 só para o envio final (as duas concluídas)
 **Demonstra:** README com a tabela resultado → script → arquivo e a execução limpa em um clone novo. Entregável "link do GitHub com os códigos comentados".
 
-## Estado de partida (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+## Como ficou (fechamento de 08/10/2026, conferido em `5999c1b`)
 
-**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** A tarefa pode começar: todos os experimentos (tarefas 03 a 16 e 21), as tabelas e figuras (17) e os entregáveis (24) estão prontos e executados.
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado neste fechamento; "lido" é arquivo ou histórico aberto, sem rodar.
+
+- **Situação: concluída; resta de pessoa a entrega de 18/11**, com a checklist de entrega e o comprovante.
+- **README completo** em `7657501`, com ajustes em `b6bcbcc`, `b82a82f`, `7813020` e `3da178e`: instalação com uv e com pip, dados, "Ordem dos scripts" com os 22 passos e o tempo medido de cada um, a regra do `python -m`, "Execução limpa", "Do relatório ao arquivo", painel, limitações, "Onde os resultados foram gerados" e licença (lido). O `README.md` da raiz apresenta o projeto (`7813020`, afirmações ajustadas em `3e42795`).
+- **Dois scripts novos, criados nesta tarefa:** `scripts/execucao_limpa.sh` (`88c0e88`), que roda os 22 passos na ordem, com um log por passo, e para no primeiro erro; `scripts/comparar_resultados.py` (`53f1ca4`, `47cdabe`), que compara duas árvores `results/` e, se pedido, duas `report/`, com `tests/test_comparar_resultados.py` (três testes).
+- **Execução limpa feita em 08/10/2026**, de 04:54 a 12:24 (7 h 30 min), em um clone novo fora do repositório, no commit `e2379b7`, com os dados do zip da equipe e a árvore limpa: 22 passos sem erro; 260 de 260 arquivos de `results/` e 56 de 56 de `report/` conferem (`REVISAO-FINAL.md`, "Execução limpa"). Na primeira comparação, 256 de 260 saíram idênticos; os quatro restantes eram dois `metrics.json` de SHAP do segundo conjunto, regravados em `97b2c8c` depois de conferidas as 521 chaves comuns, e os dois agregados de E8, diferentes só no campo `commits` e nos tempos, que o script passou a ignorar em `47cdabe`. Dito sem atenuar: a execução não foi feita por outro integrante nem em outra máquina (decisão 44).
+- **O ponto que estava por resolver com o usuário** (os dois agregados de E8 guardam tempos) ficou resolvido pela comparação sem as chaves de tempo e sem `commits`; nenhum arquivo de resumo mudou de formato. A regra está em `.claude/rules/experimentos.md`, regra 2.
+- **Das 30 tabelas de `report/tables/`, 27 são comparadas byte a byte;** as três que citam tempo de treino (`tempos_treino`, `modificacao_metricas_dupla`, `modificacao_pareada_dupla`) são só informadas pelo script (lido em `scripts/comparar_resultados.py`). Daí os 56 arquivos: 27 `.tex`, 27 `.csv`, o índice e o `relatorio.tex`.
+- **Licença:** `LICENSE` (MIT) na raiz, em `7813020` (decisão 55c).
+- **Histórico com uma identidade Git:** 164 commits de um autor em `5999c1b` (executado: `git shortlog -sn`); aceito pela equipe (decisão 55d).
+- **Na `main` do GitHub:** `origin/main` está em `378f170`, com o CI verde (executado: `gh run list --branch main`). Os 15 commits de `378f170` a `5999c1b`, mais o deste fechamento, são enviados em seguida; o CI do commit entregue é conferido no envio.
+
+## Estado de partida (registro de `759ec29`, 08/10/2026; superado pelo bloco acima)
+
+A tarefa podia começar: todos os experimentos (tarefas 03 a 16 e 21), as tabelas e figuras (17) e os entregáveis (24) estavam prontos e executados.
 
 - **Onde roda (decisão 44):** na própria sessão de implementação, nesta máquina, em um **clone novo fora do repositório**, em diretório novo, com os dados extraídos do zip da equipe (link no `README.md`; o zip traz a pasta `data/` inteira e é extraído dentro de `project/`). Efeito, dito sem atenuar: a execução não é feita por quem não escreveu o código e não testa outra máquina; o que ela testa é que um clone limpo, com o ambiente do lock e os dados conferidos pelo manifesto, regenera os resultados versionados. O relato diz isso. A leitura e a aprovação do pull request (G10) continuam sendo de uma pessoa.
-- **O `README.md` de hoje não tem a ordem dos scripts.** Ele traz instalação, dados, lint e testes, `metricas_fig4.py`, `e5_xai.py` e o painel, e a frase "Os scripts dos experimentos e a ordem de execução serão listados aqui conforme entrarem no repositório". A licença continua `[Preencher]` e não há arquivo `LICENSE`.
+- (Superado em `7657501` e `7813020`.) Em `759ec29` o `README.md` não tinha a ordem dos scripts nem a licença, e não havia arquivo `LICENSE`.
 - **Padrão de execução do repositório.** Script de treino só treina, avalia e grava `metrics.json` e `run.json`. Onde há agregação, o `RESUMO.md`, o `summary.json` e a tabela comparativa saem de um script de resumo, que não treina: `e3_resumo`, `e4_resumo`, `e6_resumo`, `e7_resumo`, `e8_resumo` e `e8_robustez_resumo`. Em E0, E1, E2, E5 e na etapa de dados de E6, o próprio script escreve o resumo. Script que importa outro script roda como módulo, com `python -m scripts.<nome>`: os seis de resumo, `e6_baselines_xai`, `e8_modificacao` e `e8_robustez`.
 - **Todos os resultados versionados saíram desta máquina:** os 229 `run.json` trazem o mesmo `hostname`, 10 núcleos e `dirty: false` (lido).
-- **`git shortlog -sn` mostra um único autor** em `759ec29` (137 commits). O critério dos quatro integrantes depende de pessoa.
+- **`git shortlog -sn` mostra um único autor** (137 commits em `759ec29`; 164 em `5999c1b`). O critério dos quatro integrantes não se aplica (decisões 44 e 55d).
 
 ## Ordem real dos scripts
 
@@ -69,24 +83,24 @@ Diferença esperada, que não é defeito: os `run.json` (commit, data, tempos); 
 
 O painel não entra na comparação: confere-se só que o comando do README o sobe e que nenhum modelo serializado aparece no disco.
 
-**Ponto a resolver antes de comparar, com o usuário:** os dois agregados de E8 guardam tempos. A comparação acima os ignora por chave. A alternativa, tirar os tempos desses arquivos, mexe em `scripts/e8_resumo.py` e `scripts/e8_robustez_resumo.py`, muda dois arquivos versionados de `results/` e as tabelas que leem o tempo de treino deles: é mudança de código, fora do que esta tarefa lista.
+**Ponto resolvido (`47cdabe`):** os dois agregados de E8 guardam tempos e o commit de cada execução. `scripts/comparar_resultados.py` os compara sem as chaves `train_seconds`, `selection_seconds`, `time_checks`, `fit_seconds` e `commits`. A alternativa, tirar os tempos desses arquivos, não foi adotada: mexeria em dois scripts de resumo, em dois arquivos versionados de `results/` e nas tabelas que leem o tempo de treino deles.
 
 ## Arquivos
 
 - `README.md` — completar.
-- `LICENSE` e nota de uso — não existem (licença pendente da equipe; `README.md` tem `Licença: [Preencher]`). Criar quando a equipe decidir e conferir aqui.
+- `LICENSE` — criado na raiz em `7813020` (MIT, decisão 55c); a nota de uso está na seção "Licença" do `README.md`.
 - Todo o repositório — revisão final de comentários e de higiene.
 
 ## O que fazer
 
 1. Completar o `README.md`: o que é o projeto e qual artigo reproduz; integrantes; requisitos (uv ou pip, Python 3.12; `tectonic` ou XeLaTeX só para o relatório; o grupo `slides` só para a apresentação); como obter os dados e conferir os hashes; **a tabela da seção "Ordem real dos scripts"**, com o que cada um gera e o tempo medido; a regra de rodar como módulo os scripts que importam outros; tabela "resultado do relatório → script → arquivo em `results/`", cobrindo todas as tabelas e gráficos de resultado do artigo (decisão 46), as duas leituras de profundidade (decisão 45), o P1 refeito no combinado sem réplicas (decisão 47), a ferramenta de túnel (decisão 49) e a modificação; a seção do painel, que já existe; onde os resultados versionados foram gerados (máquina e versões, dos `run.json`); limitações conhecidas. A fonte da tabela resultado → arquivo é `report/INDICE.md`.
-2. Uso de assistente de IA: aprovado na disciplina (07/10/2026). Só se o professor pedir (parte em aberto de Q7): a mesma frase no README e no relatório; caso contrário, nada.
+2. Uso de assistente de IA: aprovado na disciplina (07/10/2026). Sem frase de declaração no README nem no relatório: a equipe fechou a parte em aberto de Q7 sem resposta do professor (decisão 55a).
 3. Revisar os comentários do código contra `docs/06-padroes.md`: docstring curta em toda função pública, comentário de justificativa nos pontos de decisão, com a seção do artigo onde ele é omisso, e nenhuma referência a arquivo interno, tarefa ou decisão (o mesmo grep do CI: `grep -rnE "docs/|planejamento/|\.claude/|[Dd]ecis[ãa]o [0-9]|[Tt]arefa [0-9]|\b[AQ][0-9]{1,2}\b" --include="*.py" --include="*.md" --include="*.json" src scripts tests data README.md results` não devolve nada). A especificação pede "todos os códigos comentados".
 4. **Execução limpa.** As datas do plano continuam valendo como limite: primeira execução limpa até 10/11, experimentos congelados em 13/11, execução final começando em 16/11. Como os experimentos já terminaram, a primeira execução é feita agora, nesta tarefa. Procedimento: clonar em diretório novo, fora do repositório; `cd project`; `uv sync --locked`; extrair o zip da equipe dentro de `project/`; rodar os passos 1 a 22 da tabela, na ordem.
 5. Comparar pelo quadro "O que a execução limpa compara". Diferença fora das esperadas é defeito a corrigir ou a explicar no README.
 6. Repetir a instalação pelo `requirements.txt`, com pip (`pip install -r requirements.txt` e depois `pip install -e .`), e rodar a suíte, para garantir o caminho de quem não usa uv. O `requirements.txt` não traz o `python-pptx`: o README diz que os slides pedem o grupo `slides`.
 7. Conferir higiene: sem dados, sem modelos serializados, sem PDF do artigo, sem credenciais, sem caminho absoluto.
-8. Conferir que o histórico tem commits dos quatro integrantes.
+8. Não se aplica (decisões 44 e 55d): o histórico tem uma só identidade Git, aceito pela equipe.
 9. Rodar a skill `checklist-entrega projeto` e resolver todo item pendente marcado como exigido.
 10. Dar acesso ao professor (ou manter público, conforme Q10) e enviar o link junto com o PDF.
 
@@ -105,24 +119,24 @@ A especificação pede "link do Github com todos os códigos comentados". Reprod
 
 - A execução limpa leva cerca de 9 horas: lançar em segundo plano, com a saída em arquivo, e não editar o clone enquanto roda. Uma falha no passo 13 ou no 4 custa o passo inteiro, porque eles não têm retomada.
 - Os resultados de E1 foram gerados no commit `b00e471`, antes de `fit_system` ir para o pacote (`472bb79`); os de E2, E3, E4 e da 14a são anteriores a mudanças posteriores no pacote (`evaluate.py`, `models.py`, `config.py`). Só E5, a etapa de dados de E6 e E7 foram rodados de novo depois da revisão (`38809c1`), e ali os `metrics.json` da etapa de dados e dos modelos de E7 saíram idênticos. A execução limpa é a primeira conferência de que o código atual regenera esses `metrics.json`; diferença ali é o achado mais provável.
-- O G6 de E1, que estava em aberto na reconciliação de `360c3d3`, não tem registro de fechamento no repositório: a execução limpa o substitui.
+- (Fechado.) O G6 de E1, que estava em aberto na reconciliação de `360c3d3`, foi fechado pela execução limpa: os `metrics.json` de `results/e1/` saíram idênticos.
 - Resultado não determinístico entre execuções (paralelismo): seeds fixadas e predição com `n_jobs=1`; o determinismo do XGBoost com `n_jobs` maior que um não tem conferência registrada. Se variar, registrar a ordem de grandeza no README.
 - Dados indisponíveis para o professor: o README explica o download e indica o hash.
 
 ## Critério de aceite
 
-- [ ] Execução limpa concluída na sessão de implementação, em clone novo fora do repositório, com os 229 `metrics.json` e os três `summary*.json` iguais aos versionados (os dois de E8, fora das chaves de tempo) (decisão 44). O relato diz que não foi feita por outro integrante nem em outra máquina, e traz o tempo de cada passo.
-- [ ] `report/tables/` regenerado no clone sem diferença.
-- [ ] README com a ordem dos 22 passos, o tempo medido de cada um e a regra do `python -m`.
-- [ ] README com o comando do painel e com `explainerdashboard` entre as dependências (decisão 50). Lido em `759ec29`: a seção do painel existe no README e a dependência está no `pyproject.toml`; falta a lista de dependências no README.
-- [ ] Instalação por `requirements.txt` testada.
-- [ ] README com a tabela resultado → script → arquivo, cobrindo todas as tabelas e figuras do relatório.
-- [ ] `git ls-files | grep -E "\.(pkl|joblib|pcap|parquet)$|^project/data/(raw|processed)/|referencias/.*\.pdf"` não devolve nada. Arquivos pequenos de resultado em `results/` podem ser CSV.
-- [ ] `grep -rnE "/Users/|/home/|[A-Z]:\\\\" --include="*.py" src scripts tests data` não devolve nada (o mesmo grep do CI).
-- [ ] `git shortlog -sn` mostra os quatro integrantes. **De pessoa:** em `759ec29` há um autor só.
-- [ ] Licença decidida pela equipe e `LICENSE` no repositório. **De pessoa.**
-- [ ] Checklist do projeto rodada, sem item exigido pendente.
-- [ ] Link e PDF enviados até 18/11/2026. **De pessoa.**
+- [x] Execução limpa concluída na sessão de implementação, em clone novo fora do repositório, com os 229 `metrics.json` e os três `summary*.json` iguais aos versionados (os dois de E8, fora das chaves de tempo) (decisão 44). **Fechado em 08/10/2026:** `REVISAO-FINAL.md`, "Execução limpa" (lido): 08/10/2026, 7 h 30 min, commit `e2379b7`, 22 passos sem erro, 260 de 260 depois de `97b2c8c` e `47cdabe`; o texto diz que foi em um clone novo, nesta máquina. **Parte sem arquivo versionado:** o tempo de cada passo da execução limpa ficou nos logs do clone, fora do repositório; o que está versionado é o total e, no README, o tempo de cada passo medido nas execuções originais.
+- [x] `report/tables/` regenerado no clone sem diferença. **Fechado em 08/10/2026:** `REVISAO-FINAL.md`: 56 de 56 arquivos de `report/` idênticos (27 tabelas em `.tex` e `.csv`, o índice e o `relatorio.tex`). As outras três tabelas citam tempo de treino e são só informadas pelo script de comparação; as demais células delas vêm dos agregados, comparados fora do tempo.
+- [x] README com a ordem dos 22 passos, o tempo medido de cada um e a regra do `python -m`. **Fechado em 08/10/2026:** lido em `5999c1b`: `README.md`, seção "Ordem dos scripts" (tabela dos passos, com "Precisa de" e tempo) e a frase da linha 113 sobre rodar como módulo; `7657501`.
+- [x] README com o comando do painel e com `explainerdashboard` entre as dependências (decisão 50). **Fechado em 08/10/2026:** lido em `5999c1b`: `README.md`, linha 47 (lista de bibliotecas, com "explainerdashboard (o painel)") e seção "Relatório, slides e painel".
+- [x] Instalação por `requirements.txt` testada. **Fechado em 08/10/2026:** executado pelo `cin0114-plan-sync` em um clone descartável do commit `5999c1b`, fora do repositório: `venv` de Python 3.12.13, `pip install -r requirements.txt` e `pip install -e .` com código 0, `python -m pytest` com 118 testes verdes em 47 s. Não havia registro versionado de teste anterior. Não testado: `python-pptx`, que fica fora do `requirements.txt`.
+- [x] README com a tabela resultado → script → arquivo, cobrindo todas as tabelas e figuras do relatório. **Fechado em 08/10/2026:** lido em `5999c1b`: `README.md`, seção "Do relatório ao arquivo": as Tabelas II a X e as Figs. 3 a 5 do relatório, uma linha cada; a Tabela I e as Figs. 1 e 2 são escritas no `.tex` e não têm número de experimento; uma segunda tabela cobre o que só os slides e o texto usam.
+- [x] `git ls-files | grep -E "\.(pkl|joblib|pcap|parquet)$|^project/data/(raw|processed)/|referencias/.*\.pdf"` não devolve nada. Arquivos pequenos de resultado em `results/` podem ser CSV. **Fechado em 08/10/2026:** executado em `5999c1b`: nenhuma linha.
+- [x] `grep -rnE "/Users/|/home/|[A-Z]:\\\\" --include="*.py" src scripts tests data` não devolve nada (o mesmo grep do CI). **Fechado em 08/10/2026:** executado em `5999c1b`: nenhuma linha; o grep de referência interna também não devolve nada.
+- Não se aplica (decisões 44 e 55d): `git shortlog -sn` mostra os quatro integrantes. Executado em `5999c1b`: 164 commits de uma identidade; a execução ficou na sessão de implementação e a equipe aceitou o histórico assim. Nenhum commit tem coautoria de ferramenta (executado: 0 ocorrências).
+- [x] Licença decidida e `LICENSE` no repositório. **Fechado em 08/10/2026:** `LICENSE` (MIT) na raiz, em `7813020`; decisão 55c.
+- [ ] **Pessoa:** checklist do projeto rodada (skill `checklist-entrega projeto`), sem item exigido pendente. Faz parte da entrega de 18/11 (item 5 de `docs/07-pendencias.md`, "O que resta de pessoa"). Não há registro versionado de que já tenha sido rodada.
+- [ ] **Pessoa:** link e PDF enviados até 18/11/2026, com o comprovante (data, hora e hash do commit entregue) guardado em `docs/07-pendencias.md`; antes, enviar os commits finais e conferir o CI verde no commit entregue (itens 1 e 5 de "O que resta de pessoa").
 
 ## Testes
 

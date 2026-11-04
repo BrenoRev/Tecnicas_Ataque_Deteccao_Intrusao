@@ -1,15 +1,15 @@
 # 04. Dados
 
-> Os dados foram baixados e conferidos em 07/10/2026. O que foi medido nos arquivos está em [08-inventario-dados.md](08-inventario-dados.md) e prevalece sobre as estimativas e os `[A verificar]` deste documento.
+> Os dados foram baixados e conferidos em 07/10/2026. O que foi medido nos arquivos está em [08-inventario-dados.md](08-inventario-dados.md) e prevalece sobre as estimativas deste documento.
 >
-> Atualizado em 08/10/2026, no commit `759ec29`: a carga, a limpeza, o split e o segundo dataset foram implementados e executados. Os números por script versionado estão em `project/results/e0/dados/RESUMO.md` (CIRA) e `project/results/e6/dados/RESUMO.md` (HKD e combinado); são eles que valem para o relatório.
+> Atualizado em 08/10/2026, no commit `5999c1b`: a carga, a limpeza, o split e o segundo dataset foram implementados e executados. Os números por script versionado estão em `project/results/e0/dados/RESUMO.md` (CIRA) e `project/results/e6/dados/RESUMO.md` (HKD e combinado); são eles que valem para o relatório.
 
 ## 1. CIRA-CIC-DoHBrw-2020 (dataset do artigo)
 
 - Página: https://www.unb.ca/cic/datasets/dohbrw-2020.html
 - Download: http://cicresearch.ca/CICDataset/DoHBrw-2020/ (a página pede preenchimento de formulário; não foi possível listar os arquivos automaticamente) Verificado: três zips, com MD5 do CIC conferido; a fonte é `Total_CSVs.zip` (ver [08-inventario-dados.md](08-inventario-dados.md)).
 - Citação exigida pelos mantenedores, como registrada aqui e em `project/data/README.md`: M. MontazeriShatoori, L. Davidson, G. Kaur and A. H. Lashkari, "Detection of DoH Tunnels using Time-series Classification of Encrypted Traffic," IEEE Cyber Science and Technology Congress, 2020.
-- **Divergência na citação, a resolver.** A lista de referências do artigo de Zebin et al. traz o mesmo trabalho, na referência [14], com outro nome de evento e com páginas: "in *2020 IEEE Intl Conf on Dependable, Autonomic and Secure Computing*, 2020, pp. 63–70" (manuscrito aceito, página 11). O relatório (`project/report/relatorio.tex`, `\bibitem{montazeri2020}`) seguiu a forma do artigo. As duas ficam registradas; nenhuma foi conferida na fonte original. **Confirmar no IEEE Xplore** o nome do evento, as páginas e o DOI antes da entrega, e corrigir o arquivo que estiver errado.
+- **Divergência na citação, registrada e não resolvida.** A lista de referências do artigo de Zebin et al. traz o mesmo trabalho, na referência [14], com outro nome de evento e com páginas: "in *2020 IEEE Intl Conf on Dependable, Autonomic and Secure Computing*, 2020, pp. 63–70" (manuscrito aceito, página 11). O relatório (`project/report/relatorio.tex`, `\bibitem{montazeri2020}`) seguiu a forma do artigo. As duas ficam registradas; nenhuma foi conferida na fonte original. Breno fechou as referências como estão em 08/10/2026; a conferência no IEEE Xplore (nome do evento, páginas e DOI) segue como o item 11 da lista de [07-pendencias.md](07-pendencias.md).
 - Redistribuição: a página permite redistribuir e espelhar, desde que com a citação. Mesmo assim os dados ficam fora do Git, com manifesto de hashes e script de conferência.
 
 ### Como foi gerado
@@ -145,11 +145,11 @@ A especificação pede resultados "do sistema proposto no artigo" em "outro conj
 
 Desenho que aproveita os dois e é fácil de justificar: treinar no CIRA e testar nos fluxos do HKD (ferramentas nunca vistas), e em seguida retreinar e avaliar no combinado. O primeiro mede generalização para ferramentas novas; o segundo cumpre o "sistema proposto em outro dataset" com as três classes. Se o professor não aceitar o combinado como outro dataset, precisamos de uma alternativa com Non-DoH e Benign-DoH próprios.
 
-**O que foi decidido e feito.** O professor respondeu a Q4 em 07/10/2026 ("fazer tudo novamente com outro dataset não usado no trabalho") sem comentar as duas ressalvas enviadas (Non-DoH e Benign-DoH iguais aos do CIRA; réplicas). A equipe fixou (decisões 36 e 47): o dataset principal de P2 é o combinado **sem réplicas**, 1.164.366 fluxos depois da limpeza (889.809 / 19.746 / 254.811), em que tudo o que P1 produz é refeito; o combinado como publicado (1.264.268 fluxos) e a transferência para o HKD ficam como análises ao lado. A justificativa escrita está em `project/results/e6/dados/RESUMO.md`, seção "Justificativa da escolha do segundo dataset"; os resultados, em `project/results/e6/RESUMO.md`. A ressalva de que o segundo dataset só difere do primeiro na classe maliciosa continua em aberto com o professor ([07-pendencias.md](07-pendencias.md)).
+**O que foi decidido e feito.** O professor respondeu a Q4 em 07/10/2026 ("fazer tudo novamente com outro dataset não usado no trabalho") sem comentar as duas ressalvas enviadas (Non-DoH e Benign-DoH iguais aos do CIRA; réplicas). A equipe fixou (decisões 36 e 47): o dataset principal de P2 é o combinado **sem réplicas**, 1.164.366 fluxos depois da limpeza (889.809 / 19.746 / 254.811), em que tudo o que P1 produz é refeito; o combinado como publicado (1.264.268 fluxos) e a transferência para o HKD ficam como análises ao lado. A justificativa escrita está em `project/results/e6/dados/RESUMO.md`, seção "Justificativa da escolha do segundo dataset"; os resultados, em `project/results/e6/RESUMO.md`. A ressalva de que o segundo dataset só difere do primeiro na classe maliciosa não foi comentada pelo professor; a equipe fechou o ponto em 08/10/2026, sem resposta dele (decisão 55), e ele segue na página dos encontros ([09-acompanhamento-professor.md](09-acompanhamento-professor.md)).
 
 ### Alternativa com tráfego benigno próprio
 
-- "Collection of datasets with DNS over HTTPS traffic" (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9168479/). Apareceu na busca e ainda não foi lido. `[A verificar: referência completa, classes disponíveis, formato, tamanho e se há tráfego malicioso]`. Provavelmente exigiria rodar o DoHLyzer sobre os PCAPs, o que aumenta bastante o custo. Não foi usado: só seria retomado se o professor recusar o combinado como "outro conjunto de dados".
+- "Collection of datasets with DNS over HTTPS traffic" (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9168479/). Apareceu na busca e não foi lido. **Não avaliado:** referência completa, classes disponíveis, formato, tamanho e presença de tráfego malicioso não foram levantados. Provavelmente exigiria rodar o DoHLyzer sobre os PCAPs, o que aumenta bastante o custo. Não foi usado: só seria retomado se o professor recusar o combinado como "outro conjunto de dados".
 
 ### Descartado
 

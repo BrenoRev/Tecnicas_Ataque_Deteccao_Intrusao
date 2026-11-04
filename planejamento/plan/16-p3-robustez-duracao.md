@@ -17,13 +17,13 @@
 - **Resultados:** `results/e8/corrigida/robustez-{A,A-prof5,M1M2}-{todos,sem_duration,sem_duration_taxas}/seed<0..9>/`, `summary-robustez.json`, `RESUMO-ROBUSTEZ.md` e `HIPOTESE-ROBUSTEZ.md`.
 - **Desvios que ficaram:** fatores de fragmentação 1, 2, 4, 8 e 16 (a proposta mais o fator 1, que é o teste sem perturbação); o recorte é `robustez-<modelo>-<colunas>`; hipótese, resumo e agregado são arquivos próprios, com o sufixo `-ROBUSTEZ`, e não uma seção do `RESUMO.md` de E8; o modificado é o M1M2, e M1 não entrou. O resumo declara que nos fatores 8 e 16 a maior parte dos vetores perturbados é fisicamente incoerente.
 - **`summary-robustez.json` traz tempos** (`fit_seconds`): não repete entre execuções; a comparação da execução limpa ignora a chave.
-- **Pendente de pessoa:** a integração (G10).
+- **Concluída (08/10/2026).** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
 
-- **Sistema base (decisão 45):** o "original" desta tarefa é o empilhado de profundidade variável; o de profundidade 5 entra ao lado onde o custo permitir. O "modificado" é o que sair da tarefa 15, que tem um ⚠️ REVISAR aberto.
+- **Sistema base (decisão 45):** o "original" desta tarefa é o empilhado de profundidade variável; o de profundidade 5 entra ao lado onde o custo permitir. O "modificado" é o M1M2 da tarefa 15, cujo ⚠️ REVISAR foi resolvido pelas decisões 52 e 54.
 - A ablação tira colunas da matriz normalizada antes de `balanced_subsets` e de `base_forests`, que aceitam qualquer número de colunas; a asserção de 29 colunas de `fit_system` (`scripts/e1_reproducao.py:103`) não vale para os modelos da ablação e não pode ser reaproveitada sem ajuste.
 - **Custo estimado, sem cortar nada.** Parte A: original e modificado, duas ablações, dez seeds. Só o original são 20 ajustes do sistema inteiro: cerca de 65 minutos na profundidade variável (194 s por ajuste, medido na tarefa 08 com 29 colunas e a máquina carregada; com menos colunas o tempo deve cair, não medido), mais 37 minutos se a profundidade 5 for rodada ao lado. O modificado não foi medido. A parte B não treina modelo novo.
 - **Ponto sem valor declarado:** o nome dos recortes `robustez-<variante>` com duas leituras de profundidade. Ver "Pendências abertas pela decisão 45" em `00-README.md`.
@@ -49,7 +49,7 @@
 1. Rodar a skill `experimento`. Escrever primeiro o modelo de ameaça desta avaliação: o que o atacante controla (quando encerra e reabre a conexão do túnel), o que ele sabe (que a duração pesa na decisão, porque o artigo publicou isso), e o que ele não controla.
 2. **Parte A, ablação, sem simular ataque.** Retreinar o original e o modificado sem `Duration`; depois sem `Duration` e sem as duas taxas (`FlowSentRate`, `FlowReceivedRate`), que são calculadas a partir dela. Avaliar em dados limpos, dez seeds. Responde: quanto do desempenho depende de um atributo que o atacante controla? Com 26 ou 24 colunas, `max_features=28` é aceito pelo scikit-learn 1.9.1 e equivale a usar todas as colunas (verificado em 07/10/2026); o resultado registra isso.
 3. **Parte B, evasão aproximada — opcional dentro de uma tarefa já cortável.** A parte A responde à pergunta principal e pode ser entregue sozinha.
-    Para os fluxos maliciosos do teste, simular a fragmentação de uma sessão em fluxos de duração menor: reduzir `Duration` e os bytes totais na mesma proporção, mantendo as taxas, e deixando as estatísticas por pacote como estão. Variar o fator de fragmentação (`[Decidir: fatores; proposta em "Pendentes da equipe"]`) e medir o recall de Malicious-DoH em cada ponto.
+    Para os fluxos maliciosos do teste, simular a fragmentação de uma sessão em fluxos de duração menor: reduzir `Duration` e os bytes totais na mesma proporção, mantendo as taxas, e deixando as estatísticas por pacote como estão. Variar o fator de fragmentação (resolvido como proposto: 2, 4, 8 e 16, com o fator 1 como referência, em `config.FRAGMENTATION_FACTORS`) e medir o recall de Malicious-DoH em cada ponto.
 4. Declarar a simplificação da parte B por escrito: as estatísticas de comprimento e de tempo de pacote de um fluxo fragmentado de verdade mudariam, e aqui ficam fixas; o resultado é um limite aproximado, não a medição de um ataque real. Uma avaliação fiel exigiria regenerar o tráfego ou reprocessar os PCAPs com o DoHLyzer.
 5. Comparar original e modificado, com e sem os atributos manipuláveis, na curva de recall por fator de fragmentação.
 6. Relacionar com a importância SHAP de `Duration` medida na tarefa 12.
@@ -77,11 +77,11 @@ A crítica 10 do seminário diz que a explicação publicada indica ao atacante 
 - [x] Parte A: métricas com e sem os atributos manipuláveis, dez seeds, original e modificado. Lido: `column_sets` com `todos`, `sem_duration` e `sem_duration_taxas`; `models` com A, A-prof5 e M1M2; `seeds` de 0 a 9; `models_not_run` vazio.
 - [x] Parte B: curva de recall por fator de fragmentação, ou dispensa registrada com o motivo. Lido: `factors` e `perturbation` no `summary-robustez.json`; `report/figures/robustez_fragmentacao.pdf`.
 - [x] A simplificação está declarada no arquivo de resultado. Lido: `RESUMO-ROBUSTEZ.md:9-13`.
-- [ ] Nenhuma frase do resumo chama a parte B de ataque adversarial sem a ressalva (revisor metodológico). Informado pela sessão principal como revisto; sem artefato da revisão para conferir aqui.
+- [x] Nenhuma frase do resumo chama a parte B de ataque adversarial sem a ressalva (revisor metodológico). **Fechado em 08/10/2026:** executado em `5999c1b`: `grep -ci adversari results/e8/corrigida/RESUMO-ROBUSTEZ.md` devolve 0; o resumo chama a parte B de "perturbação" e tem as seções "Simplificações e o efeito delas" e "Limitações". No relatório, a frase é "É uma perturbação no espaço de atributos: nenhum tráfego foi gerado" (visto na página 3 do PDF). `REVISAO-FINAL.md`, V8.
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e8_robustez.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
+O script rodou na própria sessão de implementação, nesta máquina (decisão 44). **Não se aplica:** o Apuana e o script de submissão em `jobs/` (decisão 44: nada rodou no cluster, a pasta não existe); a saída colada no pull request (decisão 55f: não houve pull request por tarefa). A evidência é a que está versionada: resultados em `results/`, `run.json` com a máquina, os núcleos, as versões, o commit e `dirty: false`, e a execução limpa de 08/10/2026, que regenerou os mesmos `metrics.json` em um clone novo (`REVISAO-FINAL.md`, "Execução limpa"). Os dois fechamentos, "pronta" e "executada", aconteceram na mesma sessão.
 
 ## Testes
 
