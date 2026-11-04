@@ -147,16 +147,16 @@ Origem: **U** = respondida pelo usuário no intake; **R** = recomendação técn
 
 Cada item tem uma proposta; a equipe confirma ou troca antes da tarefa indicada, e o valor vai para `config.py` ou para o arquivo citado. Enquanto não decidido, a tarefa para nesse ponto.
 
-Situação em 08/10/2026, no commit `759ec29`. "Resolvido" traz a decisão que fechou o item e onde o valor está.
+Situação em 08/10/2026, no commit `5999c1b`. "Resolvido" traz a decisão que fechou o item e onde o valor está. **Nenhum item aberto nesta tabela.** O que resta de pessoa está em `docs/07-pendencias.md`, seção "O que resta de pessoa".
 
 | Item | Proposta (a confirmar) | Tarefa | Antes de | Situação em 08/10/2026 |
 | --- | --- | --- | --- | --- |
-| Licença do repositório | MIT, com nota de uso acadêmico e citação do artigo e dos datasets | 01 | tarefa 01 | **aberto**: não há `LICENSE`; o README de `project/` traz "Licença: [Preencher]" |
-| Visibilidade do repositório (Q10 enviada) | privado com acesso para o professor até a resposta | 01 | tarefa 01 | resolvido pela decisão 43: público no GitHub. Q10 segue sem resposta do professor |
-| Dono de cada tarefa (D5) | `[Preencher]` na tabela de ondas de `plan/00-README.md`; cada um roda o ciclo na própria máquina | 00-README | tarefa 01 | **aberto**: a execução ficou na sessão (decisão 44) e todos os commits até `759ec29` são de uma identidade; falta quem revisa e integra cada pull request |
+| Licença do repositório | MIT, com nota de uso acadêmico e citação do artigo e dos datasets | 01 | tarefa 01 | resolvido pela decisão 55c: `LICENSE` (MIT) na raiz, com os quatro integrantes como titulares; `project/README.md`, seção "Licença". Proposta aplicada, sem escolha explícita |
+| Visibilidade do repositório (Q10 enviada) | privado com acesso para o professor até a resposta | 01 | tarefa 01 | resolvido pela decisão 43: público no GitHub. Q10 ficou sem resposta do professor e foi fechada pela equipe (decisão 55a) |
+| Dono de cada tarefa (D5) | `[Preencher]` na tabela de ondas de `plan/00-README.md`; cada um roda o ciclo na própria máquina | 00-README | tarefa 01 | não se aplica (decisões 44 e 55d, f): a execução ficou na sessão, o histórico tem uma só identidade Git (164 commits em `5999c1b`), aceito, e não há pull request por tarefa |
 | Link do drive da equipe (dados) | resolvido em 07/10/2026: https://drive.google.com/file/d/1hHQRgtl6TmrfPxu5uILrsiqUrzgILn29/view?usp=sharing | 03 | — | resolvido pela decisão 43; o link está no README de `project/` |
 | `.git` na raiz | resolvido em 07/10/2026: a raiz é o repositório (decisão 43) | — | — | resolvido pela decisão 43 |
-| Metade inferior da Tabela II (resultados de outros trabalhos) | copiar do manuscrito para `config.py`, com as referências, conferido por dois integrantes | 06 | tarefa 06 | copiada para `config.TABLE_II_LITERATURE` (decisão 46). **Aberto: a conferência por dois integrantes**, junto com `FIG5_RANKING`, `FIG7_MALICIOUS` e `FIG8_NON_DOH`, também lidos do manuscrito |
+| Metade inferior da Tabela II (resultados de outros trabalhos) | copiar do manuscrito para `config.py`, com as referências, conferido por dois integrantes | 06 | tarefa 06 | copiada para `config.TABLE_II_LITERATURE` (decisão 46). Conferência resolvida pela decisão 55b: feita pelo assistente em duas passagens independentes, e não por dois integrantes, junto com `FIG5_RANKING`, `FIG7_MALICIOUS` e `FIG8_NON_DOH`; sem divergência |
 | Prevalências hipotéticas da taxa base | 10⁻³, 10⁻⁴ e 10⁻⁵ (o script `metricas_fig4.py` já usa 10⁻⁴) | 11 | tarefa 11 | resolvido como proposto: `config.HYPOTHETICAL_PREVALENCES`, fixado antes da execução de E4 (commit `db56052`). Nenhuma decisão numerada registra o valor |
 | Tamanho das amostras do SHAP | 2.000 fluxos por classe, estratificados, uma amostra do treino e uma do teste | 12 | tarefa 12 | resolvido como proposto: `config.SHAP_SAMPLE_PER_CLASS`. Nenhuma decisão numerada registra o valor. O painel usa 333 por classe (`config.DASHBOARD_SAMPLE_PER_CLASS`), por limite da biblioteca |
 | Grade de M2 | profundidade {5, 10, sem limite} × árvores {10, 100} com `max_features` `sqrt`, mais a combinação do artigo (10 árvores, profundidade 5, 28): sete combinações | 15 | tarefa 15 | resolvido pelas decisões 52 e 54 (b): oito combinações, as sete da proposta mais (10, sem limite, 28); `config.MODIFIED_GRID` |
@@ -164,21 +164,21 @@ Situação em 08/10/2026, no commit `759ec29`. "Resolvido" traz a decisão que f
 | Fatores de fragmentação | 2, 4, 8 e 16 | 16 | tarefa 16 | resolvido como proposto: `config.FRAGMENTATION_FACTORS` (com o fator 1, que é o teste sem perturbação), fixado antes da execução. Nenhuma decisão numerada registra o valor |
 | Acesso ao Apuana, só se a equipe for usá-lo: formulário do Helpdesk do CIn | `[Preencher: quem pediu, data, situação]` | 08 | tarefa 08 | não se aplica: tudo rodou na máquina local (decisão 44) |
 | Python 3.12 e uv no cluster; partição e recursos a pedir (só se for usar o Apuana) | `[Preencher: conferir no cluster ou com cluster.apuana-l@cin.ufpe.br]` | 01, 08 | tarefa 08 | não se aplica (decisão 44) |
-| Quem desenvolve e quem executa cada tarefa | `[Preencher]` na tabela de ondas de `plan/00-README.md` | todas | tarefa 01 | execução resolvida pela decisão 44 (roda na sessão). **Aberto**: quem revisa e integra |
+| Quem desenvolve e quem executa cada tarefa | `[Preencher]` na tabela de ondas de `plan/00-README.md` | todas | tarefa 01 | execução resolvida pela decisão 44 (roda na sessão). Revisão e integração por outro integrante: não se aplica (decisões 55d, f) |
 | `N_JOBS` de `config.py`, igual ao `--cpus-per-task` dos jobs quando houver | `[Decidir: valor]` | 02 | tarefa 08 | resolvido pela decisão 45: `N_JOBS = -1`; não altera resultado |
 
 ## Pendentes de terceiros (não são decisões nossas)
 
-Situação em 08/10/2026. As respostas do professor estão em `docs/07-pendencias.md`, com a data. Nenhuma resposta registrada contradiz uma decisão em vigor: onde a resposta mudou uma decisão antiga, o usuário já registrou a decisão nova, indicada na última coluna. O texto das decisões antigas não foi reescrito.
+Situação em 08/10/2026, no commit `5999c1b`. **Nenhum `⚠️ REVISAR` nesta tabela.** As respostas do professor estão em `docs/07-pendencias.md`, com a data. Onde está "fechada pela equipe", não houve resposta do professor: se ele disser outra coisa nos encontros de 10/11 e 17/11, o item volta com `⚠️ REVISAR` (decisão 55a). Nenhuma resposta registrada contradiz uma decisão em vigor: onde a resposta mudou uma decisão antiga, o usuário já registrou a decisão nova, indicada na última coluna. O texto das decisões antigas não foi reescrito.
 
 | Pendência | Decisão que pode mudar | Tarefa afetada | Situação em 08/10/2026 |
 | --- | --- | --- | --- |
 | Q1 reimplementação aceita? | — (premissa de todo o plano) | todas | respondida em 07/10/2026: sim. Premissa confirmada |
 | Q2 alvo e tolerância | 10 | 08, 18 | respondida em 07/10/2026; resolvida pela decisão 46, que amplia a 10: todas as tabelas e gráficos de resultado. O professor não disse qual referência vale entre a Tabela II e a Fig. 4b: seguem as duas |
-| Q9 idioma e limite de páginas | lista de tabelas | 17, 18 | **sem resposta**. O relatório está em português, com 8 páginas, no teto da decisão 53 |
+| Q9 idioma e limite de páginas | lista de tabelas | 17, 18 | sem resposta do professor; fechada pela equipe em 08/10/2026 (decisão 55a): português, até 8 páginas. O relatório tem 8 páginas, no teto da decisão 53 |
 | Q3 requisito adicional | pode criar tarefa nova | — | respondida em 07/10/2026 ("por enquanto não"); fechada pela decisão 48 |
-| Q4 segundo dataset | 11 (as tarefas seguem assumindo; decisão 39) | 13, 14 | respondida em 07/10/2026; resolvida pela decisão 47 (com a 36). **Em aberto com o professor**: ele não comentou que Non-DoH e Benign-DoH do combinado são os do CIRA; vai à conversa de acompanhamento |
-| Q5 ferramenta de túnel | 20 | 21 | respondida em 07/10/2026 com pedido de conversa; a decisão 49 substitui a 20 e a tarefa foi feita. **Em aberto**: a conversa com o professor; se ele pedir outro método, ajusta-se (decisão 49) |
+| Q4 segundo dataset | 11 (as tarefas seguem assumindo; decisão 39) | 13, 14 | respondida em 07/10/2026; resolvida pela decisão 47 (com a 36). O professor não comentou que Non-DoH e Benign-DoH do combinado são os do CIRA; fechada pela equipe em 08/10/2026, sem resposta dele (decisão 55a); o ponto segue na página dos encontros (`docs/09-acompanhamento-professor.md`) |
+| Q5 ferramenta de túnel | 20 | 21 | respondida em 07/10/2026 com pedido de conversa; a decisão 49 substitui a 20 e a tarefa foi feita. A conversa não aconteceu; fechada pela equipe em 08/10/2026, sem resposta dele (decisão 55a); se ele pedir outro método, ajusta-se (decisão 49) |
 | Q6 painel | 19 | 12 | respondida em 07/10/2026 (não é necessário); a decisão 50 ajusta a 19 e o painel foi implementado |
-| Q7 política de IA | resolvida (decisão 33) | 18, 19 | uso aprovado. **Sem resposta**: se o relatório precisa de frase de declaração |
-| Q10 repositório público ou privado | 43 | 19 | **sem resposta**. O repositório está público (decisão 43); se o professor pedir privado, a decisão 43 precisa ser revista pelo usuário |
+| Q7 política de IA | resolvida (decisão 33) | 18, 19 | uso aprovado. Frase de declaração: sem resposta do professor; fechada pela equipe em 08/10/2026 (decisão 55a): sem frase no relatório |
+| Q10 repositório público ou privado | 43 | 19 | sem resposta do professor; fechada pela equipe em 08/10/2026 (decisão 55a): público (decisão 43). Se o professor pedir privado, a decisão 43 precisa ser revista pelo usuário |

@@ -5,7 +5,7 @@
 **Depende de:** 01
 **Demonstra:** `config.py` com cada hiperparâmetro e a seção do artigo de origem; formato único de resultado em `results/`. Base da seção 4 do relatório e da rastreabilidade de todo número.
 
-> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta em `b1434ab`** (branch `tarefa/02-config-runlog`, nascida de `tarefa/01-prova-ci`; commits `412c097` e `b1434ab`). Aguarda integração por pessoa (G10). **Passo 5a fechado em 07/10/2026 (reconciliação no commit `360c3d3`):** `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45.
+> **Situação (07/10/2026, reconciliação no commit `0ae2d49`): pronta em `b1434ab`** (branch `tarefa/02-config-runlog`, nascida de `tarefa/01-prova-ci`; commits `412c097` e `b1434ab`). **Concluída.** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f). **Passo 5a fechado em 07/10/2026 (reconciliação no commit `360c3d3`):** `N_JOBS = -1` está em `config.py` desde `4746c22` e foi confirmado pela decisão 45.
 
 ## Como ficou (conferido no código em `0ae2d49`)
 
@@ -21,7 +21,7 @@ Nomes públicos que as tarefas seguintes consomem.
 
 ## Reconciliado com a tarefa 01 (07/10/2026, commit `5e11d56`)
 
-- Dependência: a 01 está pronta e ainda não integrada. A branch desta tarefa nasce da `main` depois da integração ou, em execução encadeada, de `tarefa/01-prova-ci`, com isso dito no relato.
+- Dependência: a 01 está concluída e na `main` (decisão 55f). Registro de 07/10/2026: A branch desta tarefa nasce da `main` depois da integração ou, em execução encadeada, de `tarefa/01-prova-ci`, com isso dito no relato.
 - O que a 01 deixou e esta tarefa usa, conferido no código: pacote `doh_ids` instalável (`src/doh_ids/__init__.py`), `pythonpath = ["."]` no pytest, lint com `D1`, `ERA` e `C90`, `tests/test_smoke.py`. `tests/conftest.py`, `config.py` e `runlog.py` não existem: são desta tarefa.
 - O repositório é a raiz (decisão 43): o hash do commit é lido com o Git a partir de `project/` sem mudança, mas `dirty` passa a refletir a árvore inteira, inclusive `docs/` e `planejamento/`. Um documento editado e não commitado marca `dirty: true`; o resultado versionado exige árvore limpa (decisão 38).
 - `jobs/` não existe (passo 5a): só é criada se a equipe executar no Apuana. `N_JOBS = -1` foi declarado em `4746c22` (decisão 45).
@@ -50,7 +50,7 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 3. Declarar as seeds: 42 para a trilha fiel, 0 a 9 para a corrigida (decisão 12). Declarar também a seed derivada: o SMOTE do subconjunto `i` usa `seed * 100 + i`; os Random Forests e o meta-classificador usam `seed` (decisão 41).
 4. Em `runlog.py`, escrever a função de registro `save_run`: recebe nome do experimento, trilha, recorte (modelo, variante ou cenário), seed, dicionário de métricas, dicionário de configuração, SHA-256 do arquivo de dados e dicionário de tempos; monta o caminho `results/<experimento>/<trilha>/<recorte>/seed<k>/` e grava ali `metrics.json` e `run.json` (decisão 38). Arquivos auxiliares nomeados (por exemplo `split_counts.json`) ficam no mesmo diretório. O texto de interpretação de cada experimento fica em `results/<experimento>/<trilha>/RESUMO.md`; a hipótese escrita antes de rodar, quando a tarefa pede, em `HIPOTESE.md` no mesmo nível. O `metrics.json` só contém valores determinísticos; tempos de execução vão para o `run.json`, para que duas execuções possam ser comparadas com `diff`.
 5. O `run.json` contém: trilha, seed, data e hora, tempos de treino, versão do Python e das bibliotecas principais, SHA-256 do arquivo de dados usado, hash do commit e indicação de árvore de trabalho suja. Grava também o nome da máquina e o número de núcleos usados: é a evidência, no repositório, de onde o resultado foi gerado (decisão 42).
-5a. Declarar em `config.py` a constante `N_JOBS`, usada por todo estimador que aceita `n_jobs`, com o mesmo valor do `--cpus-per-task` dos scripts de `jobs/` (`[Decidir: valor]`). O resultado do Random Forest não depende de `n_jobs` quando a seed é fixa.
+5a. Declarar em `config.py` a constante `N_JOBS`, usada por todo estimador que aceita `n_jobs`, com o mesmo valor do `--cpus-per-task` dos scripts de `jobs/` (resolvido: `N_JOBS = -1`, em `4746c22`, confirmado pela decisão 45; `jobs/` não se aplica, decisão 44). O resultado do Random Forest não depende de `n_jobs` quando a seed é fixa.
 6. A função recusa trilha fora de `fiel`, `corrigida`, `variante` e `dados`. `variante` é das leituras alternativas da tarefa 10; `dados` é de E0 e da preparação do segundo dataset, que não treinam modelo.
 7. Testar: os dois arquivos são criados, os campos obrigatórios existem, trilha inválida levanta erro.
 

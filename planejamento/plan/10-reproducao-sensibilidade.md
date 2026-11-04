@@ -14,7 +14,7 @@
 - **Comando real:** `uv run python scripts/e3_sensibilidade.py` e, depois, `uv run python -m scripts.e3_resumo`. O treino lê `cira.parquet` e `results/e0/`. O resumo lê `results/e1/` (as duas configurações de partida) e **`results/e4/corrigida/A/`** (a variação entre seeds do modelo de partida): roda depois de `e4_corrigido.py`. Tempo medido do treino: 535 s nas dez execuções, cerca de 9 minutos.
 - **Resultados:** `results/e3/variante/<variante>/seed42/` e `results/e3/variante/<variante>-prof5/seed42/`, `results/e3/variante/comparacao.csv` e `results/e3/variante/RESUMO.md`.
 - **Desvios que ficaram:** as variantes partem das duas leituras de profundidade (decisão 51d): cinco variantes em dez recortes, com o sufixo `-prof5` para a partida de profundidade 5. Feitas: as quatro do núcleo e a opcional `meta_uniao`. Não feitas, e listadas assim no resumo: `stacking_cv` e `oss`.
-- **Pendente de pessoa:** a integração (G10).
+- **Concluída (08/10/2026).** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
@@ -85,12 +85,12 @@ Risco R2. Como o artigo não especifica vários pontos, "a reprodução" é uma 
 - [x] Um diretório de resultado para cada variante do núcleo (quatro) e para cada opcional feita, com `run.json` de trilha `variante` nomeando a variante e o ponto que ela muda. Opcional não feita está listada como não feita no resumo. Lido: dez diretórios (`class_weight`, `use_probas`, `max_features_padrao`, `rf_unico`, `meta_uniao`, e os cinco com `-prof5`); `config.changed_point` e `config.changed_arguments` no `run.json`; `RESUMO.md`, linhas 126 a 131, lista `StackingCVClassifier` e one-sided selection como não feitas.
 - [x] Tabela comparativa gerada por script em `results/e3/variante/`. Lido: `comparacao.csv`, escrita por `scripts/e3_resumo.py`.
 - [x] Todas as variantes avaliadas no mesmo teste (asserção de total). Lido: a matriz de teste soma 115.911 nos dez `metrics.json`.
-- [ ] Texto de interpretação em `RESUMO.md` separa o que foi medido do que é hipótese. O arquivo existe; a separação não foi relida frase a frase nesta reconciliação.
-- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`320a2a5`, `c64832b`, `38809c1`).
+- [x] Texto de interpretação em `RESUMO.md` separa o que foi medido do que é hipótese. **Fechado em 08/10/2026:** lido em `5999c1b`: `results/e3/variante/RESUMO.md` tem a seção "Medido e hipótese" (linha 102), com o bloco "Hipótese, não demonstrada por estes números" (linha 107), e a seção "O que não foi medido" (linha 124).
+- [x] Revisor metodológico sem achado bloqueante. **Fechado em 08/10/2026:** `REVISAO-FINAL.md`: nenhum achado bloqueante; V2 (tabela comparativa regenerada idêntica) e V3 a V6. Commits de correção anteriores: `320a2a5`, `c64832b`, `38809c1`.
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e3.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
+O script rodou na própria sessão de implementação, nesta máquina (decisão 44). **Não se aplica:** o Apuana e o script de submissão em `jobs/` (decisão 44: nada rodou no cluster, a pasta não existe); a saída colada no pull request (decisão 55f: não houve pull request por tarefa). A evidência é a que está versionada: resultados em `results/`, `run.json` com a máquina, os núcleos, as versões, o commit e `dirty: false`, e a execução limpa de 08/10/2026, que regenerou os mesmos `metrics.json` em um clone novo (`REVISAO-FINAL.md`, "Execução limpa"). Os dois fechamentos, "pronta" e "executada", aconteceram na mesma sessão.
 
 ## Testes
 

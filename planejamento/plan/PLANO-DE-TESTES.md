@@ -9,12 +9,12 @@ Diz, para cada tarefa, o que precisa estar verde antes de passar para a seguinte
 | Nível | O que é | Onde roda | Quem confere |
 | --- | --- | --- | --- |
 | **N1 automático** | `pytest` com dados sintéticos | máquina de quem implementa e CI do GitHub | implementador; CI |
-| **N2 local com dados reais** | o script da tarefa, com asserções embutidas, e a conferência do arquivo gerado em `results/` | a própria sessão de implementação, nesta máquina (decisão 44) | implementador; saída colada no pull request |
+| **N2 local com dados reais** | o script da tarefa, com asserções embutidas, e a conferência do arquivo gerado em `results/` | a própria sessão de implementação, nesta máquina (decisão 44) | implementador; a saída fica em `results/` e no `run.json` (a saída colada no pull request não se aplica: decisão 55f) |
 | **N3 revisão** | agente revisor e leitura de outro integrante | — | revisor; integrante |
 
 O CI não tem os datasets: eles ficam fora do Git e o download do CIRA é manual. Por isso nenhum teste N1 lê `data/`, e tudo o que depende de contagem ou métrica real é N2.
 
-O N2 das tarefas 03 a 16 e da 21 roda na própria sessão de implementação, sem esperar um integrante designado (decisão 44); o cluster Apuana continua opção (decisão 42). Nos dois casos a saída vai para o pull request e o `run.json` registra a máquina.
+O N2 das tarefas 03 a 16 e da 21 rodou na própria sessão de implementação, sem esperar um integrante designado (decisão 44). O cluster Apuana não se aplica: não foi usado. O `run.json` registra a máquina; não houve pull request por tarefa (decisão 55f), e a segunda execução de tudo é a execução limpa de 08/10/2026 (`REVISAO-FINAL.md`).
 
 **Regra de passagem:** a tarefa só fecha com N1 verde no CI, N2 executado (quando a tarefa tem) e N3 sem achado bloqueante. A cada tarefa roda a suíte inteira.
 
@@ -41,9 +41,9 @@ Workflow único, criado na tarefa 01, em `push` na `main` e em todo pull request
 | Referência interna | `grep -rnE` de `docs/`, `planejamento/`, `.claude/`, "decisão N", "tarefa N" e dos identificadores `A1` a `A18` e `Q1` a `Q11`, nos `.py`, `.md` e `.json` de `src scripts tests data README.md results` (comando exato na tarefa 01, passo 4b) | qualquer ocorrência: código, README e resultados não citam documento interno |
 | Arquivo proibido | `git ls-files`, na raiz do repositório (`working-directory: .`), filtrado por `.pkl`, `.joblib`, `.pcap`, `.parquet`, `.zip`, `project/data/raw/`, `project/data/processed/`, PDF em `docs/referencias/` | qualquer ocorrência |
 
-Como ficou no commit `5e11d56` (sem mudança até `360c3d3`: `.github/` não foi tocado desde então): o job roda com `working-directory: project`; cada uma das três checagens de higiene é um passo próprio; actions `actions/checkout@v7` e `astral-sh/setup-uv@v10.2.0`. O workflow ainda não rodou no GitHub (T01-5 aberto). Em `759ec29` nada mudou em `.github/`, e o T01-5 segue aberto: nenhuma branch foi enviada como pull request.
+Como ficou no commit `5e11d56` (`.github/` não foi tocado desde então): o job roda com `working-directory: project`; cada uma das três checagens de higiene é um passo próprio; actions `actions/checkout@v7` e `astral-sh/setup-uv@v10.2.0`. **O workflow rodou no GitHub e ficou verde na `main`:** `gh run list --branch main`, executado em 08/10/2026, mostra quatro execuções, todas `success`, a última no commit `378f170`. O T01-5, como escrito (pull request de prova), não se aplica: a `main` avançou sem pull request (decisão 55f).
 
-**Situação da suíte em `759ec29` (executado em 08/10/2026):** `uv run pytest`, 110 testes verdes em 41 s, 101 funções em doze arquivos; `ruff check` e `ruff format --check` sem erro; `python3 scripts/metricas_fig4.py` com código 0. Os testes que existem e não estavam previstos estão listados na seção de cada tarefa, com identificador novo.
+**Situação da suíte em `5999c1b` (executado em 08/10/2026):** `uv run pytest`, 118 testes verdes em 44 s, 109 funções em treze arquivos; `ruff check` e `ruff format --check` sem erro (74 arquivos); `python3 scripts/metricas_fig4.py` com código 0. Os mesmos 118 testes ficaram verdes em um ambiente instalado com pip a partir do `requirements.txt` (T19-3). Depois de `759ec29` (110 testes, 101 funções em doze arquivos) entraram oito funções: três em `tests/test_comparar_resultados.py`, da tarefa 19, e cinco da correção do achado I4 da revisão final, que fazem as oito mutações de vazamento ou de sorteio derrubarem um teste (T08-10, T09-7, T13-8, T15-7 e T15-8). Os testes que existem e não estavam previstos estão listados na seção de cada tarefa, com identificador novo.
 
 ---
 
@@ -55,7 +55,7 @@ Como ficou no commit `5e11d56` (sem mudança até `360c3d3`: `.github/` não foi
 | T01-2 | N1 | Passo do CI: `python3 scripts/metricas_fig4.py` termina com código 0 | O script continua independente do pacote |
 | T01-3 | N2 | Em um clone novo: `uv sync --locked`, lint, formatação e testes verdes | Ambiente reprodutível em outra máquina |
 | T01-4 | N2 | Três commits de prova em repositório descartável: mensagem fora do padrão, trailer de coautoria e arquivo fora do lint são barrados pelos hooks | Os hooks funcionam |
-| T01-5 | N2 | Primeiro pull request de prova: o CI roda e fica verde | O workflow funciona antes de ser necessário |
+| T01-5 | N2 | O CI roda no GitHub e fica verde (no plano original, em um pull request de prova; não se aplica desde a decisão 55f: verde na `main`) | O workflow funciona antes de ser necessário |
 
 **Só avança se:** o CI ficou verde pelo menos uma vez e os hooks barraram os três casos.
 
@@ -161,8 +161,9 @@ Situação em `360c3d3`: os cinco existem em `tests/test_splits.py` e rodaram ve
 | T08-7 | N2 | `results/e1/fiel/proposto/seed42/` e `results/e1/variante/profundidade_variavel/seed42/` com as duas matrizes, as duas AUC nomeadas, a tabela de decisão do meta, os bases isolados e a comparação com a Fig. 4a, a Fig. 4b e a Tabela II; `results/e1/RESUMO.md` com as duas leituras lado a lado | Entrega central de P1, nas duas leituras (decisão 45) |
 | T08-8 | N2 | Duas execuções com `metrics.json` idêntico, nas duas leituras | G6 |
 | T08-9 | N3 | `revisor-metodologico` sem bloqueante | Vazamento e fidelidade |
+| T08-10 | N1 | Existe desde `bf19a11`, da correção do achado I4 da revisão final: `test_cross_validation_scales_the_held_out_fold_with_the_scaler_of_its_fit_folds`, em `tests/test_pipeline.py` | Na validação cruzada, o fold de fora é transformado com o scaler dos folds de ajuste, e não com o do treino inteiro (I2) |
 
-Situação em `360c3d3`: T08-1 a T08-3 em `tests/test_models.py`, T08-4 e T08-5 em `tests/test_pipeline.py`; T08-6 e T08-7 conferidos em `results/e1/` (`798ecd3`); **T08-8 em aberto**, com a segunda execução rodando em 07/10/2026; T08-9 informado pela sessão principal.
+Situação em `5999c1b`: T08-1 a T08-3 em `tests/test_models.py`, T08-4, T08-5 e T08-10 em `tests/test_pipeline.py`; T08-6 e T08-7 conferidos em `results/e1/` (`798ecd3`); **T08-8 fechado pela execução limpa de 08/10/2026**, que regenerou os dois `metrics.json` idênticos; T08-9 fechado por `REVISAO-FINAL.md` (nenhum bloqueante). O script ganhou em `2686b80` a asserção de que o scaler da avaliação foi ajustado só no treino.
 
 **Só avança se:** T08-4 está verde no CI. Resultado longe da Fig. 4b não bloqueia: registra-se a distância.
 
@@ -175,11 +176,12 @@ Situação em `360c3d3`: T08-1 a T08-3 em `tests/test_models.py`, T08-4 e T08-5 
 | T09-3 | N1 | Árvore com profundidade 10 e Random Forest com 10 árvores, lidos de `config.py` | Tabela II |
 | T09-4 | N2 | `scripts/e2_baselines.py`: o total da matriz de cada baseline é igual ao de `split_counts.json` | Mesmo teste do modelo proposto |
 | T09-5 | N2 | Três diretórios em `results/e2/fiel/`, cada um com a diferença para a sua linha da Tabela II | Metade superior da Tabela II |
-| T09-6 | N3 | A metade inferior da Tabela II em `config.py` (oito linhas, com a referência de cada uma) conferida contra o artigo por dois integrantes, célula a célula, inclusive as ausentes e a linha impressa em escala percentual | Número de referência do artigo copiado sem erro (decisão 46) |
+| T09-6 | N3 | A metade inferior da Tabela II em `config.py` (oito linhas, com a referência de cada uma) conferida contra o artigo, célula a célula (no plano, por dois integrantes; feita pelo assistente em duas passagens independentes, decisão 55b), inclusive as ausentes e a linha impressa em escala percentual | Número de referência do artigo copiado sem erro (decisão 46) |
+| T09-7 | N1 | Existe desde `bf19a11`, da correção do achado I4: `test_baselines_are_fitted_on_the_train_rows_and_evaluated_on_the_test_rows`, em `tests/test_pipeline.py` (importa `scripts.e2_baselines`) | O scaler e os modelos de comparação de E2 são ajustados só com o treino e avaliados só no teste (I2) |
 
 **Só avança se:** os três baselines foram avaliados no mesmo teste da tarefa 08. O T09-6 bloqueia o fechamento da tarefa, não o início.
 
-Como ficou (`759ec29`): T09-1 é `test_baseline_predicts_class_codes_and_three_probabilities` (parametrizado nos três modelos), T09-2 é `test_whole_train_smote_only_adds_synthetic_rows_to_the_train` e T09-3 é `test_baselines_use_the_hyperparameters_of_table_ii`, em `tests/test_models.py`. T09-4 e T09-5 conferidos em `results/e2/fiel/`. **T09-6 aberto, de pessoa.**
+Como ficou (`759ec29`): T09-1 é `test_baseline_predicts_class_codes_and_three_probabilities` (parametrizado nos três modelos), T09-2 é `test_whole_train_smote_only_adds_synthetic_rows_to_the_train` e T09-3 é `test_baselines_use_the_hyperparameters_of_table_ii`, em `tests/test_models.py`. T09-4 e T09-5 conferidos em `results/e2/fiel/`. T09-6 fechado em 08/10/2026 pela decisão 55b: as 60 células da Tabela II conferidas pelo assistente em duas passagens, sem divergência, e não por dois integrantes. T09-7 em `tests/test_pipeline.py`.
 
 ## Tarefa 10 · sensibilidade (E3)
 
@@ -227,13 +229,13 @@ Como ficou (`759ec29`): T11-1 é `test_every_model_of_a_seed_gets_the_same_train
 | T12-4 | N1 | A medida de estabilidade dá 1,0 para rankings iguais e valor menor para rankings trocados | Estabilidade entre submodelos |
 | T12-5 | N2 | `scripts/e5_xai.py` gera as figuras equivalentes a todas as figuras SHAP do artigo (Figs. 5, 6a, 6b, 7 e 8) e a tabela de importância em `results/e5/variante/profundidade_variavel/seed42/`; em `results/e5/fiel/proposto/seed42/`, onde o custo permitir | Explicabilidade reproduzida (decisões 45 e 46) |
 | T12-6 | N3 | Conferência visual das figuras: eixos rotulados, unidade, `Duration` em segundos | Figura utilizável no relatório |
-| T12-7 | N2 | Painel (decisão 50): `uv sync --locked` verde com `explainerdashboard==0.5.8`; o script sobe o painel e a página responde em `localhost`; depois de rodar, `git status` está limpo e não há `.pkl` nem `.joblib` no disco | O painel funciona sem modelo serializado |
+| T12-7 | N2 | Painel (decisão 50): `uv sync --locked` verde com `explainerdashboard==0.5.8`; o script sobe o painel e a página responde em `localhost`; depois de rodar, `git status` está limpo e não há `.pkl` nem `.joblib` no disco | O painel funciona sem modelo serializado **Fechado:** conferido em 08/10/2026 na sessão: `uv run python scripts/painel_xai.py` com os dados reais, HTTP 200 em `127.0.0.1:8050` e em `/_dash-layout` após 162 s; processo encerrado, porta livre, `git status` limpo. |
 | T12-8 | N1 | Existe e não estava previsto: `test_stratified_sample_takes_the_requested_rows_of_each_class_and_follows_the_seed`, em `tests/test_explain.py` | A amostra do SHAP tem o tamanho pedido por classe e repete com a seed |
 | T12-9 | N1 | Existe e não estava previsto: `test_dashboard_is_built_in_memory_without_writing_any_file`, em `tests/test_explain.py` (importa `scripts.painel_xai`) | O painel não grava modelo serializado; cobre em N1 metade do T12-7 |
 
-O plano dizia que o painel não teria teste N1; o T12-9 existe e protege a regra de segurança (nenhum modelo serializado), não a biblioteca. Subir o painel e abrir a página continua sendo o T12-7, de pessoa.
+O plano dizia que o painel não teria teste N1; o T12-9 existe e protege a regra de segurança (nenhum modelo serializado), não a biblioteca. Subir o painel e abrir a página é o T12-7: conferido em 08/10/2026 na sessão: `uv run python scripts/painel_xai.py` com os dados reais, HTTP 200 em `127.0.0.1:8050` e em `/_dash-layout` após 162 s; processo encerrado, porta livre, `git status` limpo.
 
-Como ficou (`759ec29`): T12-1 a T12-4 em `tests/test_explain.py` (`test_shap_values_have_samples_features_classes_shape`, `test_global_importance_has_one_ordered_row_per_feature_and_class`, `test_original_units_turns_normalized_duration_back_into_seconds`, `test_rank_agreement_is_one_for_equal_rankings_and_lower_when_swapped`). T12-5 conferido nos dois diretórios de `results/e5/`. T12-6 e T12-7 abertos, de pessoa.
+Como ficou (`759ec29`): T12-1 a T12-4 em `tests/test_explain.py` (`test_shap_values_have_samples_features_classes_shape`, `test_global_importance_has_one_ordered_row_per_feature_and_class`, `test_original_units_turns_normalized_duration_back_into_seconds`, `test_rank_agreement_is_one_for_equal_rankings_and_lower_when_swapped`). T12-5 conferido nos dois diretórios de `results/e5/`. T12-6 conferido em 08/10/2026 nas figuras do relatório: `shap_dependencia_cira_dupla` (eixo "Duration (s)", "FlowBytesSent (bytes, escala logarítmica)", as duas leituras nomeadas) e `shap_importancia_cira` (vista na página 6 do PDF); as demais figuras de `results/e5/` não foram abertas uma a uma. T12-7 aberto (parágrafo acima). (T12-7 fechado em 08/10/2026: painel no ar com os dados reais, HTTP 200 em `127.0.0.1:8050` após 162 s, processo encerrado e árvore limpa.)
 
 **Só avança se:** o tamanho das amostras usadas no SHAP está registrado no resultado.
 
@@ -248,10 +250,11 @@ Como ficou (`759ec29`): T12-1 a T12-4 em `tests/test_explain.py` (`test_shap_val
 | T13-7 | N1 | A carga do segundo dataset não cria `group` nem `time_window` (era a segunda metade do T04-9) | A regra de grupo do CIRA não é aplicada onde não vale (decisão 40) |
 | T13-3 | N2 | `uv run python data/verify.py` cobre os novos arquivos | Integridade |
 | T13-4 | N2 | `scripts/e6_dados.py`: 29 colunas presentes; contagens por classe, origem e ferramenta ao lado das do README do dataset; HKD com 5.258 fluxos; réplicas contadas (20 por fluxo) | Compatibilidade real |
+| T13-8 | N1 | Existe desde `80111aa`, da correção do achado I4: `test_script_table_without_replicas_has_each_hkd_flow_once`, em `tests/test_data.py` (importa `scripts.e6_dados`) | O script grava o combinado sem réplicas passando pela função que as remove: cada fluxo do HKD uma vez |
 
 **Só avança se:** os três Parquets passam nas asserções. Q4 foi respondida em 07/10/2026 (decisão 47): o combinado sem réplicas é o dataset em que P1 é refeito.
 
-Como ficou (`759ec29`): T13-1, T13-2 e T13-5 a T13-7 em `tests/test_data.py`, um teste por linha. T13-3 executado em 08/10/2026: 8 de 8 arquivos do manifesto. T13-4 conferido em `results/e6/dados/`.
+Como ficou (`759ec29`): T13-1, T13-2 e T13-5 a T13-8 em `tests/test_data.py`, um teste por linha. T13-3 executado em 08/10/2026: 8 de 8 arquivos do manifesto. T13-4 conferido em `results/e6/dados/`.
 
 ## Tarefa 14 · segundo dataset: avaliação (E6)
 
@@ -282,6 +285,8 @@ Como ficou (`759ec29`): T14-1 a T14-3 em `tests/test_evaluate.py` (`test_malicio
 | T15-4 | N1 | A grade declarada em `config.py` tem no máximo oito combinações e inclui a do artigo (10, 5, 28) | Grade travada |
 | T15-5 | N2 | `python -m scripts.e8_modificacao` e `python -m scripts.e8_resumo`: `summary.json` com A, M1 e M1+M2 no CIRA e A e M1+M2 no combinado, dez seeds, com métricas com e sem duplicatas; hiperparâmetros selecionados por seed gravados | P3 medido |
 | T15-6 | N3 | `revisor-metodologico`: o texto não afirma melhora que os números não mostram | Honestidade do resultado |
+| T15-7 | N1 | Existe desde `2be47e9`, da correção do achado I4: `test_selection_sample_is_the_same_for_a_seed_and_changes_with_the_seed`, em `tests/test_models.py` | A subamostra da seleção de hiperparâmetros usa a seed da execução |
+| T15-8 | N1 | Existe desde `2be47e9`, da correção do achado I4: `test_selection_scaler_is_fitted_inside_each_fold_on_the_fit_rows_only`, em `tests/test_models.py` | Na seleção, o scaler é ajustado dentro de cada fold, só com as linhas de ajuste (I2) |
 
 **Só avança se:** a hipótese e a grade estão em commit anterior ao da primeira execução.
 
@@ -309,29 +314,32 @@ Como ficou (`759ec29`): T16-1 a T16-3 em `tests/test_robustness.py` (`test_drop_
 | T17-4 | N1 | Toda tabela de resultado de modelo traz a trilha e o nome da média na legenda; tabela que junta as duas leituras de profundidade tem a coluna que as identifica | I7 no relatório; as duas leituras não se misturam (decisão 45) |
 | T17-5 | N2 | `scripts/make_report_assets.py` com o `results/` real; três números de cada tabela conferidos contra a origem; cada tabela e gráfico de resultado do artigo (lista da tarefa 17) tem o seu equivalente em `report/` | Rastreio; alvo de P1 completo (decisão 46) |
 
-Como ficou (`759ec29`): seis funções em `tests/test_report_assets.py`. T17-1 é `test_number_in_table_is_the_one_in_metrics_json`; T17-2 são duas, `test_missing_required_result_fails` e `test_missing_optional_result_is_listed_as_not_generated`; T17-3 é `test_two_runs_write_identical_tex_and_csv` (cobre também os `.csv`); T17-4 são duas, `test_model_tables_name_track_seed_and_average_in_caption` e `test_tables_with_both_depth_readings_identify_each_one`. T17-5 executado em 08/10/2026 com saída em diretório temporário: 30 `.tex`, 30 `.csv`, `INDICE.md` e 13 `.png` idênticos aos versionados; a amostragem de três números por tabela é de pessoa.
+Como ficou (`759ec29`): seis funções em `tests/test_report_assets.py`. T17-1 é `test_number_in_table_is_the_one_in_metrics_json`; T17-2 são duas, `test_missing_required_result_fails` e `test_missing_optional_result_is_listed_as_not_generated`; T17-3 é `test_two_runs_write_identical_tex_and_csv` (cobre também os `.csv`); T17-4 são duas, `test_model_tables_name_track_seed_and_average_in_caption` e `test_tables_with_both_depth_readings_identify_each_one`. T17-5 executado em 08/10/2026 com saída em diretório temporário: 30 `.tex`, 30 `.csv`, `INDICE.md` e 13 `.png` idênticos aos versionados; a amostragem de três números por tabela foi superada pela recomputação completa da revisão final (`REVISAO-FINAL.md`, V2: 60 tabelas, 26 figuras e o índice regenerados idênticos, 0 divergências).
 
 ## Tarefa 18 · relatório
 
 Sem teste automático. N3: agente `revisor-de-texto` contra a especificação (nove seções, IEEE, contagens por classe dos dois datasets) e conferência de cada número contra `results/`. O PDF compila no Overleaf sem erro.
 
-Cumprida pela tarefa 24. Executado em 08/10/2026: `tectonic relatorio.tex` compila sem erro e sem referência indefinida. De pessoa: a compilação no Overleaf com XeLaTeX e a leitura cruzada.
+Cumprida pela tarefa 24. Executado em 08/10/2026: `tectonic relatorio.tex` compila sem erro e sem referência indefinida; números do texto recalculados na revisão final (`REVISAO-FINAL.md`, V2 e V8), com as frases inexatas corrigidas em `3725f27`. Template no Overleaf: fechado por Breno. De pessoa: a leitura do relatório pelos integrantes, com a lista de conferência.
 
 ## Tarefa 19 · README e execução limpa
 
 | ID | Nível | Teste | Garante |
 | --- | --- | --- | --- |
 | T19-1 | N1 | CI verde na `main` no commit entregue | Estado final íntegro |
+| T19-6 | N1 | Existem desde `53f1ca4` e não estavam previstos, três testes em `tests/test_comparar_resultados.py` (importa `scripts.comparar_resultados`): `test_equal_trees_exit_with_zero`, `test_changed_metric_exits_with_one_and_names_the_key` e `test_difference_only_in_time_is_not_a_failure` | A comparação da execução limpa acusa métrica diferente, nomeando a chave, e não acusa diferença só de tempo |
 | T19-2 | N2 | Execução limpa em clone e diretório novos, fora do repositório, na sessão de implementação (decisão 44), pelos 22 passos da tarefa 19; os 229 `metrics.json` e o `summary.json` de E4 iguais aos versionados; os dois agregados de E8 iguais fora das chaves de tempo; `report/tables/` sem diferença | Um clone limpo regenera os resultados. Não testa outra pessoa nem outra máquina, e o relato diz isso |
 | T19-3 | N2 | Instalação pelo `requirements.txt` com `pip` e a suíte verde | Caminho de quem não usa uv |
 | T19-4 | N2 | Checagens de higiene do critério de aceite sem nenhuma linha devolvida | Nada proibido no repositório |
 | T19-5 | N3 | Skill `checklist-entrega projeto` sem item exigido pendente | Entrega completa |
 
+Como ficou (`5999c1b`): T19-1 verde na `main` em `378f170` (`gh run list`, executado); o commit entregue ainda vai ser enviado, e o CI dele é conferido no envio, que é de pessoa. T19-2 feito em 08/10/2026: 260 de 260 arquivos de `results/` e 56 de 56 de `report/` (`REVISAO-FINAL.md`, "Execução limpa"); das 30 tabelas, 27 são comparadas byte a byte e as três que citam tempo de treino são só informadas. T19-3 executado neste fechamento, em um clone descartável de `5999c1b`: `pip install -r requirements.txt`, `pip install -e .` e 118 testes verdes. T19-4 executado: nenhuma linha. T19-5 aberto, de pessoa: faz parte da entrega de 18/11.
+
 ## Tarefa 20 · slides do projeto
 
 Sem teste automático. N3: `revisor-de-texto`; todo número do slide confere com `results/`; ensaio cronometrado em 15 minutos.
 
-Cumprida pela tarefa 24: `scripts/make_slides.py` monta as tabelas com as células de `report/tables/*.csv` e não tem teste N1. De pessoa: o ensaio e a conferência no Google Slides.
+Cumprida pela tarefa 24: `scripts/make_slides.py` monta as tabelas com as células de `report/tables/*.csv` e não tem teste N1. Conferência no Google Slides: feita por Breno em 08/10/2026. De pessoa: o ensaio cronometrado e a apresentação de 19/11.
 
 ## Tarefa 21 · ferramenta de túnel (E7)
 
@@ -351,11 +359,11 @@ Como ficou (`759ec29`): T21-1 é `test_tool_load_keeps_only_doh_rows_with_the_to
 
 ## Tarefas 22 e 23 · padronização e acompanhamento
 
-Sem teste automático. N3: critério de aceite conferido por outro integrante.
+Sem teste automático. N3: critério de aceite conferido no fechamento de 08/10/2026 pelo `cin0114-plan-sync`, com a evidência em cada tarefa, e não por outro integrante (decisões 44 e 55d). Da 23, os encontros de 10/11 e 17/11 são de pessoa.
 
 ## Tarefa 24 · relatório em PDF e apresentação em PPTX
 
-Sem teste automático: `scripts/make_slides.py` e `report/relatorio.tex` não têm teste N1. N2: `uv run --group slides python scripts/make_slides.py` e `tectonic relatorio.tex`, dentro de `report/`, sem erro. N3: `revisor-de-texto` nos dois documentos; páginas e slides olhados um a um; de pessoa, o `.pptx` no Google Slides.
+Sem teste automático: `scripts/make_slides.py` e `report/relatorio.tex` não têm teste N1. N2: `uv run --group slides python scripts/make_slides.py` e `tectonic relatorio.tex`, dentro de `report/`, sem erro. N3: `revisor-de-texto` nos dois documentos; páginas e slides olhados um a um; o `.pptx` no Google Slides, conferido por Breno em 08/10/2026. As 8 páginas do PDF foram vistas em imagem no fechamento do plano.
 
 ---
 
@@ -367,13 +375,14 @@ Sem teste automático: `scripts/make_slides.py` e `report/relatorio.tex` não t�
 | `tests/conftest.py` | 02 | fixtures `synthetic_flows` e `synthetic_raw_csv` |
 | `tests/test_config.py`, `tests/test_runlog.py` | 02 | T02-1 a T02-6 |
 | `tests/test_verify.py` | 03 | T03-1, T03-2 |
-| `tests/test_data.py` (12 funções) | 04, 13, 21 | T04-1 a T04-4, T04-8, T04-9, T13-1, T13-2, T13-5 a T13-7, T21-1 |
+| `tests/test_data.py` (13 funções) | 04, 13, 21 | T04-1 a T04-4, T04-8, T04-9, T13-1, T13-2, T13-5 a T13-8, T21-1 |
 | `tests/test_splits.py` (12) | 05, 07, 11, 21 | T05-1 a T05-5, T07-1 a T07-5, T11-11, T21-5 |
 | `tests/test_evaluate.py` (23) | 06, 11, 14, 21 | T06-1 a T06-9, T11-2 a T11-4, T11-7, T11-8, T14-1 a T14-3, T21-4 |
-| `tests/test_models.py` (16) | 08, 09, 10, 15 | T08-1 a T08-3, T09-1 a T09-3, T10-1 a T10-3, T10-5, T15-1 a T15-4 |
-| `tests/test_pipeline.py` (7) | 08, 11, 14 | T08-4, T08-5, T11-1, T11-9, T11-10, T14-4 |
+| `tests/test_models.py` (18) | 08, 09, 10, 15 | T08-1 a T08-3, T09-1 a T09-3, T10-1 a T10-3, T10-5, T15-1 a T15-4, T15-7, T15-8 |
+| `tests/test_pipeline.py` (9) | 08, 09, 11, 14 | T08-4, T08-5, T08-10, T09-7, T11-1, T11-9, T11-10, T14-4 |
 | `tests/test_explain.py` (6) | 12 | T12-1 a T12-4, T12-8, T12-9 |
 | `tests/test_robustness.py` (4) | 16 | T16-1 a T16-3, T16-5 |
 | `tests/test_report_assets.py` (6) | 17 | T17-1 a T17-4 |
+| `tests/test_comparar_resultados.py` (3) | 19 | T19-6 |
 
-Em `759ec29`, com as tarefas 01 a 17, 21 e 24 prontas, a suíte tem 101 funções de teste em doze arquivos e 110 casos com as parametrizações, todos verdes em 41 s (executado em 08/10/2026). Os testes importam nove scripts como módulo (`e1_reproducao`, `e3_sensibilidade`, `e4_corrigido`, `e4_resumo`, `e6_dataset2`, `e7_ferramenta`, `e8_modificacao`, `e8_robustez`, `painel_xai`, além de `make_report_assets` e `metricas_fig4`): renomear um deles quebra a suíte. Em `360c3d3`, com as tarefas 01 a 08, eram 51 funções em nove arquivos. Onde uma função nova da implementação tornar um destes testes sem sentido, o implementador relata e o plano é ajustado; o teste não é escrito por obrigação.
+Em `5999c1b`, com as 25 tarefas concluídas, a suíte tem 109 funções de teste em treze arquivos e 118 casos com as parametrizações, todos verdes em 44 s (executado em 08/10/2026). Contagem por arquivo, executada com `grep -c "^def test_"`: `test_smoke` 1, `test_config` 2, `test_runlog` 8, `test_verify` 4, `test_data` 13, `test_splits` 12, `test_evaluate` 23, `test_models` 18, `test_pipeline` 9, `test_explain` 6, `test_robustness` 4, `test_report_assets` 6, `test_comparar_resultados` 3. Os testes importam como módulo os scripts `e1_reproducao`, `e2_baselines`, `e3_sensibilidade`, `e4_corrigido`, `e4_resumo`, `e6_dados`, `e6_dataset2`, `e7_ferramenta`, `e8_modificacao`, `e8_robustez`, `painel_xai`, `comparar_resultados`, `make_report_assets` e `metricas_fig4`: renomear um deles quebra a suíte. Em `759ec29` eram 101 funções em doze arquivos e 110 casos; em `360c3d3`, com as tarefas 01 a 08, 51 funções em nove arquivos. `tests/test_report_assets.py` copia a pasta `results/` versionada, e não uma árvore sintética (achado M6 da revisão final, registrado em comentário no teste em `2622ea3`): roda no CI porque `results/` é versionado.

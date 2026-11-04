@@ -5,14 +5,18 @@
 **Depende de:** —
 **Demonstra:** repositório no GitHub com CI verde em um pull request de prova e hooks barrando commit fora do padrão. Base do entregável "link do GitHub".
 
-## Situação em 07/10/2026: pronta, aguardando integração por pessoa
+## Situação em 08/10/2026: concluída; resta de pessoa a proteção da `main` e o acesso de escrita
+
+Fechamento conferido em `5999c1b`. Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f). O CI rodou e ficou verde na `main` do GitHub (`gh run list --branch main`, executado em 08/10/2026: quatro execuções, todas `success`; a última no commit `378f170`). `LICENSE` (MIT) na raiz desde `7813020` (decisão 55c). Instalação com pip conferida em `5999c1b` (critério de aceite). O pull request de prova não se aplica (decisão 55f). Os quatro caixas vazias dentro do bloco de código do passo 4c são o conteúdo do modelo de pull request, não pendência do plano.
+
+### Registro de 07/10/2026
 
 Reconciliada com o commit `5e11d56` (branch `tarefa/01-prova-ci`). **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
 
 - Commits: `5347ed3` (ambiente), `15ff958` (hooks), `7a41d90` (CI) e `6bf80bd` (README) na `main`; `5adf3c5` e `5e11d56` (README: "Como contribuir" e tutorial dos dados) na branch de prova.
 - Remoto: `origin/main` está em `7a41d90`; a `main` local está um commit à frente (`6bf80bd`) e nenhum atrás. A divergência citada no bloco da decisão 43 não existe mais. A branch de prova não está no remoto.
-- Falta, e é de uma pessoa (passo 8): `push` da `main` e da branch de prova, pull request de prova com o modelo, CI verde no GitHub, integração, proteção da `main` e acesso de escrita dos quatro integrantes.
-- Pendente da equipe: a licença. Não há `LICENSE`; `project/README.md` tem `Licença: [Preencher]`.
+- (Superado em 08/10/2026.) O `push` foi feito e a `main` avançou sem pull request (decisão 55f); o CI ficou verde na `main`. Resta, de pessoa: proteção da `main` e acesso de escrita dos integrantes.
+- (Superado em 08/10/2026.) Licença MIT, arquivo `LICENSE` na raiz (`7813020`, decisão 55c); `project/README.md` tem a seção "Licença".
 
 Como ficou, onde difere do texto abaixo:
 
@@ -23,10 +27,10 @@ Como ficou, onde difere do texto abaixo:
 | Passo 4b: `git ls-files` filtrado por `^data/(raw\|processed)/` e `referencias/.*\.pdf$` | Passo com `working-directory: .` e o filtro `^project/data/(raw\|processed)/`, `\.(pkl\|joblib\|pcap\|parquet\|zip)$`, `^docs/referencias/.*\.pdf$` |
 | Passo 4b: versão principal das actions | `actions/checkout@v7` e `astral-sh/setup-uv@v10.2.0`, com `working-directory: project` e cache pelo `uv.lock` |
 | Passo 4a: `pre-commit` roda o ruff direto | O hook faz `cd project` antes, porque o Git o roda na raiz |
-| `LICENSE` | Não criado: licença pendente da equipe |
-| `data/README.md` como esqueleto | Já traz o tutorial de download e extração; o manifesto de hashes fica como `[Preencher]` para a tarefa 03 |
+| `LICENSE` | Criado na raiz em `7813020` (MIT, decisão 55c) |
+| `data/README.md` como esqueleto | Já traz o tutorial de download e extração; o manifesto de hashes ficou para a tarefa 03, que o criou em `c2b69e0` (`data/manifest.json`) |
 | Passo 7: só entra o que está em `project/` | Superado pela decisão 43: `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` são versionados; `README.md` curto na raiz |
-| `jobs/` | Não criada; só passa a existir se a equipe executar no Apuana (tarefas 08 a 16) |
+| `jobs/` | Não criada; não se aplica: nada rodou no Apuana (decisão 44) |
 
 ## Dependência nova prevista (decisão 50, registrada em 07/10/2026 no commit `360c3d3`)
 
@@ -70,7 +74,7 @@ Como ficou, onde difere do texto abaixo:
 - `tests/test_smoke.py` — novo: um teste mínimo que importa o pacote. Sem nenhum teste, o pytest termina com código 5 e o gate nunca passa.
 - `data/README.md`, `results/.gitkeep`, `report/.gitkeep` — novos.
 - `README.md` — novo, esqueleto (objetivo, setup, como rodar, "Como contribuir"; o resto vem na tarefa 19).
-- `LICENSE` e nota de uso acadêmico — **não criados**: licença pendente da equipe (`[Decidir: licença; ver "Pendentes da equipe" em 00-decisoes-travadas.md]`).
+- `LICENSE` — criado na raiz do repositório em `7813020`: MIT, com os quatro integrantes como titulares (decisão 55c). A nota de que a licença não cobre o artigo, os datasets nem o material da disciplina está na seção "Licença" de `README.md`.
 - `.githooks/pre-commit`, `.githooks/commit-msg` — novos: barram commit fora do lint e mensagem fora do padrão.
 - `.github/workflows/ci.yml` — novo: verificação automática em `push` na `main` e em pull request.
 - `.github/pull_request_template.md` — novo: modelo de descrição de pull request, para toda tarefa mostrar o que demonstra.
@@ -215,12 +219,13 @@ Conferido pelo agente `cin0114-plan-sync` em 07/10/2026, no commit `5e11d56`. "E
 - [x] `uv run python scripts/metricas_fig4.py` imprime as duas matrizes. Executado com `python3`, código 0.
 - [x] Os hooks barram, em teste manual: mensagem fora do padrão, trailer `Co-Authored-By` e arquivo fora do lint. Executado no clone descartável com `core.hooksPath .githooks`: as três tentativas de commit foram barradas e o `HEAD` não mudou.
 - [x] `git log --format=%B | grep -ci "co-authored-by"` devolve 0. Executado.
-- [ ] `requirements.txt` corresponde ao lock (gerado por `uv export`, não editado à mão), e a instalação com pip seguida de `pip install -e .` passa no teste mínimo. Primeira metade confirmada: a saída de `uv export --no-emit-project --no-hashes` só difere do arquivo na linha de comentário do cabeçalho. **A instalação com pip não foi executada.**
+- [x] `requirements.txt` corresponde ao lock (gerado por `uv export`, não editado à mão), e a instalação com pip seguida de `pip install -e .` passa no teste mínimo. Primeira metade confirmada em `5e11d56`. **Fechado em 08/10/2026:** executado pelo `cin0114-plan-sync` em um clone descartável do commit `5999c1b`, fora do repositório, com um `venv` de Python 3.12.13 e pip 25.0.1: `pip install -r requirements.txt` e `pip install -e .` com código 0; `python -m pytest`, 118 testes verdes em 47 s. (Em uma cópia sem `.git` um teste de `test_runlog.py` falha porque não há commit a registrar; não é defeito da instalação.)
 - [x] `git ls-files` não lista nada de `project/data/raw/` nem de `project/data/processed/`, nenhum zip, modelo serializado ou Parquet e nenhum PDF do artigo. (Texto ajustado à decisão 43: `docs/`, `planejamento/` e `.claude/` são versionados.) Executado com o filtro do CI: nenhuma linha.
 - [x] `git rev-parse --show-toplevel` devolve a raiz do repositório, acima de `project/`. (Texto ajustado à decisão 43.) Executado.
-- [ ] `.github/pull_request_template.md` existe e o pull request de prova o usa. O arquivo existe, com o conteúdo do passo 4c (lido); o pull request de prova ainda não foi aberto.
-- [ ] **Pessoa:** repositório remoto existe, os quatro integrantes têm acesso de escrita, o CI rodou e ficou verde no pull request de prova, e a `main` está protegida. O remoto existe (`origin`, com `origin/main` em `7a41d90`); o resto está aberto. O workflow não rodou no GitHub para a branch de prova: o CI só foi lido, não visto verde.
-- [ ] Licença decidida pela equipe e `LICENSE` criado (item da lista "Arquivos" que ficou de fora).
+- [x] `.github/pull_request_template.md` existe, com o conteúdo do passo 4c (lido). O pull request de prova que o usaria: não se aplica (decisão 55f: a versão final foi para a `main` por avanço direto).
+- [x] Repositório remoto existe e o CI rodou e ficou verde. **Fechado em 08/10/2026:** `origin/main` em `378f170`; `gh run list --branch main` (executado) mostra quatro execuções do workflow `CI`, todas `success`, a última em `378f170`. O "pull request de prova" não se aplica (decisão 55f). Os 15 commits de `378f170` a `5999c1b` ainda não foram enviados: o CI do commit entregue é conferido no envio (item 1 de `docs/07-pendencias.md`, "O que resta de pessoa").
+- [ ] **Pessoa:** os integrantes têm acesso de escrita no GitHub e a `main` está protegida, se a equipe quiser (item 8 de `docs/07-pendencias.md`, "O que resta de pessoa").
+- [x] Licença decidida e `LICENSE` criado. **Fechado em 08/10/2026:** `LICENSE` na raiz, MIT, em `7813020` (lido); decisão 55c: proposta aplicada, sem escolha explícita de Breno, e a troca é de um arquivo.
 
 ## Testes
 
