@@ -15,11 +15,13 @@ A tarefa continua pronta e executada no que já fazia. A decisão 46 põe a Fig.
 - Rodar E0 de novo regenera `metrics.json`, `split_counts.json` e o Parquet: os três têm de sair idênticos aos versionados (o Parquet, pelo `parquet_sha256`), e o `run.json` passa a apontar o commit novo. O script de E0 mudou depois da última execução versionada (o `run.json` aponta `4746c22`; depois disso `f1eba42` mexeu no script e `21171f4`, `2732d0a` e `b00e471` em `config.py`), então essa comparação também confirma que essas mudanças não alteraram o resultado de E0.
 - Custo: a última execução de E0 levou 38,3 s (`run.json`, chave `timings`); o tempo da figura não foi medido.
 
+**Como ficou (conferido em `759ec29`, 08/10/2026): complemento pronto e executado.** Código em `d45251e`, figura em `377e331`; `44798f9` passou a gerar o veredito de cada afirmação do artigo sobre a Fig. 2, registrado em `39a7007`. Comando: `uv run python scripts/e0_dados.py` (43,6 s no `run.json`, commit `18f0024`, `dirty: false`). Arquivos novos em `results/e0/dados/cira/seed42/`: `fig2_densidade.png`, `fig2_densidade.csv` (as curvas, que a tarefa 17 redesenha) e `fig2_faixa.csv`. Pendente de pessoa: a integração (G10).
+
 Critério de aceite do complemento:
 
-- [ ] Figura equivalente à Fig. 2 (três painéis, três classes) em `results/e0/dados/cira/seed42/`, gerada por `scripts/e0_dados.py`, com eixos e unidade.
-- [ ] `metrics.json`, `split_counts.json` e `parquet_sha256` idênticos aos da execução anterior.
-- [ ] `results/e0/dados/RESUMO.md` diz o que a figura mostra ao lado do que o artigo afirma sobre a Fig. 2.
+- [x] Figura equivalente à Fig. 2 (três painéis, três classes) em `results/e0/dados/cira/seed42/`, gerada por `scripts/e0_dados.py`, com eixos e unidade. Figura aberta nesta reconciliação: três painéis, três classes, eixos em bytes, bytes² (escala logarítmica) e densidade.
+- [x] `metrics.json`, `split_counts.json` e `parquet_sha256` idênticos aos da execução anterior. Executado: `git diff --stat 360c3d3..759ec29 -- project/results/e0` só lista o `RESUMO.md`, o `run.json` e os três arquivos da figura.
+- [x] `results/e0/dados/RESUMO.md` diz o que a figura mostra ao lado do que o artigo afirma sobre a Fig. 2. Lido: seção "Fig. 2: densidade por classe", linha 157 em diante, com o que o artigo afirma na linha 195.
 
 ## Como ficou (conferido no código em `0ae2d49`)
 
