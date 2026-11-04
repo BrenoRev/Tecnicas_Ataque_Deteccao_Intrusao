@@ -17,25 +17,54 @@ O que faz um trabalho parecer não escrito por quem o entrega é a falta de deci
 
 **Estrutura**
 
-O repositório Git é a raiz; o código fica na pasta `project/`. A árvore abaixo é o conteúdo dela. `docs/`, `planejamento/` e `.claude/` ficam na raiz, ao lado de `project/`, com `.github/` e `.githooks/`.
+O repositório Git é a raiz; o código fica na pasta `project/`. A árvore abaixo é o conteúdo dela, como está no commit `759ec29`. `docs/`, `planejamento/`, `.claude/` e `geracao_latex_and_pdf/` (modelos do relatório e dos slides) ficam na raiz, ao lado de `project/`, com `.github/` e `.githooks/`.
 
 ```
-├── README.md            # objetivo, setup, como reproduzir cada tabela e figura
-├── pyproject.toml       # dependências com versão fixada
-├── data/                # manifesto de hashes e script de conferência; dados fora do Git
-├── src/                 # código reutilizável
-├── scripts/             # um script por experimento, executável da raiz
+├── README.md            # objetivo, instalação, dados, como rodar
+├── pyproject.toml       # dependências com versão fixada; grupos dev e slides
+├── uv.lock              # versões resolvidas, usadas por uv sync --locked
+├── requirements.txt     # exportado do uv.lock, para instalação com pip
+├── data/
+│   ├── README.md        # origem, citação e como obter cada arquivo
+│   ├── manifest.json    # tamanho, linhas e SHA-256 dos arquivos lidos
+│   ├── verify.py        # confere os arquivos contra o manifesto
+│   ├── raw/             # fora do Git
+│   └── processed/       # fora do Git; Parquets gerados por script
+├── src/doh_ids/         # config, data, splits, models, system, evaluate,
+│                        # explain, robustness, runlog, summary
+├── scripts/
+│   ├── e0_dados.py … e8_robustez.py   # um script por experimento (treina e grava)
+│   ├── e3_resumo.py, e4_resumo.py, e6_resumo.py, e7_resumo.py,
+│   │   e8_resumo.py, e8_robustez_resumo.py   # leem results/ e escrevem o RESUMO.md; não treinam
+│   ├── painel_xai.py            # painel interativo; não grava resultado
+│   ├── make_report_assets.py    # tabelas e figuras do relatório, de results/
+│   ├── make_slides.py           # apresentação em PPTX e roteiro
+│   └── metricas_fig4.py         # métricas da Fig. 4, só com a biblioteca padrão
 ├── tests/               # testes com dados sintéticos, rodam no CI
-├── jobs/                # scripts de submissão ao cluster, só para o que rodar no Apuana (decisão 42)
-├── results/             # métricas, figuras e logs gerados por script
-└── report/              # fonte LaTeX e PDF do relatório
+├── results/             # métricas, figuras, RESUMO.md e HIPOTESE.md por experimento
+└── report/
+    ├── tables/, figures/        # gerados por make_report_assets.py
+    ├── INDICE.md                # cada tabela e figura, com a origem em results/
+    ├── relatorio.tex, relatorio.pdf
+    └── apresentacao.pptx, roteiro.md
 ```
+
+A pasta `jobs/`, prevista para o cluster Apuana (decisão 42), não foi criada: tudo rodou na máquina local (decisão 44).
+
+**Como rodar um script**
+
+Dentro de `project/`. O comando exato está na linha "Uso:" da docstring de cada script.
+
+- Script que não importa outro script roda como arquivo: `uv run python scripts/e1_reproducao.py`.
+- Script que importa outro script roda como módulo: `uv run python -m scripts.e4_resumo`. São os de resumo, `e6_baselines_xai`, `e8_modificacao` e `e8_robustez`.
+- A apresentação usa o grupo de dependências próprio: `uv run --group slides python scripts/make_slides.py`.
+- O relatório compila com XeLaTeX (`relatorio.tex` usa `fontspec`); no Overleaf, escolher XeLaTeX no menu do compilador.
 
 **Regras**
 
 A versão normativa, usada pelo agente implementador e pelo lint, está em `.claude/rules/codigo.md`, `commits.md`, `testes.md` e `fluxo-implementacao.md`. O resumo abaixo não pode contradizê-la.
 
-- Python 3.12 com `ruff` para formatação e lint. Versões fixadas em `project/pyproject.toml` e `uv.lock` (tarefa 01): scikit-learn 1.9.1, imbalanced-learn 0.14.2, mlxtend 0.25.0, xgboost 3.4.1, shap 0.52.0, pandas 3.0.6, numpy 2.3.5, pyarrow 25.0.1, matplotlib 3.11.2, scipy 1.18.1; pytest 9.1.1 e ruff 0.16.10. Compatibilidade verificada em `planejamento/MEMORY/01-discovery-stack.md`; `explainerdashboard` 0.5.8 só entra se o painel for exigido.
+- Python 3.12 com `ruff` para formatação e lint. Versões fixadas em `project/pyproject.toml` e `uv.lock`: scikit-learn 1.9.1, imbalanced-learn 0.14.2, mlxtend 0.25.0, xgboost 3.4.1, shap 0.52.0, pandas 3.0.6, numpy 2.3.5, pyarrow 25.0.1, matplotlib 3.11.2, scipy 1.18.1 e explainerdashboard 0.5.8 (entrou com o painel, decisão 50). Grupo `dev`: pytest 9.1.1 e ruff 0.16.10. Grupo `slides`, fora do ambiente dos experimentos: python-pptx 1.0.2. Compatibilidade verificada em `planejamento/MEMORY/01-discovery-stack.md`. Cada `run.json` grava as versões com que o resultado foi gerado.
 - Identificadores em inglês, comentários e docstrings em português. Escolher isso uma vez e manter.
 - Função faz uma coisa. Se precisa de comentário para explicar o que faz, o nome está ruim.
 - Comentário explica **por que**, nunca o quê. Bom: `# ajusta o scaler só no treino; ajustar no conjunto todo vaza min e max do teste`. Ruim: `# normaliza os dados`.
@@ -51,6 +80,7 @@ A especificação pede "códigos comentados". Isso se cumpre com docstring curta
 
 **Notebooks**
 
+- O repositório não tem notebooks no commit `759ec29`: os experimentos são scripts. As regras abaixo valem se algum for criado.
 - Um por assunto, com nome sem espaço nem acento.
 - Executado do início ao fim com kernel limpo antes do commit.
 - Lógica que será reutilizada sai do notebook e vai para `src/`.

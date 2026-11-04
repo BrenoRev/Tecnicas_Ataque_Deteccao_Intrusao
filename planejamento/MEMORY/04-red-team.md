@@ -57,5 +57,5 @@ Regra seguida: nenhum corte retira proteção contra vazamento de dados.
 ## Ressalvas que continuam valendo
 
 - Os custos de execução são extrapolados de dados sintéticos. As tarefas 08, 11 e 15 medem antes de lançar tudo.
-- O achado F8 (duplicatas) e a compatibilidade do segundo dataset dependem de dados ainda não baixados.
+- O achado F8 (duplicatas) e a compatibilidade do segundo dataset dependem de dados ainda não baixados. Resolvido em 07 e 08/10/2026: os vetores repetidos estão medidos em `project/results/e0/dados/RESUMO.md` e a compatibilidade de colunas em `project/results/e6/dados/RESUMO.md`.
 - O revisor leu o plano antes das correções; as correções não passaram por uma segunda rodada independente.

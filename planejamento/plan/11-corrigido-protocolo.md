@@ -5,9 +5,19 @@
 **Depende de:** 08, 09
 **Demonstra:** `results/e4/corrigida/summary.json`: média e desvio em dez seeds, A contra B e C, com e sem duplicatas. Seção 7 (discussão) e 8 (limitações).
 
-> ⚠️ REVISAR (07/10/2026, reconciliação no commit `0ae2d49`), **só o passo 9, opcional:** o caminho `results/e4/corrigida/grupo-A/fold<k>/` não pode ser gravado por `save_run`, que sempre monta `<experimento>/<trilha>/<recorte>/seed<k>/` (`runlog.py:78`), e sai do layout único da decisão 38. O resto da tarefa não é afetado. Antes de implementar o passo 9, o usuário decide como a dobra entra no caminho; a decisão não foi reescrita e o passo ficou como estava.
+> **Os dois avisos de revisão desta tarefa foram resolvidos pela decisão 52 (07/10/2026)** e não estão mais abertos: (1) a dobra entra no nome do recorte, `A-fold<k>`, e `save_run` grava no layout da decisão 38; (2) B é o Random Forest único com os hiperparâmetros do A de profundidade variável, com `A-prof5` e `B-prof5` ao lado. O que foi implementado está em "Como ficou".
 
-> ⚠️ REVISAR (07/10/2026, reconciliação no commit `360c3d3`), **antes de escrever as configurações em `config.py`:** a decisão 45 manda esta tarefa rodar sobre a variante de profundidade variável; a decisão 23 define o modelo A como "empilhado com os valores do artigo" e o modelo B como Random Forest único "com os mesmos hiperparâmetros (10, 5, 28)". Com A sem limite de profundidade, um B com profundidade 5 deixa de ter os mesmos hiperparâmetros de A, e a comparação A contra B deixa de isolar a arquitetura. O usuário decide o que B passa a ser (sem limite de profundidade, profundidade 5, ou um B para cada leitura de A); nenhuma das duas decisões foi reescrita, e a tabela do passo 2 ficou como estava. A escolha é feita antes de qualquer execução desta tarefa (invariante I5).
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** Configurações em `db56052`, script em `e1fc0ab`, hipótese em `5165fd3`, resultados em `2a76a84`; `ed7ded1` (desvio das diferenças pareadas), `8cf9dc5` (agregação e resumo fora do treino), `b133df1` (testes das dobras por máquina), `f9f9b26` (regra de leitura pareada no pacote); `summary.json` e `RESUMO.md` refeitos em `38809c1`. Os 54 `run.json` trazem o commit `5165fd3` e `dirty: false` (lido).
+- **Arquivos:** `scripts/e4_corrigido.py` (só treina, avalia e grava), `scripts/e4_resumo.py` (agregação e resumo, sem treinar), `src/doh_ids/config.py` (`CORRIGIDA_MODELS`, `HYPOTHETICAL_PREVALENCES`, `GROUP_FOLDS`, `GROUP_FOLD_SEED`), `src/doh_ids/evaluate.py` (`aggregate_seeds`, `paired_comparison`, `paired_verdict`), `tests/test_evaluate.py`, `tests/test_pipeline.py`, `tests/test_splits.py`.
+- **Comando real:** `uv run python scripts/e4_corrigido.py` e, depois, `uv run python -m scripts.e4_resumo`. O script não recebe a seed como argumento: roda as dez em sequência. Tempo medido (soma dos `timings`): A 1.636 s, A-prof5 648 s, B 2.539 s, B-prof5 683 s, C 667 s, SMOTE do treino inteiro 579 s (um por seed, usado por B, B-prof5 e C), quatro dobras por máquina 364 s; 7.118 s, cerca de 2 horas.
+- **Resultados:** `results/e4/corrigida/{A,A-prof5,B,B-prof5,C}/seed<0..9>/`, `results/e4/corrigida/A-fold<0..3>/seed0/`, `summary.json`, `RESUMO.md` e `HIPOTESE.md`.
+- **Os dois ⚠️ REVISAR estão resolvidos pela decisão 52:** A é o empilhado de profundidade variável; B é o Random Forest único com os hiperparâmetros de A (10 árvores, sem limite, 28) e SMOTE; `A-prof5` e `B-prof5` vão ao lado; C não muda. A avaliação por máquina foi feita, com a dobra no nome do recorte (`A-fold<k>`), dentro do layout de `save_run`.
+- **Desvios que ficaram:** a tabela do passo 2 vale com a profundidade trocada como acima; prevalências 10⁻³, 10⁻⁴ e 10⁻⁵, como na proposta; a regra de leitura pareada (há diferença quando a média, em módulo, passa do desvio das diferenças) foi fixada na `HIPOTESE.md` antes da execução.
+- **Pendente de pessoa:** a integração (G10).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
@@ -87,14 +97,14 @@ Decisões 06, 12, 23 e 24. O artigo sustenta a vantagem do modelo proposto com 0
 
 ## Critério de aceite
 
-- [ ] As três configurações estão em `config.py` em commit anterior ao da primeira execução.
-- [ ] Em cada seed, os três modelos foram avaliados no mesmo teste (asserção de igualdade dos índices).
-- [ ] `summary.json` traz média e desvio de cada métrica para A, B e C em dez seeds.
-- [ ] Comparação pareada gravada, com o método e a ressalva de dependência entre os pares.
-- [ ] Métricas com e sem as linhas duplicadas entre treino e teste.
-- [ ] Avaliação por grupo feita (quatro dobras, modelo A), ou dispensa registrada por prazo.
-- [ ] Todo resultado tem trilha `corrigida` no caminho e no `run.json`.
-- [ ] Revisor metodológico sem achado bloqueante.
+- [x] As três configurações estão em `config.py` em commit anterior ao da primeira execução. Lido no histórico: `db56052` (configurações) vem antes de `e1fc0ab` (script) e de `5165fd3` (hipótese), e os `run.json` trazem o commit `5165fd3`.
+- [x] Em cada seed, os três modelos foram avaliados no mesmo teste (asserção de igualdade dos índices). Lido: `split_index_sha256` é o mesmo nos cinco modelos de cada uma das dez seeds. Executado: `test_every_model_of_a_seed_gets_the_same_train_and_test_rows`.
+- [x] `summary.json` traz média e desvio de cada métrica para A, B e C em dez seeds. Lido: `models` com A, A-prof5, B, B-prof5 e C; `seeds` de 0 a 9; desvio padrão amostral declarado em `std`.
+- [x] Comparação pareada gravada, com o método e a ressalva de dependência entre os pares. Lido: `paired.method`, `paired.caveat` e `paired.comparisons`.
+- [x] Métricas com e sem as linhas duplicadas entre treino e teste. Lido: `scopes` com `test` e `test_unseen`; `test_seen_in_train_fraction` por modelo.
+- [x] Avaliação por grupo feita (quatro dobras, modelo A), ou dispensa registrada por prazo. Lido: `A-fold0` a `A-fold3` e `group_folds` no `summary.json`, com quatro dobras.
+- [x] Todo resultado tem trilha `corrigida` no caminho e no `run.json`. Lido: nos 229 `run.json` de `results/`, a trilha gravada é a do caminho e `dirty` é falso.
+- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`ed7ded1`, `8cf9dc5`, `b133df1`, `38809c1`).
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
@@ -106,4 +116,4 @@ Seção "Tarefa 11" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e4_corrigido.py`.
+Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e4_corrigido.py` e, depois, `uv run python -m scripts.e4_resumo`.

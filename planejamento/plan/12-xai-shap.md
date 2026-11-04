@@ -5,6 +5,17 @@
 **Depende de:** 08
 **Demonstra:** `results/e5/variante/profundidade_variavel/seed42/`: figuras equivalentes a todas as figuras SHAP do artigo (Figs. 5, 6a, 6b, 7 e 8) e tabela de importância; o painel `explainerdashboard` no ar, localmente, como material de demonstração. P1: a parte explicável do artigo (seção 7).
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** Dependência em `e827c0a`; `explain.py` em `f5cdf50`; script em `de54fe7`; painel em `b4f1256` e `6b8abeb`; resultados em `26b2ed6`; `a7b94a3` separou o cálculo da gravação (a 14b reutiliza `explain_system`); `e9836b3` e `a0d853a` trocaram o veredito do limiar de 40 s por dois fatos medidos; `e4544af` acrescentou o teste da amostra; resultados refeitos em `38809c1`. Os `run.json` trazem o commit `ff039fa` e `dirty: false` (lido).
+- **Arquivos:** `src/doh_ids/explain.py` (`stratified_sample`, `forest_shap_values`, `global_importance`, `original_units`, `rank_agreement`), `scripts/e5_xai.py`, `scripts/painel_xai.py`, `tests/test_explain.py`, `pyproject.toml`, `uv.lock`, `requirements.txt`.
+- **Comando real:** `uv run python scripts/e5_xai.py`. Lê `cira.parquet`, `results/e0/`, `results/e1/` e **`results/e6/dados/hkd/seed42/metrics.json`**: roda depois de `e6_dados.py`, e para com mensagem se o arquivo faltar. Tempo medido: 516 s na profundidade variável (294 s do SHAP na amostra do treino e 97,5 s na do teste) e 43 s na profundidade 5; cerca de 9 minutos. Painel: `uv run python scripts/painel_xai.py`, em `http://127.0.0.1:8050`.
+- **Resultados:** `results/e5/variante/profundidade_variavel/seed42/` e `results/e5/fiel/proposto/seed42/`, cada um com `fig5_importancia_<classe>.png`, `fig6a_dependencia_duration.png`, `fig6b_dependencia_flowbytessent.png`, `fig6_dependencia.csv`, `fig7_explicacao_malicious-doh.{png,csv}`, `fig8_explicacao_non-doh.{png,csv}`, `importancia.csv`, `metrics.json` e `run.json`; `RESUMO.md` em cada trilha e `results/e5/RESUMO.md` com as duas lado a lado. Os resumos são escritos pelo próprio script.
+- **Desvios que ficaram:** amostra de 2.000 fluxos por classe (`SHAP_SAMPLE_PER_CLASS`), como na proposta; na amostra do teste, Benign-DoH tem 1.975 fluxos, que é a classe inteira. O painel explica o Random Forest base 1 com 333 fluxos por classe (`DASHBOARD_SAMPLE_PER_CLASS`). A Fig. 6b saiu como dependência de `FlowBytesSent`. O painel ganhou um teste N1, de que é montado na memória sem gravar arquivo, ao contrário do que o plano de testes previa.
+- **Pendente de pessoa:** subir o painel e abrir a página (T12-7) na demonstração; a conferência visual das figuras (T12-6); a integração (G10).
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo (passos, arquivos, critérios, riscos) divergirem, vale este bloco.**
@@ -78,14 +89,15 @@ A explicabilidade é a contribuição que dá nome ao artigo; P1 não fecha sem 
 
 ## Critério de aceite
 
-- [ ] Figuras equivalentes às Figs. 5, 6a, 6b, 7 e 8 em `results/e5/variante/profundidade_variavel/seed42/`, geradas pelo script; as mesmas em `results/e5/fiel/proposto/seed42/`, ou registro de que o custo não permitiu.
-- [ ] Tabela de importância por atributo, classe e submodelo em arquivo.
-- [ ] O dependence plot de `Duration` está em segundos.
-- [ ] Texto de comparação com o artigo: ranking e limiar, com o que confirmou e o que não confirmou.
-- [ ] Medida de estabilidade entre submodelos registrada.
-- [ ] A limitação do passo 8 está escrita no `RESUMO.md` de cada trilha gerada.
-- [ ] O resumo declara que o modelo explicado é o da leitura de profundidade variável e por quê.
-- [ ] Painel: `explainerdashboard==0.5.8` no `pyproject.toml`, com `uv sync --locked` verde; o script sobe o painel localmente; nenhum arquivo de modelo é gravado nem lido (`git status` limpo depois de rodar e nenhum `.pkl` ou `.joblib` no disco).
+- [x] Figuras equivalentes às Figs. 5, 6a, 6b, 7 e 8 em `results/e5/variante/profundidade_variavel/seed42/`, geradas pelo script; as mesmas em `results/e5/fiel/proposto/seed42/`, ou registro de que o custo não permitiu. Lido: os mesmos nove arquivos de figura e de dados nos dois diretórios. Não conferidas visualmente aqui.
+- [x] Tabela de importância por atributo, classe e submodelo em arquivo. Lido: `importancia.csv` nos dois diretórios.
+- [x] O dependence plot de `Duration` está em segundos. Lido: `results/e5/variante/RESUMO.md:94`; executado: `test_original_units_turns_normalized_duration_back_into_seconds`. A figura não foi aberta.
+- [ ] Texto de comparação com o artigo: ranking e limiar, com o que confirmou e o que não confirmou. O texto existe (`fig5_comparison` e `duration_threshold` em `metrics.json`; seções do resumo); não relido frase a frase.
+- [x] Medida de estabilidade entre submodelos registrada. Lido: `stability` e `stability_top_features` em `metrics.json`.
+- [x] A limitação do passo 8 está escrita no `RESUMO.md` de cada trilha gerada. Lido: seção "Limitação" na linha 204 dos dois; `stacked_explainer_error` em `metrics.json`.
+- [x] O resumo declara que o modelo explicado é o da leitura de profundidade variável e por quê. Lido: `results/e5/variante/RESUMO.md:11-14`.
+- [ ] Painel: `explainerdashboard==0.5.8` no `pyproject.toml`, com `uv sync --locked` verde; o script sobe o painel localmente; nenhum arquivo de modelo é gravado nem lido (`git status` limpo depois de rodar e nenhum `.pkl` ou `.joblib` no disco). Lido: `pyproject.toml:17` e `requirements.txt:58`. Executado: `test_dashboard_is_built_in_memory_without_writing_any_file`. **Não executado aqui:** subir o painel e abrir a página.
+- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`e9836b3`, `a0d853a`, `e4544af`, `38809c1`).
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 

@@ -19,7 +19,7 @@ Lido em 06/10/2026. Repositório único na raiz, com o código em `project/` (de
 
 ## Comandos (build/test/lint)
 
-`project/` ainda não tem `pyproject.toml`. Os comandos abaixo passam a existir com a tarefa 01, rodam dentro de `project/` e são os do gate:
+Os comandos rodam dentro de `project/` e são os do gate (ambiente criado na tarefa 01; estado em 08/10/2026):
 
 | Finalidade | Comando |
 | --- | --- |
@@ -27,12 +27,13 @@ Lido em 06/10/2026. Repositório único na raiz, com o código em `project/` (de
 | Lint | `uv run ruff check .` |
 | Formatação | `uv run ruff format --check .` |
 | Testes | `uv run pytest` |
-| Executar experimento | `uv run python scripts/<experimento>.py` |
+| Executar experimento | `uv run python scripts/<experimento>.py`; os scripts que importam outro script rodam como módulo, `uv run python -m scripts.<nome>` (o comando está na linha "Uso:" de cada um) |
+| Gerar a apresentação | `uv run --group slides python scripts/make_slides.py` |
 
-Hoje só existe um script, sem dependências: `cd project && python3 scripts/metricas_fig4.py`.
+O script `scripts/metricas_fig4.py` roda sem dependências: `cd project && python3 scripts/metricas_fig4.py`.
 
 ## Conflitos entre o plano e as regras
 
-- `docs/06-padroes.md` deixa a versão do Python e das bibliotecas como `[Preencher]`. O plano preenche com as versões verificadas (decisão 03). Não é conflito; a tarefa 01 atualiza o doc.
-- A skill `experimento` manda gravar o commit junto do resultado. O repositório não tem commits ainda; a tarefa 01 cria o primeiro. Sem conflito depois disso.
+- `docs/06-padroes.md` deixava a versão do Python e das bibliotecas como `[Preencher]`. Resolvido: o doc traz as versões fixadas no `pyproject.toml` (decisão 03).
+- A skill `experimento` manda gravar o commit junto do resultado. Resolvido: cada `run.json` grava o commit e `dirty`.
 - Nenhuma regra existente contradiz o plano.
