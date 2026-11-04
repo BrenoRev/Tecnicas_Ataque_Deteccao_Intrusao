@@ -19,7 +19,7 @@ Executado de dentro de `project/`. A raiz do repositório fica um nível acima (
 | G7 | Higiene | nenhum caminho absoluto de máquina; nenhuma referência a documento interno, tarefa, decisão ou identificador de ambiguidade no código, no README ou em `results/` |
 | G8 | Critérios da tarefa | diff relido contra "Critério de aceite", item a item |
 | G9 | Revisão automática | agente `revisor-metodologico` (código e experimento) ou `revisor-de-texto` (texto): nenhum achado bloqueante em aberto |
-| G10 | Revisão humana | pull request lido e aprovado por outro integrante |
+| G10 | Revisão humana | pull request lido e aprovado por outro integrante. **Não se aplica desde 08/10/2026 (decisão 55f):** a versão final foi para a `main` por avanço direto; a leitura do relatório pelos integrantes continua de pessoa |
 
 Comandos:
 
@@ -31,10 +31,10 @@ uv run pytest                                      # G4
 uv run python scripts/<script>.py                  # G5, script que não importa outro script
 uv run python -m scripts.<script>                  # G5, script que importa outro script (lista abaixo)
 uv run python -m scripts.<exp>_resumo              # resumo e agregado, onde o treino não os escreve
-# G6: rodar G5, copiar o metrics.json para fora, rodar de novo e comparar
-cp results/<exp>/<trilha>/<recorte>/seed<k>/metrics.json /tmp/metrics_a.json
-uv run python scripts/<script>.py
-diff /tmp/metrics_a.json results/<exp>/<trilha>/<recorte>/seed<k>/metrics.json
+# G6: a segunda execução grava fora de results/ e é comparada com o versionado
+# (.claude/rules/experimentos.md, regra 6); para tudo de uma vez, a execução limpa:
+bash scripts/execucao_limpa.sh <diretório de logs>
+uv run python scripts/comparar_resultados.py <results versionado> <results regenerado> --report <report versionado> <report regenerado>
 # G7: nenhum dos dois pode devolver linha
 grep -rnE "/Users/|/home/|[A-Z]:\\\\" --include="*.py" src scripts tests data
 grep -rnE "docs/|planejamento/|\.claude/|[Dd]ecis[ãa]o [0-9]|[Tt]arefa [0-9]|\b[AQ][0-9]{1,2}\b" --include="*.py" --include="*.md" --include="*.json" src scripts tests data README.md results
@@ -54,7 +54,7 @@ G2 e G3 também rodam no hook `pre-commit`, em todo commit. G1 a G4 e G7 rodam n
 
 G1 a G4 e G7 existem desde a tarefa 01 (commit `5e11d56`): rodaram verdes em 07/10/2026 na árvore de trabalho e em um clone descartável. No CI, cada checagem do G7 é um passo próprio, e a de arquivo proibido roda na raiz do repositório.
 
-G5 e G6 das tarefas 03 a 16 e da 21 rodam na própria sessão de implementação, nesta máquina (decisão 44); o cluster Apuana continua opção (decisão 42). A comparação do G6 é entre duas execuções na mesma máquina, no mesmo commit. Script que grava mais de um recorte (o de E1 grava as duas leituras de profundidade) tem o G6 conferido em cada `metrics.json`. Resultado gerado em máquinas diferentes pode divergir em casas decimais (versão de BLAS, número de threads); por isso os resultados versionados e a execução limpa da tarefa 19 saem do mesmo ambiente.
+G5 e G6 das tarefas 03 a 16 e da 21 rodaram na própria sessão de implementação, nesta máquina (decisão 44); o cluster Apuana não se aplica, porque não foi usado. A comparação do G6 é entre duas execuções na mesma máquina, no mesmo commit. Script que grava mais de um recorte (o de E1 grava as duas leituras de profundidade) tem o G6 conferido em cada `metrics.json`. Resultado gerado em máquinas diferentes pode divergir em casas decimais (versão de BLAS, número de threads); por isso os resultados versionados e a execução limpa da tarefa 19 saem do mesmo ambiente.
 
 ## Quais itens valem por tipo de tarefa
 
@@ -85,9 +85,11 @@ Executado de dentro de `project/`. Vale para o relatório e para a apresentaçã
 | X6 | As duas leituras de profundidade lado a lado | onde a reprodução é citada | as duas aparecem, nomeadas |
 | X7 | Revisão automática | agente `revisor-de-texto` nos dois documentos | nenhum achado grave em aberto |
 | X8 | Páginas e slides olhados um a um | renderizar o PDF em imagem; exportar os slides | sem tabela cortada, figura ilegível ou texto fora da caixa |
-| X9 | De pessoa | leitura cruzada; `.pptx` aberto no Google Slides; `.tex` no template do Overleaf com XeLaTeX; DOI de cada referência; ensaio cronometrado | registrado no pull request |
+| X9 | De pessoa | leitura do relatório pelos integrantes; ensaio cronometrado. Fechados por Breno em 08/10/2026: `.pptx` no Google Slides, template do Overleaf e DOI das referências | registrado em `docs/07-pendencias.md` (o registro no pull request não se aplica: decisão 55f) |
 
 Conferido em `759ec29`, em 08/10/2026: X1 (executado em diretório temporário, tabelas, índice e `.png` idênticos aos versionados) e X2 (executado: compila em 1,5 s, sem erro e sem referência indefinida; o PDF versionado tem 8 páginas). X3 lido: 14 slides e 11 min 55 s. X4 a X8 informados pela sessão principal, sem artefato para conferir. X9 aberto.
+
+Fechamento em `5999c1b`, em 08/10/2026: X1 a X3 repetidos na execução limpa (passos 20 a 22), com `report/tables/`, o índice e o `relatorio.tex` idênticos. X4 e X5 fechados pela revisão final (`REVISAO-FINAL.md`, V2 e V8): 115 afirmações numéricas recalculadas, as inexatas corrigidas em `3725f27` e `c74fc3f`; nenhuma frase da lista "não pode afirmar". X6 e X8 vistos no PDF, página a página, neste fechamento (os slides não foram vistos em imagem; a conferência deles é a de Breno no Google Slides). X7 fechado: achados do `revisor-de-texto` tratados. X9: restam a leitura do relatório pelos integrantes e o ensaio.
 
 ## Invariantes do domínio
 
@@ -108,13 +110,29 @@ Valores de trilha aceitos: `fiel`, `corrigida`, `variante` e `dados` (E0 e a pre
 
 ## Execução limpa (tarefa 19)
 
-Roda na sessão de implementação (decisão 44), em um clone novo, fora do repositório. Em um diretório novo, sem a pasta de trabalho por perto: `git clone` → `cd project` → `uv sync --locked` → extrair o zip da equipe dentro de `project/`, conforme o `README.md` → os 22 passos da tarefa 19, na ordem (conferência dos dados, treinos, resumos, `make_report_assets.py`, `make_slides.py` com `--group slides`, `tectonic relatorio.tex`) → comparar com o versionado: os 229 `metrics.json` e o `summary.json` de E4, byte a byte; os dois agregados de E8, fora das chaves de tempo; `report/tables/` e `report/INDICE.md`, sem diferença. Os `run.json`, os PDFs e o `.pptx` mudam e não entram na comparação. Tempo estimado: cerca de 9 horas, das quais 8 h 27 min são a soma dos tempos de treino medidos.
+Roda na sessão de implementação (decisão 44), em um clone novo, fora do repositório. Em um diretório novo, sem a pasta de trabalho por perto: `git clone` → `cd project` → `uv sync --locked` → extrair o zip da equipe dentro de `project/`, conforme o `README.md` → os 22 passos da tarefa 19, na ordem (conferência dos dados, treinos, resumos, `make_report_assets.py`, `make_slides.py` com `--group slides`, `tectonic relatorio.tex`) → comparar com o versionado: os 229 `metrics.json` e o `summary.json` de E4, byte a byte; os dois agregados de E8, fora das chaves de tempo; `report/tables/` e `report/INDICE.md`, sem diferença. Os `run.json`, os PDFs e o `.pptx` mudam e não entram na comparação. Os dois agregados de E8 são comparados também sem o campo `commits` (`47cdabe`); das 30 tabelas, as três que citam tempo de treino são só informadas. Os 22 passos estão em `scripts/execucao_limpa.sh` e a comparação em `scripts/comparar_resultados.py`. **Feita em 08/10/2026:** 7 h 30 min, no commit `e2379b7`, 260 de 260 arquivos de `results/` e 56 de 56 de `report/` (`REVISAO-FINAL.md`, "Execução limpa").
 
-Uma primeira execução limpa é feita até 10/11, para o problema aparecer com uma semana de folga. Em 08/10/2026 todos os experimentos já estão executados: ela pode ser feita já, na tarefa 19.
+A execução limpa foi feita em 08/10/2026, antes do limite de 10/11. Os commits posteriores a `e2379b7` só acrescentaram asserções, testes e texto, e regravaram os dois `metrics.json` de SHAP com o que ela gerou; se algum script de treino mudar daqui em diante, ela é repetida nos scripts afetados.
 
-O painel da tarefa 12 (decisão 50) não entra na comparação de `metrics.json`: não grava resultado. Na execução limpa confere-se só que o comando do README o sobe e que nenhum modelo serializado aparece no disco.
+O painel da tarefa 12 (decisão 50) não entra na comparação de `metrics.json`: não grava resultado. Nenhum modelo serializado está versionado (executado). Que o comando do README sobe o painel com os dados reais não tem registro versionado: é o único item aberto que não é de pessoa (tarefa 12, T12-7). (T12-7 fechado em 08/10/2026: painel no ar com os dados reais, HTTP 200 em `127.0.0.1:8050` após 162 s, processo encerrado e árvore limpa.)
 
-## Situação do gate nas tarefas prontas (08/10/2026, commit `759ec29`)
+## Situação do gate no fechamento (08/10/2026, commit `5999c1b`)
+
+Executado neste fechamento, sem treino: `uv run ruff check .` (G2, sem erro), `uv run ruff format --check .` (G3, 74 arquivos formatados), `uv run pytest` (G4, 118 testes verdes em 44 s), `python3 scripts/metricas_fig4.py` (código 0), os dois greps do G7 e o filtro de arquivo proibido (nenhuma linha), `gh run list --branch main` (CI verde em `378f170`) e a instalação com pip em um clone descartável (118 testes verdes). Não executados: G1 (`uv sync --locked`, que o CI roda) e qualquer script de treino.
+
+| Gate | Situação | Evidência |
+| --- | --- | --- |
+| G1 a G4, G7 | verdes | execução acima; CI verde na `main` em `378f170`; `REVISAO-FINAL.md`, V9: os comandos do CI verdes em clone limpo |
+| G5 | fechado em todas as tarefas de dados e de experimento | 229 `run.json` com `dirty: false` e a trilha do caminho (`REVISAO-FINAL.md`, V1); os 229 regenerados na execução limpa também |
+| G6 | **fechado pela execução limpa**, inclusive o de E1, que não tinha registro | 260 de 260 arquivos de `results/`; nenhum valor não determinístico nos `metrics.json` (`REVISAO-FINAL.md`, V5) |
+| G8 | fechado | critério de aceite de cada tarefa conferido item a item neste fechamento, com a evidência ao lado |
+| G9 | **fechado pela revisão final** | `REVISAO-FINAL.md`: nenhum achado bloqueante; cinco importantes e nove menores, todos tratados (seção "Tratamento") |
+| G10 | não se aplica como escrito (decisão 55f) | a `main` avançou sem pull request por tarefa; o histórico com uma identidade foi aceito (decisão 55d) |
+| Gate de texto | X1 a X8 fechados; X9 com dois itens de pessoa | parágrafo de fechamento da seção "Gate de texto" |
+
+Aberto: o registro de que o painel sobe com os dados reais (tarefa 12, T12-7) e o que é de pessoa, listado em `00-README.md`, "O que resta". O CI do commit entregue é conferido no envio dos commits finais. (T12-7 fechado em 08/10/2026: painel no ar com os dados reais, HTTP 200 em `127.0.0.1:8050` após 162 s, processo encerrado e árvore limpa.)
+
+### Registro anterior (08/10/2026, commit `759ec29`)
 
 Executado nesta reconciliação, sem treino em andamento: `uv run ruff check .` (G2, sem erro), `uv run ruff format --check .` (G3, 72 arquivos formatados), `uv run pytest` (G4, 110 testes verdes em 41 s), `python3 scripts/metricas_fig4.py` (código 0), `uv run python data/verify.py` (8 de 8 arquivos), `make_report_assets` em diretório temporário e `tectonic relatorio.tex`. Não executados: G1 (`uv sync --locked`), os dois greps do G7 e qualquer script de treino.
 

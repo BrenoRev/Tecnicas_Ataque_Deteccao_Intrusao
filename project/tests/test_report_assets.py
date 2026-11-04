@@ -22,6 +22,10 @@ REQUIRED_RUN = "e7/fiel/ferramenta/seed42/metrics.json"
 
 def copy_results(target):
     """Copia os arquivos de dados de results/ versionados, sem as imagens e os resumos."""
+    # A cópia parte da pasta versionada, e não de uma árvore sintética, porque
+    # o formato real tem cerca de quarenta arquivos encadeados entre os
+    # experimentos: refazê-lo à mão testaria a cópia, não o que o relatório lê.
+    # A pasta results/ está no repositório; nenhum arquivo de data/ é lido.
     shutil.copytree(RESULTS_DIR, target, ignore=shutil.ignore_patterns("*.png", "*.md"))
     return target
 

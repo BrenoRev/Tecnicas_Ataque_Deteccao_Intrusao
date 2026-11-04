@@ -2,7 +2,7 @@
 
 > **Execução (07/10/2026):** a apresentação é produzida pela tarefa [24](24-entrega-pdfs-finais.md), com o agente `gerador-entregaveis` e os modelos de `geracao_latex_and_pdf/`. Este arquivo continua valendo para o conteúdo exigido e a lista de conferência; em tamanho e formato vale a tarefa 24 (relatório: alvo de 6 páginas, teto de 8; apresentação: 12 a 14 slides em PPTX, para o Google Slides; a apresentação é feita mesmo sem a modificação).
 
-> **Cumprida pela tarefa 24 (08/10/2026, commit `759ec29`):** `report/apresentacao.pptx`, 14 slides, e `report/roteiro.md`, 11 min 55 s, gerados por `scripts/make_slides.py` e revistos pelo `revisor-de-texto`. `report/slides_projeto.pdf` não existe: a entrega é o `.pptx`. **Resta, de pessoa:** abrir no Google Slides e conferir o layout; confirmar a divisão da fala proposta no roteiro; ensaio cronometrado; confirmar com o professor o que a apresentação cobre (passo 1).
+> **Cumprida pela tarefa 24 (08/10/2026, commit `759ec29`):** `report/apresentacao.pptx`, 14 slides, e `report/roteiro.md`, 11 min 55 s, gerados por `scripts/make_slides.py` e revistos pelo `revisor-de-texto`. `report/slides_projeto.pdf` não existe: a entrega é o `.pptx`. **Fechamento de 08/10/2026 (`5999c1b`): concluída.** O `.pptx` foi conferido no Google Slides por Breno; a fala ficou com três integrantes (Amanda, slides 1 a 5; Antonio, 6 a 10; João, 11 a 14; `378f170`); slides e roteiro alinhados às correções do relatório em `c74fc3f`. **Resta, de pessoa:** o ensaio cronometrado e a apresentação de 19/11, com a arguição; o que a apresentação cobre é perguntado ao professor nos encontros (tarefa 23).
 
 **Onde:** modelo de apresentação do CIn (Google Slides); PDF em `report/`
 **Objetivo:** apresentação de 15 minutos em 19/11/2026, exigida das equipes que modificaram o artigo original.
@@ -32,7 +32,7 @@
    - a modificação: hipótese, o que mudou, resultado contra o original nos dois datasets;
    - limitações e o que faríamos em seguida.
 3. Só tópicos, bullets e imagens. Gráficos e tabelas vêm da tarefa 17; nenhum número digitado.
-4. Dividir a fala entre os quatro e distribuir as perguntas prováveis.
+4. Dividir a fala e distribuir as perguntas prováveis. ("Entre os quatro" não se aplica: apresentam três integrantes, definidos por Breno em 08/10/2026.)
 5. Ensaiar cronometrando.
 6. Rodar o agente `revisor-de-texto` sobre os slides.
 
@@ -53,10 +53,12 @@ A especificação exige slides e apresentação de quem faz a modificação opci
 
 ## Critério de aceite
 
-- [ ] Slides no modelo do CIn, exportados em PDF.
-- [ ] Todo número e todo gráfico vem de `report/tables/` ou `report/figures/`.
-- [ ] Ensaio em até 15 minutos, com a divisão de fala registrada.
-- [ ] `revisor-de-texto` sem achado grave em aberto.
+- [x] Slides no modelo do CIn. **Fechado em 08/10/2026:** `report/apresentacao.pptx`, 14 slides (executado: contagem dos `slide*.xml`), montado por `scripts/make_slides.py` a partir de `geracao_latex_and_pdf/Apresentação Padrão CIn-UFPE.pptx`; cópia idêntica em `entregaveis-apresentacao/` (executado: `cmp`). "Exportados em PDF": não se aplica (decisão 53: a entrega é o `.pptx`, para o Google Slides).
+- [x] Todo número e todo gráfico vem de `report/tables/` ou `report/figures/`. **Fechado em 08/10/2026:** `scripts/make_slides.py` lê as células de `report/tables/*.csv` e os `.png` de `report/figures/` (lido em `759ec29`); `REVISAO-FINAL.md`, V8: nenhuma frase proibida nos slides; os números dos slides foram realinhados aos do relatório em `c74fc3f`.
+- [x] Divisão de fala registrada. **Fechado em 08/10/2026:** `report/roteiro.md`, linhas 7 a 11: três integrantes, 11 min 55 s no total (`378f170`). "Entre os quatro": não se aplica, são três.
+- [ ] **Pessoa:** ensaio cronometrado, em até 15 minutos, pelos três que apresentam (item 2 de `docs/07-pendencias.md`, "O que resta de pessoa").
+- [ ] **Pessoa:** apresentação em 19/11/2026 e arguição (item 6 da mesma lista).
+- [x] `revisor-de-texto` sem achado grave em aberto. **Fechado em 08/10/2026:** achados tratados em `dc5fb1c` e `759ec29`; `REVISAO-FINAL.md`, V8, e `c74fc3f`.
 
 ## Testes
 

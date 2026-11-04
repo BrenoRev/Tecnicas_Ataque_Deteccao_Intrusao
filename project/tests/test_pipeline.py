@@ -3,11 +3,12 @@ import json
 import pytest
 
 import scripts.e1_reproducao as e1
+import scripts.e2_baselines as e2
 import scripts.e4_corrigido as e4
 import scripts.e4_resumo as e4_resumo
 import scripts.e6_dataset2 as e6
 from doh_ids import system
-from doh_ids.config import CLASS_NAMES, CORRIGIDA_MODELS, FEATURE_COLUMNS, MAX_DEPTH
+from doh_ids.config import CLASS_NAMES, CORRIGIDA_MODELS, CV_FOLDS, FEATURE_COLUMNS, MAX_DEPTH
 from doh_ids.data import class_counts
 from doh_ids.splits import stratified_split
 
@@ -71,6 +72,50 @@ def test_cross_validation_scaler_never_sees_the_held_out_fold(synthetic_flows, m
     assert [in_fit for in_fit, _ in seen].count(False) == 1
     for in_fit, scaler_maximum in seen:
         assert (scaler_maximum == planted_value) == in_fit
+
+
+def test_cross_validation_scales_the_held_out_fold_with_the_scaler_of_its_fit_folds(
+    synthetic_flows, monkeypatch
+):
+    train, _ = stratified_split(synthetic_flows, SEED)
+    # Um valor extremo em uma única linha. Na rodada em que ela é o fold de
+    # fora, o normalizador não a viu e ela sai ordens de grandeza acima de 1;
+    # com um normalizador ajustado no treino inteiro ela sairia 1, a menos do
+    # arredondamento. O limiar 10 separa os dois casos com folga.
+    train.loc[train.index[0], FEATURE_COLUMNS[0]] = 1e6
+    held_out_maxima = []
+
+    def recording_fit_system(fold_train, seed, max_depth):
+        scaler, stacked, summary, timings = fit_system(fold_train, seed, max_depth)
+        predict = stacked.predict
+
+        def recording_predict(X_held_out):
+            held_out_maxima.append(X_held_out[:, 0].max())
+            return predict(X_held_out)
+
+        stacked.predict = recording_predict
+        return scaler, stacked, summary, timings
+
+    fit_system = system.fit_system
+    monkeypatch.setattr(system, "fit_system", recording_fit_system)
+    system.cross_validated_confusion(train, SEED, MAX_DEPTH)
+
+    assert len(held_out_maxima) == CV_FOLDS
+    assert [maximum > 10 for maximum in held_out_maxima].count(True) == 1
+
+
+def test_baselines_are_fitted_on_the_train_rows_and_evaluated_on_the_test_rows(synthetic_flows):
+    test, evaluated = e2.evaluate_baselines(synthetic_flows)
+
+    train, expected_test = stratified_split(synthetic_flows, SEED)
+    assert list(test.index) == list(expected_test.index)
+    for entry in evaluated.values():
+        metrics = entry["metrics"]
+        assert metrics["train_rows"] == class_counts(train)
+        # O SMOTE iguala as classes à maior do treino: com o teste junto, o
+        # treino balanceado teria a maior classe da tabela inteira.
+        assert metrics["balanced_train_rows"] == [max(class_counts(train))] * len(CLASS_NAMES)
+        assert metrics["test"]["total"] == len(test)
 
 
 def test_transfer_scales_the_second_dataset_with_the_scaler_of_the_first_train(

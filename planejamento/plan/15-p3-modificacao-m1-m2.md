@@ -18,14 +18,14 @@
 - **O ⚠️ REVISAR está resolvido pelas decisões 52 e 54:** referência é o A de profundidade variável; M1 usa (10, sem limite, 28) e `M1-prof5` vai ao lado, contra `A-prof5`; a grade tem oito combinações, com (10, sem limite, 28).
 - **Desvios que ficaram:** a seleção usa 25% do treino de cada seed, estratificada (decisão 54a), e o resumo declara; o passo 8, a explicabilidade do modelo modificado, **não foi feito** e está declarado assim em `RESUMO.md:501`; a transferência de M1M2 ao HKD foi medida nas dez seeds (`hkd_transfer`); o resumo e as tabelas trazem uma análise acrescentada depois da execução, marcada como posterior e fora dos pares fixados antes dela.
 - **`summary.json` traz tempos** (`train_seconds`, `selection_seconds`, `time_checks`), lidos dos `run.json`: não repete entre execuções. A comparação da execução limpa (tarefa 19) ignora essas chaves.
-- **Pendente de pessoa:** a integração (G10).
+- **Concluída (08/10/2026).** Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
 
-- Dependências: 11, 12 e 14 a fazer. Da 14 basta a parte 14a (o sistema no combinado sem réplicas); a 14b não é pré-requisito.
-- **Sistema base (decisão 45):** o "original" é o empilhado de profundidade variável. Efeito sobre M1 e a grade: ver o ⚠️ REVISAR acima.
+- Dependências: 11, 12 e 14 concluídas. Da 14 basta a parte 14a (o sistema no combinado sem réplicas); a 14b não é pré-requisito.
+- **Sistema base (decisão 45):** o "original" é o empilhado de profundidade variável. Efeito sobre M1 e a grade: resolvido pelas decisões 52 e 54 (bloco acima).
 - `CV_FOLDS = 10` e `CV_SHUFFLE` estão em `config.py` desde `4746c22` e são da validação cruzada da Fig. 4a. Os 5 folds de M2 (decisão 25) são outra constante, com outro nome.
 - O cuidado de `base_forests` vale para o modelo modificado: `n_jobs=1` depois do ajuste, para `predict_proba` repetir entre execuções (G6).
 - **Ponto sem valor declarado:** o nome dos recortes `<modelo>-<dataset>` quando A existe em duas leituras de profundidade. Ver "Pendências abertas pela decisão 45" em `00-README.md`.
@@ -63,8 +63,8 @@ Medido nos arquivos de `project/data/raw/`; detalhe em `docs/08-inventario-dados
 
 1. Rodar a skill `experimento` para E8, trilha corrigida. Escrever a hipótese em `results/e8/corrigida/HIPOTESE.md` antes de rodar, em commit anterior à primeira execução: o que se espera melhorar e o que contaria como não ter melhorado.
 2. **Modelo modificado, fixado antes de qualquer resultado (decisão 25):** um Random Forest único, sem SMOTE, com `class_weight='balanced'` (M1) e hiperparâmetros selecionados por validação cruzada dentro do treino (M2). A divisão em três subconjuntos existe no artigo para repartir o custo do SMOTE; sem SMOTE ela perde a razão de ser, e por isso o modelo modificado não a mantém. Essa escolha de arquitetura não depende dos resultados da tarefa 11.
-3. **Seleção de hiperparâmetros (M2), aninhada por seed.** Grade pequena, declarada em `config.py` antes de rodar, com no máximo oito combinações de profundidade, número de árvores e `max_features`, incluindo os valores do artigo (5, 10, 28) (`[Decidir: a grade; proposta em "Pendentes da equipe"]`). Validação cruzada estratificada de 5 folds dentro do treino da seed, com um `Pipeline` cujo primeiro passo é o `MinMaxScaler`, de modo que o scaler é reajustado em cada fold. Métrica de seleção: F1 macro. O teste da seed não participa.
-4. Antes de lançar tudo, cronometrar uma combinação em uma seed e estimar o total. Se passar do que cabe em uma noite, fazer a seleção em uma subamostra estratificada do treino, de fração declarada em `config.py` (`[Decidir: fração; proposta em "Pendentes da equipe"]`), e dizer isso no relatório.
+3. **Seleção de hiperparâmetros (M2), aninhada por seed.** Grade pequena, declarada em `config.py` antes de rodar, com no máximo oito combinações de profundidade, número de árvores e `max_features`, incluindo os valores do artigo (5, 10, 28) (resolvido pelas decisões 52 e 54b: oito combinações, `config.MODIFIED_GRID`). Validação cruzada estratificada de 5 folds dentro do treino da seed, com um `Pipeline` cujo primeiro passo é o `MinMaxScaler`, de modo que o scaler é reajustado em cada fold. Métrica de seleção: F1 macro. O teste da seed não participa.
+4. Antes de lançar tudo, cronometrar uma combinação em uma seed e estimar o total. Se passar do que cabe em uma noite, fazer a seleção em uma subamostra estratificada do treino, de fração declarada em `config.py` (resolvido pela decisão 54a: 25%, `config.MODIFIED_SELECTION_FRACTION`), e dizer isso no relatório.
 5. Modelos avaliados, dez seeds, mesmos splits da tarefa 11:
 
 | Modelo | O que é | Para que serve |
@@ -108,11 +108,11 @@ Objetivo P3 e decisões 02 e 25. M1 responde à crítica de que cerca de 92% da 
 - [x] Comparação pareada com A gravada, com método e ressalva. Lido: `paired.method`, `paired.caveat` e `paired.reading_rule`.
 - [x] Nenhuma amostra sintética no treino de M1 e M1+M2 (asserção de tamanho). Lido: `fit_rows` igual a `train_rows` (800.828 / 17.771 / 224.598 na seed 3). Executado: `test_modified_model_is_fitted_on_the_rows_of_the_original_train`.
 - [x] Métricas com e sem duplicatas em toda seed, nos dois datasets. Lido: `scopes` com `test` e `test_unseen`; `test_unseen` em cada `metrics.json`.
-- [ ] Texto de resultado não afirma melhora que os números não mostram (revisor metodológico). Informado pela sessão principal como revisto; a lista do que pode e do que não pode ser afirmado está na tarefa 24 (`c715add`). Sem artefato da revisão para conferir aqui.
+- [x] Texto de resultado não afirma melhora que os números não mostram (revisor metodológico). **Fechado em 08/10/2026:** `REVISAO-FINAL.md`, V8: os nove itens "pode afirmar" conferem com os dados e nenhuma frase proibida aparece como afirmação no relatório nem nos slides; achados M1 a M3 (razão de tempo, "meio ponto", regra pareada) corrigidos em `3725f27` e `c74fc3f`. Em `results/e8/corrigida/RESUMO.md`, "melhora" só aparece como veredito da regra fixada antes da execução (lido).
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
-O script roda na própria sessão de implementação, nesta máquina, quando a tarefa chega ao ponto de executar (decisão 44); não se espera um integrante designado. O Apuana continua sendo opção (decisão 42). A evidência é a mesma: resultados em `results/`, `run.json` com máquina, núcleos, versões e commit, e a saída colada no pull request. Só se a execução for no Apuana, a tarefa ganha `jobs/e8.sh`, script de submissão ao Slurm (`[Preencher: partição, núcleos, memória, tempo]`). As dez seeds podem ser um job por seed, em paralelo; para isso o script aceita a seed como argumento e a agregação do `summary.json` roda depois, em um passo próprio. A execução é feita com a árvore limpa (o plano em commit antes de rodar, porque `dirty` mede o repositório inteiro) e o resultado entra em commit `exp`. Os dois fechamentos, "pronta" e "executada", acontecem na mesma sessão.
+O script rodou na própria sessão de implementação, nesta máquina (decisão 44). **Não se aplica:** o Apuana e o script de submissão em `jobs/` (decisão 44: nada rodou no cluster, a pasta não existe); a saída colada no pull request (decisão 55f: não houve pull request por tarefa). A evidência é a que está versionada: resultados em `results/`, `run.json` com a máquina, os núcleos, as versões, o commit e `dirty: false`, e a execução limpa de 08/10/2026, que regenerou os mesmos `metrics.json` em um clone novo (`REVISAO-FINAL.md`, "Execução limpa"). Os dois fechamentos, "pronta" e "executada", aconteceram na mesma sessão.
 
 ## Testes
 

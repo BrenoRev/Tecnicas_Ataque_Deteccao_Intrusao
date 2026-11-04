@@ -102,9 +102,11 @@ aparecem no segundo dataset (project/results/e6/RESUMO.md).
 
 4. O QUE JÁ FOI FEITO E O QUE FALTA
 
-O plano tem 24 tarefas. Em 07 e 08/10/2026 o código foi escrito e todos os
-experimentos rodaram com os dados reais. Os resultados estão em
-project/results, um resumo (RESUMO.md) por experimento.
+O plano tem 25 tarefas; a última é a revisão final em código. Todas as
+de código e de texto estão cumpridas; da tarefa 23 restam os encontros
+com o professor. Em 07 e 08/10/2026 o código foi escrito e todos os experimentos
+rodaram com os dados reais. Os resultados estão em project/results, um
+resumo (RESUMO.md) por experimento.
 
 Feito
   - Ambiente com versões fixadas, lint, testes, hooks de commit e a
@@ -123,29 +125,37 @@ Feito
   - P3: Random Forest único, sem dados sintéticos, com ponderação de classe
     e hiperparâmetros selecionados dentro do treino, nos dois datasets; e a
     robustez à duração do fluxo, como perturbação dos atributos.
-  - Tabelas e figuras geradas por script, relatório em PDF (8 páginas) e
-    apresentação em PPTX (14 slides), em project/report.
+  - Tabelas e figuras geradas por script, relatório em PDF (8 páginas),
+    apresentação em PPTX (14 slides) e roteiro da fala (11 min 55 s), em
+    project/report, com cópia em entregaveis-apresentacao/.
+  - README com a ordem dos 22 passos e execução limpa em 08/10/2026: tudo
+    rodado do zero em um clone novo, em 7 h 30 min, com 260 de 260
+    arquivos de resultado e 56 de 56 do relatório iguais aos versionados.
+  - Revisão final em código, sem achado bloqueante e com todos os achados
+    tratados (planejamento/plan/REVISAO-FINAL.md). A suíte tem 118 testes.
+  - Licença MIT (arquivo LICENSE).
+  - Conferência dos valores digitados a partir do artigo, feita pelo
+    assistente em duas passagens, e não por dois integrantes (decisão 55).
 
-Falta, e é quase tudo de pessoa
-  - Enviar as branches e abrir os pull requests, na ordem das tarefas;
-    outro integrante lê e aprova cada um. Nada está na main ainda.
-  - Dois integrantes conferem, contra o PDF do artigo, os valores que foram
-    digitados a partir dele (metade de baixo da Tabela II e os valores
-    lidos das Figuras 5, 7 e 8).
-  - Escolher a licença do repositório.
-  - Conferir cada referência na fonte, com DOI.
-  - Abrir a apresentação no Google Slides e conferir; confirmar quem fala
-    o quê; ensaiar com cronômetro.
-  - Subir o relatório no Overleaf e compilar com XeLaTeX.
-  - Conversar com o professor: as duas leituras de profundidade; o
-    conjunto combinado como "outro dataset"; a ferramenta de túnel.
-  - Completar o README com a ordem dos scripts e rodar tudo do zero em uma
-    máquina limpa, por quem não escreveu o código.
-  - Rodar a checklist do projeto e enviar o PDF e o link do GitHub (18/11).
-  - Apresentar em 19/11. É obrigatório, porque P3 foi feito.
+Falta, e é de pessoa
+  - Enviar os últimos commits ao GitHub e avançar a main (a main está em
+    um commit anterior à revisão final).
+  - Ensaiar a apresentação com cronômetro. Apresentam três: Amanda,
+    Antonio e João.
+  - Seminário: ajustar o material, entregar os slides em 14/10 e
+    apresentar em 15 ou 20/10.
+  - Encontros com o professor em 10/11 e 17/11, com a página
+    docs/09-acompanhamento-professor, e registrar o retorno.
+  - Entregar em 18/11: rodar a checklist, enviar o PDF e o link do GitHub
+    e guardar o comprovante.
+  - Apresentar em 19/11 (obrigatório, porque P3 foi feito) e preparar a
+    arguição.
+  - Os quatro leem o relatório: todos precisam conseguir defendê-lo.
 
-A lista completa, com a evidência de cada item, está em
-POS-IMPLEMENTACAO.md e em docs/07-pendencias.
+Esta lista é um resumo. A lista única e completa, com o que já foi
+fechado e a evidência de cada item, está em docs/07-pendencias, seção
+"O que resta de pessoa". POS-IMPLEMENTACAO.md traz a evidência de cada
+item já cumprido.
 
 
 5. REGRAS QUE VALEM PARA TODO O CÓDIGO
@@ -190,11 +200,14 @@ Respondidas em 07/10/2026 (texto das respostas em docs/07-pendencias)
   6. O painel interativo precisa ser reproduzido? Não é necessário. A
      equipe fez.
 
-Sem resposta
+Sem resposta do professor; fechadas pela equipe em 08/10/2026 (decisão 55)
+Nenhuma das três é resposta dele. Se ele disser outra coisa nos encontros
+de 10/11 e 17/11, ajusta-se.
   7. O relatório precisa de uma frase declarando o uso de assistente de IA?
-     (O uso está aprovado.)
-  8. O relatório tem limite de páginas? Pode ser em português?
-  9. O repositório deve ser público ou privado? Hoje está público.
+     (O uso está aprovado.) A equipe fechou: sem frase.
+  8. O relatório tem limite de páginas? Pode ser em português? A equipe
+     fechou: em português, com até 8 páginas.
+  9. O repositório deve ser público ou privado? A equipe fechou: público.
 
 
 7. ONDE ESTÁ CADA COISA
@@ -204,10 +217,18 @@ Sem resposta
                                versionado junto. Ficam fora do Git os
                                datasets e o PDF do artigo.
 
-  project/                     código, testes, README, resultados
-                               (results/) e relatório, slides, tabelas e
-                               figuras (report/). Os comandos rodam
-                               dentro dela.
+  README.md                    página de apresentação do projeto no GitHub
+
+  LICENSE                      licença MIT do código
+
+  project/                     código, testes, README com o guia técnico,
+                               resultados (results/) e relatório, slides,
+                               tabelas e figuras (report/). Os comandos
+                               rodam dentro dela.
+
+  entregaveis-apresentacao/    cópia do relatório em PDF, da apresentação
+                               em PPTX e do roteiro que estão em
+                               project/report
 
   docs/                        central de conhecimento
     01-requisitos              o que é cobrado e as seções do relatório
@@ -216,24 +237,29 @@ Sem resposta
     04-dados                   datasets, colunas, contagens
     05-plano-experimental      os experimentos e as métricas
     06-padroes                 código, commits, escrita, revisão
-    07-pendencias              perguntas ao professor e cronograma
+    07-pendencias              perguntas ao professor, cronograma e a
+                               lista única do que resta
     08-inventario-dados        o que há nos arquivos baixados
-    referencias/               especificação oficial do professor e PDF
-                               do artigo
+    09-acompanhamento-professor  página de status e perguntas para os
+                               encontros de 10/11 e 17/11
+    referencias/               especificação oficial do professor; o PDF
+                               do artigo fica aqui, fora do Git
 
-  POS-IMPLEMENTACAO.md         o que fazer, documentar e evidenciar depois
-                               que o código estiver pronto, até a entrega
+  POS-IMPLEMENTACAO.md         o que foi feito depois do código, com a
+                               evidência de cada item, até a entrega
 
   planejamento/                plano de implementação
-    plan/00-README             índice das 24 tarefas, ordem e cortes
-    plan/01 a 24               uma tarefa por arquivo
+    plan/00-README             índice das 25 tarefas, ordem e cortes
+    plan/01 a 25               uma tarefa por arquivo
+    plan/REVISAO-FINAL         resultado da revisão final em código, o
+                               tratamento de cada achado e a execução
+                               limpa
     plan/VERIFICACAO           o que conferir antes de dar uma tarefa
                                como pronta
     plan/PLANO-DE-TESTES       os testes de cada tarefa e o que roda no CI
     plan/ENTREGAS-DEMONSTRAVEIS  requisito do professor → tarefa → artefato
                                demonstrável, e o que mostrar em cada marco
-    MEMORY/00-decisoes-travadas   as 54 decisões já tomadas e as pendências
-                                  da equipe
+    MEMORY/00-decisoes-travadas   as 55 decisões tomadas
     MEMORY/STATUS              onde paramos e o próximo passo
 
   project/scripts/metricas_fig4.py  recalcula as métricas do artigo a partir da
@@ -242,6 +268,8 @@ Sem resposta
   CLAUDE.md e .claude/         regras de código, commit, teste e fluxo
                                (.claude/rules), agente implementador,
                                agentes de revisão e checklists
+    .claude/rules/experimentos   regras de experimento que nasceram na
+                               implementação
 
   geracao_latex_and_pdf/       modelos do relatório (LaTeX) e dos slides
                                (PPTX do CIn)
@@ -250,14 +278,15 @@ Sem resposta
 8. DATAS
 
   07/10   perguntas enviadas ao professor e seis respondidas (feito)
-  07 e 08/10   código, experimentos, relatório e slides (feito)
+  07 e 08/10   código, experimentos, relatório, slides, execução limpa e
+          revisão final (feito)
   14/10   slides do seminário no Classroom
   15/10 e 20/10   apresentação do seminário
   10/11   acompanhamento com o professor
-  13/11   experimentos congelados: depois disso, só correção
   17/11   acompanhamento com o professor
   18/11   entrega do relatório e do link do GitHub
   19/11   apresentação do projeto (há modificação)
 
-A data de 13/11 é meta interna. As de 14/10 em diante são do calendário da
-disciplina.
+As datas de 14/10 em diante são do calendário da disciplina. A meta
+interna de congelar os experimentos em 13/11 foi cumprida em 07 e
+08/10/2026.

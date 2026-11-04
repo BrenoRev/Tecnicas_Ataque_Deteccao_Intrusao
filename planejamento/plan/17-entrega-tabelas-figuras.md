@@ -14,7 +14,7 @@
 - **Comando real:** `uv run python scripts/make_report_assets.py`. Não treina e não lê os dados: lê `results/` inteiro (inclusive `results/e3/variante/comparacao.csv`, `results/e4/corrigida/summary.json`, `results/e8/corrigida/summary.json` e `summary-robustez.json`, que saem dos scripts de resumo) e `config.py` (a metade inferior da Tabela II). É o último passo antes dos entregáveis. Roda em segundos.
 - **Resultados:** 30 tabelas em `report/tables/`, cada uma em `.tex` e em `.csv`; 13 figuras em `report/figures/`, cada uma em `.pdf` e em `.png`; `report/INDICE.md` com a origem e a legenda sugerida de cada item. O sufixo `_dupla` marca o que pede a largura da página.
 - **Desvios que ficaram:** cada tabela ganhou um `.csv` e cada figura um `.png`, que é o que `make_slides.py` lê; a lista final de itens é a do `INDICE.md`, não a do passo 1; nos `.tex` o separador decimal é a vírgula, nos `.csv` e nos eixos, o ponto. As Figs. 2 e 9 são redesenhadas a partir dos CSVs de curvas gravados por `e0_dados.py` e `e7_ferramenta.py`.
-- **Pendente de pessoa:** a amostragem de três números por tabela, registrada no pull request; a integração (G10).
+- **Concluída (08/10/2026).** A amostragem de três números por tabela foi superada pela recomputação completa da revisão final (`REVISAO-FINAL.md`, V2). Integrada na `main` por avanço direto, sem pull request por tarefa (decisão 55f).
 
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
@@ -25,7 +25,7 @@
 | Resultado do artigo | Equivalente nosso | Fonte | Tarefa que gera a fonte |
 | --- | --- | --- | --- |
 | Tabela I (contagens por classe) | reconciliação bruta e limpa ao lado da Tabela I | `results/e0/` | 04 (feita) |
-| Fig. 2 (densidade por classe de `FlowBytesReceived`, da média e da variância do comprimento de pacote) | a mesma figura, com os nossos dados | `results/e0/` | complemento da 04 (a fazer) |
+| Fig. 2 (densidade por classe de `FlowBytesReceived`, da média e da variância do comprimento de pacote) | a mesma figura, com os nossos dados | `results/e0/` | complemento da 04 (feito em `39a7007`) |
 | Fig. 4a e Fig. 4b (matrizes de confusão) | matrizes de validação cruzada e de teste, nas duas leituras de profundidade, com a diferença | `results/e1/fiel/`, `results/e1/variante/` | 08 (feita) |
 | Tabela II, metade superior | três baselines e o proposto nas duas leituras, ao lado do artigo | `results/e1/`, `results/e2/` | 08, 09 |
 | Tabela II, metade inferior (literatura) | as oito linhas, com a referência | `config.py` | 09 |
@@ -101,15 +101,15 @@ Decisão 18 e risco R10. É o que garante o item "nenhum número do relatório s
 
 ## Risco
 
-- O template Overleaf ainda não foi lido: o formato de tabela pode precisar de ajuste. Abrir o template antes de fixar o formato dos `.tex`.
+- (Superado: a tarefa 24 usou `geracao_latex_and_pdf/template.tex` e as tabelas entram no relatório por `\input`.) O template Overleaf ainda não tinha sido lido: o formato de tabela pode precisar de ajuste. Abrir o template antes de fixar o formato dos `.tex`.
 - Misturar trilhas em uma tabela (risco R7): o script lê a trilha do `run.json` e recusa juntar trilhas diferentes sem coluna que as identifique.
 
 ## Critério de aceite
 
 - [x] `uv run python scripts/make_report_assets.py` gera todos os itens da lista a partir de um `results/` completo. Executado em `759ec29`, com saída em diretório temporário: nenhum item "não gerado".
 - [x] Apagar `report/tables/` e rodar de novo produz arquivos `.tex` idênticos (`diff -r`). As figuras em PDF não são comparadas byte a byte, porque o arquivo carrega a data de criação. Executado: `diff -rq` entre o diretório temporário e `report/tables/` sem diferença, nos 30 `.tex` e nos 30 `.csv`; `INDICE.md` idêntico; os 13 `.png` idênticos byte a byte.
-- [ ] Toda tabela de resultado de modelo traz na legenda a trilha, a seed ou o número de seeds, e o nome da média. Tabelas de contagem de dados e de literatura não têm trilha. Conferido na revisão, tabela por tabela. Executado: `test_model_tables_name_track_seed_and_average_in_caption` e `test_tables_with_both_depth_readings_identify_each_one`. A conferência tabela por tabela é de pessoa.
-- [ ] Amostragem do passo 7 feita e registrada no pull request. De pessoa.
+- [x] Toda tabela de resultado de modelo traz na legenda a trilha, a seed ou o número de seeds, e o nome da média. Tabelas de contagem de dados e de literatura não têm trilha. **Fechado em 08/10/2026:** executado em `5999c1b`: `test_model_tables_name_track_seed_and_average_in_caption` e `test_tables_with_both_depth_readings_identify_each_one`, verdes, cobrem todas as tabelas de modelo; visto no PDF do relatório, página a página: as Tabelas IV, V, VII, VIII, IX e X trazem a leitura de profundidade, a seed ou "10 seeds" e o nome da média. A conferência das 30 tabelas uma a uma por uma pessoa não foi feita; fica coberta pelos dois testes.
+- [x] Amostragem do passo 7 feita. **Fechado em 08/10/2026:** `REVISAO-FINAL.md`, V2, fez mais que a amostragem: 362 matrizes e 11.266 métricas recalculadas, 2.811 valores dos três agregados e as 60 tabelas (`.tex` e `.csv`), as 26 figuras e o índice regenerados idênticos, com 0 divergências. O registro no pull request: não se aplica (decisão 55f).
 
 ## Testes
 
