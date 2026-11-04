@@ -121,7 +121,7 @@ SLIDES = [
             "limpeza ficaram fixos.",
             "As duas leituras de profundidade têm apoio no texto; reportamos as duas.",
             "Os experimentos seguintes usam a leitura de profundidade variável como base, "
-            "porque a outra não prediz uma das classes.",
+            "porque a outra tem recall 0 em uma das classes.",
             "Protocolo corrigido: dez seeds em vez de uma, comparação pareada no mesmo "
             "split, teste sem vetores repetidos e folds por máquina.",
             "Um script por experimento; resultado gravado com seed, versões e commit.",
@@ -331,7 +331,7 @@ SLIDES = [
             "0,0015% para 0,0048%.",
             "Com profundidade 5, o modelo único recupera o recall de Benign-DoH (87,64%), "
             "mas com precisão de 26,23% e F1 macro de 78,66%.",
-            "Tempo: 1,6 vez no CIRA e 2,3 vezes no combinado; o tempo de A no CIRA foi "
+            "Tempo: 1,6 vez no CIRA e cerca de 2,2 vezes no combinado; o tempo de A no CIRA foi "
             "medido sob outra carga e, reajustado, é 112,5 s (2,3 vezes).",
             "Não dizemos que a modificação reduz falsos positivos: no CIRA é cerca de um "
             "fluxo por teste, e não se repete no combinado.",
@@ -367,7 +367,7 @@ SLIDES = [
             "O sistema não detectou as três ferramentas do HKD, de outra captura: recall de 1,81%",
             "Um atributo separa quase todo o malicioso do CIRA: captura e classe se confundem",
             "Um Random Forest único com peso de classe supera o empilhamento em F1 macro, "
-            "por 0,5 ponto",
+            "por cerca de meio ponto",
             "Nossa parte: reprodução com uma seed; fragmentação só simulada; a modificação "
             "treina em mais tempo",
         ],
