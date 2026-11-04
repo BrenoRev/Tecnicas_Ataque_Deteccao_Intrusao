@@ -5,6 +5,17 @@
 **Depende de:** 08, 09, 12, 14, 21 e o complemento da 04 com a Fig. 2 (obrigatórias); 10, 11, 15, 16 entram se concluídas
 **Demonstra:** `report/tables/` e `report/figures/` regenerados por um comando a partir de `results/`. Toda tabela e figura das seções 6 e 7.
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** Script em `ef6ffce`; ajustes em `3bb7c85`, `81a2928`, `48a31b8` e `30a7985`; arquivos gerados em `9aeda1d`, `65062da`, `b2a54de` e `16b7f39`.
+- **Arquivos:** `scripts/make_report_assets.py`, `src/doh_ids/summary.py` (tabela Markdown e constantes, levadas dos scripts para o pacote em `32f587e`), `tests/test_report_assets.py`, `report/INDICE.md`, `report/tables/` e `report/figures/`.
+- **Comando real:** `uv run python scripts/make_report_assets.py`. Não treina e não lê os dados: lê `results/` inteiro (inclusive `results/e3/variante/comparacao.csv`, `results/e4/corrigida/summary.json`, `results/e8/corrigida/summary.json` e `summary-robustez.json`, que saem dos scripts de resumo) e `config.py` (a metade inferior da Tabela II). É o último passo antes dos entregáveis. Roda em segundos.
+- **Resultados:** 30 tabelas em `report/tables/`, cada uma em `.tex` e em `.csv`; 13 figuras em `report/figures/`, cada uma em `.pdf` e em `.png`; `report/INDICE.md` com a origem e a legenda sugerida de cada item. O sufixo `_dupla` marca o que pede a largura da página.
+- **Desvios que ficaram:** cada tabela ganhou um `.csv` e cada figura um `.png`, que é o que `make_slides.py` lê; a lista final de itens é a do `INDICE.md`, não a do passo 1; nos `.tex` o separador decimal é a vírgula, nos `.csv` e nos eixos, o ponto. As Figs. 2 e 9 são redesenhadas a partir dos CSVs de curvas gravados por `e0_dados.py` e `e7_ferramenta.py`.
+- **Pendente de pessoa:** a amostragem de três números por tabela, registrada no pull request; a integração (G10).
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
@@ -27,7 +38,7 @@
 - A Fig. 2 e a Fig. 9 são densidades calculadas sobre os dados, que este script não lê: quem as calcula é o script que lê os dados (`scripts/e0_dados.py` e `scripts/e7_ferramenta.py`), e este script só as leva para `report/figures/`.
 - Fonte dos tempos de treino: chave `timings` do `run.json` (`subsets_seconds`, `base_fit_seconds`, `meta_fit_seconds`, `cross_validation_seconds`, `total_seconds` em E1).
 - Chaves que este script lê de `results/e1/<trilha>/<recorte>/seed42/metrics.json`: ver o bloco "Como ficou" da tarefa 08.
-- Q9 (idioma e limite de páginas) continua sem resposta: o passo 6 segue valendo.
+- Q9 (idioma e limite de páginas) continua sem resposta. A decisão 53 fixou o relatório em português, com alvo de 6 páginas e teto de 8: o relatório usa um subconjunto dos itens, e o resto fica no repositório.
 
 ## Arquivos
 
@@ -95,10 +106,10 @@ Decisão 18 e risco R10. É o que garante o item "nenhum número do relatório s
 
 ## Critério de aceite
 
-- [ ] `uv run python scripts/make_report_assets.py` gera todos os itens da lista a partir de um `results/` completo.
-- [ ] Apagar `report/tables/` e rodar de novo produz arquivos `.tex` idênticos (`diff -r`). As figuras em PDF não são comparadas byte a byte, porque o arquivo carrega a data de criação.
-- [ ] Toda tabela de resultado de modelo traz na legenda a trilha, a seed ou o número de seeds, e o nome da média. Tabelas de contagem de dados e de literatura não têm trilha. Conferido na revisão, tabela por tabela.
-- [ ] Amostragem do passo 7 feita e registrada no pull request.
+- [x] `uv run python scripts/make_report_assets.py` gera todos os itens da lista a partir de um `results/` completo. Executado em `759ec29`, com saída em diretório temporário: nenhum item "não gerado".
+- [x] Apagar `report/tables/` e rodar de novo produz arquivos `.tex` idênticos (`diff -r`). As figuras em PDF não são comparadas byte a byte, porque o arquivo carrega a data de criação. Executado: `diff -rq` entre o diretório temporário e `report/tables/` sem diferença, nos 30 `.tex` e nos 30 `.csv`; `INDICE.md` idêntico; os 13 `.png` idênticos byte a byte.
+- [ ] Toda tabela de resultado de modelo traz na legenda a trilha, a seed ou o número de seeds, e o nome da média. Tabelas de contagem de dados e de literatura não têm trilha. Conferido na revisão, tabela por tabela. Executado: `test_model_tables_name_track_seed_and_average_in_caption` e `test_tables_with_both_depth_readings_identify_each_one`. A conferência tabela por tabela é de pessoa.
+- [ ] Amostragem do passo 7 feita e registrada no pull request. De pessoa.
 
 ## Testes
 

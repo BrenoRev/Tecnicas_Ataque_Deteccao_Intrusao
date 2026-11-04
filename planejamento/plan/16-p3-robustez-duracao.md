@@ -7,6 +7,18 @@
 
 > **Tarefa cortável.** É a primeira a sair se o prazo apertar (decisão 02). Só começa com a 15 fechada e o rascunho do relatório em andamento.
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada, partes A e B.** Hipótese e modelo de ameaça em `a544624`; `robustness.py` em `5be854b`; script em `1529734`; `7cb7158` (resumo); resultados em `df16ca5`; leitura descritiva posterior em `ad9a6f4` e `2313597`; teste em `5fed0ac`. Os 90 `run.json` trazem o commit `1529734` e `dirty: false` (lido).
+- **Arquivos:** `src/doh_ids/robustness.py` (`kept_features`, `drop_features`, `fragment_malicious`), `src/doh_ids/config.py` (`ROBUSTNESS_MODELS`, `FRAGMENTATION_FACTORS`), `scripts/e8_robustez.py` (só treina e grava), `scripts/e8_robustez_resumo.py`, `tests/test_robustness.py`.
+- **Comando real:** `uv run python -m scripts.e8_robustez` e, depois, `uv run python -m scripts.e8_robustez_resumo`. O treino importa os scripts de E4 e de E8, lê `cira.parquet`, `results/e4/corrigida/{A,A-prof5}/` e **`results/e8/corrigida/M1M2-cira/`** (os hiperparâmetros que a seleção já gravada escolheu em cada seed; não há nova seleção): roda depois de `e8_modificacao`. Confere por asserção que a matriz com todos os atributos é a da execução já gravada. Retomável por commit, como o script da modificação. Tempo medido: A 3.294 s, M1M2 2.552 s e A-prof5 1.154 s nos três conjuntos de colunas; 7.000 s, cerca de 2 horas.
+- **Resultados:** `results/e8/corrigida/robustez-{A,A-prof5,M1M2}-{todos,sem_duration,sem_duration_taxas}/seed<0..9>/`, `summary-robustez.json`, `RESUMO-ROBUSTEZ.md` e `HIPOTESE-ROBUSTEZ.md`.
+- **Desvios que ficaram:** fatores de fragmentação 1, 2, 4, 8 e 16 (a proposta mais o fator 1, que é o teste sem perturbação); o recorte é `robustez-<modelo>-<colunas>`; hipótese, resumo e agregado são arquivos próprios, com o sufixo `-ROBUSTEZ`, e não uma seção do `RESUMO.md` de E8; o modificado é o M1M2, e M1 não entrou. O resumo declara que nos fatores 8 e 16 a maior parte dos vetores perturbados é fisicamente incoerente.
+- **`summary-robustez.json` traz tempos** (`fit_seconds`): não repete entre execuções; a comparação da execução limpa ignora a chave.
+- **Pendente de pessoa:** a integração (G10).
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.**
@@ -61,11 +73,11 @@ A crítica 10 do seminário diz que a explicação publicada indica ao atacante 
 
 ## Critério de aceite
 
-- [ ] Modelo de ameaça da avaliação escrito antes dos resultados.
-- [ ] Parte A: métricas com e sem os atributos manipuláveis, dez seeds, original e modificado.
-- [ ] Parte B: curva de recall por fator de fragmentação, ou dispensa registrada com o motivo.
-- [ ] A simplificação está declarada no arquivo de resultado.
-- [ ] Nenhuma frase do resumo chama a parte B de ataque adversarial sem a ressalva (revisor metodológico).
+- [x] Modelo de ameaça da avaliação escrito antes dos resultados. Lido: seção "Modelo de ameaça desta avaliação" em `HIPOTESE-ROBUSTEZ.md:31`, no commit `a544624`, anterior a `1529734` (commit dos `run.json`) e a `df16ca5`.
+- [x] Parte A: métricas com e sem os atributos manipuláveis, dez seeds, original e modificado. Lido: `column_sets` com `todos`, `sem_duration` e `sem_duration_taxas`; `models` com A, A-prof5 e M1M2; `seeds` de 0 a 9; `models_not_run` vazio.
+- [x] Parte B: curva de recall por fator de fragmentação, ou dispensa registrada com o motivo. Lido: `factors` e `perturbation` no `summary-robustez.json`; `report/figures/robustez_fragmentacao.pdf`.
+- [x] A simplificação está declarada no arquivo de resultado. Lido: `RESUMO-ROBUSTEZ.md:9-13`.
+- [ ] Nenhuma frase do resumo chama a parte B de ataque adversarial sem a ressalva (revisor metodológico). Informado pela sessão principal como revisto; sem artefato da revisão para conferir aqui.
 
 ## Execução com dados reais: na sessão de implementação (decisões 42 e 44)
 
@@ -77,4 +89,4 @@ Seção "Tarefa 16" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e8_robustez.py`.
+Gate de experimento completo: G1–G10, com G5 = `uv run python -m scripts.e8_robustez` e, depois, `uv run python -m scripts.e8_robustez_resumo`.

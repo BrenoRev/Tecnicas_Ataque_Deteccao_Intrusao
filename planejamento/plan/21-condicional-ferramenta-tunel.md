@@ -7,6 +7,18 @@
 
 > **Deixou de ser condicional em 07/10/2026 (decisão 49).** O professor respondeu a Q5 pedindo uma conversa depois da aula; a equipe decidiu fazer sem esperar, porque a decisão 46 pede todos os resultados do artigo e a Seção VI-D traz três acurácias e a Fig. 9. Se o professor pedir outro método depois, ajusta-se. O nome do arquivo ficou como estava, para não quebrar as referências.
 
+## Como ficou (conferido no código e em `results/` em `759ec29`, 08/10/2026)
+
+**Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado nesta reconciliação; "lido" é arquivo ou histórico aberto, sem rodar. Suíte inteira executada em `759ec29`: 110 testes verdes em 41 s; `ruff check` e `ruff format --check` sem erro.
+
+- **Situação: pronta e executada.** `evaluate` recebe os nomes das classes em `679ed89`; carga por ferramenta em `6624612`; script em `b459e2a`; resultados em `1a0e041`; `d86b0b5` separou o resumo e passou a medir a legenda da Fig. 9 como o artigo; refeito em `38809c1`, com os `metrics.json` dos dois modelos idênticos (só os `run.json` mudaram: é a evidência de G6 dos modelos). Os `run.json` trazem o commit `ff039fa` e `dirty: false` (lido).
+- **Arquivos:** `scripts/e7_ferramenta.py` (treina, avalia, mede e grava), `scripts/e7_resumo.py`, `src/doh_ids/data.py` (`load_malicious_by_tool`), `src/doh_ids/evaluate.py` (parâmetro com os nomes das classes), `tests/test_data.py`, `tests/test_evaluate.py`, `tests/test_splits.py`.
+- **Comando real:** `uv run python scripts/e7_ferramenta.py` e, depois, `uv run python -m scripts.e7_resumo`. Lê `data/raw/cira/MaliciousDoH-CSVs.zip`, o manifesto e **`results/e6/dados/combinado_sem_replicas/seed42/metrics.json`** (as contagens por ferramenta, com que a carga é conferida): roda depois de `e6_dados.py`. Tempo medido: 28 s na profundidade variável, 11 s na profundidade 5 e 1 s na Fig. 9.
+- **Resultados:** `results/e7/variante/ferramenta/seed42/`, `results/e7/fiel/ferramenta/seed42/`, `results/e7/dados/fig9/seed42/` (`fig9_distribuicao.png`, `fig9_curvas.csv`, `fig9_estatisticas.csv`) e `results/e7/RESUMO.md`.
+- **Os pontos sem valor declarado foram fechados pela decisão 51 (a, e):** a trilha nomeia a leitura de profundidade e o recorte é `ferramenta`; dns2tcp é a classe dividida em três partes, dnscat2 a reamostrada com SMOTE até igualar iodine; os papéis saem das contagens do treino (`metrics.roles`).
+- **Desvios que ficaram:** a Fig. 9 fica na trilha `dados`, recorte `fig9`, porque não treina modelo; o resumo traz as curvas normais com a média e o desvio medidos, como o artigo, e o histograma embaixo; as estatísticas da legenda da Fig. 9 são medidas também nos arquivos sem a limpeza. O resumo chama o método de "leitura nossa".
+- **Pendente de pessoa:** a conversa com o professor sobre o método (Q5, tarefa 23); a integração (G10).
+
 ## Reconciliado com as tarefas 06 a 08 e com as decisões 44 a 50 (07/10/2026, commit `360c3d3`)
 
 **Onde este bloco e o resto do arquivo (passos, critérios, riscos) divergirem, vale este bloco.**
@@ -64,13 +76,13 @@ A seção VI-D faz parte do artigo, mas é a mais mal especificada (ambiguidade 
 
 ## Critério de aceite
 
-- [x] Resposta de Q5 registrada em `docs/07-pendencias.md` antes do início. Lido em `360c3d3`: resposta de 07/10/2026 e a decisão da equipe de fazer sem esperar (decisão 49).
-- [ ] Os três pontos sem valor declarado do bloco de reconciliação (papel de cada ferramenta nos subconjuntos, leitura de profundidade, caminho em `results/e7/`) e a forma de avaliar com nomes de classe próprios estão decididos pelo usuário antes da primeira execução.
-- [ ] Conjunto só com fluxos maliciosos e rótulo em {dns2tcp, dnscat2, iodine}; total depois da limpeza conferido por asserção.
-- [ ] Métricas por ferramenta (precisão, recall, F1, com o suporte) ao lado dos três valores do artigo, que o artigo chama de acurácia, com a diferença.
-- [ ] Figura equivalente à Fig. 9, com eixos rotulados e unidade.
-- [ ] `RESUMO.md` declara que o método é leitura da equipe e por quê.
-- [ ] Revisor metodológico sem achado bloqueante.
+- [x] Resposta de Q5 registrada em `docs/07-pendencias.md` antes do início. Lido: resposta de 07/10/2026 e a decisão da equipe de fazer sem esperar (decisão 49).
+- [x] Os três pontos sem valor declarado do bloco de reconciliação (papel de cada ferramenta nos subconjuntos, leitura de profundidade, caminho em `results/e7/`) e a forma de avaliar com nomes de classe próprios estão decididos antes da primeira execução. Lido: decisão 51, itens (a) e (e), por recomendação do assistente, que o usuário pode rever; `83df7c1` vem antes de `b459e2a`.
+- [x] Conjunto só com fluxos maliciosos e rótulo em {dns2tcp, dnscat2, iodine}; total depois da limpeza conferido por asserção. Lido: `e7_ferramenta.py:178`, contra a contagem de Malicious-DoH da Tabela I; executado: `test_tool_load_keeps_only_doh_rows_with_the_tool_of_the_folder`.
+- [x] Métricas por ferramenta (precisão, recall, F1, com o suporte) ao lado dos três valores do artigo, que o artigo chama de acurácia, com a diferença. Lido: `article_comparison` em `metrics.json`, por ferramenta, com `article_accuracy`, `precision`, `recall`, `f1`, `support` e `difference_pp`.
+- [ ] Figura equivalente à Fig. 9, com eixos rotulados e unidade. Lido: `fig9_distribuicao.png` existe; não aberta nesta reconciliação.
+- [x] `RESUMO.md` declara que o método é leitura da equipe e por quê. Lido: seção "O método é leitura nossa", `results/e7/RESUMO.md:9`.
+- [ ] Revisor metodológico sem achado bloqueante. Informado pela sessão principal como feito, com os achados tratados; não há artefato da revisão para conferir aqui. Lido: commits de correção posteriores (`d86b0b5`, `38809c1`).
 
 ## Testes
 
@@ -78,4 +90,4 @@ Seção "Tarefa 21" de [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md): os testes lista
 
 ## Verificação ao concluir
 
-Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e7_ferramenta.py`.
+Gate de experimento completo: G1–G10, com G5 = `uv run python scripts/e7_ferramenta.py` e, depois, `uv run python -m scripts.e7_resumo`.
