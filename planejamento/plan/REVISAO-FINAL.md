@@ -88,7 +88,7 @@ Preenchido depois da revisão, à medida que cada achado é tratado.
 | --- | --- |
 | I1, I2 | **Corrigido** em `3725f27`: as duas frases do relatório dizem "recall 0" e a primeira traz os 147 fluxos preditos e errados em 8 seeds; PDF recompilado, 8 páginas |
 | I3 | **Corrigido** em `3e42795`: README da raiz diz "medimos a variância em dez seeds", "resultado compatível com" e "um indício do porquê" |
-| I4 | **Corrigido** em `2686b80`, `7200be7`, `bf19a11`, `2be47e9`, `80111aa`: asserções nos scripts de E1, E2, E4 e E6 e cinco testes novos; as oito mutações agora derrubam um teste (provado aplicando cada uma). Suíte com 118 testes. As asserções novas só rodaram com dados sintéticos; a lógica numérica não mudou |
+| I4 | **Corrigido** em `2686b80`, `7200be7`, `bf19a11`, `2be47e9`, `80111aa`: asserções nos scripts de E1, E2, E4 e E6 e cinco testes novos; as oito mutações agora derrubam um teste (provado aplicando cada uma). Suíte com 118 testes. As asserções novas foram depois exercitadas com os dados reais (seção "Asserções com dados reais", abaixo); a lógica numérica não mudou |
 | I5 | **Corrigido** em `97b2c8c`: os dois `metrics.json` de SHAP do segundo conjunto foram trocados pelos da execução limpa, depois de conferir que as 521 chaves comuns saíram iguais |
 | M1 a M5 | **Corrigido** em `3725f27` e `c74fc3f`: 2,2 vezes no combinado; "cerca de meio ponto"; regra "fixada antes da execução da modificação e da robustez, e aplicada do mesmo modo ao protocolo corrigido"; "não mede a detecção de fluxo novo"; as três leituras que faltavam entraram no parágrafo de leituras adotadas |
 | M6 | **Registrado** em `2622ea3`: comentário no teste explica por que a fixture copia a pasta `results/` versionada |
@@ -109,3 +109,18 @@ Comparação com `scripts/comparar_resultados.py` contra o repositório:
 - Depois das duas correções, a comparação dá 260 de 260 e 56 de 56, com código de saída 0.
 
 Com isso, todo número versionado foi regenerado do zero pelo código da `main` daquele commit. Os commits posteriores só acrescentaram asserções, testes e texto.
+
+## Asserções com dados reais
+
+As asserções contra vazamento acrescentadas depois da revisão (achado I4) tinham rodado só com dados sintéticos. Em 08/10/2026, a pedido de Breno, os scripts que as contêm foram executados por inteiro com os dados reais, em um clone novo da `main` no commit `15c5f06`, fora do repositório, com a árvore limpa:
+
+| Script | O que a asserção confere | Resultado |
+| --- | --- | --- |
+| `scripts/e6_dados.py` | a tabela sem réplicas não repete fluxo do HKD | passou |
+| `scripts/e1_reproducao.py`, duas leituras de profundidade, com a validação cruzada | o normalizador da avaliação só viu o treino | passou nas duas |
+| `scripts/e2_baselines.py` | o mesmo, no fluxo dos modelos de comparação | passou |
+| `scripts/e4_corrigido.py`, dez seeds e cinco modelos, mais as dobras por máquina | o normalizador e o SMOTE do treino inteiro só receberam o treino | passou nas dez seeds |
+
+A execução foi das 13:05 às 16:44 (3 h 40 min, com a máquina carregada), sem nenhum erro de asserção. Os 63 `run.json` regravados registram o commit `15c5f06` e `dirty: false`. A comparação com `scripts/comparar_resultados.py` contra os resultados versionados deu 260 de 260 arquivos iguais: acrescentar as asserções não mudou nenhum número, e E0, a etapa de dados de E6, E1, E2 e E4 foram regenerados pela segunda vez no mesmo dia com o mesmo resultado.
+
+Os `run.json` versionados não foram substituídos: continuam apontando os commits das execuções originais.
