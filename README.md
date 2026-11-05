@@ -9,7 +9,7 @@
 ![uv](https://img.shields.io/badge/ambiente-uv-purple)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
 
-[Relatório (PDF)](entregaveis-apresentacao/relatorio.pdf) · [Apresentação (PPTX)](entregaveis-apresentacao/apresentacao.pptx) · [Roteiro da fala](entregaveis-apresentacao/roteiro.md) · [Guia técnico](project/README.md) · [Resultados](project/results/)
+[Relatório (PDF)](entregaveis-apresentacao/relatorio.pdf) · [Apresentação (PPTX)](entregaveis-apresentacao/apresentacao.pptx) · [Roteiro da fala](entregaveis-apresentacao/roteiro.pdf) · [Guia técnico](project/README.md) · [Resultados](project/results/)
 
 </div>
 
