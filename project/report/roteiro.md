@@ -4,10 +4,10 @@ Gerado por `scripts/make_slides.py`, com os mesmos textos das anotações dos sl
 
 Tempo disponível: 15 minutos. Soma dos tempos: 11 min 55 s.
 
-Apresentam três integrantes, em blocos contíguos de slides (a divisão dos blocos é proposta; a equipe pode trocar o ponto de corte).
+Apresentam os três integrantes, em blocos contíguos de slides (a divisão dos blocos é proposta; a equipe pode trocar o ponto de corte).
 
 - Amanda: slides 1 a 5 (4 min 00 s)
-- Antonio: slides 6 a 10 (4 min 30 s)
+- Breno: slides 6 a 10 (4 min 30 s)
 - João: slides 11 a 14 (3 min 25 s)
 
 ## 1. Título e equipe (0:30)

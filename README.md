@@ -139,7 +139,6 @@ O desenvolvimento usou um assistente de IA, com uso aprovado na disciplina; as r
 | Integrante | Login |
 | --- | --- |
 | Amanda Arruda | aams2 |
-| Antonio Gonzaga | agla |
 | Breno Silva Xavier de Souza | bsxs |
 | João Henrique Portela | jhpbs |
 

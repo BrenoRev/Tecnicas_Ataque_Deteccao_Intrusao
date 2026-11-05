@@ -87,7 +87,7 @@ A especificação pede "link do GitHub com todos os códigos comentados".
 - [ ] Instalação pelo `requirements.txt` com pip testada. Sem registro. → item 12 da lista única.
 - [x] Higiene: sem dados, sem modelo serializado, sem o PDF do artigo, sem caminho de máquina. Evidência: `planejamento/plan/REVISAO-FINAL.md`, V9.
 - [ ] CI verde na `main` no commit entregue. → item 1 da lista única (a `main` está em `378f170`).
-- `git shortlog -sn` com os quatro integrantes: não se aplica (decisões 44 e 55d). Os 164 commits até `5999c1b` são de uma só identidade, aceito pela equipe; nenhum commit tem coautoria de ferramenta (revisão final, V9).
+- `git shortlog -sn` com todos os integrantes: não se aplica (decisões 44 e 55d). Os 164 commits até `5999c1b` são de uma só identidade, aceito pela equipe; nenhum commit tem coautoria de ferramenta (revisão final, V9).
 - Pull requests na ordem das tarefas: não se aplica (decisão 55f). O envio dos commits finais é o item 1 da lista única.
 - [x] Licença. Evidência: `LICENSE` (MIT) na raiz (decisão 55c).
 - [x] Acesso do professor ao repositório. Evidência: repositório público (decisão 43); Q10 ficou sem resposta e foi fechada pela equipe (decisão 55a).
@@ -115,7 +115,7 @@ Obrigatória: P3 foi feito. A apresentação é entregue em **PPTX**, no modelo 
 - [x] Slides no modelo institucional do CIn, só tópicos e imagens, com todo número e gráfico vindo de `report/`. Evidência: `report/apresentacao.pptx` (14 slides), gerado por `scripts/make_slides.py`; cópia em `entregaveis-apresentacao/`.
 - [x] Um slide para o artigo, no máximo. Evidência: `report/roteiro.md` (slide 2, "O artigo em um slide").
 - [x] PPTX conferido no Google Slides. Evidência: por Breno, em 08/10/2026 (`docs/07-pendencias.md`, tabela "Fechado").
-- [x] Fala dividida. Evidência: `report/roteiro.md`: Amanda (slides 1 a 5), Antonio (6 a 10) e João (11 a 14); soma de 11 min 55 s. "Entre os quatro" não se aplica: apresentam três.
+- [x] Fala dividida. Evidência: `report/roteiro.md`: Amanda (slides 1 a 5), Breno (6 a 10) e João (11 a 14); soma de 11 min 55 s. Apresentam os três integrantes.
 - [ ] Ensaio cronometrado em 15 minutos, pelos três. → item 2 da lista única.
 - [x] `revisor-de-texto` sobre os slides. Evidência: commit `dc5fb1c`; slides e roteiro alinhados às correções do relatório em `c74fc3f`.
 

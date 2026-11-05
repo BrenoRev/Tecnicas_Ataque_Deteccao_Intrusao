@@ -27,7 +27,7 @@ A tarefa podia começar: todos os experimentos (tarefas 03 a 16 e 21), as tabela
 - (Superado em `7657501` e `7813020`.) Em `759ec29` o `README.md` não tinha a ordem dos scripts nem a licença, e não havia arquivo `LICENSE`.
 - **Padrão de execução do repositório.** Script de treino só treina, avalia e grava `metrics.json` e `run.json`. Onde há agregação, o `RESUMO.md`, o `summary.json` e a tabela comparativa saem de um script de resumo, que não treina: `e3_resumo`, `e4_resumo`, `e6_resumo`, `e7_resumo`, `e8_resumo` e `e8_robustez_resumo`. Em E0, E1, E2, E5 e na etapa de dados de E6, o próprio script escreve o resumo. Script que importa outro script roda como módulo, com `python -m scripts.<nome>`: os seis de resumo, `e6_baselines_xai`, `e8_modificacao` e `e8_robustez`.
 - **Todos os resultados versionados saíram desta máquina:** os 229 `run.json` trazem o mesmo `hostname`, 10 núcleos e `dirty: false` (lido).
-- **`git shortlog -sn` mostra um único autor** (137 commits em `759ec29`; 164 em `5999c1b`). O critério dos quatro integrantes não se aplica (decisões 44 e 55d).
+- **`git shortlog -sn` mostra um único autor** (137 commits em `759ec29`; 164 em `5999c1b`). O critério de todos os integrantes no histórico não se aplica (decisões 44 e 55d).
 
 ## Ordem real dos scripts
 
@@ -133,7 +133,7 @@ A especificação pede "link do Github com todos os códigos comentados". Reprod
 - [x] README com a tabela resultado → script → arquivo, cobrindo todas as tabelas e figuras do relatório. **Fechado em 08/10/2026:** lido em `5999c1b`: `README.md`, seção "Do relatório ao arquivo": as Tabelas II a X e as Figs. 3 a 5 do relatório, uma linha cada; a Tabela I e as Figs. 1 e 2 são escritas no `.tex` e não têm número de experimento; uma segunda tabela cobre o que só os slides e o texto usam.
 - [x] `git ls-files | grep -E "\.(pkl|joblib|pcap|parquet)$|^project/data/(raw|processed)/|referencias/.*\.pdf"` não devolve nada. Arquivos pequenos de resultado em `results/` podem ser CSV. **Fechado em 08/10/2026:** executado em `5999c1b`: nenhuma linha.
 - [x] `grep -rnE "/Users/|/home/|[A-Z]:\\\\" --include="*.py" src scripts tests data` não devolve nada (o mesmo grep do CI). **Fechado em 08/10/2026:** executado em `5999c1b`: nenhuma linha; o grep de referência interna também não devolve nada.
-- Não se aplica (decisões 44 e 55d): `git shortlog -sn` mostra os quatro integrantes. Executado em `5999c1b`: 164 commits de uma identidade; a execução ficou na sessão de implementação e a equipe aceitou o histórico assim. Nenhum commit tem coautoria de ferramenta (executado: 0 ocorrências).
+- Não se aplica (decisões 44 e 55d): `git shortlog -sn` mostra todos os integrantes. Executado em `5999c1b`: 164 commits de uma identidade; a execução ficou na sessão de implementação e a equipe aceitou o histórico assim. Nenhum commit tem coautoria de ferramenta (executado: 0 ocorrências).
 - [x] Licença decidida e `LICENSE` no repositório. **Fechado em 08/10/2026:** `LICENSE` (MIT) na raiz, em `7813020`; decisão 55c.
 - [ ] **Pessoa:** checklist do projeto rodada (skill `checklist-entrega projeto`), sem item exigido pendente. Faz parte da entrega de 18/11 (item 5 de `docs/07-pendencias.md`, "O que resta de pessoa"). Não há registro versionado de que já tenha sido rodada.
 - [ ] **Pessoa:** link e PDF enviados até 18/11/2026, com o comprovante (data, hora e hash do commit entregue) guardado em `docs/07-pendencias.md`; antes, enviar os commits finais e conferir o CI verde no commit entregue (itens 1 e 5 de "O que resta de pessoa").

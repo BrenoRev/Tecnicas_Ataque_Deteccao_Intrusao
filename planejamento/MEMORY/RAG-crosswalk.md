@@ -71,7 +71,7 @@ O repositório Git é a raiz (decisão 43). Caminhos relativos a `project/`, sal
 | `entregaveis-apresentacao/relatorio.pdf`, `apresentacao.pptx`, `roteiro.md` (raiz) | 24 (cópia dos três entregáveis, para quem não vai rodar nada) | 19, 20; quem muda `report/` recopia | decisão 53; idênticos aos de `project/report/` em `5999c1b` (`cmp`). O `roteiro-pdf.pdf` da pasta não é rastreado | `f2aedd6` |
 | `geracao_latex_and_pdf/template.tex`, `geracao_latex_and_pdf/Apresentação Padrão CIn-UFPE.pptx` (raiz) | entrada da 24 | `scripts/make_slides.py` lê o `.pptx` | decisão 53 | `e40bdc4` |
 | `README.md` | 01, 12 (painel e `e5_xai.py`), 19 (completo: instalação com uv e pip, os 22 passos, execução limpa, "Do relatório ao arquivo", limitações, licença) | 17 e 24 (a tabela "Do relatório ao arquivo" segue `report/INDICE.md` e a numeração do relatório); `scripts/execucao_limpa.sh` (mesma ordem) | `docs/06-padroes.md`, seção 1; decisões 46, 50, 55c | `6bf80bd`, `5adf3c5`, `5e11d56`; `eb74170`; `7657501`, `b82a82f`, `7813020`, `3da178e` |
-| `LICENSE` (raiz) | 01 (previsto), criado no fechamento da 19 | 19; `README.md`, seção "Licença" | decisão 55c: MIT, os quatro integrantes como titulares | `7813020` |
+| `LICENSE` (raiz) | 01 (previsto), criado no fechamento da 19 | 19; `README.md`, seção "Licença" | decisão 55c: MIT, os integrantes como titulares | `7813020` |
 
 ## Arquivos que já existem
 

@@ -9,7 +9,7 @@ Atualizado em 08/10/2026, no commit `5999c1b` (branch `tarefa/19-readme-execucao
 O projeto está implementado, executado com os dados reais, revisado e com os entregáveis gerados. O que resta é de pessoa e está na seção "O que resta de pessoa".
 
 - Experimentos E0 a E8 executados em 07 e 08/10/2026; resultados em `project/results/`.
-- Entregáveis em `project/report/`, com cópia em `entregaveis-apresentacao/`: `relatorio.pdf` (8 páginas), `apresentacao.pptx` (14 slides) e `roteiro.md` (11 min 55 s; apresentam Amanda, Antonio e João).
+- Entregáveis em `project/report/`, com cópia em `entregaveis-apresentacao/`: `relatorio.pdf` (8 páginas), `apresentacao.pptx` (14 slides) e `roteiro.md` (11 min 55 s; apresentam Amanda, Breno e João).
 - Execução limpa feita em 08/10/2026, em clone novo, em 7 h 30 min: 260 de 260 arquivos de `results/` e 56 de 56 de `report/` conferem com os versionados (`planejamento/plan/REVISAO-FINAL.md`, "Execução limpa").
 - Revisão final em código sem achado bloqueante; os cinco achados importantes e os nove menores foram tratados; a suíte tem 118 testes (`planejamento/plan/REVISAO-FINAL.md`, "Tratamento").
 - `LICENSE` (MIT) na raiz; README da raiz como página de apresentação e guia técnico em `project/README.md`.
@@ -40,7 +40,7 @@ Em ordem de impacto no projeto. Levar por escrito e registrar a resposta aqui, c
 | D1 | Fazer P3 (modificação, ponto extra)? | Sim / Não | Sim, com M1 + M2 de [05-plano-experimental.md](05-plano-experimental.md): custo baixo e as críticas do seminário já são a justificativa. Obriga apresentação em 19/11 | Sim (decisões 01 e 02). Feito em 08/10/2026: M1 + M2 nos dois datasets, em dez seeds, com seleção em subamostra de 25% do treino (decisões 52 e 54), e M3, a robustez à duração. Resultados em `project/results/e8/corrigida/`. A apresentação de 19/11 passa a ser obrigatória; os slides estão em `project/report/apresentacao.pptx` (decisão 53) |
 | D2 | Segundo dataset | HKD + combinado / outro | HKD + combinado, se Q4 for respondida com sim | HKD + combinado (decisões 11, 36 e 47). O dataset principal de P2 é o combinado sem réplicas, em que tudo de P1 é refeito; o combinado como publicado e a transferência para o HKD ficam ao lado. Resultados em `project/results/e6/`. A ressalva de que Non-DoH e Benign-DoH são os do CIRA não foi comentada pelo professor; a equipe fechou o ponto em 08/10/2026, sem resposta dele (decisão 55), e ele continua na página dos encontros ([09-acompanhamento-professor.md](09-acompanhamento-professor.md)) |
 | D3 | Ambiente | Local / Colab / cluster Apuana | Local, com ambiente fixado; os modelos são pequenos | 07/10/2026: desenvolvimento local; execução dos experimentos local ou no Apuana, as duas valem (decisão 42). Na prática, tudo rodou na máquina local, na própria sessão de implementação (decisão 44); o Apuana não foi usado e a pasta `jobs/` não existe |
-| D4 | Versionar `CLAUDE.md` e `.claude/` no repositório entregue? | Sim / Não | Sim, se Q7 permitir uso de IA: os quatro passam a trabalhar com as mesmas regras e o uso fica transparente | 07/10/2026: Sim (decisão 43, que substituiu a 32). O repositório Git é a raiz, público no GitHub; `CLAUDE.md`, `.claude/`, `docs/`, `planejamento/` e `LEIA-ME.txt` são versionados junto, e o código fica em `project/` |
+| D4 | Versionar `CLAUDE.md` e `.claude/` no repositório entregue? | Sim / Não | Sim, se Q7 permitir uso de IA: todos passam a trabalhar com as mesmas regras e o uso fica transparente | 07/10/2026: Sim (decisão 43, que substituiu a 32). O repositório Git é a raiz, público no GitHub; `CLAUDE.md`, `.claude/`, `docs/`, `planejamento/` e `LEIA-ME.txt` são versionados junto, e o código fica em `project/` |
 | D5 | Divisão de responsabilidades do projeto | — | Por experimento, com um revisor por experimento diferente do autor | Fechado em 08/10/2026 pela decisão 55 (d, f), de outro modo que o recomendado: a execução ficou na sessão de implementação (decisão 44); o histórico tem uma só identidade Git (164 commits em `5999c1b`, `git shortlog -sn`), aceito; não há pull request por tarefa nem revisor por experimento. A conferência das transcrições foi feita pelo assistente (decisão 55b). A fala é de três integrantes (`project/report/roteiro.md`) |
 | D6 | Escrever aos autores pedindo o código completo? | Sim / Não | Alinhar com o professor antes (Q1) | Não feito; decisão da equipe. Q1 foi respondida em 07/10/2026 (reimplementação aceita) e o sistema foi reimplementado a partir do texto; nenhum contato com os autores está registrado |
 
@@ -52,7 +52,7 @@ Encontrados nesta revisão. Entrega dos slides em 14/10.
 | --- | --- | --- |
 | Recall macro do teste | Slides 33 a 35; seção 4.1 do documento do seminário; guia, bloco 4 | O valor é 96,72%, não 96,71%: (90,2278 + 99,9760 + 99,9416) / 3 = 96,7151. Conferir com `cd project && python3 scripts/metricas_fig4.py` |
 | Crítica 4, SMOTE antes dos folds | Slide 27 | A Figura 4a mostra a validação cruzada avaliada sobre 1.043.198 amostras reais, sem sintéticas. A crítica continua válida como "o artigo não especifica, e a ordem descrita sugere vazamento", mas não como fato demonstrado. Reformular para não ser desmontada numa pergunta |
-| Quarto integrante | Documento do seminário (seções 1, 5, 7, 9 e 11); tabela de perguntas do guia | O guia já traz Antonio Gonzaga no bloco 2; o documento consolidado e a tabela de perguntas ainda dizem "quarto integrante" |
+| Bloco 2 do seminário | Guia de estudo do seminário; documento do seminário (seções 1, 5, 7, 9 e 11); tabela de perguntas do guia | O bloco 2 está sem integrante definido no guia (`[Preencher]`) |
 | Argumento novo para o slide 34 ou 40 | — | O recall de Benign-DoH é 89,7% no treino e 90,2% no teste. O modelo erra a classe benigna igualmente nos dados em que foi ajustado: é capacidade limitada (profundidade 5), não sobreajuste |
 | Split estratificado | Slide 18 | As somas das linhas da Figura 4 mostram que o 90/10 é estratificado, embora o texto não diga |
 | Contagens brutas | Slide 20 | A diferença para a Tabela I agora tem número: 897.493 / 19.807 / 249.836 no bruto, segundo o README do dataset combinado. Citar a fonte como indireta |
@@ -96,12 +96,12 @@ Lista viva, conferida em 08/10/2026 no commit `5999c1b`. Nada aqui é feito pelo
 | # | Item | Detalhe |
 | --- | --- | --- |
 | 1 | Enviar os commits finais e avançar a `main` | **Fechado em 08/10/2026:** a ponta do trabalho foi enviada e a `main` avançada por avanço direto (decisão 55); o CI roda a cada envio na `main` |
-| 2 | Ensaio cronometrado | Pelos três que apresentam (Amanda, slides 1 a 5; Antonio, 6 a 10; João, 11 a 14), em 15 minutos. O roteiro soma 11 min 55 s (`project/report/roteiro.md`) |
+| 2 | Ensaio cronometrado | Pelos três integrantes (Amanda, slides 1 a 5; Breno, 6 a 10; João, 11 a 14), em 15 minutos. O roteiro soma 11 min 55 s (`project/report/roteiro.md`) |
 | 3 | Seminário | Ajustes da tabela "Ajustes no material do seminário"; slides em 14/10; apresentação em 15 ou 20/10. Em aberto: Q8 e Q11 |
 | 4 | Encontros com o professor, 10/11 e 17/11 | Levar a página [09-acompanhamento-professor.md](09-acompanhamento-professor.md); perguntar também o que a apresentação de 19/11 deve cobrir. Registrar aqui o retorno de cada encontro, com a data, e convertê-lo em ajuste. Resposta que contrarie uma decisão vira `⚠️ REVISAR` em `planejamento/MEMORY/00-decisoes-travadas.md` |
 | 5 | Entrega em 18/11 | Rodar a skill `checklist-entrega projeto`; enviar o PDF e o link do GitHub; guardar aqui o comprovante (data, hora e hash do commit entregue). Local de entrega: `[Preencher]` |
 | 6 | Apresentação em 19/11 e arguição | Obrigatória, porque há modificação. Preparação: cada um explica o código da parte que apresenta; perguntas prováveis distribuídas (lista em `POS-IMPLEMENTACAO.md`, seção 9) |
-| 7 | Leitura do relatório pelos quatro integrantes | Todos precisam conseguir defendê-lo. Três pontos para decidir na leitura: a lista de conferência "pergunta da especificação → seção e parágrafo" não está em arquivo versionado; a seção 5 não tem a figura do modelo modificado ao lado do original (o relatório tem duas figuras em TikZ, do túnel e do sistema do artigo); a diferença de uma amostra no teste em relação ao artigo não foi localizada no texto por busca |
+| 7 | Leitura do relatório pelos três integrantes | Todos precisam conseguir defendê-lo. Três pontos para decidir na leitura: a lista de conferência "pergunta da especificação → seção e parágrafo" não está em arquivo versionado; a seção 5 não tem a figura do modelo modificado ao lado do original (o relatório tem duas figuras em TikZ, do túnel e do sistema do artigo); a diferença de uma amostra no teste em relação ao artigo não foi localizada no texto por busca |
 | 8 | GitHub | Proteção da `main` e acesso de escrita dos integrantes, se a equipe quiser |
 | 9 | Mensagem enviada ao professor | Canal e ano citado para o artigo do HKD: dois `[Preencher]` na seção "Mensagem enviada ao professor", que só Breno sabe |
 | 10 | D6, escrever aos autores pedindo o código | Não feito; decisão da equipe |
@@ -129,7 +129,6 @@ O que saiu da lista viva, com a data e a evidência.
 | Tarefa 22: padrões que nasceram na implementação | 08/10/2026 | `.claude/rules/experimentos.md` |
 | Tarefa 23: página de status | 08/10/2026 | [09-acompanhamento-professor.md](09-acompanhamento-professor.md); os encontros são o item 4 da lista viva |
 | Tarefa 25: revisão final em código | 08/10/2026 | `planejamento/plan/REVISAO-FINAL.md`: nenhum bloqueante; achados tratados; 118 testes |
-| Login do quarto integrante | sem data registrada | `agla` (`CLAUDE.md`, `project/README.md`) |
 
 ## Mensagem enviada ao professor
 

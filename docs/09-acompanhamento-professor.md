@@ -44,7 +44,7 @@ Os pontos 1 a 4 foram fechados pela equipe em 08/10/2026, sem resposta do profes
 Só o que é de pessoa; a lista completa está em `docs/07-pendencias.md`, seção "O que resta de pessoa".
 
 - Ensaio cronometrado da apresentação pelos três que apresentam.
-- Leitura do relatório pelos quatro integrantes.
+- Leitura do relatório pelos três integrantes.
 - Entrega em 18/11 e apresentação em 19/11.
 
 ## Execução limpa

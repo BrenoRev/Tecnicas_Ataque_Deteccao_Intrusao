@@ -2,7 +2,7 @@
 
 Projeto da disciplina CIN0114, Técnicas de Ataque e Detecção de Intrusão (CIn/UFPE, 2026.2).
 
-Equipe: Amanda Arruda (aams2), Antonio Gonzaga (agla), Breno Silva Xavier de Souza (bsxs) e João Henrique Portela (jhpbs).
+Equipe: Amanda Arruda (aams2), Breno Silva Xavier de Souza (bsxs) e João Henrique Portela (jhpbs).
 
 ## Objetivo
 

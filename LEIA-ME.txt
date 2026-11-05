@@ -1,6 +1,6 @@
 PROJETO CIN0114 - IDS EXPLICÁVEL PARA ATAQUES DNS OVER HTTPS
 Técnicas de Ataque e Detecção de Intrusão, 2026.2, Prof. Paulo Freitas de Araujo Filho
-Equipe: Amanda Arruda, Antonio Gonzaga, Breno Silva, João Henrique Portela
+Equipe: Amanda Arruda, Breno Silva, João Henrique Portela
 Atualizado em 08/10/2026
 
 
@@ -140,8 +140,8 @@ Feito
 Falta, e é de pessoa
   - Enviar os últimos commits ao GitHub e avançar a main (a main está em
     um commit anterior à revisão final).
-  - Ensaiar a apresentação com cronômetro. Apresentam três: Amanda,
-    Antonio e João.
+  - Ensaiar a apresentação com cronômetro. Apresentam os três: Amanda,
+    Breno e João.
   - Seminário: ajustar o material, entregar os slides em 14/10 e
     apresentar em 15 ou 20/10.
   - Encontros com o professor em 10/11 e 17/11, com a página
@@ -150,7 +150,7 @@ Falta, e é de pessoa
     e guardar o comprovante.
   - Apresentar em 19/11 (obrigatório, porque P3 foi feito) e preparar a
     arguição.
-  - Os quatro leem o relatório: todos precisam conseguir defendê-lo.
+  - Os três leem o relatório: todos precisam conseguir defendê-lo.
 
 Esta lista é um resumo. A lista única e completa, com o que já foi
 fechado e a evidência de cada item, está em docs/07-pendencias, seção

@@ -61,7 +61,7 @@ Como ficou, onde difere do texto abaixo:
 - `scripts/metricas_fig4.py` já está em `project/scripts/`, movido da pasta de trabalho e ajustado ao lint desta tarefa (docstrings nas duas funções, `l` → `linha`, quebra da linha longa, `ruff format`), com a saída conferida idêntica por `diff`. As matrizes continuam nas linhas 13 a 24.
 - Sem `[build-system]` no `pyproject.toml`, o uv trata o projeto como virtual e não instala `doh_ids`: `import doh_ids` falha e o teste T01-1 não passa (verificado em 07/10/2026). O bloco do passo 2 é obrigatório.
 - Versões resolvidas por `uv lock` em 07/10/2026 para o que o plano não fixava: matplotlib 3.11.2 e scipy 1.18.1. O scipy é usado no intervalo de confiança binomial da tarefa 06 e no teste de Wilcoxon da 11; fica declarado para o `pyproject.toml` ser o conjunto fechado.
-- Itens que só uma pessoa faz, porque o agente implementador não faz `push`: criar o repositório no GitHub e ligar o remoto, dar acesso aos quatro integrantes, proteger a `main`, abrir e integrar o pull request de prova. O relato do agente lista o que ficou para a pessoa.
+- Itens que só uma pessoa faz, porque o agente implementador não faz `push`: criar o repositório no GitHub e ligar o remoto, dar acesso aos integrantes, proteger a `main`, abrir e integrar o pull request de prova. O relato do agente lista o que ficou para a pessoa.
 - Cluster, opcional (decisão 42): se a equipe for usar o Apuana, conferir nele se há Python 3.12 e uv. Se não houver uv, o caminho é ambiente virtual com `pip install -r requirements.txt` e `pip install -e .`; o README descreve os dois caminhos. Não verificado em 07/10/2026: versão do Python, partições e limites do cluster.
 
 ## Arquivos
@@ -74,7 +74,7 @@ Como ficou, onde difere do texto abaixo:
 - `tests/test_smoke.py` — novo: um teste mínimo que importa o pacote. Sem nenhum teste, o pytest termina com código 5 e o gate nunca passa.
 - `data/README.md`, `results/.gitkeep`, `report/.gitkeep` — novos.
 - `README.md` — novo, esqueleto (objetivo, setup, como rodar, "Como contribuir"; o resto vem na tarefa 19).
-- `LICENSE` — criado na raiz do repositório em `7813020`: MIT, com os quatro integrantes como titulares (decisão 55c). A nota de que a licença não cobre o artigo, os datasets nem o material da disciplina está na seção "Licença" de `README.md`.
+- `LICENSE` — criado na raiz do repositório em `7813020`: MIT, com os integrantes como titulares (decisão 55c). A nota de que a licença não cobre o artigo, os datasets nem o material da disciplina está na seção "Licença" de `README.md`.
 - `.githooks/pre-commit`, `.githooks/commit-msg` — novos: barram commit fora do lint e mensagem fora do padrão.
 - `.github/workflows/ci.yml` — novo: verificação automática em `push` na `main` e em pull request.
 - `.github/pull_request_template.md` — novo: modelo de descrição de pull request, para toda tarefa mostrar o que demonstra.
@@ -191,7 +191,7 @@ Saída das asserções do script na máquina de quem tem os dados, ou "não se a
 6. `scripts/metricas_fig4.py` continua rodando só com a biblioteca padrão (`python3 scripts/metricas_fig4.py`).
 7. Fazer os primeiros commits na `main`, no padrão de `.claude/rules/commits.md`, sem trailer de coautoria (`chore:` para o ambiente, `ci:` para o workflow e o modelo de pull request). Os arquivos entram pelo nome; `docs/`, `planejamento/`, `.claude/` e `CLAUDE.md` são versionados no mesmo repositório (decisão 43, que substitui a 32), em commits próprios. O último commit da tarefa, com a seção "Como contribuir" do README, sai em uma branch `tarefa/01-prova-ci`, para o CI rodar em um pull request de prova.
 7a. No esqueleto do `README.md`, uma seção curta "Como contribuir": ativar os hooks, padrão de mensagem de commit, comandos de lint e de teste, instalação com uv e com pip, modelo de pull request. É o que o integrante sem o assistente precisa, já que as regras completas ficam fora do repositório.
-8. **Pessoa:** criar o repositório no GitHub com os quatro integrantes, ligar o remoto, fazer o `push` da `main` e da branch de prova, abrir o pull request de prova, conferir o CI verde, integrar e proteger a `main` (integração só por pull request). Visibilidade conforme Q10; até a resposta, privado com acesso para o professor.
+8. **Pessoa:** criar o repositório no GitHub com os integrantes, ligar o remoto, fazer o `push` da `main` e da branch de prova, abrir o pull request de prova, conferir o CI verde, integrar e proteger a `main` (integração só por pull request). Visibilidade conforme Q10; até a resposta, privado com acesso para o professor.
 
 ## Por quê
 

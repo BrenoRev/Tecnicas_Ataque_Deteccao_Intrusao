@@ -31,7 +31,7 @@ Implementação (situação por tarefa em `plan/00-README.md`, mantido pelo agen
 - [x] E7, ferramenta de túnel e Fig. 9 → `project/results/e7/RESUMO.md` (21)
 - [x] E8, modificação M1 + M2 e robustez à duração → `project/results/e8/corrigida/RESUMO.md` e `RESUMO-ROBUSTEZ.md` (15, 16)
 - [x] Tabelas e figuras por script → `project/report/tables/`, `project/report/figures/`, `project/report/INDICE.md` (17)
-- [x] Relatório e apresentação → `project/report/relatorio.tex`, `relatorio.pdf` (8 páginas), `apresentacao.pptx` (14 slides), `roteiro.md` (11 min 55 s; apresentam Amanda, Antonio e João) (24, que cumpre a 18 e a 20)
+- [x] Relatório e apresentação → `project/report/relatorio.tex`, `relatorio.pdf` (8 páginas), `apresentacao.pptx` (14 slides), `roteiro.md` (11 min 55 s; apresentam Amanda, Breno e João) (24, que cumpre a 18 e a 20)
 - [x] README e execução limpa → `project/README.md` (22 passos), `README.md` da raiz, `LICENSE`; execução limpa em 08/10/2026, em clone novo, 7 h 30 min, 260 de 260 arquivos de `results/` e 56 de 56 de `report/` (`plan/REVISAO-FINAL.md`, "Execução limpa") (19)
 - [x] Padrões que nasceram na implementação → `.claude/rules/experimentos.md` (22)
 - [x] Página de status para os encontros com o professor → `docs/09-acompanhamento-professor.md` (23; os encontros são de pessoa)
@@ -68,7 +68,7 @@ Só ponteiros; os números estão nos resumos.
 ## Não feito, por decisão ou declarado
 
 - Cluster Apuana: não usado; a pasta `jobs/` não existe (decisão 44).
-- Pull request por tarefa, revisão por outro integrante e quatro autores no histórico: não feitos (decisões 55d e 55f).
+- Pull request por tarefa, revisão por outro integrante e todos os integrantes como autores no histórico: não feitos (decisões 55d e 55f).
 - Execução limpa por quem não escreveu o código ou em outra máquina: não feita; rodou na sessão de implementação, em clone novo (decisões 44 e 55d).
 - One-sided selection, meta com predições fora da amostra, modelo com 28 atributos no total: não medidos (`project/results/e3/variante/RESUMO.md`).
 - Explicabilidade do modelo modificado: fora (decisão 54, item f).

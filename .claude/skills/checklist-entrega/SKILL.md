@@ -37,7 +37,7 @@ Formato
 - [ ] **[exigido]** Modelo institucional de apresentação do CIn.
 - [ ] **[exigido]** Só tópicos, bullets e imagens; nenhum slide com texto longo.
 - [ ] Figuras do artigo com citação da fonte na imagem.
-- [ ] Nomes dos quatro integrantes corretos na capa.
+- [ ] Nomes dos três integrantes corretos na capa.
 - [ ] Revisão de português.
 
 Apresentação

@@ -11,7 +11,7 @@ Cada um fica com o bloco mais próximo do que já vinha acompanhando no artigo. 
 | Integrante | Bloco | Slides | Tempo | Foco |
 | --- | --- | --- | --- | --- |
 | Breno | 1. Problema e contexto | 3 a 10 | 3 min | Abre a apresentação e fixa o problema de segurança |
-| Antonio Gonzaga | 2. Trabalhos relacionados e dados | 11 a 20 | 3,5 min | Base bibliográfica e descrição do dataset |
+| [Preencher: integrante] | 2. Trabalhos relacionados e dados | 11 a 20 | 3,5 min | Base bibliográfica e descrição do dataset |
 | João Henrique | 3. Sistema proposto | 21 a 29 | 4 min | Modelagem, validação e crítica de método |
 | Amanda | 4. Resultados, XAI e conclusão | 30 a 42 | 4,5 min | Números, explicabilidade e fechamento |
 
@@ -55,7 +55,7 @@ Objetivo do bloco: deixar claro por que existe um problema antes de qualquer té
 
 Decorar: 3 ferramentas de túnel, 4 resolvedores DoH, 3 classes, 29 atributos de fluxo.
 
-## Bloco 2, Antonio Gonzaga
+## Bloco 2, [Preencher: integrante]
 
 Objetivo do bloco: mostrar de onde vêm os dados e o que o artigo herdou da literatura.
 
@@ -173,7 +173,7 @@ Decorar: 115.910 fluxos, 251 erros, recall benigno 90,2%, acurácia 99,78% contr
 
 ## Glossário mínimo
 
-Os quatro precisam responder a qualquer um destes sem hesitar, mesmo fora do próprio bloco.
+Todos precisam responder a qualquer um destes sem hesitar, mesmo fora do próprio bloco.
 
 | Termo | Em uma linha |
 | --- | --- |

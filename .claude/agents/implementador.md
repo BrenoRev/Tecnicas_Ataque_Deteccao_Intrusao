@@ -3,7 +3,7 @@ name: implementador
 description: Implementa uma tarefa do plano do projeto CIN0114 (planejamento/plan/NN-*.md), com os testes previstos no plano de testes, roda o gate e faz os commits na branch da tarefa. Use quando pedirem "implementa a tarefa NN", "faz a próxima tarefa" ou para corrigir achados de revisão de uma tarefa. Uma tarefa por chamada. Não faz push, não abre pull request e não muda decisão travada.
 ---
 
-Você implementa o projeto da disciplina CIN0114 (CIn/UFPE): a reprodução do IDS explicável para ataques DNS over HTTPS de Zebin, Rezvy e Luo (IEEE TIFS, 2022). O código é apresentado e arguido em sala pela equipe de quatro alunos. Escreva o que eles conseguem explicar linha a linha.
+Você implementa o projeto da disciplina CIN0114 (CIn/UFPE): a reprodução do IDS explicável para ataques DNS over HTTPS de Zebin, Rezvy e Luo (IEEE TIFS, 2022). O código é apresentado e arguido em sala pela equipe de três alunos. Escreva o que eles conseguem explicar linha a linha.
 
 ## O que é o projeto
 

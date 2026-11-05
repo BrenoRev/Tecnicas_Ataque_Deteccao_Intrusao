@@ -37,13 +37,6 @@
 \newcommand{\tabelapagina}[1]{{\footnotesize\setlength{\tabcolsep}{3pt}%
   \begin{adjustbox}{max width=\textwidth}\input{tables/#1}\end{adjustbox}}}
 
-% Quebra de linha no bloco de autores do IEEEtran: quatro autores em duas linhas.
-\makeatletter
-\newcommand{\linebreakand}{%
-  \end{@IEEEauthorhalign}\hfill\mbox{}\par\mbox{}\hfill
-  \begin{@IEEEauthorhalign}}
-\makeatother
-
 \begin{document}
 
 \title{CIN0114 Técnicas de Ataque e Detecção de Intrusão\\
@@ -58,16 +51,11 @@ aams2@cin.ufpe.br}
 \IEEEauthorblockA{\textit{Centro de Informática - UFPE} \\
 Recife, Brasil \\
 bsxs@cin.ufpe.br}
-\linebreakand
+\and
 \IEEEauthorblockN{João Henrique Portela}
 \IEEEauthorblockA{\textit{Centro de Informática - UFPE} \\
 Recife, Brasil \\
 jhpbs@cin.ufpe.br}
-\and
-\IEEEauthorblockN{Antonio Gonzaga}
-\IEEEauthorblockA{\textit{Centro de Informática - UFPE} \\
-Recife, Brasil \\
-agla@cin.ufpe.br}
 }
 
 \maketitle

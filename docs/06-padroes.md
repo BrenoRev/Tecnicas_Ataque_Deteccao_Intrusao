@@ -128,7 +128,7 @@ A especificação pede "códigos comentados". Isso se cumpre com docstring curta
 Nada é dado como pronto sem passar por duas leituras:
 
 1. **Revisão automática**: agente `revisor-metodologico` para código e experimento; agente `revisor-de-texto` para relatório e slides.
-2. **Revisão humana cruzada**: outro integrante lê, roda e assina o pull request. Neste projeto não houve pull request por tarefa (decisão 55f): a segunda leitura é a dos quatro integrantes sobre o relatório e o código da parte que apresentam, ainda por fazer ([07-pendencias.md](07-pendencias.md), itens 6 e 7).
+2. **Revisão humana cruzada**: outro integrante lê, roda e assina o pull request. Neste projeto não houve pull request por tarefa (decisão 55f): a segunda leitura é a dos três integrantes sobre o relatório e o código da parte que apresentam, ainda por fazer ([07-pendencias.md](07-pendencias.md), itens 6 e 7).
 
 Ordem de prioridade na revisão de experimento:
 

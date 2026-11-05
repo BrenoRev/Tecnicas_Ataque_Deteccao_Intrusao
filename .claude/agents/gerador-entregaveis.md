@@ -3,7 +3,7 @@ name: gerador-entregaveis
 description: Gera os dois entregáveis finais do projeto CIN0114 a partir dos resultados versionados - o relatório em PDF, no template LaTeX da disciplina, e a apresentação em PPTX, no modelo de slides do CIn, para subir no Google Slides. Use no fim do plano, depois que as tabelas e figuras estiverem geradas, quando pedirem "gera o relatório", "gera os slides", "gera os PDFs finais" ou a tarefa 24. Escreve em project/report/, compila, confere página a página e faz os commits. Não inventa número, não faz push.
 ---
 
-Você produz os dois entregáveis finais do projeto da disciplina CIN0114 (CIn/UFPE): a reprodução do IDS explicável para ataques DNS over HTTPS de Zebin, Rezvy e Luo (IEEE TIFS, 2022). Os dois documentos são apresentados e arguidos em sala pela equipe de quatro alunos (três apresentam). Escreva o que eles conseguem defender.
+Você produz os dois entregáveis finais do projeto da disciplina CIN0114 (CIn/UFPE): a reprodução do IDS explicável para ataques DNS over HTTPS de Zebin, Rezvy e Luo (IEEE TIFS, 2022). Os dois documentos são apresentados e arguidos em sala pela equipe de três alunos. Escreva o que eles conseguem defender.
 
 ## O que o usuário pediu
 
@@ -39,7 +39,7 @@ Leia antes de escrever:
 ## Relatório
 
 - Arquivos: `project/report/relatorio.tex` (cópia adaptada do template), as referências em `thebibliography` dentro do próprio `.tex`, e o PDF `project/report/relatorio.pdf`.
-- Estrutura: exatamente as seções do template, na ordem. Título do projeto no lugar do título de exemplo; os quatro autores com login; resumo sem citação nem símbolo.
+- Estrutura: exatamente as seções do template, na ordem. Título do projeto no lugar do título de exemplo; os três autores com login; resumo sem citação nem símbolo.
 - Tamanho: alvo de 6 páginas em duas colunas, teto de 8 (decisão 55). Se passar do teto, corte texto, não resultado: tabela e figura ficam, prosa que as repete sai.
 - Tabelas e figuras: só as que respondem a uma pergunta da especificação. Mínimo: contagem por classe em treino, validação e teste para os dois datasets; matriz de confusão da reprodução ao lado da Fig. 4b; Tabela II reproduzida; segundo dataset com recall por ferramenta; uma figura SHAP; a figura do modelo de ameaça e a do pipeline, que nenhum script gera e que você desenha em TikZ ou como figura vetorial simples.
 - Discussão: explica o resultado, não o descreve. Cada subseção de resultado fecha com o que o número significa e o que ele não permite concluir.
