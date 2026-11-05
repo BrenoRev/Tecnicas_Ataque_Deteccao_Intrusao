@@ -381,9 +381,9 @@ SLIDES = [
     },
 ]
 
-# Proposta de divisão da fala, em blocos contíguos de slides, por ordem
-# alfabética: (integrante, primeiro slide, último slide).
-SPEAKERS = [("Amanda", 1, 4), ("Antonio", 5, 7), ("Breno", 8, 10), ("João", 11, 14)]
+# Divisão da fala entre os três integrantes que apresentam, em blocos contíguos
+# de slides que acompanham o assunto: (integrante, primeiro slide, último slide).
+SPEAKERS = [("Amanda", 1, 5), ("Antonio", 6, 10), ("João", 11, 14)]
 
 
 def template_logo(presentation: Presentation, slide_index: int) -> io.BytesIO:
@@ -582,8 +582,8 @@ def script_markdown() -> str:
         "",
         f"Tempo disponível: 15 minutos. Soma dos tempos: {total // 60} min {total % 60:02d} s.",
         "",
-        "Quem fala em cada slide (proposta, a equipe confirma): blocos contíguos, por ordem "
-        "alfabética.",
+        "Apresentam três integrantes, em blocos contíguos de slides (a divisão dos blocos é "
+        "proposta; a equipe pode trocar o ponto de corte).",
         "",
     ]
     for name, first, last in SPEAKERS:
