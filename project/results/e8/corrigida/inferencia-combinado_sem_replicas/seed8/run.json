@@ -1,0 +1,68 @@
+{
+  "commit": "4e5b1df5ec2577aa2f1ae86500287ea718e845a1",
+  "config": {
+    "batch_repeats": 5,
+    "dataset": "combinado_sem_replicas",
+    "models": {
+      "A": {
+        "max_depth": null
+      },
+      "M1M2": {
+        "max_depth": null,
+        "max_features": "sqrt",
+        "n_estimators": 100
+      }
+    },
+    "predict_n_jobs": 1,
+    "single_flows": 1000
+  },
+  "cpu_count": 10,
+  "data_sha256": "624c21216525d5b54075b9442e55b7b3f75aaead8ba4b6f0578c08132648890e",
+  "dirty": false,
+  "experiment": "e8",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 8,
+  "slice": "inferencia-combinado_sem_replicas",
+  "timestamp": "2026-11-10T17:46:25-03:00",
+  "timings": {
+    "A": {
+      "batch_seconds": [
+        0.4073498339857906,
+        0.33086212497437373,
+        0.31356949999462813,
+        0.3030014999676496,
+        0.30352608405519277
+      ],
+      "fit_seconds": 163.1,
+      "single_median_seconds": 0.0020109999750275165,
+      "single_p95_seconds": 0.0028886583662824697
+    },
+    "M1M2": {
+      "batch_seconds": [
+        1.461479458026588,
+        1.418577624950558,
+        1.1204928330262192,
+        1.095388957997784,
+        1.1001920829876326
+      ],
+      "fit_seconds": 103.0,
+      "single_median_seconds": 0.0037249794986564666,
+      "single_p95_seconds": 0.005294144424260594
+    }
+  },
+  "track": "corrigida"
+}

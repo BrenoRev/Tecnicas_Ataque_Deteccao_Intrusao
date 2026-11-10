@@ -727,6 +727,38 @@ ROBUSTNESS_COLUMN_PAIRS = [("sem_duration", "todos"), ("sem_duration_taxas", "to
 ROBUSTNESS_COLLAPSE_RECALL = 0.90
 ROBUSTNESS_INCOHERENT_FRACTION = 0.90
 
+# Tempo de inferência. O artigo limita as árvores a profundidade 5 para manter
+# o cálculo rápido na predição (Seção IV-B) e não mede esse tempo. Tudo abaixo
+# foi fixado antes da primeira execução.
+
+# Modelos medidos em cada conjunto de dados: só os que já têm execução gravada
+# nas mesmas seeds, para conferir que o modelo ajustado de novo é o mesmo.
+INFERENCE_MODELS = {
+    "cira": ["A", "A-prof5", "M1", MODIFIED_SELECTED_MODEL],
+    "combinado_sem_replicas": ["A", MODIFIED_SELECTED_MODEL],
+}
+
+# Pares comparados seed a seed, o primeiro contra o segundo. A-prof5 contra A
+# confere a justificativa do artigo para a profundidade 5.
+INFERENCE_COMPARISONS = {
+    "cira": [(MODIFIED_SELECTED_MODEL, "A"), ("M1", "A"), ("A-prof5", "A")],
+    "combinado_sem_replicas": [(MODIFIED_SELECTED_MODEL, "A")],
+}
+
+# Repetições da predição do teste inteiro, depois de uma de aquecimento, e
+# fluxos do teste preditos um por chamada, sorteados com a seed da execução.
+# Escolha nossa: bastam para a mediana ser estável e cabem em poucos minutos.
+INFERENCE_BATCH_REPEATS = 5
+INFERENCE_SINGLE_FLOWS = 1000
+
+# Predições de fluxo único feitas antes da medição, para que a primeira chamada
+# de cada modelo, mais lenta, não entre na mediana. Escolha nossa.
+INFERENCE_SINGLE_WARMUP = 10
+
+# Faixa, em múltiplos da razão de nós por fluxo, fora da qual a razão de tempo
+# em lote de um par é resultado inesperado: de metade ao dobro.
+INFERENCE_NODE_RATIO_BAND = (0.5, 2.0)
+
 # Trilhas aceitas no registro de resultados. As duas primeiras são a reprodução
 # como o artigo descreve e o protocolo consertado; "variante" é para leituras
 # alternativas do texto do artigo e "dados" para etapas que não treinam modelo.

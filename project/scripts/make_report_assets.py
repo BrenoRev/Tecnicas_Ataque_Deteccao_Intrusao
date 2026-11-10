@@ -15,8 +15,9 @@ página (table* ou figure*); as outras cabem em uma coluna.
 
 Nenhum número é digitado aqui. O script falha se faltar resultado obrigatório
 (dados, reprodução, modelos de comparação, explicabilidade, segundo dataset e
-ferramenta de túnel). Sensibilidade, protocolo corrigido, modificação e robustez
-são opcionais: o que faltar é listado na saída como "não gerado".
+ferramenta de túnel). Sensibilidade, protocolo corrigido, modificação, robustez
+e tempo de inferência são opcionais: o que faltar é listado na saída como "não
+gerado".
 
 Uso: uv run python scripts/make_report_assets.py
 """
@@ -1416,6 +1417,182 @@ def robustness_figure(results_dir: Path) -> list[Plot]:
     return [Plot("robustez_fragmentacao", figure, caption, ROBUSTNESS_SOURCE)]
 
 
+INFERENCE_SOURCE = "results/e8/corrigida/summary-inferencia.json"
+INFERENCE_SEED_SOURCE = "results/e8/corrigida/inferencia-<dados>/seed<k>/"
+INFERENCE_TRACK = "corrigida"
+INFERENCE_METRICS = {
+    "nodes_per_flow": "Nós por fluxo",
+    "batch_seconds": "Tempo em lote",
+    "single_seconds": "Tempo fluxo a fluxo",
+}
+
+
+def inference_seed_value(metrics: dict, log: dict, model: str, metric: str) -> float:
+    """Valor de um modelo em uma seed: nós por fluxo ou mediana do regime de tempo."""
+    if metric == "nodes_per_flow":
+        return metrics["models"][model]["nodes_per_flow"]
+    timings = log["timings"][model]
+    if metric == "batch_seconds":
+        return float(np.median(timings["batch_seconds"]))
+    return timings["single_median_seconds"]
+
+
+def inference_ratios(results_dir: Path, dataset: str, seeds: list[int], pair: dict) -> list:
+    """Razão por seed (primeiro sobre segundo) de um par, lida dos arquivos de cada seed."""
+    run_slice = f"inferencia-{dataset}"
+    ratios = []
+    for seed in seeds:
+        log = load_log(results_dir, "e8", INFERENCE_TRACK, run_slice, seed)
+        metrics = load_run(results_dir, "e8", INFERENCE_TRACK, run_slice, seed)
+        first = inference_seed_value(metrics, log, pair["first"], pair["metric"])
+        second = inference_seed_value(metrics, log, pair["second"], pair["metric"])
+        ratios.append(first / second)
+    # A média das razões lidas aqui tem de ser a do resumo: a figura e a tabela
+    # mostram o mesmo número.
+    assert np.isclose(np.mean(ratios), pair["mean_ratio"]), (dataset, pair["first"], pair["metric"])
+    return ratios
+
+
+def inference_pairs(summary: dict) -> list[tuple[str, str, list[dict]]]:
+    """Pares do resumo de inferência: conjunto, rótulo do par e as três métricas dele."""
+    groups = []
+    for dataset, content in summary["datasets"].items():
+        names = dict.fromkeys((pair["first"], pair["second"]) for pair in content["pairs"])
+        for first, second in names:
+            entries = [
+                pair
+                for pair in content["pairs"]
+                if (pair["first"], pair["second"]) == (first, second)
+            ]
+            groups.append((dataset, f"{first} / {second}", entries))
+    return groups
+
+
+def inference_table(results_dir: Path) -> list[Table]:
+    """Razões pareadas de nós por fluxo e de tempo de predição contra o sistema do artigo."""
+    summary = read_json(results_dir / Path(INFERENCE_SOURCE).relative_to("results"))
+    seeds = summary["seeds"]
+    rows, last = [], None
+    for dataset, label, entries in inference_pairs(summary):
+        if last is not None and dataset != last:
+            rows.append(None)
+        last = dataset
+        rows += [
+            [
+                DATASET_TITLES[dataset],
+                label,
+                INFERENCE_METRICS[entry["metric"]],
+                num(entry["mean_ratio"]),
+                num(entry["min_ratio"]),
+                num(entry["max_ratio"]),
+                Num(f"{entry['first_wins']} de {len(seeds)}"),
+            ]
+            for entry in entries
+        ]
+    caption = model_caption(
+        "Custo de predição contra o sistema do artigo (A): razão (modelo sobre A) dos nós de "
+        "árvore percorridos por fluxo, somados nas árvores, e do tempo de normalizar e predizer, "
+        "com uma thread de predição, em lote (teste inteiro) e fluxo a fluxo (um fluxo por "
+        "chamada), com a média, o menor e o maior valor entre as seeds e o número de seeds em "
+        "que o modelo tem o valor maior que A. M1 e A-prof5 só foram medidos no CIRA. A "
+        "contagem de nós por fluxo não depende da máquina. Os tempos absolutos não entram: "
+        "variaram entre as seeds muito mais que os nós por fluxo, o que atribuímos ao estado "
+        "da máquina.",
+        (INFERENCE_TRACK,),
+        f"{len(seeds)} seeds ({seeds[0]} a {seeds[-1]}), razão média, menor e maior",
+        NO_AVERAGE,
+    )
+    header = ["Dataset", "Par", "Métrica", "Razão média", "Mín.", "Máx.", "Seeds acima de A"]
+    return [
+        Table("inferencia_pareada", header, rows, caption, INFERENCE_SOURCE, (INFERENCE_TRACK,))
+    ]
+
+
+# Nome curto do conjunto no eixo da figura de inferência, que tem uma coluna.
+INFERENCE_AXIS_DATASETS = {"cira": "CIRA", "combinado_sem_replicas": "combinado"}
+INFERENCE_MARKERS = ["o", "s", "^"]
+
+
+def draw_inference_row(axis, y: float, ratios: list, entry: dict) -> None:
+    """Uma linha da figura de inferência: as seeds, a média e o valor da média."""
+    index = list(INFERENCE_METRICS).index(entry["metric"])
+    color = SERIES_COLORS[index]
+    # Deslocamento vertical pequeno, só para as seeds de razão parecida não se cobrirem.
+    jitter = np.linspace(-0.22, 0.22, len(ratios))
+    axis.scatter(ratios, y + jitter, s=5, color=color, alpha=0.7, linewidths=0)
+    axis.scatter(
+        entry["mean_ratio"],
+        y,
+        s=40,
+        facecolors="none",
+        edgecolors=color,
+        marker=INFERENCE_MARKERS[index],
+        linewidths=1.2,
+        zorder=3,
+    )
+    axis.annotate(
+        f"{entry['mean_ratio']:.2f}",
+        (max(*ratios, entry["mean_ratio"]), y),
+        xytext=(6, 0),
+        textcoords="offset points",
+        va="center",
+        fontsize=6.5,
+    )
+
+
+def inference_figure(results_dir: Path) -> list[Plot]:
+    """Razões por seed e médias de nós por fluxo e de tempo de predição contra A."""
+    summary = read_json(results_dir / Path(INFERENCE_SOURCE).relative_to("results"))
+    seeds = summary["seeds"]
+    groups = inference_pairs(summary)
+    config = load_log(results_dir, "e8", INFERENCE_TRACK, "inferencia-cira", seeds[0])["config"]
+    figure = Figure(figsize=(COLUMN_WIDTH, 3.0), layout="constrained")
+    axis = figure.subplots()
+    step = len(INFERENCE_METRICS) + 1
+    for position, (dataset, _, entries) in enumerate(groups):
+        for offset, entry in enumerate(entries):
+            ratios = inference_ratios(results_dir, dataset, seeds, entry)
+            draw_inference_row(axis, position * step + offset, ratios, entry)
+    axis.axvline(1, color="black", linestyle="--", linewidth=0.8)
+    centers = [position * step + (step - 2) / 2 for position in range(len(groups))]
+    labels = [f"{label}\n{INFERENCE_AXIS_DATASETS[dataset]}" for dataset, label, _ in groups]
+    axis.set_yticks(centers, labels=labels)
+    axis.invert_yaxis()
+    axis.set_xscale("log", base=2)
+    ticks = [0.25, 0.5, 1, 2, 4]
+    axis.set_xticks(ticks, labels=[f"{tick:g}" for tick in ticks])
+    axis.set_xlim(0.2, 8)
+    axis.set_xlabel("Razão em relação a A (escala logarítmica)")
+    handles = [
+        axis.scatter([], [], marker=marker, facecolors="none", edgecolors=color, label=label)
+        for marker, color, label in zip(
+            INFERENCE_MARKERS, SERIES_COLORS, INFERENCE_METRICS.values(), strict=False
+        )
+    ]
+    figure.legend(
+        handles=handles,
+        loc="outside upper center",
+        ncols=len(handles),
+        frameon=False,
+        columnspacing=1.0,
+        handletextpad=0.2,
+    )
+    caption = (
+        "Custo de predição contra o sistema do artigo (A): razão (modelo sobre A) dos nós de "
+        "árvore percorridos por fluxo e do tempo de normalizar e predizer, com uma thread de "
+        f"predição, em lote (teste inteiro, mediana de {config['batch_repeats']} repetições) e "
+        f"fluxo a fluxo (mediana de {config['single_flows']} fluxos preditos um por chamada), "
+        "no CIRA e no combinado sem réplicas; M1 e A-prof5 só foram medidos no CIRA. Eixo em "
+        "escala logarítmica. Ponto pequeno: uma seed; marcador vazado, com o valor: média das "
+        "seeds. A linha tracejada marca a razão 1; à direita dela, o modelo percorre mais nós "
+        "ou leva mais tempo que A. Os tempos absolutos não entram: variaram entre as seeds "
+        "muito mais que os nós por fluxo, o que atribuímos ao estado da máquina. Trilha "
+        f"{INFERENCE_TRACK}; {len(seeds)} seeds ({seeds[0]} a {seeds[-1]})."
+    )
+    source = f"{INFERENCE_SOURCE}; {INFERENCE_SEED_SOURCE}"
+    return [Plot("inferencia_razoes", figure, caption, source)]
+
+
 # Figuras.
 
 
@@ -1919,6 +2096,11 @@ OPTIONAL_BUILDERS = [
         Path("e8") / "corrigida" / "summary-robustez.json",
         "robustez à fragmentação dos fluxos",
         [robustness_table, robustness_seeds_table, robustness_figure],
+    ),
+    (
+        Path("e8") / "corrigida" / "summary-inferencia.json",
+        "tempo de inferência",
+        [inference_table, inference_figure],
     ),
 ]
 

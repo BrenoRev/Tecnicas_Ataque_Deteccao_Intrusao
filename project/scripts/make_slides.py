@@ -359,6 +359,32 @@ SLIDES = [
         ],
     },
     {
+        "title": "Custo de predição: tempo de inferência",
+        "seconds": 40,
+        "figure": "inferencia_razoes",
+        "bullets": [
+            "M1M2 (100 árvores; A tem 30): cerca de 3 vezes os nós; em lote, 3,48 (CIRA) e "
+            "3,58 (combinado) vezes o tempo de A",
+            "O ganho de F1 macro não exige esse custo: M1 já o tem e leva 0,28 do tempo de A "
+            "em lote (CIRA)",
+            "A-prof5 leva 0,39 do tempo de A em lote, coerente com a Seção IV-B, mas tem "
+            "recall 0 em Benign-DoH",
+        ],
+        "talk": [
+            "Razão em relação a A, o sistema do artigo: ponto pequeno é uma seed, marcador "
+            "vazado é a média. M1 e A-prof5 só foram medidos no CIRA.",
+            "Tempo de normalizar e predizer, com uma thread de predição; a contagem de nós por "
+            "fluxo não depende da máquina. O artigo não publica tempo de predição.",
+            "Fluxo a fluxo, M1M2 leva 1,79 (CIRA) e 1,87 (combinado) vezes o tempo de A, nas "
+            "10 seeds.",
+            "O custo vem com a seleção de hiperparâmetros, que sobre M1 não aumenta o F1 macro.",
+            "Não citamos tempo absoluto: variou entre seeds, o que atribuímos ao estado da "
+            "máquina, porque os nós por fluxo de A variam no máximo 1,7%.",
+            "Extração de atributos e espera pelo fim do fluxo não foram medidas: nada dizemos "
+            "sobre tempo real.",
+        ],
+    },
+    {
         "title": "Limitações e conclusão",
         "seconds": 60,
         "bullets": [
@@ -369,7 +395,7 @@ SLIDES = [
             "Um Random Forest único com peso de classe supera o empilhamento em F1 macro, "
             "por cerca de meio ponto",
             "Nossa parte: reprodução com uma seed; fragmentação só simulada; a modificação "
-            "treina em mais tempo",
+            "treina e prediz em mais tempo",
         ],
         "talk": [
             "A modificação melhora o F1 macro em meio ponto e não resolve a detecção das "
@@ -383,7 +409,7 @@ SLIDES = [
 
 # Divisão da fala entre os três integrantes que apresentam, em blocos contíguos
 # de slides que acompanham o assunto: (integrante, primeiro slide, último slide).
-SPEAKERS = [("Amanda", 1, 5), ("Breno", 6, 10), ("João", 11, 14)]
+SPEAKERS = [("Amanda", 1, 5), ("Breno", 6, 10), ("João", 11, 15)]
 
 
 def template_logo(presentation: Presentation, slide_index: int) -> io.BytesIO:

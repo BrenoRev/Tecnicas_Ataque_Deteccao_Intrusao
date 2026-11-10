@@ -5,6 +5,8 @@
 **Depende de:** 17 para a execução limpa e o README; 24 só para o envio final (as duas concluídas)
 **Demonstra:** README com a tabela resultado → script → arquivo e a execução limpa em um clone novo. Entregável "link do GitHub com os códigos comentados".
 
+> **Acréscimo de 10/11/2026 (tarefa 26, branch `tarefa/26-tempo-inferencia`):** o README e `scripts/execucao_limpa.sh` ganharam os passos 19a (`uv run python -m scripts.e8_inferencia`, 2 h 27 min de relógio) e 19b (`uv run python -m scripts.e8_inferencia_resumo`), entre o 19 e o 20; a sequência tem 24 passos, numerados de 1 a 22 com os dois subpassos. O README deixou de dizer "22 passos" na seção "Execução limpa", mas a seção "Ordem dos scripts" ainda abre com "Os 22 passos abaixo" (`README.md:111`, lido em `f1bdc37`): divergência de texto em `project/`, levada ao usuário, não corrigida aqui. `scripts/comparar_resultados.py` passou a ler `summary-inferencia.json` sem os tempos (`4e5b1df`). A execução limpa de 08/10/2026 não cobre esses dois passos. Onde este arquivo fala em 22 passos ou em dois agregados de E8, o registro é o de 08/10/2026.
+
 ## Como ficou (fechamento de 08/10/2026, conferido em `5999c1b`)
 
 **Onde este bloco e o resto do arquivo divergirem, vale este bloco.** "Executado" é comando rodado neste fechamento; "lido" é arquivo ou histórico aberto, sem rodar.

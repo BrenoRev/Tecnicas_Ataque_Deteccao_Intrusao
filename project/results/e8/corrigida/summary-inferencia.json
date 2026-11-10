@@ -1,0 +1,384 @@
+{
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "datasets": {
+    "cira": {
+      "test_rows": 115911,
+      "models": {
+        "A": {
+          "trees": {
+            "mean": 30.0,
+            "std": 0.0,
+            "n": 10
+          },
+          "nodes_per_flow": {
+            "mean": 463.01684568332604,
+            "std": 5.097341288311251,
+            "n": 10
+          },
+          "batch_seconds": {
+            "mean": 0.42251560000586325,
+            "std": 0.14550089182016124,
+            "n": 10
+          },
+          "single_seconds": {
+            "mean": 0.003012168800341897,
+            "std": 0.0015364252591112168,
+            "n": 10
+          },
+          "single_p95_seconds": {
+            "mean": 0.007423363559064455,
+            "std": 0.009128282820963765,
+            "n": 10
+          }
+        },
+        "A-prof5": {
+          "trees": {
+            "mean": 30.0,
+            "std": 0.0,
+            "n": 10
+          },
+          "nodes_per_flow": {
+            "mean": 164.31012414697483,
+            "std": 1.3276952374766333,
+            "n": 10
+          },
+          "batch_seconds": {
+            "mean": 0.161139716708567,
+            "std": 0.036716139483894815,
+            "n": 10
+          },
+          "single_seconds": {
+            "mean": 0.0029225457401480526,
+            "std": 0.0014493969965635174,
+            "n": 10
+          },
+          "single_p95_seconds": {
+            "mean": 0.007076515825174282,
+            "std": 0.008478530125152366,
+            "n": 10
+          }
+        },
+        "M1": {
+          "trees": {
+            "mean": 10.0,
+            "std": 0.0,
+            "n": 10
+          },
+          "nodes_per_flow": {
+            "mean": 138.3450181604852,
+            "std": 1.7137159485160673,
+            "n": 10
+          },
+          "batch_seconds": {
+            "mean": 0.11744007079978473,
+            "std": 0.03320384977209632,
+            "n": 10
+          },
+          "single_seconds": {
+            "mean": 0.001468372900853865,
+            "std": 0.0008057274144734185,
+            "n": 10
+          },
+          "single_p95_seconds": {
+            "mean": 0.0037014594121137626,
+            "std": 0.004701213096543547,
+            "n": 10
+          }
+        },
+        "M1M2": {
+          "trees": {
+            "mean": 100.0,
+            "std": 0.0,
+            "n": 10
+          },
+          "nodes_per_flow": {
+            "mean": 1418.1397460120265,
+            "std": 7.865350516305377,
+            "n": 10
+          },
+          "batch_seconds": {
+            "mean": 1.4554139376967214,
+            "std": 0.4414691068456181,
+            "n": 10
+          },
+          "single_seconds": {
+            "mean": 0.005220375006319955,
+            "std": 0.002197915630394617,
+            "n": 10
+          },
+          "single_p95_seconds": {
+            "mean": 0.012117032630776505,
+            "std": 0.015781048250285014,
+            "n": 10
+          }
+        }
+      },
+      "pairs": [
+        {
+          "first": "M1M2",
+          "second": "A",
+          "metric": "nodes_per_flow",
+          "mean_difference": 955.1229003287006,
+          "std_difference": 10.406631793154917,
+          "first_wins": 10,
+          "second_wins": 0,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 3.0632049262699352,
+          "min_ratio": 3.0053615713590656,
+          "max_ratio": 3.1478385498520773,
+          "verdict": "maior"
+        },
+        {
+          "first": "M1M2",
+          "second": "A",
+          "metric": "batch_seconds",
+          "mean_difference": 1.0328983376908583,
+          "std_difference": 0.30382726593143505,
+          "first_wins": 10,
+          "second_wins": 0,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 3.480395018181265,
+          "min_ratio": 3.0861207348881226,
+          "max_ratio": 4.0342496000298915,
+          "verdict": "maior"
+        },
+        {
+          "first": "M1M2",
+          "second": "A",
+          "metric": "single_seconds",
+          "mean_difference": 0.0022082062059780583,
+          "std_difference": 0.0007271731355855347,
+          "first_wins": 10,
+          "second_wins": 0,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 1.7924297067311046,
+          "min_ratio": 1.4911059704758387,
+          "max_ratio": 1.8833389445788258,
+          "verdict": "maior"
+        },
+        {
+          "first": "M1",
+          "second": "A",
+          "metric": "nodes_per_flow",
+          "mean_difference": -324.67182752284083,
+          "std_difference": 4.603181750528449,
+          "first_wins": 0,
+          "second_wins": 10,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 0.2988067697614052,
+          "min_ratio": 0.2934712198286489,
+          "max_ratio": 0.30507837496322293,
+          "verdict": "menor"
+        },
+        {
+          "first": "M1",
+          "second": "A",
+          "metric": "batch_seconds",
+          "mean_difference": -0.3050755292060785,
+          "std_difference": 0.11319444953957553,
+          "first_wins": 0,
+          "second_wins": 10,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 0.2819245301293171,
+          "min_ratio": 0.24190623732829122,
+          "max_ratio": 0.3001083232165194,
+          "verdict": "menor"
+        },
+        {
+          "first": "M1",
+          "second": "A",
+          "metric": "single_seconds",
+          "mean_difference": -0.001543795899488032,
+          "std_difference": 0.0007351369690694816,
+          "first_wins": 0,
+          "second_wins": 10,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 0.4812045208838566,
+          "min_ratio": 0.470250911712614,
+          "max_ratio": 0.5210120544471958,
+          "verdict": "menor"
+        },
+        {
+          "first": "A-prof5",
+          "second": "A",
+          "metric": "nodes_per_flow",
+          "mean_difference": -298.70672153635115,
+          "std_difference": 5.350380823895591,
+          "first_wins": 0,
+          "second_wins": 10,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 0.35490931254721114,
+          "min_ratio": 0.3476020696520101,
+          "max_ratio": 0.3623029570145029,
+          "verdict": "menor"
+        },
+        {
+          "first": "A-prof5",
+          "second": "A",
+          "metric": "batch_seconds",
+          "mean_difference": -0.2613758832972962,
+          "std_difference": 0.1111669227822208,
+          "first_wins": 0,
+          "second_wins": 10,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 0.39175087000330355,
+          "min_ratio": 0.3033474561170121,
+          "max_ratio": 0.4447282801065608,
+          "verdict": "menor"
+        },
+        {
+          "first": "A-prof5",
+          "second": "A",
+          "metric": "single_seconds",
+          "mean_difference": -8.962306019384414e-05,
+          "std_difference": 8.925589263302924e-05,
+          "first_wins": 0,
+          "second_wins": 10,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 0.9756798679902021,
+          "min_ratio": 0.9514591102780171,
+          "max_ratio": 0.9891006116412167,
+          "verdict": "menor"
+        }
+      ]
+    },
+    "combinado_sem_replicas": {
+      "test_rows": 116437,
+      "models": {
+        "A": {
+          "trees": {
+            "mean": 30.0,
+            "std": 0.0,
+            "n": 10
+          },
+          "nodes_per_flow": {
+            "mean": 464.49616874361243,
+            "std": 7.7111661020578115,
+            "n": 10
+          },
+          "batch_seconds": {
+            "mean": 0.3522935666027479,
+            "std": 0.06741518846087646,
+            "n": 10
+          },
+          "single_seconds": {
+            "mean": 0.002139479049947113,
+            "std": 0.00033110392154265704,
+            "n": 10
+          },
+          "single_p95_seconds": {
+            "mean": 0.0035017218871507784,
+            "std": 0.0020238943349830006,
+            "n": 10
+          }
+        },
+        "M1M2": {
+          "trees": {
+            "mean": 100.0,
+            "std": 0.0,
+            "n": 10
+          },
+          "nodes_per_flow": {
+            "mean": 1430.5202521535252,
+            "std": 5.259047512736535,
+            "n": 10
+          },
+          "batch_seconds": {
+            "mean": 1.2563170334964524,
+            "std": 0.21862770640943424,
+            "n": 10
+          },
+          "single_seconds": {
+            "mean": 0.003996533356257714,
+            "std": 0.000617279716011423,
+            "n": 10
+          },
+          "single_p95_seconds": {
+            "mean": 0.006176835221704095,
+            "std": 0.0035132106727537343,
+            "n": 10
+          }
+        }
+      },
+      "pairs": [
+        {
+          "first": "M1M2",
+          "second": "A",
+          "metric": "nodes_per_flow",
+          "mean_difference": 966.0240834099126,
+          "std_difference": 12.197278873517291,
+          "first_wins": 10,
+          "second_wins": 0,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 3.0806246872688883,
+          "min_ratio": 3.0028339587286585,
+          "max_ratio": 3.1936173390233726,
+          "verdict": "maior"
+        },
+        {
+          "first": "M1M2",
+          "second": "A",
+          "metric": "batch_seconds",
+          "mean_difference": 0.9040234668937046,
+          "std_difference": 0.15174900597118116,
+          "first_wins": 10,
+          "second_wins": 0,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 3.5752354841445815,
+          "min_ratio": 3.4169071900132812,
+          "max_ratio": 3.706601951175182,
+          "verdict": "maior"
+        },
+        {
+          "first": "M1M2",
+          "second": "A",
+          "metric": "single_seconds",
+          "mean_difference": 0.0018570543063106016,
+          "std_difference": 0.0002863902089894157,
+          "first_wins": 10,
+          "second_wins": 0,
+          "ties": 0,
+          "wilcoxon_statistic": 0.0,
+          "wilcoxon_p_value": 0.001953125,
+          "mean_ratio": 1.8681136096071995,
+          "min_ratio": 1.8523021108468676,
+          "max_ratio": 1.8773518769898199,
+          "verdict": "maior"
+        }
+      ]
+    }
+  }
+}

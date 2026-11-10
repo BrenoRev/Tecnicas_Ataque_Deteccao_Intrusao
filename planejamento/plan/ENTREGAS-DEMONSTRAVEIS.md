@@ -47,7 +47,7 @@ As linhas da especificação são as de `docs/referencias/CIN0114 - 2026.2 - Esp
 
 O mesmo conjunto, menos o que não existe para o segundo dataset (não há figura nem tabela do artigo com que comparar), é refeito no combinado sem réplicas pela tarefa 14 (decisão 47).
 
-Além dos resultados do artigo, o que é contribuição da equipe e tem artefato próprio (conferido em `759ec29`):
+Além dos resultados do artigo, o que é contribuição da equipe e tem artefato próprio (conferido em `759ec29`; a linha da tarefa 26, em `f1bdc37`):
 
 | Análise | Tarefa | Artefato |
 | --- | --- | --- |
@@ -55,6 +55,7 @@ Além dos resultados do artigo, o que é contribuição da equipe e tem artefato
 | Protocolo corrigido, dez seeds (E4) | 11 | `results/e4/corrigida/{A,A-prof5,B,B-prof5,C}/seed<k>/`, `A-fold<k>/seed0/`, `summary.json`, `RESUMO.md`, `HIPOTESE.md`; tabelas `corrigido_*` e figura `corrigido_seeds` |
 | Modificação (E8) | 15 | `results/e8/corrigida/{M1-cira,M1-prof5-cira,M1M2-cira,A-combinado_sem_replicas,M1M2-combinado_sem_replicas}/seed<k>/`, `summary.json`, `RESUMO.md`, `HIPOTESE.md`; tabelas `modificacao_*` |
 | Robustez à duração (E8) | 16 | `results/e8/corrigida/robustez-{A,A-prof5,M1M2}-{todos,sem_duration,sem_duration_taxas}/seed<k>/`, `summary-robustez.json`, `RESUMO-ROBUSTEZ.md`, `HIPOTESE-ROBUSTEZ.md`; tabelas `robustez_*` e figura `robustez_fragmentacao` |
+| Tempo de inferência (E8), acrescentado em 10/11/2026 a pedido do usuário | 26 | `results/e8/corrigida/inferencia-{cira,combinado_sem_replicas}/seed<k>/`, `summary-inferencia.json`, `RESUMO-INFERENCIA.md`, `HIPOTESE-INFERENCIA.md`. **Sem tabela nem figura em `report/`, e fora do relatório e dos slides**; na branch `tarefa/26-tempo-inferencia`, ainda não na `main`, e fora da execução limpa de 08/10/2026 |
 
 ## 2. O que estará demonstrável em cada marco
 

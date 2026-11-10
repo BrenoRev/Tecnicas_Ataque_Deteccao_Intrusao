@@ -2,13 +2,13 @@
 
 Gerado por `scripts/make_slides.py`, com os mesmos textos das anotações dos slides. Não edite à mão: mude o script e rode de novo.
 
-Tempo disponível: 15 minutos. Soma dos tempos: 11 min 55 s.
+Tempo disponível: 15 minutos. Soma dos tempos: 12 min 35 s.
 
 Apresentam os três integrantes, em blocos contíguos de slides (a divisão dos blocos é proposta; a equipe pode trocar o ponto de corte).
 
 - Amanda: slides 1 a 5 (4 min 00 s)
 - Breno: slides 6 a 10 (4 min 30 s)
-- João: slides 11 a 14 (3 min 25 s)
+- João: slides 11 a 15 (4 min 05 s)
 
 ## 1. Título e equipe (0:30)
 
@@ -94,13 +94,22 @@ Apresentam os três integrantes, em blocos contíguos de slides (a divisão dos 
 - Nos fatores 8 e 16, mais de 96% dos vetores são fisicamente incoerentes.
 - Não dizemos quanto um atacante real evadiria.
 
-## 13. Limitações e conclusão (1:00)
+## 13. Custo de predição: tempo de inferência (0:40)
+
+- Razão em relação a A, o sistema do artigo: ponto pequeno é uma seed, marcador vazado é a média. M1 e A-prof5 só foram medidos no CIRA.
+- Tempo de normalizar e predizer, com uma thread de predição; a contagem de nós por fluxo não depende da máquina. O artigo não publica tempo de predição.
+- Fluxo a fluxo, M1M2 leva 1,79 (CIRA) e 1,87 (combinado) vezes o tempo de A, nas 10 seeds.
+- O custo vem com a seleção de hiperparâmetros, que sobre M1 não aumenta o F1 macro.
+- Não citamos tempo absoluto: variou entre seeds, o que atribuímos ao estado da máquina, porque os nós por fluxo de A variam no máximo 1,7%.
+- Extração de atributos e espera pelo fim do fluxo não foram medidas: nada dizemos sobre tempo real.
+
+## 14. Limitações e conclusão (1:00)
 
 - A modificação melhora o F1 macro em meio ponto e não resolve a detecção das ferramentas do HKD; sob fragmentação, seu recall cai em algumas seeds.
 - O segundo conjunto de dados compartilha duas classes com o primeiro.
 - Próximo passo: gerar tráfego fragmentado e testar uma ferramenta deixada de fora.
 - Relatório, código e resultados estão no repositório.
 
-## 14. Encerramento (0:10)
+## 15. Encerramento (0:10)
 
 - Abrir para perguntas.

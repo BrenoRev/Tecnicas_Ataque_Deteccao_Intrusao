@@ -1,0 +1,114 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "models": {
+    "A": {
+      "confusion_matrix": [
+        [
+          88706,
+          274,
+          1
+        ],
+        [
+          127,
+          1848,
+          0
+        ],
+        [
+          17,
+          6,
+          24932
+        ]
+      ],
+      "nodes": 216588,
+      "nodes_per_flow": 470.0314551681894,
+      "trees": 30
+    },
+    "A-prof5": {
+      "confusion_matrix": [
+        [
+          88948,
+          11,
+          22
+        ],
+        [
+          1974,
+          0,
+          1
+        ],
+        [
+          1119,
+          1,
+          23835
+        ]
+      ],
+      "nodes": 1482,
+      "nodes_per_flow": 163.38390661800864,
+      "trees": 30
+    },
+    "M1": {
+      "confusion_matrix": [
+        [
+          88795,
+          182,
+          4
+        ],
+        [
+          142,
+          1833,
+          0
+        ],
+        [
+          13,
+          0,
+          24942
+        ]
+      ],
+      "nodes": 47494,
+      "nodes_per_flow": 137.94070450604343,
+      "trees": 10
+    },
+    "M1M2": {
+      "confusion_matrix": [
+        [
+          88746,
+          234,
+          1
+        ],
+        [
+          117,
+          1858,
+          0
+        ],
+        [
+          7,
+          0,
+          24948
+        ]
+      ],
+      "nodes": 634422,
+      "nodes_per_flow": 1426.0410746175946,
+      "trees": 100
+    }
+  },
+  "single_flow_sample": {
+    "by_class": [
+      754,
+      18,
+      228
+    ],
+    "rows": 1000
+  },
+  "split_index_sha256": {
+    "test": "9e82ab3d23ed1b56fb24071dd58fd8669055e399c0731911db01e09338e109c8",
+    "train": "ea77b5fe23fa9eee68826e8acbf417d10aaae564f1b48fa511ff6320072de80e"
+  },
+  "test_rows": [
+    88981,
+    1975,
+    24955
+  ]
+}
