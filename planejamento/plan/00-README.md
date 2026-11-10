@@ -12,13 +12,15 @@
 
 > **Fechamento de 08/10/2026, commit `5999c1b` (branch `tarefa/19-readme-execucao-limpa`):** as 25 tarefas estão concluídas. Depois de `759ec29` vieram a 19 (README, `scripts/execucao_limpa.sh`, `scripts/comparar_resultados.py` e a execução limpa de 08/10/2026: 7 h 30 min, 22 passos, 260 de 260 arquivos de `results/` e 56 de 56 de `report/` conferem), a 22 (`.claude/rules/experimentos.md`), a 23 (página `docs/09-acompanhamento-professor.md`) e a 25 (revisão final em código, em [REVISAO-FINAL.md](REVISAO-FINAL.md): nenhum achado bloqueante, cinco importantes e nove menores, todos tratados). A decisão 55 fechou as pendências de pessoa que dependiam de conversa ou de conferência, e a versão final foi para a `main` por avanço direto, sem pull request por tarefa (55f). **Nenhum ⚠️ REVISAR aberto.** Conferido neste fechamento: suíte inteira (118 testes verdes em 44 s), lint, formatação, `scripts/metricas_fig4.py`, os greps de higiene, o CI verde na `main` do GitHub e a instalação com pip em um clone descartável; nenhum experimento foi rodado. O que resta é de pessoa e está em "O que resta", abaixo.
 
-25 tarefas, organizadas por fluxo. Cada arquivo traz: onde, objetivo, dependências, **o que demonstra**, arquivos, o que fazer, por quê, evidência, risco, critério de aceite e verificação. As tarefas implementadas trazem um bloco "Como ficou" ou "Situação", que prevalece sobre o resto do arquivo.
+> **Reconciliação de 10/11/2026, commit `f1bdc37` (branch `tarefa/26-tempo-inferencia`, criada da `main` em `9885358`):** tarefa nova, a [26](26-p3-tempo-inferencia.md), acrescentada a pedido do usuário depois do fechamento: tempo de inferência do sistema do artigo e da modificação (E8), com hipótese anterior, dez seeds e os dois datasets. Pronta e executada com dados reais em 10/11/2026 (commit `4e5b1df`, `dirty: false`); revisão metodológica sem bloqueante, informada pela sessão principal. **Não está na `main`, não passou pela execução limpa e não está no relatório nem nos slides.** Sem teste N1 novo; se `tree_cost` merece um fica em aberto em [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md), seção "Tarefa 26". **Nenhum ⚠️ REVISAR aberto.** Conferido nesta reconciliação: suíte inteira (118 testes verdes em 44 s), lint, formatação, `scripts/metricas_fig4.py`, os greps do G7, os 20 `run.json` da tarefa, a comparação da execução limpa sobre o agregado novo e `make_report_assets` em diretório temporário (tabelas idênticas); nenhum treino.
+
+26 tarefas, organizadas por fluxo: as 25 do plano original e a 26, acrescentada depois do fechamento. Cada arquivo traz: onde, objetivo, dependências, **o que demonstra**, arquivos, o que fazer, por quê, evidência, risco, critério de aceite e verificação. As tarefas implementadas trazem um bloco "Como ficou" ou "Situação", que prevalece sobre o resto do arquivo.
 
 Antes de implementar qualquer tarefa: ler [../MEMORY/00-decisoes-travadas.md](../MEMORY/00-decisoes-travadas.md), [VERIFICACAO.md](VERIFICACAO.md) e a seção da tarefa em [PLANO-DE-TESTES.md](PLANO-DE-TESTES.md). As regras de código, commit, teste e fluxo estão em `.claude/rules/`.
 
 ## Tarefas
 
-"Concluída" quer dizer: código, testes e revisão feitos; o script rodado com os dados reais, com `run.json` de `dirty: false`; o resultado regenerado igual na execução limpa de 08/10/2026; e o commit na `main`. A versão final foi para a `main` por avanço direto, sem pull request por tarefa (decisão 55f): `origin/main` está em `378f170`, com o CI verde, e os 15 commits de `378f170` a `5999c1b` (correções da revisão final, registro da execução limpa) estão na branch local e são enviados em seguida. O commit citado é o que fechou a tarefa. "Resta de pessoa" é o que só a equipe faz.
+"Concluída" quer dizer: código, testes e revisão feitos; o script rodado com os dados reais, com `run.json` de `dirty: false`; o resultado regenerado igual na execução limpa de 08/10/2026; e o commit na `main`. A versão final foi para a `main` por avanço direto, sem pull request por tarefa (decisão 55f): `origin/main` está em `378f170`, com o CI verde, e os 15 commits de `378f170` a `5999c1b` (correções da revisão final, registro da execução limpa) estão na branch local e são enviados em seguida. O commit citado é o que fechou a tarefa. "Resta de pessoa" é o que só a equipe faz. A tarefa 26 é exceção a essa definição: está pronta e executada, mas na branch dela, fora da `main` e da execução limpa.
 
 | # | Fluxo | Tarefa | Objetivo da especificação | Depende de | Situação |
 | --- | --- | --- | --- | --- | --- |
@@ -47,6 +49,7 @@ Antes de implementar qualquer tarefa: ler [../MEMORY/00-decisoes-travadas.md](..
 | [23](23-acompanhamento-professor.md) | Acompanhamento | Perguntas ao professor e material de 10/11 e 17/11 | — | — (material: 08) | concluída: página `docs/09-acompanhamento-professor.md` em `ba9ddc4` e `4de9ab2`, com a execução limpa em `5999c1b`; resta de pessoa: encontros de 10/11 e 17/11 e o registro do retorno |
 | [24](24-entrega-pdfs-finais.md) | Entrega | Relatório em PDF e apresentação em PPTX, pelos modelos de `geracao_latex_and_pdf/` | relatório e slides | 17 | concluída em `c74fc3f`: `relatorio.pdf` (8 páginas), `apresentacao.pptx` (14 slides), `roteiro.md` (11 min 55 s, três apresentadores); cópia em `entregaveis-apresentacao/` (`f2aedd6`) |
 | [25](25-revisao-final-em-codigo.md) | Fechamento | Revisão final em código: rastro, recomputação, mutação e leitura, sem treinar | todos | 19 | concluída em `5999c1b`: revisão em `3e42795`, achados tratados em `2686b80`, `7200be7`, `bf19a11`, `2be47e9`, `80111aa`, `2622ea3`, `97b2c8c`, `3725f27` e `c74fc3f` |
+| [26](26-p3-tempo-inferencia.md) | P3 | Tempo de inferência do sistema do artigo e da modificação (E8), acrescentada depois do fechamento | P3 (extra) | 11, 13, 15 | pronta e executada em `f1bdc37`, na branch `tarefa/26-tempo-inferencia`: hipótese em `527efde`, execução no commit `4e5b1df` (10/11/2026, dez seeds, dois datasets), resumo em `9ae169c`, revisão tratada em `9c4f4df` e `f1bdc37`; **fora da `main`, da execução limpa, do relatório e dos slides**; G6 não feito |
 
 ## Grafo de dependência
 
@@ -78,9 +81,10 @@ Cada linha lê-se "X depende de Y". As arestas marcadas com "lê" foram acrescen
 23                      (material de 10/11: 08)
 24 ← 17
 25 ← 19
+26 ← 11, 13, 15          (lê results/e4/corrigida/{A,A-prof5}/ e os recortes de M1, M1M2 e A-combinado_sem_replicas de results/e8/corrigida/)
 ```
 
-Sem ciclos: as arestas novas vão de script de resumo para resultado de treino (10 → 11; 15 → 16) ou de treino para etapa de dados (12 → 13; 21 → 13), e nenhum treino lê resumo. A ordem de execução que respeita todas elas está na tarefa [19](19-entrega-readme-execucao-limpa.md), "Ordem real dos scripts".
+Sem ciclos: as arestas novas vão de script de resumo para resultado de treino (10 → 11; 15 → 16) ou de treino para etapa de dados (12 → 13; 21 → 13), e nenhum treino lê resumo. A 26 lê `metrics.json` de treinos já gravados e nenhuma tarefa lê o que ela grava. A ordem de execução que respeita todas elas está na tarefa [19](19-entrega-readme-execucao-limpa.md), "Ordem real dos scripts".
 
 ## Ordem de execução
 
@@ -109,7 +113,7 @@ Em 08/10/2026 as ondas 0 a 8 estão implementadas, antes das janelas: P3 foi fei
 
 Desenvolvimento e testes N1: máquina de quem implementa e CI. A execução com dados reais das tarefas 03 a 16 e da 21, e a execução limpa da 19, foram feitas na própria sessão de implementação, nesta máquina (decisão 44). O cluster Apuana não se aplica: não foi usado, e a pasta `jobs/` não existe. Os 229 `run.json` versionados trazem a mesma máquina, com 10 núcleos. A evidência é `results/`, o `run.json` com a máquina e `dirty: false`, e a execução limpa; a saída colada no pull request não se aplica (decisão 55f).
 
-Custo medido, pela chave `timings` dos `run.json` (detalhe por script na tarefa 19): E1, 56 minutos; E4, 1 h 59 min; modificação de E8, 1 h 59 min; robustez de E8, 1 h 57 min; E6, 42 minutos (14a) e 31 minutos (14b); os demais, menos de 10 minutos cada. Soma de todos os treinos: 8 h 27 min. A execução limpa inteira levou 7 h 30 min. Nada foi cortado por custo; a seleção de hiperparâmetros de E8 usa 25% do treino de cada seed (decisão 54a), e isso é declarado.
+Custo medido, pela chave `timings` dos `run.json` (detalhe por script na tarefa 19): E1, 56 minutos; E4, 1 h 59 min; modificação de E8, 1 h 59 min; robustez de E8, 1 h 57 min; E6, 42 minutos (14a) e 31 minutos (14b); os demais, menos de 10 minutos cada. Soma de todos os treinos: 8 h 27 min. A execução limpa inteira levou 7 h 30 min. A tarefa 26, posterior, levou 2 h 27 min de relógio (README, passo 19a), e não está nessas somas. Nada foi cortado por custo; a seleção de hiperparâmetros de E8 usa 25% do treino de cada seed (decisão 54a), e isso é declarado.
 
 ## O que foi cortado
 
@@ -131,11 +135,14 @@ A lista única, com o detalhe e a evidência de cada item, é a seção "O que r
 | Entrega: checklist de entrega, PDF e link do GitHub, com o comprovante | 19 | 18/11 |
 | Apresentação e arguição | 20 | 19/11 |
 | Proteção da `main` e acesso de escrita dos integrantes no GitHub, se a equipe quiser | 01 | — |
+| Decidir se a tarefa 26 vai para a `main` antes da entrega e, se for, se entra no relatório ou nos slides (hoje não entra; o relatório tem 8 páginas, no teto da decisão 53) | 26 | antes de 18/11 |
+| Decidir se `tree_cost` ganha teste N1 com dados sintéticos (sugestão do revisor metodológico) | 26 | — |
 
 ### Aberto que não é de pessoa
 
 | Item | Tarefa | Por que ficou aberto |
 | --- | --- | --- |
+| Segunda execução da medição de inferência, fora de `results/`, para conferir que os `metrics.json` repetem (G6); custo de cerca de 2 h 30 min | 26 | Não feita: a tarefa foi registrada já executada, e a execução limpa de 08/10/2026 é anterior a ela |
 | Registro de que o painel sobe e a página responde com os dados reais | 12 (T12-7) | Fechado: conferido em 08/10/2026 na sessão: `uv run python scripts/painel_xai.py` com os dados reais, HTTP 200 em `127.0.0.1:8050` e em `/_dash-layout` após 162 s; processo encerrado, porta livre, `git status` limpo |
 
 ### Perguntas ao professor
@@ -158,7 +165,7 @@ Todas fechadas em 07/10/2026, pelas decisões 51, 52 e 54, e conferidas no códi
 
 ## Como usar
 
-- O plano está fechado: não há tarefa a implementar. O que resta é de pessoa e está em "O que resta".
+- O plano original está fechado. A tarefa 26 está pronta e executada na branch dela; integrá-la à `main` é da equipe. O que resta é de pessoa e está em "O que resta".
 - O que cada tarefa demonstra e como os requisitos do professor se distribuem está em [ENTREGAS-DEMONSTRAVEIS.md](ENTREGAS-DEMONSTRAVEIS.md).
 - Para regenerar tudo: `scripts/execucao_limpa.sh` e `scripts/comparar_resultados.py`, descritos na tarefa 19 e no `README.md` de `project/`. Script que importa outro script roda como módulo: `uv run python -m scripts.<nome>`.
 - Se uma correção futura tocar código: ciclo de `.claude/rules/fluxo-implementacao.md` (implementa, testa, revisa), gate de `VERIFICACAO.md`, e o agente `cin0114-plan-sync` reconcilia o plano depois.
