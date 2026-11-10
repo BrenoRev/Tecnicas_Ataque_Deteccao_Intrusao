@@ -1492,10 +1492,12 @@ def inference_table(results_dir: Path) -> list[Table]:
     caption = model_caption(
         "Custo de predição contra o sistema do artigo (A): razão (modelo sobre A) dos nós de "
         "árvore percorridos por fluxo, somados nas árvores, e do tempo de normalizar e predizer, "
-        "com uma thread, em lote (teste inteiro) e fluxo a fluxo (um fluxo por chamada), com a "
-        "média, o menor e o maior valor entre as seeds e o número de seeds em que o modelo tem o "
-        "valor maior que A. Nós por fluxo não dependem da máquina; os tempos absolutos não "
-        "entram, porque variaram entre as seeds com o estado da máquina.",
+        "com uma thread de predição, em lote (teste inteiro) e fluxo a fluxo (um fluxo por "
+        "chamada), com a média, o menor e o maior valor entre as seeds e o número de seeds em "
+        "que o modelo tem o valor maior que A. M1 e A-prof5 só foram medidos no CIRA. A "
+        "contagem de nós por fluxo não depende da máquina. Os tempos absolutos não entram: "
+        "variaram entre as seeds muito mais que os nós por fluxo, o que atribuímos ao estado "
+        "da máquina.",
         (INFERENCE_TRACK,),
         f"{len(seeds)} seeds ({seeds[0]} a {seeds[-1]}), razão média, menor e maior",
         NO_AVERAGE,
@@ -1560,7 +1562,7 @@ def inference_figure(results_dir: Path) -> list[Plot]:
     ticks = [0.25, 0.5, 1, 2, 4]
     axis.set_xticks(ticks, labels=[f"{tick:g}" for tick in ticks])
     axis.set_xlim(0.2, 8)
-    axis.set_xlabel("Razão em relação a A (escala log)")
+    axis.set_xlabel("Razão em relação a A (escala logarítmica)")
     handles = [
         axis.scatter([], [], marker=marker, facecolors="none", edgecolors=color, label=label)
         for marker, color, label in zip(
@@ -1577,14 +1579,15 @@ def inference_figure(results_dir: Path) -> list[Plot]:
     )
     caption = (
         "Custo de predição contra o sistema do artigo (A): razão (modelo sobre A) dos nós de "
-        "árvore percorridos por fluxo e do tempo de normalizar e predizer, com uma thread, em "
-        f"lote (teste inteiro, mediana de {config['batch_repeats']} repetições) e fluxo a fluxo "
-        f"(mediana de {config['single_flows']} fluxos preditos um por chamada), no CIRA e no "
-        "combinado sem réplicas. Ponto pequeno: uma seed; marcador vazado, com o valor: média "
-        "das seeds. A linha tracejada marca a razão 1; à direita dela, o modelo percorre mais "
-        "nós ou leva mais tempo que A. Os tempos absolutos não entram, porque variaram entre as "
-        f"seeds com o estado da máquina. Trilha {INFERENCE_TRACK}; {len(seeds)} seeds "
-        f"({seeds[0]} a {seeds[-1]})."
+        "árvore percorridos por fluxo e do tempo de normalizar e predizer, com uma thread de "
+        f"predição, em lote (teste inteiro, mediana de {config['batch_repeats']} repetições) e "
+        f"fluxo a fluxo (mediana de {config['single_flows']} fluxos preditos um por chamada), "
+        "no CIRA e no combinado sem réplicas; M1 e A-prof5 só foram medidos no CIRA. Eixo em "
+        "escala logarítmica. Ponto pequeno: uma seed; marcador vazado, com o valor: média das "
+        "seeds. A linha tracejada marca a razão 1; à direita dela, o modelo percorre mais nós "
+        "ou leva mais tempo que A. Os tempos absolutos não entram: variaram entre as seeds "
+        "muito mais que os nós por fluxo, o que atribuímos ao estado da máquina. Trilha "
+        f"{INFERENCE_TRACK}; {len(seeds)} seeds ({seeds[0]} a {seeds[-1]})."
     )
     source = f"{INFERENCE_SOURCE}; {INFERENCE_SEED_SOURCE}"
     return [Plot("inferencia_razoes", figure, caption, source)]
