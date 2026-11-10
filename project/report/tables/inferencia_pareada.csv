@@ -1,0 +1,13 @@
+Dataset,Par,Métrica,Razão média,Mín.,Máx.,Seeds acima de A
+CIRA,M1M2 / A,Nós por fluxo,3.06,3.01,3.15,10 de 10
+CIRA,M1M2 / A,Tempo em lote,3.48,3.09,4.03,10 de 10
+CIRA,M1M2 / A,Tempo fluxo a fluxo,1.79,1.49,1.88,10 de 10
+CIRA,M1 / A,Nós por fluxo,0.30,0.29,0.31,0 de 10
+CIRA,M1 / A,Tempo em lote,0.28,0.24,0.30,0 de 10
+CIRA,M1 / A,Tempo fluxo a fluxo,0.48,0.47,0.52,0 de 10
+CIRA,A-prof5 / A,Nós por fluxo,0.35,0.35,0.36,0 de 10
+CIRA,A-prof5 / A,Tempo em lote,0.39,0.30,0.44,0 de 10
+CIRA,A-prof5 / A,Tempo fluxo a fluxo,0.98,0.95,0.99,0 de 10
+Combinado sem réplicas,M1M2 / A,Nós por fluxo,3.08,3.00,3.19,10 de 10
+Combinado sem réplicas,M1M2 / A,Tempo em lote,3.58,3.42,3.71,10 de 10
+Combinado sem réplicas,M1M2 / A,Tempo fluxo a fluxo,1.87,1.85,1.88,10 de 10
