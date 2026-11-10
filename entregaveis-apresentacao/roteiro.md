@@ -96,13 +96,12 @@ Apresentam os três integrantes, em blocos contíguos de slides (a divisão dos 
 
 ## 13. Custo de predição: tempo de inferência (0:40)
 
-- Razão em relação a A, o sistema do artigo: ponto pequeno é uma seed, marcador vazado é a média.
-- Nós por fluxo não depende da máquina; o tempo é o de normalizar e predizer, com uma thread.
-- O artigo não publica tempo de inferência: não há número dele para comparar.
-- Não citamos tempo absoluto: em A, variou entre seeds com coeficiente de variação de até 51%, pelo estado da máquina.
-- M1, Random Forest único com 10 árvores, é o mais rápido: 0,28 em lote e 0,48 fluxo a fluxo.
-- Fluxo a fluxo, a profundidade 5 é só cerca de 2% mais rápida (0,98), em todas as seeds: numa chamada de um fluxo, pesa a parte do tempo que não depende da profundidade, que não medimos.
-- A modificação troca custo de predição por meio ponto de F1 macro. Extração de atributos e espera pelo fim do fluxo não foram medidas: nada dizemos sobre tempo real.
+- Razão em relação a A, o sistema do artigo: ponto pequeno é uma seed, marcador vazado é a média. M1 e A-prof5 só foram medidos no CIRA.
+- Tempo de normalizar e predizer, com uma thread de predição; a contagem de nós por fluxo não depende da máquina. O artigo não publica tempo de predição.
+- Fluxo a fluxo, M1M2 leva 1,79 (CIRA) e 1,87 (combinado) vezes o tempo de A, nas 10 seeds.
+- O custo vem com a seleção de hiperparâmetros, que sobre M1 não aumenta o F1 macro.
+- Não citamos tempo absoluto: variou entre seeds, o que atribuímos ao estado da máquina, porque os nós por fluxo de A variam no máximo 1,7%.
+- Extração de atributos e espera pelo fim do fluxo não foram medidas: nada dizemos sobre tempo real.
 
 ## 14. Limitações e conclusão (1:00)
 
