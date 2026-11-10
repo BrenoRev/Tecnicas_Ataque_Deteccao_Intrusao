@@ -108,7 +108,7 @@ Métricas recalculadas a partir das matrizes de confusão da Fig. 4 do artigo, s
 
 ### Ordem dos scripts
 
-Os 22 passos abaixo regeneram tudo o que está em `results/` e em `report/`. Cada script de treino treina, avalia e grava `metrics.json` (só valores determinísticos) e `run.json` (configuração, commit, máquina e tempos) em `results/<experimento>/<trilha>/<recorte>/seed<k>/`. Os scripts de resumo não treinam: leem esses arquivos e escrevem o `RESUMO.md` e os agregados.
+Os 24 passos abaixo (1 a 22, mais 19a e 19b) regeneram tudo o que está em `results/` e em `report/`. Cada script de treino treina, avalia e grava `metrics.json` (só valores determinísticos) e `run.json` (configuração, commit, máquina e tempos) em `results/<experimento>/<trilha>/<recorte>/seed<k>/`. Os scripts de resumo não treinam: leem esses arquivos e escrevem o `RESUMO.md` e os agregados.
 
 Script que importa outro script roda como módulo, com `python -m scripts.<nome>`; os demais, pelo caminho do arquivo. A coluna "Precisa de" indica os passos que têm de ter rodado antes.
 
