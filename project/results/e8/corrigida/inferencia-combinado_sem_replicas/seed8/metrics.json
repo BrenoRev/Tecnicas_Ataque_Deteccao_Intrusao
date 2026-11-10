@@ -1,0 +1,70 @@
+{
+  "classes": [
+    "Non-DoH",
+    "Benign-DoH",
+    "Malicious-DoH"
+  ],
+  "models": {
+    "A": {
+      "confusion_matrix": [
+        [
+          88713,
+          266,
+          2
+        ],
+        [
+          134,
+          1840,
+          1
+        ],
+        [
+          7,
+          6,
+          25468
+        ]
+      ],
+      "nodes": 222914,
+      "nodes_per_flow": 467.12738218951023,
+      "trees": 30
+    },
+    "M1M2": {
+      "confusion_matrix": [
+        [
+          88761,
+          220,
+          0
+        ],
+        [
+          125,
+          1850,
+          0
+        ],
+        [
+          5,
+          0,
+          25476
+        ]
+      ],
+      "nodes": 639666,
+      "nodes_per_flow": 1432.9527383907177,
+      "trees": 100
+    }
+  },
+  "single_flow_sample": {
+    "by_class": [
+      779,
+      11,
+      210
+    ],
+    "rows": 1000
+  },
+  "split_index_sha256": {
+    "test": "689936e8c5245d590da5f76e7991cc11163638b1e8847785c23a339baa350948",
+    "train": "f97eaa989e01dfd676208b38a62146a24d1874cb60cd9fb4450a7bfa8409bd83"
+  },
+  "test_rows": [
+    88981,
+    1975,
+    25481
+  ]
+}

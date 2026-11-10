@@ -1,0 +1,100 @@
+{
+  "commit": "4e5b1df5ec2577aa2f1ae86500287ea718e845a1",
+  "config": {
+    "batch_repeats": 5,
+    "dataset": "cira",
+    "models": {
+      "A": {
+        "max_depth": null
+      },
+      "A-prof5": {
+        "max_depth": 5
+      },
+      "M1": {
+        "max_depth": null,
+        "max_features": 28,
+        "n_estimators": 10
+      },
+      "M1M2": {
+        "max_depth": null,
+        "max_features": "sqrt",
+        "n_estimators": 100
+      }
+    },
+    "predict_n_jobs": 1,
+    "single_flows": 1000
+  },
+  "cpu_count": 10,
+  "data_sha256": "7085c3d27dd67d7c0560b9bc4549168852f390838be7f0e1018bde7b99375de3",
+  "dirty": false,
+  "experiment": "e8",
+  "hostname": "MacBook-Air-de-Breno-2.local",
+  "libraries": {
+    "explainerdashboard": "0.5.8",
+    "imbalanced-learn": "0.14.2",
+    "matplotlib": "3.11.2",
+    "mlxtend": "0.25.0",
+    "numpy": "2.3.5",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "shap": "0.52.0",
+    "xgboost": "3.4.1"
+  },
+  "python": "3.12.13",
+  "seed": 2,
+  "slice": "inferencia-cira",
+  "timestamp": "2026-11-10T15:46:55-03:00",
+  "timings": {
+    "A": {
+      "batch_seconds": [
+        0.6746367499581538,
+        0.603545917023439,
+        0.5153757500229403,
+        0.5401713330065832,
+        0.5665747500024736
+      ],
+      "fit_seconds": 170.1,
+      "single_median_seconds": 0.0048004995041992515,
+      "single_p95_seconds": 0.007715391332749276
+    },
+    "A-prof5": {
+      "batch_seconds": [
+        0.19962495903018862,
+        0.1938797080074437,
+        0.20128245803061873,
+        0.20028579200152308,
+        0.20813412504503503
+      ],
+      "fit_seconds": 90.7,
+      "single_median_seconds": 0.004567478987155482,
+      "single_p95_seconds": 0.007551314932061358
+    },
+    "M1": {
+      "batch_seconds": [
+        0.1665897499769926,
+        0.17078362504253164,
+        0.16134070802945644,
+        0.14937145804287866,
+        0.1640950000146404
+      ],
+      "fit_seconds": 71.7,
+      "single_median_seconds": 0.002423708006972447,
+      "single_p95_seconds": 0.00394996253598947
+    },
+    "M1M2": {
+      "batch_seconds": [
+        2.0628347920137458,
+        2.2362137499731034,
+        1.9645299169933423,
+        1.9158732080250047,
+        1.7705547080258839
+      ],
+      "fit_seconds": 208.6,
+      "single_median_seconds": 0.00747829201282002,
+      "single_p95_seconds": 0.010238473193021489
+    }
+  },
+  "track": "corrigida"
+}
