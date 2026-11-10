@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Execução limpa: roda os 22 passos do README, na ordem, e para no primeiro erro.
+# Execução limpa: roda os passos do README, na ordem, e para no primeiro erro.
 #
 # Uso, dentro de project/, com o ambiente instalado (uv sync --locked) e os
 # dados extraídos em data/raw/:
@@ -55,6 +55,8 @@ passo 16 uv run python -m scripts.e8_modificacao
 passo 17 uv run python -m scripts.e8_robustez
 passo 18 uv run python -m scripts.e8_resumo
 passo 19 uv run python -m scripts.e8_robustez_resumo
+passo 19a uv run python -m scripts.e8_inferencia
+passo 19b uv run python -m scripts.e8_inferencia_resumo
 passo 20 uv run python scripts/make_report_assets.py
 passo 21 uv run --group slides python scripts/make_slides.py
 cd report

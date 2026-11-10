@@ -7,8 +7,9 @@ O que é comparado, por arquivo de mesmo caminho nas duas árvores:
 
 - metrics.json, split_counts.json, o summary.json do protocolo corrigido, os
   CSV, os .tex e o INDICE.md: byte a byte.
-- os dois agregados da modificação (summary.json e summary-robustez.json):
-  depois de lidos, sem os valores de tempo, que mudam a cada execução.
+- os três agregados da modificação (summary.json, summary-robustez.json e
+  summary-inferencia.json): depois de lidos, sem os valores de tempo, que
+  mudam a cada execução.
 
 O que só é informado, sem contar como diferença: os RESUMO*.md e as tabelas do
 relatório que citam tempo de treino. Fora da comparação: run.json (commit, data
@@ -27,10 +28,23 @@ from pathlib import Path
 
 # Chaves dos agregados da modificação que mudam entre execuções sem que o
 # resultado mude: tempo de execução e o commit que gerou cada execução.
-TIME_KEYS = {"train_seconds", "selection_seconds", "time_checks", "fit_seconds", "commits"}
+TIME_KEYS = {
+    "train_seconds",
+    "selection_seconds",
+    "time_checks",
+    "fit_seconds",
+    "commits",
+    "batch_seconds",
+    "single_seconds",
+    "single_p95_seconds",
+}
 
 # Agregados que trazem tempo ao lado das métricas: comparados sem as chaves acima.
-TIME_AGGREGATES = {"e8/corrigida/summary.json", "e8/corrigida/summary-robustez.json"}
+TIME_AGGREGATES = {
+    "e8/corrigida/summary.json",
+    "e8/corrigida/summary-robustez.json",
+    "e8/corrigida/summary-inferencia.json",
+}
 
 # Tabelas do relatório com coluna ou linha de tempo de treino. As demais células
 # delas vêm dos agregados, que já são comparados fora do tempo.
