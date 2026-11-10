@@ -1,8 +1,8 @@
 # E8: tempo de inferência
 
-Gerado por `scripts/e8_inferencia_resumo.py` a partir de `results/e8/corrigida/inferencia-<dados>/seed<k>/`. Hipótese, regra de leitura e o que seria inesperado: `HIPOTESE-INFERENCIA.md`, escrita antes da primeira execução.
+Gerado por `scripts/e8_inferencia_resumo.py` a partir de `results/e8/corrigida/inferencia-<dados>/seed<k>/`. Hipótese, regra de leitura e o que seria inesperado: `HIPOTESE-INFERENCIA.md`, escrita antes da execução completa (ver, nas limitações, o teste de funcionamento anterior ao commit dela).
 
-Seeds: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9. Tempo de normalizar e predizer, com um núcleo. Lote: mediana de 5 repetições do teste inteiro. Fluxo a fluxo: mediana e percentil 95 de 1000 fluxos do teste preditos um por chamada. Média ± desvio padrão amostral entre as seeds. Nós por fluxo: nós de árvore percorridos por um fluxo, somados em todas as árvores, sem o meta-classificador de A.
+Seeds: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9. Tempo de normalizar e predizer, com uma thread. Lote: mediana de 5 repetições do teste inteiro. Fluxo a fluxo: mediana e percentil 95 de 1000 fluxos do teste preditos um por chamada. Média ± desvio padrão amostral entre as seeds. Nós por fluxo: nós de árvore percorridos por um fluxo, somados em todas as árvores, sem o meta-classificador de A.
 
 Máquina (nome, núcleos): [('MacBook-Air-de-Breno-2.local', 10)]. Commits: ['4e5b1df5ec2577aa2f1ae86500287ea718e845a1'].
 
@@ -44,11 +44,6 @@ Teste: 116437 fluxos.
 | M1M2 contra A | tempo em lote | 3.58 | +904.023 ms | 151.749 ms | 10 de 10 | maior |
 | M1M2 contra A | tempo fluxo a fluxo | 1.87 | +1.857 ms | 0.286 ms | 10 de 10 | maior |
 
-## O que isso quer dizer para quem opera o detector
-
-- CIRA-CIC-DoHBrw-2020: em lote, fluxos por segundo: A 274 mil, A-prof5 719 mil, M1 987 mil, M1M2 80 mil. Um fluxo por chamada, fluxos por segundo: A 332, A-prof5 342, M1 681, M1M2 192.
-- combinado sem réplicas: em lote, fluxos por segundo: A 331 mil, M1M2 93 mil. Um fluxo por chamada, fluxos por segundo: A 467, M1M2 250.
-
 ## Hipótese ao lado do resultado
 
 1. Nós por fluxo. M1M2 percorre mais de duas vezes os nós de A nos dois conjuntos: **ocorreu** (razão média 3.06 no CIRA e 3.08 no combinado); M1 percorre menos que A: **ocorreu**; A-prof5 percorre menos que A: **ocorreu**.
@@ -61,10 +56,25 @@ Resultados que a hipótese declarou como inesperados:
 - A-prof5 não ser mais rápido que A em lote: não ocorreu.
 - Razão de tempo em lote fora do intervalo entre metade e o dobro da razão de nós por fluxo: não ocorreu.
 
+## Leitura posterior
+
+Acrescentada depois de ver os números. Não muda a regra de leitura nem os vereditos acima.
+
+- **Profundidade 5, lote contra fluxo a fluxo.** A razão de tempo de A-prof5 sobre A é 0.39 em lote e 0.98 fluxo a fluxo, com razão de nós por fluxo 0.35. Numa chamada de um fluxo, a parte do tempo que não depende da profundidade das árvores domina; não se mediu qual é essa parte.
+- **A-prof5 contra A fluxo a fluxo, no limite da regra.** O módulo da diferença média supera o desvio padrão das diferenças em 0.4%. A-prof5 é mais rápido em 10 de 10 seeds, com razão por seed entre 0.951 e 0.989. O veredito da regra fica como está; a frase que os números sustentam é que A-prof5 é cerca de 2% mais rápido por fluxo, em todas as seeds.
+- **Variação entre seeds.** Coeficiente de variação de A entre as seeds: CIRA-CIC-DoHBrw-2020: 1.1% nos nós por fluxo, 34% no tempo em lote e 51% no fluxo a fluxo; combinado sem réplicas: 1.7% nos nós por fluxo, 19% no tempo em lote e 15% no fluxo a fluxo. Os nós por fluxo quase não variam, e o tempo varia muito: a variação vem do estado da máquina em cada seed, não do modelo. Por isso os tempos absolutos e os p95 não se citam sozinhos; as razões pareadas e os nós por fluxo, sim. No CIRA-CIC-DoHBrw-2020, o p95 fluxo a fluxo de A foi 7.4 ± 9.1 ms.
+
+## Fluxos por segundo nesta máquina (posterior)
+
+Fluxos por segundo equivalentes aos tempos médios, só da etapa de normalizar e predizer, com uma thread, nesta máquina e no estado de carga de cada seed. Não são a capacidade de um detector: ficam de fora a extração de atributos, a espera pelo fim do fluxo e o uso de mais threads. O que se compara entre modelos são as razões das tabelas de pares.
+
+- CIRA-CIC-DoHBrw-2020: em lote, fluxos por segundo: A 274 mil, A-prof5 719 mil, M1 987 mil, M1M2 80 mil. Um fluxo por chamada, fluxos por segundo: A 332, A-prof5 342, M1 681, M1M2 192.
+- combinado sem réplicas: em lote, fluxos por segundo: A 331 mil, M1M2 93 mil. Um fluxo por chamada, fluxos por segundo: A 467, M1M2 250.
+
 ## Limitações
 
-- Uma máquina, um núcleo na predição, sem isolamento de outros processos. As repetições e os modelos foram intercalados, mas o tempo absoluto não se transfere para outra máquina; a medida que se transfere é a de nós por fluxo.
-- O tempo é o da implementação (scikit-learn e mlxtend), não o do algoritmo. Fluxo a fluxo, o custo fixo de cada chamada (normalizador, validação da entrada, laço sobre as árvores) pesa mais que a profundidade das árvores.
+- Uma máquina, uma thread de predição sem núcleo fixo, sem isolamento de outros processos. O sistema operacional não permite fixar a thread em um núcleo; a máquina tem núcleos de tipos diferentes e pode reduzir a frequência com a temperatura, e as threads da biblioteca de álgebra linear não foram limitadas. As repetições e os modelos foram intercalados, o que protege as razões pareadas, mas o tempo absoluto não se transfere para outra máquina; as medidas citáveis são as razões pareadas e os nós por fluxo.
+- O tempo é o da implementação (scikit-learn e mlxtend), não o do algoritmo: o empilhamento do mlxtend faz três predições de Random Forest e uma da regressão logística por chamada.
 - Não mede a extração de atributos do tráfego nem a espera pelo fim do fluxo, que vêm antes da predição num detector real e não dependem do modelo.
 - O artigo não publica tempo de inferência: não há alvo para comparar.
-- Antes do commit da hipótese, as funções de medição foram testadas uma vez em uma amostra de 40 mil fluxos do CIRA, para conferir que rodavam. A hipótese já estava escrita e não foi alterada depois desse teste.
+- Antes do commit da hipótese, as funções de medição rodaram uma vez em uma amostra de 40 mil fluxos do CIRA, com A, A-prof5 e M1 ajustados nessa amostra e sem M1M2, para conferir que funcionavam. Esse teste exibiu os nós por fluxo e os tempos em lote e fluxo a fluxo dos três modelos. A hipótese já estava escrita e não mudou depois dele, mas a ordem dos commits não comprova isso: as expectativas 2 e 3 sobre A, A-prof5 e M1 devem ser citadas como registradas depois de um teste de funcionamento. As expectativas sobre M1M2 não são afetadas.

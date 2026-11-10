@@ -137,6 +137,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 3.0632049262699352,
+          "min_ratio": 3.0053615713590656,
+          "max_ratio": 3.1478385498520773,
           "verdict": "maior"
         },
         {
@@ -151,6 +153,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 3.480395018181265,
+          "min_ratio": 3.0861207348881226,
+          "max_ratio": 4.0342496000298915,
           "verdict": "maior"
         },
         {
@@ -165,6 +169,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 1.7924297067311046,
+          "min_ratio": 1.4911059704758387,
+          "max_ratio": 1.8833389445788258,
           "verdict": "maior"
         },
         {
@@ -179,6 +185,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 0.2988067697614052,
+          "min_ratio": 0.2934712198286489,
+          "max_ratio": 0.30507837496322293,
           "verdict": "menor"
         },
         {
@@ -193,6 +201,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 0.2819245301293171,
+          "min_ratio": 0.24190623732829122,
+          "max_ratio": 0.3001083232165194,
           "verdict": "menor"
         },
         {
@@ -207,6 +217,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 0.4812045208838566,
+          "min_ratio": 0.470250911712614,
+          "max_ratio": 0.5210120544471958,
           "verdict": "menor"
         },
         {
@@ -221,6 +233,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 0.35490931254721114,
+          "min_ratio": 0.3476020696520101,
+          "max_ratio": 0.3623029570145029,
           "verdict": "menor"
         },
         {
@@ -235,6 +249,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 0.39175087000330355,
+          "min_ratio": 0.3033474561170121,
+          "max_ratio": 0.4447282801065608,
           "verdict": "menor"
         },
         {
@@ -249,6 +265,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 0.9756798679902021,
+          "min_ratio": 0.9514591102780171,
+          "max_ratio": 0.9891006116412167,
           "verdict": "menor"
         }
       ]
@@ -324,6 +342,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 3.0806246872688883,
+          "min_ratio": 3.0028339587286585,
+          "max_ratio": 3.1936173390233726,
           "verdict": "maior"
         },
         {
@@ -338,6 +358,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 3.5752354841445815,
+          "min_ratio": 3.4169071900132812,
+          "max_ratio": 3.706601951175182,
           "verdict": "maior"
         },
         {
@@ -352,6 +374,8 @@
           "wilcoxon_statistic": 0.0,
           "wilcoxon_p_value": 0.001953125,
           "mean_ratio": 1.8681136096071995,
+          "min_ratio": 1.8523021108468676,
+          "max_ratio": 1.8773518769898199,
           "verdict": "maior"
         }
       ]
