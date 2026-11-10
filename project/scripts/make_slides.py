@@ -363,26 +363,25 @@ SLIDES = [
         "seconds": 40,
         "figure": "inferencia_razoes",
         "bullets": [
-            "M1M2 percorre cerca de 3 vezes os nós de A e é mais lento nas 10 seeds",
-            "Lote: 3,48 (CIRA) e 3,58 (combinado); fluxo a fluxo: 1,79 e 1,87",
-            "Profundidade 5 reduz o tempo em lote de A (0,39), coerente com a Seção IV-B",
+            "M1M2 (100 árvores; A tem 30): cerca de 3 vezes os nós; em lote, 3,48 (CIRA) e "
+            "3,58 (combinado) vezes o tempo de A",
+            "O ganho de F1 macro não exige esse custo: M1 já o tem e leva 0,28 do tempo de A "
+            "em lote (CIRA)",
+            "A-prof5 leva 0,39 do tempo de A em lote, coerente com a Seção IV-B, mas tem "
+            "recall 0 em Benign-DoH",
         ],
         "talk": [
             "Razão em relação a A, o sistema do artigo: ponto pequeno é uma seed, marcador "
-            "vazado é a média.",
-            "Nós por fluxo não depende da máquina; o tempo é o de normalizar e predizer, com "
-            "uma thread.",
-            "O artigo não publica tempo de inferência: não há número dele para comparar.",
-            "Não citamos tempo absoluto: em A, variou entre seeds com coeficiente de variação "
-            "de até 51%, pelo estado da máquina.",
-            "M1, Random Forest único com 10 árvores, é o mais rápido: 0,28 em lote e 0,48 fluxo "
-            "a fluxo.",
-            "Fluxo a fluxo, a profundidade 5 é só cerca de 2% mais rápida (0,98), em todas as "
-            "seeds: numa chamada de um fluxo, pesa a parte do tempo que não depende da "
-            "profundidade, que não medimos.",
-            "A modificação troca custo de predição por meio ponto de F1 macro. Extração de "
-            "atributos e espera pelo fim do fluxo não foram medidas: nada dizemos sobre tempo "
-            "real.",
+            "vazado é a média. M1 e A-prof5 só foram medidos no CIRA.",
+            "Tempo de normalizar e predizer, com uma thread de predição; a contagem de nós por "
+            "fluxo não depende da máquina. O artigo não publica tempo de predição.",
+            "Fluxo a fluxo, M1M2 leva 1,79 (CIRA) e 1,87 (combinado) vezes o tempo de A, nas "
+            "10 seeds.",
+            "O custo vem com a seleção de hiperparâmetros, que sobre M1 não aumenta o F1 macro.",
+            "Não citamos tempo absoluto: variou entre seeds, o que atribuímos ao estado da "
+            "máquina, porque os nós por fluxo de A variam no máximo 1,7%.",
+            "Extração de atributos e espera pelo fim do fluxo não foram medidas: nada dizemos "
+            "sobre tempo real.",
         ],
     },
     {
