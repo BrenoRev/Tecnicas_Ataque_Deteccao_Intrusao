@@ -751,6 +751,14 @@ INFERENCE_COMPARISONS = {
 INFERENCE_BATCH_REPEATS = 5
 INFERENCE_SINGLE_FLOWS = 1000
 
+# Predições de fluxo único feitas antes da medição, para que a primeira chamada
+# de cada modelo, mais lenta, não entre na mediana. Escolha nossa.
+INFERENCE_SINGLE_WARMUP = 10
+
+# Faixa, em múltiplos da razão de nós por fluxo, fora da qual a razão de tempo
+# em lote de um par é resultado inesperado: de metade ao dobro.
+INFERENCE_NODE_RATIO_BAND = (0.5, 2.0)
+
 # Trilhas aceitas no registro de resultados. As duas primeiras são a reprodução
 # como o artigo descreve e o protocolo consertado; "variante" é para leituras
 # alternativas do texto do artigo e "dados" para etapas que não treinam modelo.

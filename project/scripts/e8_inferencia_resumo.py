@@ -24,6 +24,8 @@ import scripts.e8_inferencia as inf
 from doh_ids.config import (
     INFERENCE_COMPARISONS,
     INFERENCE_MODELS,
+    INFERENCE_NODE_RATIO_BAND,
+    MODIFIED_SELECTED_MODEL,
     PROJECT_ROOT,
     RESULTS_DIR,
     SEEDS_CORRIGIDA,
@@ -40,9 +42,6 @@ PAIRED = {
     "single_seconds": "tempo fluxo a fluxo",
 }
 VERDICT_TEXT = {HIGHER: "maior", LOWER: "menor", SAME: "não se distinguem"}
-# Faixa, em múltiplos da razão de nós por fluxo, fora da qual a razão de tempo
-# em lote é inesperada: de metade ao dobro (HIPOTESE-INFERENCIA.md).
-NODE_RATIO_BAND = (0.5, 2.0)
 
 
 def seed_values(metrics: dict, run: dict, name: str) -> dict:
@@ -84,24 +83,29 @@ def pair_rows(values: dict, first: str, second: str) -> list[dict]:
         a = [seed[metric] for seed in values[first]]
         b = [seed[metric] for seed in values[second]]
         comparison = paired_comparison(a, b)
+        ratios = np.divide(a, b)
         rows.append(
             {
                 "first": first,
                 "second": second,
                 "metric": metric,
                 **comparison,
-                "mean_ratio": float(np.mean(np.divide(a, b))),
+                "mean_ratio": float(np.mean(ratios)),
+                "min_ratio": float(np.min(ratios)),
+                "max_ratio": float(np.max(ratios)),
                 "verdict": paired_verdict(comparison),
             }
         )
     return rows
 
 
-def summary_content(e8_dir: Path, seeds: list[int]) -> dict:
-    """Monta o summary-inferencia.json a partir das execuções gravadas."""
-    datasets = {}
+def summary_content(e8_dir: Path, seeds: list[int]) -> tuple[dict, dict]:
+    """Monta o summary-inferencia.json; devolve também as máquinas e os commits das execuções."""
+    datasets, machines, commits = {}, set(), set()
     for dataset in INFERENCE_MODELS:
         loaded = load_dataset(e8_dir, dataset, seeds)
+        machines.update(tuple(entry) for entry in loaded["machine"])
+        commits.update(loaded["commits"])
         datasets[dataset] = {
             "test_rows": loaded["test_rows"],
             "models": {name: aggregate_seeds(v) for name, v in loaded["values"].items()},
@@ -111,7 +115,8 @@ def summary_content(e8_dir: Path, seeds: list[int]) -> dict:
                 for row in pair_rows(loaded["values"], first, second)
             ],
         }
-    return {"seeds": seeds, "datasets": datasets}
+    meta = {"machine": sorted(machines), "commits": sorted(commits)}
+    return {"seeds": seeds, "datasets": datasets}, meta
 
 
 def find_pair(summary: dict, dataset: str, first: str, second: str, metric: str) -> dict:
@@ -122,11 +127,6 @@ def find_pair(summary: dict, dataset: str, first: str, second: str, metric: str)
         for row in pairs
         if (row["first"], row["second"], row["metric"]) == (first, second, metric)
     )
-
-
-def ms(seconds: float) -> str:
-    """Escreve um tempo em milissegundos, com duas casas."""
-    return f"{1000 * seconds:.2f}"
 
 
 def mean_std(entry: dict, scale: float = 1.0, digits: int = 2) -> str:
@@ -215,7 +215,7 @@ def time_order_follows_nodes(dataset_summary: dict) -> bool:
 def expected_lines(summary: dict) -> list[str]:
     """As três expectativas da hipótese, cada uma com o resultado ao lado."""
     both, s = list(INFERENCE_MODELS), summary
-    m1m2 = "M1M2"
+    m1m2 = MODIFIED_SELECTED_MODEL
     nodes = [f"{ratio(s, ds, m1m2, 'nodes_per_flow'):.2f}" for ds in both]
     batch = [f"{ratio(s, ds, m1m2, 'batch_seconds'):.2f}" for ds in both]
     single = [f"{ratio(s, ds, m1m2, 'single_seconds'):.2f}" for ds in both]
@@ -242,7 +242,7 @@ def expected_lines(summary: dict) -> list[str]:
 
 def outside_band(summary: dict) -> list[str]:
     """Pares cuja razão de tempo em lote sai da faixa em torno da razão de nós por fluxo."""
-    low, high = NODE_RATIO_BAND
+    low, high = INFERENCE_NODE_RATIO_BAND
     found = []
     for dataset, pairs in INFERENCE_COMPARISONS.items():
         for first, second in pairs:
@@ -257,7 +257,7 @@ def unexpected_lines(summary: dict) -> list[str]:
     """Os resultados que a hipótese declarou inesperados, cada um com o que ocorreu."""
     s = summary
     m1m2_not_slower = any(
-        verdict(s, ds, "M1M2", metric) != HIGHER
+        verdict(s, ds, MODIFIED_SELECTED_MODEL, metric) != HIGHER
         for ds in INFERENCE_MODELS
         for metric in ("batch_seconds", "single_seconds")
     )
@@ -273,7 +273,7 @@ def unexpected_lines(summary: dict) -> list[str]:
 
 
 def throughput_lines(summary: dict) -> list[str]:
-    """Traduz os tempos médios em fluxos por segundo, com um núcleo, para quem opera o detector."""
+    """Traduz os tempos médios em fluxos por segundo, nesta máquina e com uma thread."""
     lines = []
     for dataset, content in summary["datasets"].items():
         models = content["models"]
@@ -288,22 +288,75 @@ def throughput_lines(summary: dict) -> list[str]:
             f"- {DATASET_NAMES[dataset]}: em lote, fluxos por segundo: {batch}. Um fluxo por "
             f"chamada, fluxos por segundo: {single}."
         )
-    return lines
+    return [
+        "Fluxos por segundo equivalentes aos tempos médios, só da etapa de normalizar e "
+        "predizer, com uma thread, nesta máquina e no estado de carga de cada seed. Não são a "
+        "capacidade de um detector: ficam de fora a extração de atributos, a espera pelo fim do "
+        "fluxo e o uso de mais threads. O que se compara entre modelos são as razões das tabelas "
+        "de pares.",
+        "",
+        *lines,
+    ]
+
+
+def spread(entry: dict) -> float:
+    """Coeficiente de variação entre as seeds: desvio padrão sobre a média."""
+    return entry["std"] / entry["mean"]
+
+
+def posterior_lines(summary: dict) -> list[str]:
+    """Leitura acrescentada depois de ver os números; não altera regra nem vereditos."""
+    s, cira = summary, summary["datasets"]["cira"]
+    single = find_pair(s, "cira", "A-prof5", "A", "single_seconds")
+    excess = abs(single["mean_difference"]) / single["std_difference"] - 1
+    p95 = mean_std(cira["models"]["A"]["single_p95_seconds"], 1000, 1)
+    variation = [
+        f"{DATASET_NAMES[ds]}: {100 * spread(c['models']['A']['nodes_per_flow']):.1f}% nos nós "
+        f"por fluxo, {100 * spread(c['models']['A']['batch_seconds']):.0f}% no tempo em lote e "
+        f"{100 * spread(c['models']['A']['single_seconds']):.0f}% no fluxo a fluxo"
+        for ds, c in s["datasets"].items()
+    ]
+    return [
+        "- **Profundidade 5, lote contra fluxo a fluxo.** A razão de tempo de A-prof5 sobre A é "
+        f"{ratio(s, 'cira', 'A-prof5', 'batch_seconds'):.2f} em lote e "
+        f"{ratio(s, 'cira', 'A-prof5', 'single_seconds'):.2f} fluxo a fluxo, com razão de nós "
+        f"por fluxo {ratio(s, 'cira', 'A-prof5', 'nodes_per_flow'):.2f}. Numa chamada de um "
+        "fluxo, a parte do tempo que não depende da profundidade das árvores domina; não se mediu "
+        "qual é essa parte.",
+        f"- **A-prof5 contra A fluxo a fluxo, no limite da regra.** O módulo da diferença média "
+        f"supera o desvio padrão das diferenças em {100 * excess:.1f}%. A-prof5 é mais rápido em "
+        f"{single['second_wins']} de 10 seeds, com razão por seed entre "
+        f"{single['min_ratio']:.3f} e {single['max_ratio']:.3f}. O veredito da regra fica como "
+        "está; a frase que os números sustentam é que A-prof5 é cerca de "
+        f"{100 * (1 - single['mean_ratio']):.0f}% mais rápido por fluxo, em todas as seeds.",
+        "- **Variação entre seeds.** Coeficiente de variação de A entre as seeds: "
+        + "; ".join(variation)
+        + ". Os nós por fluxo quase não variam, e o tempo varia muito: a variação vem do estado "
+        "da máquina em cada seed, não do modelo. Por isso os tempos absolutos e os p95 não se "
+        f"citam sozinhos; as razões pareadas e os nós por fluxo, sim. No {DATASET_NAMES['cira']}, "
+        f"o p95 fluxo a fluxo de A foi {p95} ms.",
+    ]
 
 
 LIMITATIONS = [
-    "- Uma máquina, um núcleo na predição, sem isolamento de outros processos. As repetições e "
-    "os modelos foram intercalados, mas o tempo absoluto não se transfere para outra máquina; "
-    "a medida que se transfere é a de nós por fluxo.",
-    "- O tempo é o da implementação (scikit-learn e mlxtend), não o do algoritmo. Fluxo a fluxo, "
-    "o custo fixo de cada chamada (normalizador, validação da entrada, laço sobre as árvores) "
-    "pesa mais que a profundidade das árvores.",
+    "- Uma máquina, uma thread de predição sem núcleo fixo, sem isolamento de outros processos. "
+    "O sistema operacional não permite fixar a thread em um núcleo; a máquina tem núcleos de "
+    "tipos diferentes e pode reduzir a frequência com a temperatura, e as threads da biblioteca "
+    "de álgebra linear não foram limitadas. As repetições e os modelos foram intercalados, o que "
+    "protege as razões pareadas, mas o tempo absoluto não se transfere para outra máquina; as "
+    "medidas citáveis são as razões pareadas e os nós por fluxo.",
+    "- O tempo é o da implementação (scikit-learn e mlxtend), não o do algoritmo: o empilhamento "
+    "do mlxtend faz três predições de Random Forest e uma da regressão logística por chamada.",
     "- Não mede a extração de atributos do tráfego nem a espera pelo fim do fluxo, que vêm antes "
     "da predição num detector real e não dependem do modelo.",
     "- O artigo não publica tempo de inferência: não há alvo para comparar.",
-    "- Antes do commit da hipótese, as funções de medição foram testadas uma vez em uma amostra "
-    "de 40 mil fluxos do CIRA, para conferir que rodavam. A hipótese já estava escrita e não foi "
-    "alterada depois desse teste.",
+    "- Antes do commit da hipótese, as funções de medição rodaram uma vez em uma amostra de 40 mil "
+    "fluxos do CIRA, com A, A-prof5 e M1 ajustados nessa amostra e sem M1M2, para conferir que "
+    "funcionavam. Esse teste exibiu os nós por fluxo e os tempos em lote e fluxo a fluxo dos três "
+    "modelos. A hipótese já estava escrita e não mudou depois dele, mas a ordem dos commits não "
+    "comprova isso: as expectativas 2 e 3 sobre A, A-prof5 e M1 devem ser citadas como "
+    "registradas depois de um teste de funcionamento. As expectativas sobre M1M2 não são "
+    "afetadas.",
 ]
 
 
@@ -314,10 +367,11 @@ def resumo_markdown(summary: dict, loaded_meta: dict) -> str:
         "",
         "Gerado por `scripts/e8_inferencia_resumo.py` a partir de "
         "`results/e8/corrigida/inferencia-<dados>/seed<k>/`. Hipótese, regra de leitura e o que "
-        "seria inesperado: `HIPOTESE-INFERENCIA.md`, escrita antes da primeira execução.",
+        "seria inesperado: `HIPOTESE-INFERENCIA.md`, escrita antes da execução completa (ver, nas "
+        "limitações, o teste de funcionamento anterior ao commit dela).",
         "",
         f"Seeds: {', '.join(str(seed) for seed in summary['seeds'])}. Tempo de normalizar e "
-        "predizer, com um núcleo. Lote: mediana de 5 repetições do teste inteiro. Fluxo a fluxo: "
+        "predizer, com uma thread. Lote: mediana de 5 repetições do teste inteiro. Fluxo a fluxo: "
         "mediana e percentil 95 de 1000 fluxos do teste preditos um por chamada. Média ± desvio "
         "padrão amostral entre as seeds. Nós por fluxo: nós de árvore percorridos por um fluxo, "
         "somados em todas as árvores, sem o meta-classificador de A.",
@@ -335,24 +389,24 @@ def resumo_markdown(summary: dict, loaded_meta: dict) -> str:
             "",
             pairs_table(content),
         ]
-    parts += ["", "## O que isso quer dizer para quem opera o detector", ""]
-    parts += throughput_lines(summary)
     parts += ["", "## Hipótese ao lado do resultado", "", *expected_lines(summary)]
     parts += ["", "Resultados que a hipótese declarou como inesperados:", ""]
     parts += unexpected_lines(summary)
+    parts += ["", "## Leitura posterior", ""]
+    parts += [
+        "Acrescentada depois de ver os números. Não muda a regra de leitura nem os vereditos "
+        "acima.",
+        "",
+        *posterior_lines(summary),
+    ]
+    parts += ["", "## Fluxos por segundo nesta máquina (posterior)", "", *throughput_lines(summary)]
     parts += ["", "## Limitações", "", *LIMITATIONS]
     return "\n".join(parts) + "\n"
 
 
 def main() -> None:
     """Agrega as execuções gravadas e escreve o summary-inferencia.json e o RESUMO-INFERENCIA.md."""
-    summary = summary_content(E8_DIR, SEEDS_CORRIGIDA)
-    machines, commits = set(), set()
-    for dataset in INFERENCE_MODELS:
-        loaded = load_dataset(E8_DIR, dataset, SEEDS_CORRIGIDA)
-        machines.update(tuple(entry) for entry in loaded["machine"])
-        commits.update(loaded["commits"])
-    meta = {"machine": sorted(machines), "commits": sorted(commits)}
+    summary, meta = summary_content(E8_DIR, SEEDS_CORRIGIDA)
     (E8_DIR / "summary-inferencia.json").write_text(
         json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )

@@ -52,6 +52,7 @@ from doh_ids.config import (
     INFERENCE_BATCH_REPEATS,
     INFERENCE_MODELS,
     INFERENCE_SINGLE_FLOWS,
+    INFERENCE_SINGLE_WARMUP,
     MODIFIED_MODELS,
     MODIFIED_SELECTED_MODEL,
     PROJECT_ROOT,
@@ -66,9 +67,6 @@ from doh_ids.splits import stratified_split
 EXPERIMENT = e8.EXPERIMENT
 TRACK = e8.TRACK
 SLICE_NAME = "inferencia-{dataset}"
-# Predições de fluxo único feitas antes da medição, para que a primeira chamada
-# de cada modelo, mais lenta, não entre na mediana.
-SINGLE_WARMUP = 10
 
 Model = StackingClassifier | RandomForestClassifier
 
@@ -107,8 +105,8 @@ def forests_of(model: Model) -> list[RandomForestClassifier]:
 def tree_cost(model: Model, X: np.ndarray) -> dict:
     """Conta as árvores, os nós e os nós percorridos por fluxo de `X`, já normalizado."""
     trees = [tree for forest in forests_of(model) for tree in forest.estimators_]
-    # Cada fluxo percorre, em cada árvore, um caminho da raiz até uma folha: o
-    # número de nós desse caminho é o número de comparações que a predição faz.
+    # Cada fluxo percorre, em cada árvore, um caminho da raiz até uma folha. O
+    # caminho conta a folha: por árvore, são as comparações feitas mais um nó.
     visited = sum(tree.decision_path(X).nnz for tree in trees)
     return {
         "trees": len(trees),
@@ -144,7 +142,7 @@ def time_single(fitted: dict, rows: list[pd.DataFrame]) -> tuple[dict, dict]:
     names = list(fitted)
     for name in names:
         scaler, model = fitted[name]
-        for row in rows[:SINGLE_WARMUP]:
+        for row in rows[:INFERENCE_SINGLE_WARMUP]:
             model.predict(scaler.transform(row))
     seconds = {name: [] for name in names}
     predicted = {name: [] for name in names}
@@ -167,6 +165,8 @@ def measure(fitted: dict, test: pd.DataFrame, seed: int) -> tuple[dict, dict]:
 
     metrics, batch_predicted = {}, {}
     for name, (scaler, model) in fitted.items():
+        # A comparação só é justa se todas as florestas predizem em uma thread.
+        assert all(forest.n_jobs == 1 for forest in forests_of(model)), f"{name}: n_jobs != 1."
         # Predição de aquecimento: também dá os rótulos conferidos abaixo.
         batch_predicted[name] = model.predict(scaler.transform(X_raw))
         metrics[name] = {
