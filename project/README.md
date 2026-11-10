@@ -133,17 +133,19 @@ Script que importa outro script roda como módulo, com `python -m scripts.<nome>
 | 17 | `uv run python -m scripts.e8_robustez` | robustez: ablação da duração e fragmentação simulada do fluxo | 13, 16 | 1 h 57 min | `results/e8/corrigida/robustez-*/` |
 | 18 | `uv run python -m scripts.e8_resumo` | médias e comparação pareada da modificação | 7, 13, 16, 17 | segundos | `results/e8/corrigida/summary.json`, `RESUMO.md` |
 | 19 | `uv run python -m scripts.e8_robustez_resumo` | médias da robustez | 13, 16, 17 | segundos | `results/e8/corrigida/summary-robustez.json`, `RESUMO-ROBUSTEZ.md` |
+| 19a | `uv run python -m scripts.e8_inferencia` | tempo de inferência (lote e fluxo a fluxo, um núcleo) e nós percorridos por fluxo do sistema do artigo e da modificação, em 10 seeds, nos dois datasets | 2, 3, 13, 16 | 2 h 27 min (relógio) | `results/e8/corrigida/inferencia-<dados>/` |
+| 19b | `uv run python -m scripts.e8_inferencia_resumo` | médias e comparação pareada do tempo de inferência | 19a | segundos | `results/e8/corrigida/summary-inferencia.json`, `RESUMO-INFERENCIA.md` |
 | 20 | `uv run python scripts/make_report_assets.py` | tabelas e figuras do relatório e dos slides | 1 a 19 | segundos | `report/tables/`, `report/figures/`, `report/INDICE.md` |
 | 21 | `uv run --group slides python scripts/make_slides.py` | apresentação e roteiro da fala | 20 | segundos | `report/apresentacao.pptx`, `report/roteiro.md` |
 | 22 | `tectonic relatorio.tex`, dentro de `report/` | PDF do relatório | 20 | segundos | `report/relatorio.pdf` |
 
-O tempo medido é a soma dos tempos registrados nos `run.json` versionados. Ele não inclui a carga dos dados nem a gravação das figuras, foi medido com a máquina em uso e varia entre execuções. A sequência inteira leva cerca de 9 horas na máquina descrita em "Onde os resultados foram gerados". Os passos 13, 16 e 17 somam quase 6 horas e não dependem dos passos 4 a 12.
+O tempo medido é a soma dos tempos registrados nos `run.json` versionados; no passo 19a, que mede tempo de predição e não grava a duração total, é o tempo de relógio da execução. Ele não inclui a carga dos dados nem a gravação das figuras, foi medido com a máquina em uso e varia entre execuções. A sequência inteira leva cerca de 9 horas, mais 2 h 30 min com o passo 19a, na máquina descrita em "Onde os resultados foram gerados". Os passos 13, 16 e 17 somam quase 6 horas e não dependem dos passos 4 a 12.
 
 Os passos 16 e 17 retomam de onde pararam se forem relançados no mesmo commit, com a árvore limpa. Os passos 4 e 13 não têm retomada.
 
 ### Execução limpa
 
-Para rodar os 22 passos de uma vez, parando no primeiro erro, com a saída de cada passo em um arquivo de log:
+Para rodar os passos de uma vez, parando no primeiro erro, com a saída de cada passo em um arquivo de log:
 
     bash scripts/execucao_limpa.sh <diretório de logs, fora do repositório>
 
@@ -157,7 +159,7 @@ Para comparar o que foi regenerado com o que está versionado, guarde uma cópia
 O script compara byte a byte os `metrics.json`, o `split_counts.json`, o agregado do protocolo corrigido, os CSV e as tabelas do relatório, e sai com código 1 se houver diferença. Diferenças esperadas, que ele não conta:
 
 - os `run.json`, que trazem commit, data e tempos;
-- os valores de tempo dos dois agregados da modificação (`results/e8/corrigida/summary.json` e `summary-robustez.json`), comparados sem eles;
+- os valores de tempo dos três agregados de E8 (`results/e8/corrigida/summary.json`, `summary-robustez.json` e `summary-inferencia.json`), comparados sem eles; no de inferência, isso inclui os pares que comparam tempo;
 - os `RESUMO*.md` e as três tabelas do relatório que citam tempo de treino (`tempos_treino`, `modificacao_metricas_dupla` e `modificacao_pareada_dupla`), listados na saída quando diferem;
 - PNG, PDF e a apresentação, que carregam data de criação.
 
