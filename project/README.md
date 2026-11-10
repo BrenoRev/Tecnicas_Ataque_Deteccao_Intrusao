@@ -133,7 +133,7 @@ Script que importa outro script roda como módulo, com `python -m scripts.<nome>
 | 17 | `uv run python -m scripts.e8_robustez` | robustez: ablação da duração e fragmentação simulada do fluxo | 13, 16 | 1 h 57 min | `results/e8/corrigida/robustez-*/` |
 | 18 | `uv run python -m scripts.e8_resumo` | médias e comparação pareada da modificação | 7, 13, 16, 17 | segundos | `results/e8/corrigida/summary.json`, `RESUMO.md` |
 | 19 | `uv run python -m scripts.e8_robustez_resumo` | médias da robustez | 13, 16, 17 | segundos | `results/e8/corrigida/summary-robustez.json`, `RESUMO-ROBUSTEZ.md` |
-| 19a | `uv run python -m scripts.e8_inferencia` | tempo de inferência (lote e fluxo a fluxo, um núcleo) e nós percorridos por fluxo do sistema do artigo e da modificação, em 10 seeds, nos dois datasets | 2, 3, 13, 16 | 2 h 27 min (relógio) | `results/e8/corrigida/inferencia-<dados>/` |
+| 19a | `uv run python -m scripts.e8_inferencia` | tempo de inferência (lote e fluxo a fluxo, uma thread de predição) e nós percorridos por fluxo do sistema do artigo e da modificação, em 10 seeds, nos dois datasets | 2, 3, 13, 16 | 2 h 27 min (relógio) | `results/e8/corrigida/inferencia-<dados>/` |
 | 19b | `uv run python -m scripts.e8_inferencia_resumo` | médias e comparação pareada do tempo de inferência | 19a | segundos | `results/e8/corrigida/summary-inferencia.json`, `RESUMO-INFERENCIA.md` |
 | 20 | `uv run python scripts/make_report_assets.py` | tabelas e figuras do relatório e dos slides | 1 a 19 | segundos | `report/tables/`, `report/figures/`, `report/INDICE.md` |
 | 21 | `uv run --group slides python scripts/make_slides.py` | apresentação e roteiro da fala | 20 | segundos | `report/apresentacao.pptx`, `report/roteiro.md` |
